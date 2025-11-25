@@ -49,13 +49,20 @@
       color: white;
       border-color: #0b6efd;
     }
-    #recommendationBox {
-      font-weight: 500;
+    /* Bigger inputs & buttons only in the New Purchase section */
+    .new-purchase-card input,
+    .new-purchase-card select,
+    .new-purchase-card button {
+      font-size: 1.05rem;   /* tweak up or down to taste */
     }
-    #reasonBox {
-      font-size: 0.9rem;
-      color: #444;
-      margin-top: 4px;
+    
+    /* Make the recommendation text bigger too */
+    .new-purchase-card #recommendationBox {
+      font-size: 1.05rem;
+    }
+    
+    .new-purchase-card #reasonBox {
+      font-size: 0.95rem;   /* slightly bigger than before, still secondary */
     }
     /* TABLE STYLING – updated for iPhone width */
     table {
@@ -120,7 +127,7 @@
   </p>
 
   <!-- New purchase input -->
-  <div class="card">
+  <div class="card new-purchase-card">
     <h2>New Purchase</h2>
     <label>
       Amount ($)
