@@ -832,6 +832,23 @@ function renderStateSummary() {
       renderStateSummary();
     });
 
+        // Show/Hide Logged Purchases section
+    const logContent = document.getElementById("logContent");
+    const toggleLogBtn = document.getElementById("toggleLogBtn");
+
+    toggleLogBtn.addEventListener("click", () => {
+      const isHidden =
+        logContent.style.display === "none" || logContent.style.display === "";
+
+      if (isHidden) {
+        logContent.style.display = "block";
+        toggleLogBtn.textContent = "Hide logged purchases";
+      } else {
+        logContent.style.display = "none";
+        toggleLogBtn.textContent = "Show logged purchases";
+      }
+    });
+
     // Init on load
     initFormDefaults();
     renderTransactions();
