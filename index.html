@@ -84,6 +84,17 @@
     th:nth-child(4), td:nth-child(4) { width: 24%; } /* Channel */
     th:nth-child(5), td:nth-child(5) { width: 20%; } /* Card Used */
 
+    #loggedTable {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.7rem; /* adjust as small as you like */
+    }
+
+    #loggedTable th,
+    #loggedTable td {
+      padding: 2px 4px; /* optional: tighter padding to save space */
+    }
+
     .muted {
       color: #777;
       font-size: 0.8rem;
@@ -187,7 +198,7 @@
   <!-- Logged transactions -->
   <div class="card">
     <h2>Logged Purchases</h2>
-    <table>
+    <table id="loggedTable">
       <thead>
         <tr>
           <th>Date</th>
