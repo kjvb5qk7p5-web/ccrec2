@@ -198,22 +198,35 @@
   <!-- Logged transactions -->
   <div class="card">
     <h2>Logged Purchases</h2>
-    <table id="loggedTable">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Amount</th>
-          <th>Category</th>
-          <th>Channel</th>
-          <th>Card Used</th>
-        </tr>
-      </thead>
-      <tbody id="txTableBody"></tbody>
-    </table>
-    <button id="btnClear" style="margin-top:10px;">Clear All Logged Purchases</button>
-    <p class="muted">
-      Stored in your browser’s localStorage. Clearing your browser data will wipe this.
-    </p>
+
+    <!-- New show/hide toggle button -->
+    <button id="toggleLogBtn" style="margin-bottom:8px;">
+      Show logged purchases
+    </button>
+
+    <!-- Everything below is hidden by default -->
+    <div id="logContent" style="display:none;">
+      <table id="loggedTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Channel</th>
+            <th>Card Used</th>
+          </tr>
+        </thead>
+        <tbody id="txTableBody"></tbody>
+      </table>
+
+      <button id="btnClear" style="margin-top:10px;">
+        Clear All Logged Purchases
+      </button>
+
+      <p class="muted">
+        Stored in your browser’s localStorage. Clearing your browser data will wipe this.
+      </p>
+    </div>
   </div>
 
   <script>
