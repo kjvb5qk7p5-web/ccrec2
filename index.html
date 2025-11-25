@@ -57,19 +57,33 @@
       color: #444;
       margin-top: 4px;
     }
+    /* TABLE STYLING – updated for iPhone width */
     table {
       border-collapse: collapse;
       width: 100%;
       font-size: 0.85rem;
+      table-layout: fixed; /* ensure fixed layout so widths are respected */
     }
     th, td {
       border: 1px solid #ddd;
       padding: 4px 6px;
       text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     th {
       background: #f7f7f7;
     }
+
+    /* Column widths so it fits nicely on mobile
+       1: Date, 2: Amount, 3: Category, 4: Channel, 5: Card Used
+       Total = 100% */
+    th:nth-child(1), td:nth-child(1) { width: 18%; } /* Date */
+    th:nth-child(2), td:nth-child(2) { width: 14%; } /* Amount */
+    th:nth-child(3), td:nth-child(3) { width: 24%; } /* Category */
+    th:nth-child(4), td:nth-child(4) { width: 24%; } /* Channel */
+    th:nth-child(5), td:nth-child(5) { width: 20%; } /* Card Used */
+
     .muted {
       color: #777;
       font-size: 0.8rem;
