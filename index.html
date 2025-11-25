@@ -88,6 +88,10 @@
       color: #777;
       font-size: 0.8rem;
     }
+    .credit-met {
+  color: green;
+  font-weight: 600;
+    }
     .inline {
       display: inline-block;
       margin-right: 12px;
@@ -361,24 +365,97 @@
       };
     }
 
-    function renderStateSummary() {
-      const txs = loadTransactions();
-      const state = computeState(txs);
-      const el = document.getElementById("stateSummary");
+function renderStateSummary() {
+  const txs = loadTransactions();
+  const state = computeState(txs);
+  const el = document.getElementById("stateSummary");
 
-      const lines = [
-        `<b>MB dining</b> this month: ~$${state.mbDiningThisMonth.toFixed(2)} (target ≈ $25/mo of the $300 annual credit)`,
-        `<b>CSR Doordash</b> this month: ~$${state.csrDoordashThisMonth.toFixed(2)} (target ≈ $5/mo of the $60 annual credit)`,
-        `<b>CSR Lyft</b> this month: ~$${state.csrLyftThisMonth.toFixed(2)} (target $10/mo Lyft credit)`,
-        `<b>UQ rideshare (other)</b> this month: ~$${state.uqRideshareThisMonth.toFixed(2)} (target ≈ $8/mo of the $100 annual credit)`,
-        `<b>CSR StubHub/viagogo</b> this month: ~$${state.csrStubhubThisMonth.toFixed(2)} (target ≈ $25/mo of the $300 annual credit)`,
-        `<b>UQ Instacart</b> this month: ~$${state.uqInstacartThisMonth.toFixed(2)} (target ≈ $15/mo combined Instacart credits)`,
-        `<b>CSR Peloton</b> membership this month: ~$${state.csrPelotonThisMonth.toFixed(2)} (target ≈ $10/mo of the $120 annual credit)`,
-        `<b>DG Delta Stays</b> this month: ~$${state.dgDeltaStaysThisMonth.toFixed(2)} (target ≈ $8/mo of the $100 annual credit)`,
-      ];
+  const lines = [];
 
-      el.innerHTML = lines.join("<br>");
-    }
+  // MB dining – target ≈ $25/mo
+  {
+    const met = state.mbDiningThisMonth >= 25;
+    const text = `<b>MB dining</b> this month: ~$${state.mbDiningThisMonth.toFixed(
+      2
+    )} (target ≈ $25/mo of the $300 annual credit)`;
+    const line = met ? `<span class="credit-met">${text}</span>` : text;
+    lines.push(line);
+  }
+
+  // CSR Doordash – target ≈ $5/mo
+  {
+    const met = state.csrDoordashThisMonth >= 5;
+    const text = `<b>CSR Doordash</b> this month: ~$${state.csrDoordashThisMonth.toFixed(
+      2
+    )} (target ≈ $5/mo of the $60 annual credit)`;
+    const line = met ? `<span class="credit-met">${text}</span>` : text;
+    lines.push(line);
+  }
+
+  // CSR Lyft – target $10/mo
+  {
+    const met = state.csrLyftThisMonth >= 10;
+    const text = `<b>CSR Lyft</b> this month: ~$${state.csrLyftThisMonth.toFixed(
+      2
+    )} (target $10/mo Lyft credit)`;
+    const line = met ? `<span class="credit-met">${text}</span>` : text;
+    lines.push(line);
+  }
+
+  // UQ rideshare (other) – target ≈ $8/mo
+  {
+    const met = state.uqRideshareThisMonth >= 8;
+    const text = `<b>UQ rideshare (other)</b> this month: ~$${state.uqRideshareThisMonth.toFixed(
+      2
+    )} (target ≈ $8/mo of the $100 annual credit)`;
+    const line = met ? `<span class="credit-met">${text}</span>` : text;
+    lines.push(line);
+  }
+
+  // CSR StubHub/viagogo – target ≈ $25/mo
+  {
+    const met = state.csrStubhubThisMonth >= 25;
+    const text = `<b>CSR StubHub/viagogo</b> this month: ~$${state.csrStubhubThisMonth.toFixed(
+      2
+    )} (target ≈ $25/mo of the $300 annual credit)`;
+    const line = met ? `<span class="credit-met">${text}</span>` : text;
+    lines.push(line);
+  }
+
+  // UQ Instacart – target ≈ $15/mo
+  {
+    const met = state.uqInstacartThisMonth >= 15;
+    const text = `<b>UQ Instacart</b> this month: ~$${state.uqInstacartThisMonth.toFixed(
+      2
+    )} (target ≈ $15/mo combined Instacart credits)`;
+    const line = met ? `<span class="credit-met">${text}</span>` : text;
+    lines.push(line);
+  }
+
+  // CSR Peloton – target ≈ $10/mo
+  {
+    const met = state.csrPelotonThisMonth >= 10;
+    const text = `<b>CSR Peloton</b> membership this month: ~$${state.csrPelotonThisMonth.toFixed(
+      2
+    )} (target ≈ $10/mo of the $120 annual credit)`;
+    const line = met ? `<span class="credit-met">${text}</span>` : text;
+    lines.push(line);
+  }
+
+  // DG Delta Stays – target ≈ $8/mo
+  {
+    const met = state.dgDeltaStaysThisMonth >= 8;
+    const text = `<b>DG Delta Stays</b> this month: ~$${state.dgDeltaStaysThisMonth.toFixed(
+      2
+    )} (target ≈ $8/mo of the $100 annual credit)`;
+    const line = met ? `<span class="credit-met">${text}</span>` : text;
+    lines.push(line);
+  }
+
+  // Turn into a bullet list
+  el.innerHTML =
+    "<ul>" + lines.map((line) => `<li>${line}</li>`).join("") + "</ul>";
+}
 
     // ---------- UPDATED recommendCard: decides both card AND channel ----------
     function recommendCard(purchase, state) {
