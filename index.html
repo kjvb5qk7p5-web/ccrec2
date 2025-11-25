@@ -157,6 +157,7 @@
 
     <div style="margin-top: 12px;">
       <button class="primary" id="btnRecommend">Get Card Recommendation</button>
+      <button id="btnReset" type="button" style="margin-left:8px;">Reset</button>
     </div>
 
     <div id="recommendationSection" style="margin-top: 12px; display:none;">
@@ -201,7 +202,7 @@
 
     <!-- New show/hide toggle button -->
     <button id="toggleLogBtn" style="margin-bottom:8px;">
-      Show logged purchases
+      Show
     </button>
 
     <!-- Everything below is hidden by default -->
@@ -797,6 +798,30 @@ function renderStateSummary() {
       }
     });
 
+        document.getElementById("btnReset").addEventListener("click", () => {
+      // Clear amount
+      document.getElementById("amount").value = "";
+
+      // Reset date to today
+      initFormDefaults();
+
+      // Reset category to default (first option: dining)
+      document.getElementById("category").value = "dining";
+
+      // Hide recommendation section and clear its content
+      document.getElementById("recommendationSection").style.display = "none";
+      document.getElementById("recommendationBox")..textContent = "";
+      document.getElementById("reasonBox").textContent = "";
+
+      // Reset override dropdowns
+      document.getElementById("cardUsedSelect").value = "";
+      const chanSelect = document.getElementById("channelUsedSelect");
+      chanSelect.innerHTML = "";
+
+      // Clear last recommendation state
+      lastRecommendation = null;
+    });
+
     document.getElementById("btnSaveTx").addEventListener("click", () => {
       if (!lastRecommendation) {
         alert("Get a recommendation first.");
@@ -842,10 +867,10 @@ function renderStateSummary() {
 
       if (isHidden) {
         logContent.style.display = "block";
-        toggleLogBtn.textContent = "Hide logged purchases";
+        toggleLogBtn.textContent = "Hide";
       } else {
         logContent.style.display = "none";
-        toggleLogBtn.textContent = "Show logged purchases";
+        toggleLogBtn.textContent = "Show";
       }
     });
 
