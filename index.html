@@ -826,30 +826,6 @@ function renderStateSummary() {
       alert("Purchase saved.");
     });
 
-            document.getElementById("btnReset").addEventListener("click", () => {
-      // Clear amount
-      document.getElementById("amount").value = "";
-
-      // Reset date to today
-      initFormDefaults();
-
-      // Reset category to default (first option: dining)
-      document.getElementById("category").value = "dining";
-
-      // Hide recommendation section and clear its content
-      document.getElementById("recommendationSection").style.display = "none";
-      document.getElementById("recommendationBox")..textContent = "";
-      document.getElementById("reasonBox").textContent = "";
-
-      // Reset override dropdowns
-      document.getElementById("cardUsedSelect").value = "";
-      const chanSelect = document.getElementById("channelUsedSelect");
-      chanSelect.innerHTML = "";
-
-      // Clear last recommendation state
-      lastRecommendation = null;
-    });
-
     document.getElementById("btnClear").addEventListener("click", () => {
       if (!confirm("Clear all logged purchases?")) return;
       saveTransactions([]);
