@@ -38,6 +38,11 @@
     select {
       min-width: 220px;
     }
+    .new-purchase-card #category {
+      width: 100%;
+      min-width: 0;    /* override the 220px */
+      box-sizing: border-box;
+    }
     button {
       cursor: pointer;
       border-radius: 4px;
@@ -1251,7 +1256,7 @@
     // ---------- Merchant benefits UI ----------
     function renderMerchantBenefits() {
       const benefits = loadMerchantBenefits(); // or loadBenefits(), use your existing name
-      const tbody = document.getElementById("benefitsTableBody");
+      const tbody = document.getElementById("benefitsTBody");
       if (!tbody) return;
     
       tbody.innerHTML = "";
@@ -1265,7 +1270,7 @@
             : `$${Number(b.discountValue || 0).toFixed(2)} off`;
     
         const limitText =
-          b.limitType === "per_txn"
+          b.limitType === "per_tx"
             ? `Up to $${Number(b.limitValue || 0).toFixed(2)} / txn`
             : `Up to $${Number(b.limitValue || 0).toFixed(2)} total`;
     
