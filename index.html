@@ -101,6 +101,44 @@
     th:nth-child(4), td:nth-child(4) { width: 24%; } /* Channel */
     th:nth-child(5), td:nth-child(5) { width: 20%; } /* Card Used */
 
+    /* Saved Merchant Benefits table */
+    #benefitsTable {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;       /* so widths are respected */
+      font-size: 0.7rem;         /* smaller to fit on phone */
+      margin-top: 6px;
+    }
+    
+    #benefitsTable th,
+    #benefitsTable td {
+      border: 1px solid #ddd;
+      padding: 3px 4px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    
+    #benefitsTable th {
+      background: #f7f7f7;
+    }
+    
+    /* Column widths (sum ≈ 100%) */
+    #benefitsTable th:nth-child(1),
+    #benefitsTable td:nth-child(1) { width: 18%; } /* Merchant */
+    #benefitsTable th:nth-child(2),
+    #benefitsTable td:nth-child(2) { width: 10%; } /* Card */
+    #benefitsTable th:nth-child(3),
+    #benefitsTable td:nth-child(3) { width: 15%; } /* Discount */
+    #benefitsTable th:nth-child(4),
+    #benefitsTable td:nth-child(4) { width: 15%; } /* Limit */
+    #benefitsTable th:nth-child(5),
+    #benefitsTable td:nth-child(5) { width: 18%; } /* Category */
+    #benefitsTable th:nth-child(6),
+    #benefitsTable td:nth-child(6) { width: 14%; } /* End date */
+    #benefitsTable th:nth-child(7),
+    #benefitsTable td:nth-child(7) { width: 10%; } /* Delete button */
+
     .muted {
       color: #777;
       font-size: 0.8rem;
@@ -1211,63 +1249,58 @@
     }
 
     // ---------- Merchant benefits UI ----------
-    function renderMerchantBenefits() {
-      const benefits = loadMerchantBenefits();
-      const tbody = document.getElementById("benefitsTbody");
+    function renderBenefits() {
+      const benefits = loadBenefits(); // however you're storing them
+      const tbody = document.getElementById("benefitsTableBody");
       tbody.innerHTML = "";
-
-      benefits.forEach((benefit) => {
+    
+      benefits.forEach((b, idx) => {
         const tr = document.createElement("tr");
-
-        const tdMerchant = document.createElement("td");
-        const tdCard = document.createElement("td");
-        const tdDiscount = document.createElement("td");
-        const tdLimit = document.createElement("td");
-        const tdCategory = document.createElement("td");
-        const tdEnd = document.createElement("td");
-        const tdActions = document.createElement("td");
-
-        tdMerchant.textContent = benefit.merchant || "";
-        tdCard.textContent = benefit.card || "";
-
-        const discountLabel =
-          benefit.discountType === "percent"
-            ? `${Number(benefit.discountValue || 0)}%`
-            : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
-        tdDiscount.textContent = discountLabel;
-
-        let limitText = benefit.limitType === "per_tx" ? "Per txn" : "Total";
-        if (benefit.limitValue != null && !isNaN(benefit.limitValue)) {
-          limitText += `, $${Number(benefit.limitValue).toFixed(2)}`;
-        }
-        tdLimit.textContent = limitText;
-
-        tdCategory.textContent = benefit.category || "";
-        tdEnd.textContent = benefit.endDate || "";
-
-        const btnDel = document.createElement("button");
-        btnDel.textContent = "Delete";
-        btnDel.addEventListener("click", () => {
-          const current = loadMerchantBenefits();
-          const filtered = current.filter((b) => b.id !== benefit.id);
-          saveMerchantBenefits(filtered);
-          renderMerchantBenefits();
-          populateCategorySelect();
-          renderStateSummary();
-        });
-        tdActions.appendChild(btnDel);
-
-        tr.appendChild(tdMerchant);
-        tr.appendChild(tdCard);
-        tr.appendChild(tdDiscount);
-        tr.appendChild(tdLimit);
-        tr.appendChild(tdCategory);
-        tr.appendChild(tdEnd);
-        tr.appendChild(tdActions);
-
+    
+        const discountText =
+          b.discountType === "percent"
+            ? `${b.discountValue}% off`
+            : `$${Number(b.discountValue || 0).toFixed(2)} off`;
+    
+        const limitText =
+          b.limitType === "per_txn"
+            ? `Up to $${Number(b.limitValue || 0).toFixed(2)} / txn`
+            : `Up to $${Number(b.limitValue || 0).toFixed(2)} total`;
+    
+        const categoryLabel = CATEGORY_LABELS?.[b.category] || b.category;
+    
+        tr.innerHTML = `
+          <td>${b.merchant}</td>
+          <td>${b.card}</td>
+          <td>${discountText}</td>
+          <td>${limitText}</td>
+          <td>${categoryLabel}</td>
+          <td>${b.endDate || ""}</td>
+          <td>
+            <button
+              type="button"
+              class="deleteBenefitBtn"
+              data-benefit-index="${idx}"
+            >
+              Delete
+            </button>
+          </td>
+        `;
+    
         tbody.appendChild(tr);
       });
-    }
+    
+      // Wire up delete buttons
+      tbody.querySelectorAll(".deleteBenefitBtn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.getAttribute("data-benefit-index"));
+          const benefits = loadBenefits();
+          benefits.splice(idx, 1);
+          saveBenefits(benefits);
+          renderBenefits();
+        });
+      });
+}
 
     // ---------- UI wiring ----------
 
