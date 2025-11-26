@@ -144,6 +144,11 @@
     #benefitsTable th:nth-child(7),
     #benefitsTable td:nth-child(7) { width: 15%; } /* Delete button */
 
+    /* Expired merchant benefits – show in red */
+    #benefitsTable tr.expired-benefit td {
+      color: red;
+    }
+
     .muted {
       color: #777;
       font-size: 0.8rem;
@@ -1245,63 +1250,77 @@
     }
 
     // ---------- Merchant benefits UI ----------
-    function renderMerchantBenefits() {
-      const benefits = loadMerchantBenefits(); // or loadBenefits(), use your existing name
-      const tbody = document.getElementById("benefitsTbody");
-      if (!tbody) return;
-    
-      tbody.innerHTML = "";
-    
-      benefits.forEach((b, idx) => {
-        const tr = document.createElement("tr");
-    
-        const discountText =
-          b.discountType === "percent"
-            ? `${b.discountValue}% off`
-            : `$${Number(b.discountValue || 0).toFixed(2)} off`;
-    
-        const limitText =
+function renderMerchantBenefits() {
+    const benefits = loadMerchantBenefits();
+    const tbody = document.getElementById("benefitsTbody"); // note: lowercase 'b'
+    if (!tbody) return;
+  
+    tbody.innerHTML = "";
+  
+    const today = parseISODate(formatTodayISO());
+  
+    benefits.forEach((b, idx) => {
+      const tr = document.createElement("tr");
+  
+      const discountText =
+        b.discountType === "percent"
+          ? `${b.discountValue}% off`
+          : `$${Number(b.discountValue || 0).toFixed(2)} off`;
+  
+      let limitText = "";
+      if (b.limitValue != null && !isNaN(b.limitValue)) {
+        const val = Number(b.limitValue).toFixed(2);
+        limitText =
           b.limitType === "per_tx"
-            ? `Up to $${Number(b.limitValue || 0).toFixed(2)} / txn`
-            : `Up to $${Number(b.limitValue || 0).toFixed(2)} total`;
-    
-        // Just show the raw category code or label if you already store it human-readable
-        const categoryText = b.category || "";
-    
-        const endDateText = b.endDate || "";
-    
-        tr.innerHTML = `
-          <td>${b.merchant || ""}</td>
-          <td>${b.card || ""}</td>
-          <td>${discountText}</td>
-          <td>${limitText}</td>
-          <td>${categoryText}</td>
-          <td>${endDateText}</td>
-          <td>
-            <button
-              type="button"
-              class="deleteBenefitBtn"
-              data-benefit-index="${idx}"
-            >
-              Del
-            </button>
-          </td>
-        `;
-    
-        tbody.appendChild(tr);
+            ? `Up to $${val} / txn`
+            : `Up to $${val} total`;
+      }
+  
+      const categoryText = b.category || "";
+      const endDateText = b.endDate || "";
+  
+      // Figure out if it's expired
+      const end = parseISODate(b.endDate);
+      const expired = end && today && end < today;
+  
+      tr.innerHTML = `
+        <td>${b.merchant || ""}</td>
+        <td>${b.card || ""}</td>
+        <td>${discountText}</td>
+        <td>${limitText}</td>
+        <td>${categoryText}</td>
+        <td>${endDateText}</td>
+        <td>
+          <button
+            type="button"
+            class="deleteBenefitBtn"
+            data-benefit-index="${idx}"
+          >
+            Del
+          </button>
+        </td>
+      `;
+  
+      if (expired) {
+        tr.classList.add("expired-benefit");
+      }
+  
+      tbody.appendChild(tr);
+    });
+  
+    // Wire up delete buttons
+    tbody.querySelectorAll(".deleteBenefitBtn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = Number(btn.getAttribute("data-benefit-index"));
+        const benefits = loadMerchantBenefits();
+        benefits.splice(idx, 1);
+        saveMerchantBenefits(benefits);
+        renderMerchantBenefits();
+        populateCategorySelect(); // keep the New Purchase categories in sync
+        renderStateSummary();     // and the top usage summary
       });
-    
-      // Wire up delete buttons
-      tbody.querySelectorAll(".deleteBenefitBtn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const idx = Number(btn.getAttribute("data-benefit-index"));
-          const benefits = loadMerchantBenefits(); // or your existing function
-          benefits.splice(idx, 1);
-          saveMerchantBenefits(benefits); // or your existing function
-          renderMerchantBenefits();
-        });
-      });
-    }
+    });
+  }
 
     // ---------- UI wiring ----------
 
