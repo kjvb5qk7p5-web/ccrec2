@@ -114,14 +114,43 @@
       margin-right: 12px;
     }
 
-    /* Slightly smaller font for merchant benefits table */
+    /* Saved Merchant Benefits table */
     #benefitsTable {
-      font-size: 0.7rem;
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;       /* so widths are respected */
+      font-size: 0.7rem;         /* smaller to fit on phone */
+      margin-top: 6px;
     }
+    
     #benefitsTable th,
     #benefitsTable td {
-      padding: 2px 4px;
+      border: 1px solid #ddd;
+      padding: 3px 4px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
+    
+    #benefitsTable th {
+      background: #f7f7f7;
+    }
+    
+    /* Column widths (sum ≈ 100%) */
+    #benefitsTable th:nth-child(1),
+    #benefitsTable td:nth-child(1) { width: 18%; } /* Merchant */
+    #benefitsTable th:nth-child(2),
+    #benefitsTable td:nth-child(2) { width: 10%; } /* Card */
+    #benefitsTable th:nth-child(3),
+    #benefitsTable td:nth-child(3) { width: 15%; } /* Discount */
+    #benefitsTable th:nth-child(4),
+    #benefitsTable td:nth-child(4) { width: 15%; } /* Limit */
+    #benefitsTable th:nth-child(5),
+    #benefitsTable td:nth-child(5) { width: 18%; } /* Category */
+    #benefitsTable th:nth-child(6),
+    #benefitsTable td:nth-child(6) { width: 14%; } /* End date */
+    #benefitsTable th:nth-child(7),
+    #benefitsTable td:nth-child(7) { width: 10%; } /* Delete button */
   </style>
 </head>
 <body>
@@ -319,11 +348,11 @@
             <th>Discount</th>
             <th>Limit</th>
             <th>Category</th>
-            <th>End Date</th>
+            <th>End date</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="benefitsTbody"></tbody>
+        <tbody id="benefitsTableBody"></tbody>
       </table>
 
       <p class="muted">
