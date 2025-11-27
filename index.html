@@ -1175,63 +1175,72 @@
       };
     }
 
-    // ---------- Merchant-first wrapper ----------
-    function recommendCard(purchase, cardState, merchantState, benefits) {
-      const baseRec = recommendCardBase(purchase, cardState);
+// ---------- Merchant-first wrapper ----------
+function recommendCard(purchase, cardState, merchantState, benefits) {
+  const baseRec = recommendCardBase(purchase, cardState);
 
-      if (purchase.merchantBenefitId) {
-        const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
-        if (benefit) {
-          const purchaseDate = parseISODate(purchase.date);
-          const end = parseISODate(benefit.endDate);
-          const expired = end && purchaseDate && purchaseDate > end;
+  if (purchase.merchantBenefitId) {
+    const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
+    if (benefit) {
+      const purchaseDate = parseISODate(purchase.date);
+      const end = parseISODate(benefit.endDate);
+      const expired = end && purchaseDate && purchaseDate > end;
 
-          const ms = merchantState[benefit.id] || { used: 0, limit: null };
-          const hasTotalCap =
-            benefit.limitType === "total" &&
-            benefit.limitValue != null &&
-            !isNaN(benefit.limitValue);
+      const ms = merchantState[benefit.id] || { used: 0, limit: null };
+      const hasTotalCap =
+        benefit.limitType === "total" &&
+        benefit.limitValue != null &&
+        !isNaN(benefit.limitValue);
 
-          const exhausted =
-            hasTotalCap && ms.used >= Number(benefit.limitValue);
+      const exhausted =
+        hasTotalCap && ms.used >= Number(benefit.limitValue);
 
-          if (!expired && !exhausted) {
-            const discountLabel =
-              benefit.discountType === "percent"
-                ? `${Number(benefit.discountValue || 0)}%`
-                : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
+      // NEW: enforce minimum spend for the *recommendation* override too
+      const amount = Number(purchase.amount) || 0;
+      const minSpend =
+        benefit.minSpend != null && !isNaN(benefit.minSpend)
+          ? Number(benefit.minSpend)
+          : null;
 
-            let limitLabel = "";
-            if (
-              benefit.limitType === "per_tx" &&
-              benefit.limitValue != null &&
-              !isNaN(benefit.limitValue)
-            ) {
-              limitLabel = ` (max $${Number(benefit.limitValue).toFixed(
-                2
-              )} discount per purchase)`;
-            } else if (hasTotalCap) {
-              const limit = Number(benefit.limitValue);
-              const remaining = Math.max(0, limit - ms.used);
-              limitLabel = ` (up to $${limit.toFixed(
-                2
-              )} total; about $${remaining.toFixed(2)} remaining)`;
-            }
+      const belowMinSpend = minSpend != null && amount < minSpend;
 
-            // we could mention min spend here too later if you want
+      if (!expired && !exhausted && !belowMinSpend) {
+        const discountLabel =
+          benefit.discountType === "percent"
+            ? `${Number(benefit.discountValue || 0)}%`
+            : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
 
-            return {
-              card: benefit.card,
-              channel: baseRec.channel, // keep same channel logic as category
-              reason: `${benefit.card}: merchant offer at ${benefit.merchant} – ${discountLabel} back in ${benefit.category}${limitLabel}, valid until ${benefit.endDate}. This cash discount takes priority over the usual points optimization.`,
-            };
-          }
+        let limitLabel = "";
+        if (
+          benefit.limitType === "per_tx" &&
+          benefit.limitValue != null &&
+          !isNaN(benefit.limitValue)
+        ) {
+          limitLabel = ` (max $${Number(benefit.limitValue).toFixed(
+            2
+          )} discount per purchase)`;
+        } else if (hasTotalCap) {
+          const limit = Number(benefit.limitValue);
+          const remaining = Math.max(0, limit - ms.used);
+          limitLabel = ` (up to $${limit.toFixed(
+            2
+          )} total; about $${remaining.toFixed(2)} remaining)`;
         }
+
+        // (Optional later: mention min spend explicitly in the text)
+
+        return {
+          card: benefit.card,
+          channel: baseRec.channel, // keep same channel logic as category
+          reason: `${benefit.card}: merchant offer at ${benefit.merchant} – ${discountLabel} back in ${benefit.category}${limitLabel}, valid until ${benefit.endDate}. This cash discount takes priority over the usual points optimization.`,
+        };
       }
-
-      return baseRec;
     }
+  }
 
+  // If benefit is expired, exhausted, or below min spend, fall back to base logic
+  return baseRec;
+}
     // ---------- Category select population ----------
     function populateCategorySelect() {
       const select = document.getElementById("category");
