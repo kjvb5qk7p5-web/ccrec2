@@ -1227,27 +1227,36 @@
         if (!end || !today) return false;
         return end >= today;
       });
-
+      
+      // Sort active benefits alphabetically by merchant name
+      active.sort((a, b) => {
+        const nameA = (a.merchant || "").toLowerCase();
+        const nameB = (b.merchant || "").toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+      
       if (active.length > 0) {
         const optGroup = document.createElement("optgroup");
         optGroup.label = "Merchant Offers";
-
+      
         active.forEach((benefit) => {
           const opt = document.createElement("option");
           opt.value = "mb:" + benefit.id;
-
+      
           const discountLabel =
             benefit.discountType === "percent"
               ? `${Number(benefit.discountValue || 0)}% back`
               : `$${Number(benefit.discountValue || 0).toFixed(2)} back`;
-
-          opt.textContent = `${benefit.merchant} – ${discountLabel} (${benefit.category}, until ${benefit.endDate})`;
+      
+          // Merchant name + discount only (no category / expiration)
+          opt.textContent = `${benefit.merchant} – ${discountLabel}`;
+      
           optGroup.appendChild(opt);
         });
-
+      
         select.appendChild(optGroup);
       }
-    }
+  }
 
     // ---------- Merchant benefits UI ----------
 function renderMerchantBenefits() {
