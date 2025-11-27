@@ -161,6 +161,42 @@
       display: inline-block;
       margin-right: 12px;
     }
+
+    /* Card badges */
+    .card-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      vertical-align: baseline;
+      white-space: nowrap;
+      line-height: 1.4;
+      background: #f2f2f2;
+      color: #333;
+      border-color: #ccc;
+    }
+    .card-badge.csr {
+      background: #e0ecff;
+      border-color: #0047AB;
+      color: #0047AB; /* CSR: #0047AB */
+    }
+    .card-badge.uq {
+      background: #dde3f0;
+      border-color: #002244;
+      color: #002244; /* UQ: #002244 */
+    }
+    .card-badge.mb {
+      background: #f0f0f0;
+      border-color: #999999;
+      color: #555555; /* MB: #999999 as accent */
+    }
+    .card-badge.dg {
+      background: #ffe6ea;
+      border-color: #CE1126;
+      color: #CE1126; /* DG: #CE1126 */
+    }
   </style>
 </head>
 <body>
@@ -454,6 +490,14 @@
       return new Date(d.getFullYear(), d.getMonth(), 1);
     }
 
+    // Render a card badge as HTML
+    function renderCardBadge(code) {
+      if (!code) return "";
+      const c = String(code).toUpperCase();
+      const cls = c.toLowerCase(); // csr, uq, mb, dg
+      return `<span class="card-badge ${cls}">${c}</span>`;
+    }
+
     // ---------- Transactions storage ----------
     function loadTransactions() {
       try {
@@ -510,7 +554,7 @@
         tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
         tdCat.textContent = tx.category || "";
         tdChan.textContent = tx.channel || "";
-        tdCard.textContent = tx.cardUsed || "";
+        tdCard.innerHTML = tx.cardUsed ? renderCardBadge(tx.cardUsed) : "";
 
         tr.appendChild(tdDate);
         tr.appendChild(tdAmt);
@@ -672,7 +716,7 @@
           const amount = Number(tx.amount) || 0;
           if (!amount) continue;
 
-          // New: enforce minimum spend per transaction if set
+          // Enforce minimum spend per transaction if set
           if (minSpend != null && amount < minSpend) {
             continue;
           }
@@ -738,7 +782,7 @@
         const used = cardState.csrTravelYTD;
         const limit = 300;
         const met = used >= limit;
-        const text = `<b>CSR Travel (YTD)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("CSR")} Travel (YTD): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} travel credit (flights/hotels/rideshare on CSR)`;
         const line = met ? `<span class="credit-met">${text}</span>` : text;
@@ -750,7 +794,7 @@
         const used = cardState.csrStubhubThisPeriod;
         const limit = 150;
         const met = used >= limit;
-        const text = `<b>CSR StubHub/viagogo/soccer.com (this 6-month period)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("CSR")} StubHub/viagogo/soccer.com (this 6-month period): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} semi-annual credit`;
         const line = met ? `<span class="credit-met">${text}</span>` : text;
@@ -762,7 +806,7 @@
         const used = cardState.csrDoordashThisMonth;
         const limit = 5;
         const met = used >= limit;
-        const text = `<b>CSR Doordash (this month)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("CSR")} Doordash (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
         const line = met ? `<span class="credit-met">${text}</span>` : text;
@@ -774,7 +818,7 @@
         const used = cardState.csrLyftThisMonth;
         const limit = 10;
         const met = used >= limit;
-        const text = `<b>CSR Lyft (this month)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("CSR")} Lyft (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
         const line = met ? `<span class="credit-met">${text}</span>` : text;
@@ -786,7 +830,7 @@
         const used = cardState.csrPelotonThisMonth;
         const limit = 10;
         const met = used >= limit;
-        const text = `<b>CSR Peloton membership (this month)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("CSR")} Peloton membership (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
         const line = met ? `<span class="credit-met">${text}</span>` : text;
@@ -798,7 +842,7 @@
         const used = cardState.uqRideshareThisMonth;
         const limit = 8;
         const met = used >= limit;
-        const text = `<b>UQ rideshare (other) (this month)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("UQ")} rideshare (other) (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
         const line = met ? `<span class="credit-met">${text}</span>` : text;
@@ -810,7 +854,7 @@
         const used = cardState.uqInstacartThisMonth;
         const limit = 15;
         const met = used >= limit;
-        const text = `<b>UQ Instacart (this month)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("UQ")} Instacart (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
         const line = met ? `<span class="credit-met">${text}</span>` : text;
@@ -822,7 +866,7 @@
         const used = cardState.mbDiningThisMonth;
         const limit = 25;
         const met = used >= limit;
-        const text = `<b>MB dining (this month)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("MB")} dining (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly dining credit`;
         const line = met ? `<span class="credit-met">${text}</span>` : text;
@@ -834,7 +878,7 @@
         const used = cardState.dgDeltaStaysYTD;
         const limit = 100;
         const met = used >= limit;
-        const text = `<b>DG Delta Stays (YTD)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("DG")} Delta Stays (YTD): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} annual Delta Stays credit`;
         const line = met ? `<span class="credit-met">${text}</span>` : text;
@@ -846,7 +890,7 @@
         const used = cardState.dg10kSpendYTD;
         const limit = 10000;
         const met = used >= limit;
-        const text = `<b>DG $10k threshold (YTD)</b>: ~$${used.toFixed(
+        const text = `${renderCardBadge("DG")} $10k threshold (YTD): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(
           0
@@ -892,15 +936,17 @@
             limitLabel += `${limitLabel ? "," : ""} min spend $${msVal}`;
           }
 
+          const cardBadge = renderCardBadge(benefit.card);
+
           let text;
           if (benefit.limitType === "total" && ms.limit != null) {
             const met = ms.used >= ms.limit;
-            const base = `<b>${benefit.merchant}</b> (${benefit.card}, ${benefit.category}) – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
+            const base = `<b>${benefit.merchant}</b> ${cardBadge} – ${benefit.category} – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
               2
             )}${expired ? " (expired)" : ""}`;
             text = met ? `<span class="credit-met">${base}</span>` : base;
           } else {
-            const base = `<b>${benefit.merchant}</b> (${benefit.card}, ${benefit.category}) – ${discountLabel}${limitLabel}, until ${benefit.endDate}${expired ? " (expired)" : ""}`;
+            const base = `<b>${benefit.merchant}</b> ${cardBadge} – ${benefit.category} – ${discountLabel}${limitLabel}, until ${benefit.endDate}${expired ? " (expired)" : ""}`;
             text = base;
           }
 
@@ -1175,72 +1221,69 @@
       };
     }
 
-// ---------- Merchant-first wrapper ----------
-function recommendCard(purchase, cardState, merchantState, benefits) {
-  const baseRec = recommendCardBase(purchase, cardState);
+    // ---------- Merchant-first wrapper ----------
+    function recommendCard(purchase, cardState, merchantState, benefits) {
+      const baseRec = recommendCardBase(purchase, cardState);
 
-  if (purchase.merchantBenefitId) {
-    const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
-    if (benefit) {
-      const purchaseDate = parseISODate(purchase.date);
-      const end = parseISODate(benefit.endDate);
-      const expired = end && purchaseDate && purchaseDate > end;
+      if (purchase.merchantBenefitId) {
+        const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
+        if (benefit) {
+          const purchaseDate = parseISODate(purchase.date);
+          const end = parseISODate(benefit.endDate);
+          const expired = end && purchaseDate && purchaseDate > end;
 
-      const ms = merchantState[benefit.id] || { used: 0, limit: null };
-      const hasTotalCap =
-        benefit.limitType === "total" &&
-        benefit.limitValue != null &&
-        !isNaN(benefit.limitValue);
+          const ms = merchantState[benefit.id] || { used: 0, limit: null };
+          const hasTotalCap =
+            benefit.limitType === "total" &&
+            benefit.limitValue != null &&
+            !isNaN(benefit.limitValue);
 
-      const exhausted =
-        hasTotalCap && ms.used >= Number(benefit.limitValue);
+          const exhausted =
+            hasTotalCap && ms.used >= Number(benefit.limitValue);
 
-      // NEW: enforce minimum spend for the *recommendation* override too
-      const amount = Number(purchase.amount) || 0;
-      const minSpend =
-        benefit.minSpend != null && !isNaN(benefit.minSpend)
-          ? Number(benefit.minSpend)
-          : null;
+          const amount = Number(purchase.amount) || 0;
+          const minSpend =
+            benefit.minSpend != null && !isNaN(benefit.minSpend)
+              ? Number(benefit.minSpend)
+              : null;
+          const belowMinSpend = minSpend != null && amount < minSpend;
 
-      const belowMinSpend = minSpend != null && amount < minSpend;
+          if (!expired && !exhausted && !belowMinSpend) {
+            const discountLabel =
+              benefit.discountType === "percent"
+                ? `${Number(benefit.discountValue || 0)}%`
+                : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
 
-      if (!expired && !exhausted && !belowMinSpend) {
-        const discountLabel =
-          benefit.discountType === "percent"
-            ? `${Number(benefit.discountValue || 0)}%`
-            : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
+            let limitLabel = "";
+            if (
+              benefit.limitType === "per_tx" &&
+              benefit.limitValue != null &&
+              !isNaN(benefit.limitValue)
+            ) {
+              limitLabel = ` (max $${Number(benefit.limitValue).toFixed(
+                2
+              )} discount per purchase)`;
+            } else if (hasTotalCap) {
+              const limit = Number(benefit.limitValue);
+              const remaining = Math.max(0, limit - ms.used);
+              limitLabel = ` (up to $${limit.toFixed(
+                2
+              )} total; about $${remaining.toFixed(2)} remaining)`;
+            }
 
-        let limitLabel = "";
-        if (
-          benefit.limitType === "per_tx" &&
-          benefit.limitValue != null &&
-          !isNaN(benefit.limitValue)
-        ) {
-          limitLabel = ` (max $${Number(benefit.limitValue).toFixed(
-            2
-          )} discount per purchase)`;
-        } else if (hasTotalCap) {
-          const limit = Number(benefit.limitValue);
-          const remaining = Math.max(0, limit - ms.used);
-          limitLabel = ` (up to $${limit.toFixed(
-            2
-          )} total; about $${remaining.toFixed(2)} remaining)`;
+            return {
+              card: benefit.card,
+              channel: baseRec.channel, // keep same channel logic as category
+              reason: `${benefit.card}: merchant offer at ${benefit.merchant} – ${discountLabel} back in ${benefit.category}${limitLabel}, valid until ${benefit.endDate}. This cash discount takes priority over the usual points optimization.`,
+            };
+          }
         }
-
-        // (Optional later: mention min spend explicitly in the text)
-
-        return {
-          card: benefit.card,
-          channel: baseRec.channel, // keep same channel logic as category
-          reason: `${benefit.card}: merchant offer at ${benefit.merchant} – ${discountLabel} back in ${benefit.category}${limitLabel}, valid until ${benefit.endDate}. This cash discount takes priority over the usual points optimization.`,
-        };
       }
-    }
-  }
 
-  // If benefit is expired, exhausted, or below min spend, fall back to base logic
-  return baseRec;
-}
+      // If benefit is expired, exhausted, or below min spend, fall back to base logic
+      return baseRec;
+    }
+
     // ---------- Category select population ----------
     function populateCategorySelect() {
       const select = document.getElementById("category");
@@ -1284,7 +1327,6 @@ function recommendCard(purchase, cardState, merchantState, benefits) {
               ? `${Number(benefit.discountValue || 0)}% back`
               : `$${Number(benefit.discountValue || 0).toFixed(2)} back`;
       
-          // Merchant name + discount only (no category / expiration)
           opt.textContent = `${benefit.merchant} – ${discountLabel}`;
       
           optGroup.appendChild(opt);
@@ -1335,7 +1377,7 @@ function recommendCard(purchase, cardState, merchantState, benefits) {
     
         tr.innerHTML = `
           <td>${b.merchant || ""}</td>
-          <td>${b.card || ""}</td>
+          <td>${b.card ? renderCardBadge(b.card) : ""}</td>
           <td>${discountText}</td>
           <td>${limitText}</td>
           <td>${categoryText}</td>
@@ -1427,8 +1469,8 @@ function recommendCard(purchase, cardState, merchantState, benefits) {
       lastRecommendation = { purchase, rec };
 
       const channelLabel = CHANNEL_LABELS[rec.channel] || rec.channel;
-      document.getElementById("recommendationBox").textContent =
-        `Recommended: ${rec.card} – ${channelLabel}`;
+      document.getElementById("recommendationBox").innerHTML =
+        `Recommended: ${renderCardBadge(rec.card)} – ${channelLabel}`;
       document.getElementById("reasonBox").textContent = rec.reason;
       document.getElementById("recommendationSection").style.display = "block";
 
