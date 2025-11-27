@@ -318,6 +318,11 @@
       </label>
 
       <label>
+        Minimum spend per transaction (optional, in $)
+        <input type="number" id="benefitMinSpend" min="0" step="0.01" placeholder="e.g. 50 means $50+ to trigger" />
+      </label>
+
+      <label>
         Benefit end date
         <input type="date" id="benefitEndDate" />
       </label>
@@ -644,6 +649,11 @@
         let used = 0;
         const end = parseISODate(benefit.endDate);
 
+        const minSpend =
+          benefit.minSpend != null && !isNaN(benefit.minSpend)
+            ? Number(benefit.minSpend)
+            : null;
+
         for (const tx of txs) {
           if (!tx.date) continue;
           if (!tx.merchantBenefitId) continue;
@@ -661,6 +671,11 @@
 
           const amount = Number(tx.amount) || 0;
           if (!amount) continue;
+
+          // New: enforce minimum spend per transaction if set
+          if (minSpend != null && amount < minSpend) {
+            continue;
+          }
 
           let discount = 0;
 
@@ -856,6 +871,11 @@
               ? `${Number(benefit.discountValue || 0)}%`
               : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
 
+          const hasMinSpend =
+            benefit.minSpend != null &&
+            !isNaN(benefit.minSpend) &&
+            Number(benefit.minSpend) > 0;
+
           let limitLabel = "";
           if (benefit.limitType === "per_tx" && benefit.limitValue != null && !isNaN(benefit.limitValue)) {
             limitLabel = `, up to $${Number(benefit.limitValue).toFixed(2)} per txn`;
@@ -865,6 +885,11 @@
             !isNaN(benefit.limitValue)
           ) {
             limitLabel = `, up to $${Number(benefit.limitValue).toFixed(2)} total`;
+          }
+
+          if (hasMinSpend) {
+            const msVal = Number(benefit.minSpend).toFixed(2);
+            limitLabel += `${limitLabel ? "," : ""} min spend $${msVal}`;
           }
 
           let text;
@@ -1193,6 +1218,8 @@
               )} total; about $${remaining.toFixed(2)} remaining)`;
             }
 
+            // we could mention min spend here too later if you want
+
             return {
               card: benefit.card,
               channel: baseRec.channel, // keep same channel logic as category
@@ -1256,80 +1283,85 @@
       
         select.appendChild(optGroup);
       }
-  }
+    }
 
     // ---------- Merchant benefits UI ----------
-function renderMerchantBenefits() {
-    const benefits = loadMerchantBenefits();
-    const tbody = document.getElementById("benefitsTbody"); // note: lowercase 'b'
-    if (!tbody) return;
-  
-    tbody.innerHTML = "";
-  
-    const today = parseISODate(formatTodayISO());
-  
-    benefits.forEach((b, idx) => {
-      const tr = document.createElement("tr");
-  
-      const discountText =
-        b.discountType === "percent"
-          ? `${b.discountValue}% off`
-          : `$${Number(b.discountValue || 0).toFixed(2)} off`;
-  
-      let limitText = "";
-      if (b.limitValue != null && !isNaN(b.limitValue)) {
-        const val = Number(b.limitValue).toFixed(2);
-        limitText =
-          b.limitType === "per_tx"
-            ? `Up to $${val} / txn`
-            : `Up to $${val} total`;
-      }
-  
-      const categoryText = b.category || "";
-      const endDateText = b.endDate || "";
-  
-      // Figure out if it's expired
-      const end = parseISODate(b.endDate);
-      const expired = end && today && end < today;
-  
-      tr.innerHTML = `
-        <td>${b.merchant || ""}</td>
-        <td>${b.card || ""}</td>
-        <td>${discountText}</td>
-        <td>${limitText}</td>
-        <td>${categoryText}</td>
-        <td>${endDateText}</td>
-        <td>
-          <button
-            type="button"
-            class="deleteBenefitBtn"
-            data-benefit-index="${idx}"
-          >
-            Del
-          </button>
-        </td>
-      `;
-  
-      if (expired) {
-        tr.classList.add("expired-benefit");
-      }
-  
-      tbody.appendChild(tr);
-    });
-  
-    // Wire up delete buttons
-    tbody.querySelectorAll(".deleteBenefitBtn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const idx = Number(btn.getAttribute("data-benefit-index"));
-        const benefits = loadMerchantBenefits();
-        benefits.splice(idx, 1);
-        saveMerchantBenefits(benefits);
-        renderMerchantBenefits();
-        populateCategorySelect(); // keep the New Purchase categories in sync
-        renderStateSummary();     // and the top usage summary
+    function renderMerchantBenefits() {
+      const benefits = loadMerchantBenefits();
+      const tbody = document.getElementById("benefitsTbody"); // note: lowercase 'b'
+      if (!tbody) return;
+    
+      tbody.innerHTML = "";
+    
+      const today = parseISODate(formatTodayISO());
+    
+      benefits.forEach((b, idx) => {
+        const tr = document.createElement("tr");
+    
+        const discountText =
+          b.discountType === "percent"
+            ? `${b.discountValue}% off`
+            : `$${Number(b.discountValue || 0).toFixed(2)} off`;
+    
+        const parts = [];
+        if (b.minSpend != null && !isNaN(b.minSpend) && Number(b.minSpend) > 0) {
+          parts.push(`Min $${Number(b.minSpend).toFixed(2)}`);
+        }
+        if (b.limitValue != null && !isNaN(b.limitValue)) {
+          const val = Number(b.limitValue).toFixed(2);
+          parts.push(
+            b.limitType === "per_tx"
+              ? `Up to $${val} / txn`
+              : `Up to $${val} total`
+          );
+        }
+        const limitText = parts.join("; ");
+    
+        const categoryText = b.category || "";
+        const endDateText = b.endDate || "";
+    
+        // Figure out if it's expired
+        const end = parseISODate(b.endDate);
+        const expired = end && today && end < today;
+    
+        tr.innerHTML = `
+          <td>${b.merchant || ""}</td>
+          <td>${b.card || ""}</td>
+          <td>${discountText}</td>
+          <td>${limitText}</td>
+          <td>${categoryText}</td>
+          <td>${endDateText}</td>
+          <td>
+            <button
+              type="button"
+              class="deleteBenefitBtn"
+              data-benefit-index="${idx}"
+            >
+              Del
+            </button>
+          </td>
+        `;
+    
+        if (expired) {
+          tr.classList.add("expired-benefit");
+        }
+    
+        tbody.appendChild(tr);
       });
-    });
-  }
+    
+      // Wire up delete buttons
+      tbody.querySelectorAll(".deleteBenefitBtn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.getAttribute("data-benefit-index"));
+          const benefits = loadMerchantBenefits();
+          benefits.splice(idx, 1);
+          saveMerchantBenefits(benefits);
+          renderMerchantBenefits();
+          populateCategorySelect(); // keep the New Purchase categories in sync
+          renderStateSummary();     // and the top usage summary
+        });
+      });
+    }
 
     // ---------- UI wiring ----------
 
@@ -1511,6 +1543,7 @@ function renderMerchantBenefits() {
       const discountValueRaw = document.getElementById("benefitDiscountValue").value;
       const limitType = document.getElementById("benefitLimitType").value;
       const limitValueRaw = document.getElementById("benefitLimitValue").value;
+      const minSpendRaw = document.getElementById("benefitMinSpend").value;
       const endDate = document.getElementById("benefitEndDate").value;
       const category = document.getElementById("benefitCategory").value;
 
@@ -1534,6 +1567,15 @@ function renderMerchantBenefits() {
         }
       }
 
+      let minSpend = null;
+      if (minSpendRaw !== "") {
+        minSpend = Number(minSpendRaw);
+        if (isNaN(minSpend) || minSpend < 0) {
+          alert("Minimum spend must be a non-negative number.");
+          return;
+        }
+      }
+
       const id = "mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
 
       const newBenefit = {
@@ -1544,6 +1586,7 @@ function renderMerchantBenefits() {
         discountValue,
         limitType,
         limitValue,
+        minSpend,
         endDate,
         category,
       };
@@ -1556,6 +1599,7 @@ function renderMerchantBenefits() {
       document.getElementById("benefitMerchant").value = "";
       document.getElementById("benefitDiscountValue").value = "";
       document.getElementById("benefitLimitValue").value = "";
+      document.getElementById("benefitMinSpend").value = "";
       document.getElementById("benefitEndDate").value = "";
 
       renderMerchantBenefits();
