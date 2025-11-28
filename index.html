@@ -208,13 +208,13 @@
 </head>
 <body>
   <h1>Which Card Should I Use?</h1>
-  <p class="muted">
-    Local brain for 4 cards: <br>
-        &nbsp;&nbsp;&nbsp;- Chase Sapphire Reserve (CSR)<br>
-        &nbsp;&nbsp;&nbsp;- United Quest (UQ)<br>
-        &nbsp;&nbsp;&nbsp;- Marriott Bonvoy Brilliant (MB)<br>
-        &nbsp;&nbsp;&nbsp;- Delta SkyMiles Amex Gold (DG)<br>
-  </p>
+<p class="muted">
+  Local brain for 4 cards: <br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge csr">CS</span> Chase Sapphire Reserve<br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge uq">UQ</span> United Quest<br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge mb">MB</span> Marriott Bonvoy Brilliant<br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge dg">DG</span> Delta SkyMiles Amex Gold<br>
+</p>
 
   <!-- New purchase input -->
   <div class="card new-purchase-card">
@@ -502,7 +502,8 @@
       if (!code) return "";
       const c = String(code).toUpperCase();
       const cls = c.toLowerCase(); // csr, uq, mb, dg
-      return `<span class="card-badge ${cls}">${c}</span>`;
+      const label = c === "CSR" ? "CS" : c;
+      return `<span class="card-badge ${cls}">${label}</span>`;
     }
 
     function escapeHtml(str) {
