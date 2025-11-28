@@ -944,36 +944,40 @@
         cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
-      // ---- MERCHANT BENEFITS ----
-    
+// --- Merchant benefits summary (optional) ---
       if (benefits.length > 0) {
         const todayStr = formatTodayISO();
         const todayDate = parseISODate(todayStr);
-    
-        for (const benefit of benefits) {
+      
+        // Sort benefits alphabetically by merchant name (case-insensitive)
+        const sortedBenefits = [...benefits].sort((a, b) => {
+          const nameA = (a.merchant || "").toLowerCase();
+          const nameB = (b.merchant || "").toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+      
+        for (const benefit of sortedBenefits) {
           const ms = merchantState[benefit.id] || { used: 0, limit: null };
           const end = parseISODate(benefit.endDate);
           const expired = end && todayDate && todayDate > end;
-    
-          const hasMinSpend =
-            benefit.minSpend != null &&
-            !isNaN(benefit.minSpend) &&
-            Number(benefit.minSpend) > 0;
-    
+      
           let discountLabel =
             benefit.discountType === "percent"
               ? `${Number(benefit.discountValue || 0)}%`
               : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
-    
+      
+          const hasMinSpend =
+            benefit.minSpend != null &&
+            !isNaN(benefit.minSpend) &&
+            Number(benefit.minSpend) > 0;
+      
           let limitLabel = "";
           if (
             benefit.limitType === "per_tx" &&
             benefit.limitValue != null &&
             !isNaN(benefit.limitValue)
           ) {
-            limitLabel = `, up to $${Number(benefit.limitValue).toFixed(
-              2
-            )} per txn`;
+            limitLabel = `, up to $${Number(benefit.limitValue).toFixed(2)} per txn`;
           } else if (
             benefit.limitType === "total" &&
             benefit.limitValue != null &&
@@ -981,31 +985,31 @@
           ) {
             limitLabel = `, up to $${Number(benefit.limitValue).toFixed(2)} total`;
           }
-    
+      
           if (hasMinSpend) {
             const msVal = Number(benefit.minSpend).toFixed(2);
             limitLabel += `${limitLabel ? "," : ""} min spend $${msVal}`;
           }
-    
+      
           let text;
           if (benefit.limitType === "total" && ms.limit != null) {
             const met = ms.used >= ms.limit;
-            const base = `${cardBadgeSpan(
+            const base = `<b>${benefit.merchant}</b> (${cardBadgeSpan(
               benefit.card
-            )} <b>${benefit.merchant}</b> – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
+            )}, ${benefit.category}) – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
               2
             )}${expired ? " (expired)" : ""}`;
             text = met ? `<span class="credit-met">${base}</span>` : base;
           } else {
-            const base = `${cardBadgeSpan(
+            const base = `<b>${benefit.merchant}</b> (${cardBadgeSpan(
               benefit.card
-            )} <b>${benefit.merchant}</b> – ${discountLabel}${limitLabel}, until ${
+            )}, ${benefit.category}) – ${discountLabel}${limitLabel}, until ${
               benefit.endDate
             }${expired ? " (expired)" : ""}`;
             text = base;
           }
-    
-          merchantLines.push(text);
+      
+          lines.push(text);
         }
       }
     
