@@ -1310,16 +1310,8 @@
     function populateCategorySelect() {
       const select = document.getElementById("category");
       select.innerHTML = "";
-
-      // Base categories first
-      BASE_CATEGORIES.forEach((cat) => {
-        const opt = document.createElement("option");
-        opt.value = cat.value;
-        opt.textContent = cat.label;
-        select.appendChild(opt);
-      });
-
-      // Active merchant benefits (non-expired) appended
+    
+      // Load benefits + figure out active (non-expired) ones
       const benefits = loadMerchantBenefits();
       const today = parseISODate(formatTodayISO());
       const active = benefits.filter((b) => {
@@ -1328,34 +1320,59 @@
         if (!end || !today) return false;
         return end >= today;
       });
-      
+    
       // Sort active benefits alphabetically by merchant name
       active.sort((a, b) => {
         const nameA = (a.merchant || "").toLowerCase();
         const nameB = (b.merchant || "").toLowerCase();
         return nameA.localeCompare(nameB);
       });
-      
+    
+      // --- 1) Merchant Offers FIRST ---
       if (active.length > 0) {
-        const optGroup = document.createElement("optgroup");
-        optGroup.label = "Merchant Offers";
-      
-        active.forEach((benefit) => {
+        const merchantGroup = document.createElement("optgroup");
+        merchantGroup.label = "Merchant Offers";
+    
+        active.forEach((benefit, idx) => {
           const opt = document.createElement("option");
           opt.value = "mb:" + benefit.id;
-      
+    
           const discountLabel =
             benefit.discountType === "percent"
               ? `${Number(benefit.discountValue || 0)}% back`
               : `$${Number(benefit.discountValue || 0).toFixed(2)} back`;
-      
+    
           opt.textContent = `${benefit.merchant} – ${discountLabel}`;
-      
-          optGroup.appendChild(opt);
+    
+          // Attempt alternating background shading (may be ignored by some browsers / iOS)
+          if (idx % 2 === 1) {
+            opt.style.backgroundColor = "#f5f5f5";
+          }
+    
+          merchantGroup.appendChild(opt);
         });
-      
-        select.appendChild(optGroup);
+    
+        select.appendChild(merchantGroup);
       }
+    
+      // --- 2) Card Benefits SECOND, in their own optgroup ---
+      const cardGroup = document.createElement("optgroup");
+      cardGroup.label = "Card Benefits";
+    
+      BASE_CATEGORIES.forEach((cat, idx) => {
+        const opt = document.createElement("option");
+        opt.value = cat.value;
+        opt.textContent = cat.label;
+    
+        // Same alternating shading idea here
+        if (idx % 2 === 1) {
+          opt.style.backgroundColor = "#f5f5f5";
+        }
+    
+        cardGroup.appendChild(opt);
+      });
+    
+      select.appendChild(cardGroup);
     }
 
     // ---------- Merchant benefits UI ----------
