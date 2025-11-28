@@ -825,22 +825,42 @@
       const merchantState = computeMerchantState(txs, benefits);
       const el = document.getElementById("stateSummary");
     
-      const cardLines = [];
+      // Local helper for badges (matches your CSS + "CS" label for CSR)
+      function cardBadge(code) {
+        const normalized = (code || "").toUpperCase();
+        let label = normalized;
+        if (normalized === "CSR") label = "CS";
+    
+        const cls =
+          normalized === "CSR"
+            ? "csr"
+            : normalized === "UQ"
+            ? "uq"
+            : normalized === "MB"
+            ? "mb"
+            : normalized === "DG"
+            ? "dg"
+            : "";
+    
+        return `<span class="card-badge ${cls}">${label}</span>`;
+      }
+    
+      const ccLines = [];
       const merchantLines = [];
     
-      // ---- CREDIT CARD BENEFITS ----
+      // ---------- Credit card benefits (cardState) ----------
     
       // CSR: Travel credit (calendar year, $300)
       {
         const used = cardState.csrTravelYTD;
         const limit = 300;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("CSR")} <b>Travel (YTD)</b>: ~$${used.toFixed(
+        const text = `${cardBadge("CSR")} Travel (YTD): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(
           0
         )} travel credit (flights/hotels/rideshare on CSR)`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
       // CSR: StubHub semi-annual ($150 per 6-month period)
@@ -848,10 +868,12 @@
         const used = cardState.csrStubhubThisPeriod;
         const limit = 150;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("CSR")} <b>StubHub/viagogo/soccer.com (this 6-month period)</b>: ~$${used.toFixed(
+        const text = `${cardBadge(
+          "CSR"
+        )} StubHub/viagogo/soccer.com (this 6-month period): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} semi-annual credit`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
       // CSR: Doordash $5/month
@@ -859,10 +881,12 @@
         const used = cardState.csrDoordashThisMonth;
         const limit = 5;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("CSR")} <b>Doordash (this month)</b>: ~$${used.toFixed(
+        const text = `${cardBadge(
+          "CSR"
+        )} Doordash (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
       // CSR: Lyft $10/month
@@ -870,10 +894,12 @@
         const used = cardState.csrLyftThisMonth;
         const limit = 10;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("CSR")} <b>Lyft (this month)</b>: ~$${used.toFixed(
+        const text = `${cardBadge(
+          "CSR"
+        )} Lyft (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
       // CSR: Peloton $10/month
@@ -881,10 +907,12 @@
         const used = cardState.csrPelotonThisMonth;
         const limit = 10;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("CSR")} <b>Peloton membership (this month)</b>: ~$${used.toFixed(
+        const text = `${cardBadge(
+          "CSR"
+        )} Peloton membership (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
       // UQ: Rideshare $8/month
@@ -892,10 +920,12 @@
         const used = cardState.uqRideshareThisMonth;
         const limit = 8;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("UQ")} <b>Rideshare (other) (this month)</b>: ~$${used.toFixed(
+        const text = `${cardBadge(
+          "UQ"
+        )} Rideshare (other) (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
       // UQ: Instacart $15/month
@@ -903,10 +933,12 @@
         const used = cardState.uqInstacartThisMonth;
         const limit = 15;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("UQ")} <b>Instacart (this month)</b>: ~$${used.toFixed(
+        const text = `${cardBadge(
+          "UQ"
+        )} Instacart (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
       // MB: Dining $25/month
@@ -914,10 +946,12 @@
         const used = cardState.mbDiningThisMonth;
         const limit = 25;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("MB")} <b>Dining (this month)</b>: ~$${used.toFixed(
+        const text = `${cardBadge(
+          "MB"
+        )} Dining (this month): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly dining credit`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
       // DG: Delta Stays $100/year
@@ -925,10 +959,12 @@
         const used = cardState.dgDeltaStaysYTD;
         const limit = 100;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("DG")} <b>Delta Stays (YTD)</b>: ~$${used.toFixed(
+        const text = `${cardBadge(
+          "DG"
+        )} Delta Stays (YTD): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} annual Delta Stays credit`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
       // DG: $10k spend threshold
@@ -936,48 +972,52 @@
         const used = cardState.dg10kSpendYTD;
         const limit = 10000;
         const met = used >= limit;
-        const text = `${cardBadgeSpan("DG")} <b>$10k threshold (YTD)</b>: ~$${used.toFixed(
+        const text = `${cardBadge(
+          "DG"
+        )} $10k threshold (YTD): ~$${used.toFixed(
           2
         )} of $${limit.toFixed(
           0
         )} eligible spend toward the $200 Delta Flight Credit`;
-        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
+        ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
-// --- Merchant benefits summary (optional) ---
+      // ---------- Merchant benefits (merchantState) ----------
       if (benefits.length > 0) {
         const todayStr = formatTodayISO();
         const todayDate = parseISODate(todayStr);
-      
+    
         // Sort benefits alphabetically by merchant name (case-insensitive)
         const sortedBenefits = [...benefits].sort((a, b) => {
           const nameA = (a.merchant || "").toLowerCase();
           const nameB = (b.merchant || "").toLowerCase();
           return nameA.localeCompare(nameB);
         });
-      
+    
         for (const benefit of sortedBenefits) {
           const ms = merchantState[benefit.id] || { used: 0, limit: null };
           const end = parseISODate(benefit.endDate);
           const expired = end && todayDate && todayDate > end;
-      
-          let discountLabel =
+    
+          const discountLabel =
             benefit.discountType === "percent"
               ? `${Number(benefit.discountValue || 0)}%`
               : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
-      
+    
           const hasMinSpend =
             benefit.minSpend != null &&
             !isNaN(benefit.minSpend) &&
             Number(benefit.minSpend) > 0;
-      
+    
           let limitLabel = "";
           if (
             benefit.limitType === "per_tx" &&
             benefit.limitValue != null &&
             !isNaN(benefit.limitValue)
           ) {
-            limitLabel = `, up to $${Number(benefit.limitValue).toFixed(2)} per txn`;
+            limitLabel = `, up to $${Number(benefit.limitValue).toFixed(
+              2
+            )} per txn`;
           } else if (
             benefit.limitType === "total" &&
             benefit.limitValue != null &&
@@ -985,63 +1025,64 @@
           ) {
             limitLabel = `, up to $${Number(benefit.limitValue).toFixed(2)} total`;
           }
-      
+    
           if (hasMinSpend) {
             const msVal = Number(benefit.minSpend).toFixed(2);
             limitLabel += `${limitLabel ? "," : ""} min spend $${msVal}`;
           }
-      
+    
           let text;
           if (benefit.limitType === "total" && ms.limit != null) {
             const met = ms.used >= ms.limit;
-            const base = `<b>${benefit.merchant}</b> (${cardBadgeSpan(
+            const base = `${cardBadge(
               benefit.card
-            )}, ${benefit.category}) – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
+            )} <b>${benefit.merchant}</b> – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
               2
             )}${expired ? " (expired)" : ""}`;
             text = met ? `<span class="credit-met">${base}</span>` : base;
           } else {
-            const base = `<b>${benefit.merchant}</b> (${cardBadgeSpan(
+            const base = `${cardBadge(
               benefit.card
-            )}, ${benefit.category}) – ${discountLabel}${limitLabel}, until ${
+            )} <b>${benefit.merchant}</b> – ${discountLabel}${limitLabel}, until ${
               benefit.endDate
             }${expired ? " (expired)" : ""}`;
             text = base;
           }
-      
-          lines.push(text);
+    
+          merchantLines.push(text);
         }
       }
     
-      // ---- BUILD HTML ----
+      // ---------- Render HTML into the section ----------
+      let html = "";
     
-      const sections = [];
-    
-      if (cardLines.length) {
-        sections.push(`
-          <div class="credits-section">
+      if (ccLines.length > 0) {
+        html += `
+          <div>
             <h3>Credit Card Benefits</h3>
             <ul>
-              ${cardLines.map((line) => `<li>${line}</li>`).join("")}
+              ${ccLines.map((line) => `<li>${line}</li>`).join("")}
             </ul>
           </div>
-        `);
+        `;
       }
     
-      if (merchantLines.length) {
-        sections.push(`
-          <div class="credits-section">
+      if (merchantLines.length > 0) {
+        html += `
+          <div style="margin-top:8px;">
             <h3>Merchant Benefits</h3>
             <ul>
               ${merchantLines.map((line) => `<li>${line}</li>`).join("")}
             </ul>
           </div>
-        `);
+        `;
       }
     
-      el.innerHTML = sections.length
-        ? sections.join("")
-        : "<p>No benefit usage yet.</p>";
+      if (!html) {
+        html = `<span class="muted">No credits or offers logged yet.</span>`;
+      }
+    
+      el.innerHTML = html;
     }
 
     // ---------- Core category logic (no merchant override) ----------
