@@ -1314,15 +1314,37 @@
       // Clear existing options
       select.innerHTML = "";
     
-      // ----- Merchant Offers (active benefits) -----
+      // Load benefits + txs so we can see what's actually used
       const benefits = loadMerchantBenefits();
+      const txs = loadTransactions();
+      const merchantState = computeMerchantState(txs, benefits);
+    
       const today = parseISODate(formatTodayISO());
     
+      // Active merchant offers:
+      // - not expired
+      // - AND, if they have a total cap, not fully used
       const active = benefits.filter((b) => {
         if (!b.endDate) return false;
         const end = parseISODate(b.endDate);
         if (!end || !today) return false;
-        return end >= today;
+        if (end < today) return false;
+    
+        // Check if fully used for total-cap benefits
+        if (
+          b.limitType === "total" &&
+          b.limitValue != null &&
+          !isNaN(b.limitValue)
+        ) {
+          const ms = merchantState[b.id] || { used: 0, limit: null };
+          const limitNum = Number(b.limitValue);
+          if (ms.used >= limitNum) {
+            // fully used, hide from dropdown
+            return false;
+          }
+        }
+    
+        return true;
       });
     
       // Sort active benefits alphabetically by merchant name
@@ -1332,6 +1354,7 @@
         return nameA.localeCompare(nameB);
       });
     
+      // ----- Merchant Offers group (on top) -----
       if (active.length > 0) {
         const offersGroup = document.createElement("optgroup");
         offersGroup.label = "Merchant Offers";
@@ -1349,7 +1372,7 @@
         select.appendChild(offersGroup);
       }
     
-      // ----- Card Benefits (base categories) -----
+      // ----- Card Benefits group (base categories) -----
       const cardGroup = document.createElement("optgroup");
       cardGroup.label = "Card Benefits";
     
@@ -1362,7 +1385,7 @@
     
       select.appendChild(cardGroup);
     
-      // Try to default to Dining / Restaurants if present
+      // Default back to Dining / Restaurants if present
       const hasDining = !!select.querySelector('option[value="dining"]');
       if (hasDining) {
         select.value = "dining";
