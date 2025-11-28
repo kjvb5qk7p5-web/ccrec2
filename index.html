@@ -1309,11 +1309,15 @@
     // ---------- Category select population ----------
     function populateCategorySelect() {
       const select = document.getElementById("category");
+      if (!select) return;
+    
+      // Clear existing options
       select.innerHTML = "";
     
-      // Load benefits + figure out active (non-expired) ones
+      // ----- Merchant Offers (active benefits) -----
       const benefits = loadMerchantBenefits();
       const today = parseISODate(formatTodayISO());
+    
       const active = benefits.filter((b) => {
         if (!b.endDate) return false;
         const end = parseISODate(b.endDate);
@@ -1328,42 +1332,41 @@
         return nameA.localeCompare(nameB);
       });
     
-      // --- 1) Merchant Offers FIRST ---
       if (active.length > 0) {
-        const merchantGroup = document.createElement("optgroup");
-        merchantGroup.label = "Merchant Offers";
+        const offersGroup = document.createElement("optgroup");
+        offersGroup.label = "Merchant Offers";
     
         active.forEach((benefit) => {
           const opt = document.createElement("option");
           opt.value = "mb:" + benefit.id;
-        
-          // Show *only* the merchant name
+    
+          // Show ONLY merchant name
           opt.textContent = benefit.merchant || "";
-        
-          optGroup.appendChild(opt);
+    
+          offersGroup.appendChild(opt);
         });
     
-        select.appendChild(merchantGroup);
+        select.appendChild(offersGroup);
       }
     
-      // --- 2) Card Benefits SECOND, in their own optgroup ---
+      // ----- Card Benefits (base categories) -----
       const cardGroup = document.createElement("optgroup");
       cardGroup.label = "Card Benefits";
     
-      BASE_CATEGORIES.forEach((cat, idx) => {
+      BASE_CATEGORIES.forEach((cat) => {
         const opt = document.createElement("option");
         opt.value = cat.value;
         opt.textContent = cat.label;
-    
-        // Same alternating shading idea here
-        if (idx % 2 === 1) {
-          opt.style.backgroundColor = "#f5f5f5";
-        }
-    
         cardGroup.appendChild(opt);
       });
     
       select.appendChild(cardGroup);
+    
+      // Try to default to Dining / Restaurants if present
+      const hasDining = !!select.querySelector('option[value="dining"]');
+      if (hasDining) {
+        select.value = "dining";
+      }
     }
 
     // ---------- Merchant benefits UI ----------
