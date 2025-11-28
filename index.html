@@ -794,6 +794,27 @@
       return state;
     }
 
+    function cardBadgeSpan(cardCode) {
+      let label = cardCode;
+      let color = "#999";
+    
+      if (cardCode === "CSR") {
+        label = "CS";
+        color = "#0047AB";
+      } else if (cardCode === "UQ") {
+        label = "UQ";
+        color = "#480080";
+      } else if (cardCode === "MB") {
+        label = "MB";
+        color = "#999999";
+      } else if (cardCode === "DG") {
+        label = "DG";
+        color = "#CE1126";
+      }
+    
+      return `<span class="card-badge card-${cardCode}">${label}</span>`;
+    }
+
     // ---------- State summary ----------
     function renderStateSummary() {
       const txs = loadTransactions();
