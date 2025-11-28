@@ -1333,23 +1333,14 @@
         const merchantGroup = document.createElement("optgroup");
         merchantGroup.label = "Merchant Offers";
     
-        active.forEach((benefit, idx) => {
+        active.forEach((benefit) => {
           const opt = document.createElement("option");
           opt.value = "mb:" + benefit.id;
-    
-          const discountLabel =
-            benefit.discountType === "percent"
-              ? `${Number(benefit.discountValue || 0)}% back`
-              : `$${Number(benefit.discountValue || 0).toFixed(2)} back`;
-    
-          opt.textContent = `${benefit.merchant} – ${discountLabel}`;
-    
-          // Attempt alternating background shading (may be ignored by some browsers / iOS)
-          if (idx % 2 === 1) {
-            opt.style.backgroundColor = "#f5f5f5";
-          }
-    
-          merchantGroup.appendChild(opt);
+        
+          // Show *only* the merchant name
+          opt.textContent = benefit.merchant || "";
+        
+          optGroup.appendChild(opt);
         });
     
         select.appendChild(merchantGroup);
