@@ -932,15 +932,15 @@
           const end = parseISODate(benefit.endDate);
           const expired = end && todayDate && todayDate > end;
     
-          let discountLabel =
-            benefit.discountType === "percent"
-              ? `${Number(benefit.discountValue || 0)}%`
-              : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
-    
           const hasMinSpend =
             benefit.minSpend != null &&
             !isNaN(benefit.minSpend) &&
             Number(benefit.minSpend) > 0;
+    
+          let discountLabel =
+            benefit.discountType === "percent"
+              ? `${Number(benefit.discountValue || 0)}%`
+              : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
     
           let limitLabel = "";
           if (
@@ -988,35 +988,33 @@
     
       // ---- BUILD HTML ----
     
-      let html = "";
+      const sections = [];
     
       if (cardLines.length) {
-        html += `
+        sections.push(`
           <div class="credits-section">
             <h3>Credit Card Benefits</h3>
             <ul>
               ${cardLines.map((line) => `<li>${line}</li>`).join("")}
             </ul>
           </div>
-        `;
+        `);
       }
     
       if (merchantLines.length) {
-        html += `
+        sections.push(`
           <div class="credits-section">
             <h3>Merchant Benefits</h3>
             <ul>
               ${merchantLines.map((line) => `<li>${line}</li>`).join("")}
             </ul>
           </div>
-        `;
+        `);
       }
     
-      if (!html) {
-        html = "<p>No benefit usage yet.</p>";
-      }
-    
-      el.innerHTML = html;
+      el.innerHTML = sections.length
+        ? sections.join("")
+        : "<p>No benefit usage yet.</p>";
     }
 
     // ---------- Core category logic (no merchant override) ----------
