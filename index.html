@@ -1708,12 +1708,19 @@ document.getElementById("btnRecommend").addEventListener("click", () => {
       renderStateSummary();
     });
 
-    // Init on load
-    initFormDefaults();
-    renderTransactions();
-    renderMerchantBenefits();
-    populateCategorySelect();
-    renderStateSummary();
+      // Init on load
+      initFormDefaults();               // sets date to today
+      renderTransactions();
+      renderMerchantBenefits();
+      populateCategorySelect();         // build Merchant Offers + Card Benefits
+      
+      // Default category to Dining / Restaurants on first load
+      const categorySelect = document.getElementById("category");
+      if (categorySelect) {
+        categorySelect.value = "dining";
+      }
+      
+      renderStateSummary();
   </script>
 </body>
 </html>
