@@ -792,155 +792,156 @@
       const benefits = loadMerchantBenefits();
       const merchantState = computeMerchantState(txs, benefits);
       const el = document.getElementById("stateSummary");
-
-      const lines = [];
-
+    
+      const cardLines = [];
+      const merchantLines = [];
+    
+      // ---- CREDIT CARD BENEFITS ----
+    
       // CSR: Travel credit (calendar year, $300)
       {
         const used = cardState.csrTravelYTD;
         const limit = 300;
         const met = used >= limit;
-        const text = `${renderCardBadge("CSR")} Travel (YTD): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("CSR")} <b>Travel (YTD)</b>: ~$${used.toFixed(
           2
-        )} of $${limit.toFixed(0)} travel credit (flights/hotels/rideshare on CSR)`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        )} of $${limit.toFixed(
+          0
+        )} travel credit (flights/hotels/rideshare on CSR)`;
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
+    
       // CSR: StubHub semi-annual ($150 per 6-month period)
       {
         const used = cardState.csrStubhubThisPeriod;
         const limit = 150;
         const met = used >= limit;
-        const text = `${renderCardBadge("CSR")} StubHub/viagogo/soccer.com (this 6-month period): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("CSR")} <b>StubHub/viagogo/soccer.com (this 6-month period)</b>: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} semi-annual credit`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
+    
       // CSR: Doordash $5/month
       {
         const used = cardState.csrDoordashThisMonth;
         const limit = 5;
         const met = used >= limit;
-        const text = `${renderCardBadge("CSR")} Doordash (this month): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("CSR")} <b>Doordash (this month)</b>: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
+    
       // CSR: Lyft $10/month
       {
         const used = cardState.csrLyftThisMonth;
         const limit = 10;
         const met = used >= limit;
-        const text = `${renderCardBadge("CSR")} Lyft (this month): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("CSR")} <b>Lyft (this month)</b>: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
+    
       // CSR: Peloton $10/month
       {
         const used = cardState.csrPelotonThisMonth;
         const limit = 10;
         const met = used >= limit;
-        const text = `${renderCardBadge("CSR")} Peloton membership (this month): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("CSR")} <b>Peloton membership (this month)</b>: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
+    
       // UQ: Rideshare $8/month
       {
         const used = cardState.uqRideshareThisMonth;
         const limit = 8;
         const met = used >= limit;
-        const text = `${renderCardBadge("UQ")} rideshare (other) (this month): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("UQ")} <b>Rideshare (other) (this month)</b>: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
+    
       // UQ: Instacart $15/month
       {
         const used = cardState.uqInstacartThisMonth;
         const limit = 15;
         const met = used >= limit;
-        const text = `${renderCardBadge("UQ")} Instacart (this month): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("UQ")} <b>Instacart (this month)</b>: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly credit`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
+    
       // MB: Dining $25/month
       {
         const used = cardState.mbDiningThisMonth;
         const limit = 25;
         const met = used >= limit;
-        const text = `${renderCardBadge("MB")} dining (this month): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("MB")} <b>Dining (this month)</b>: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} monthly dining credit`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
+    
       // DG: Delta Stays $100/year
       {
         const used = cardState.dgDeltaStaysYTD;
         const limit = 100;
         const met = used >= limit;
-        const text = `${renderCardBadge("DG")} Delta Stays (YTD): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("DG")} <b>Delta Stays (YTD)</b>: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(0)} annual Delta Stays credit`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
+    
       // DG: $10k spend threshold
       {
         const used = cardState.dg10kSpendYTD;
         const limit = 10000;
         const met = used >= limit;
-        const text = `${renderCardBadge("DG")} $10k threshold (YTD): ~$${used.toFixed(
+        const text = `${cardBadgeSpan("DG")} <b>$10k threshold (YTD)</b>: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(
           0
         )} eligible spend toward the $200 Delta Flight Credit`;
-        const line = met ? `<span class="credit-met">${text}</span>` : text;
-        lines.push(line);
+        cardLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
-
-      // --- Merchant benefits summary (optional) ---
+    
+      // ---- MERCHANT BENEFITS ----
+    
       if (benefits.length > 0) {
-
         const todayStr = formatTodayISO();
         const todayDate = parseISODate(todayStr);
-
+    
         for (const benefit of benefits) {
           const ms = merchantState[benefit.id] || { used: 0, limit: null };
           const end = parseISODate(benefit.endDate);
           const expired = end && todayDate && todayDate > end;
-
+    
           let discountLabel =
             benefit.discountType === "percent"
               ? `${Number(benefit.discountValue || 0)}%`
               : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
-
+    
           const hasMinSpend =
             benefit.minSpend != null &&
             !isNaN(benefit.minSpend) &&
             Number(benefit.minSpend) > 0;
-
+    
           let limitLabel = "";
-          if (benefit.limitType === "per_tx" && benefit.limitValue != null && !isNaN(benefit.limitValue)) {
-            limitLabel = `, up to $${Number(benefit.limitValue).toFixed(2)} per txn`;
+          if (
+            benefit.limitType === "per_tx" &&
+            benefit.limitValue != null &&
+            !isNaN(benefit.limitValue)
+          ) {
+            limitLabel = `, up to $${Number(benefit.limitValue).toFixed(
+              2
+            )} per txn`;
           } else if (
             benefit.limitType === "total" &&
             benefit.limitValue != null &&
@@ -948,32 +949,65 @@
           ) {
             limitLabel = `, up to $${Number(benefit.limitValue).toFixed(2)} total`;
           }
-
+    
           if (hasMinSpend) {
             const msVal = Number(benefit.minSpend).toFixed(2);
             limitLabel += `${limitLabel ? "," : ""} min spend $${msVal}`;
           }
-
-          const cardBadge = renderCardBadge(benefit.card);
-
+    
           let text;
           if (benefit.limitType === "total" && ms.limit != null) {
             const met = ms.used >= ms.limit;
-            const base = `<b>${escapeHtml(benefit.merchant)}</b> ${cardBadge} – ${escapeHtml(benefit.category)} – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
+            const base = `${cardBadgeSpan(
+              benefit.card
+            )} <b>${benefit.merchant}</b> – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
               2
             )}${expired ? " (expired)" : ""}`;
             text = met ? `<span class="credit-met">${base}</span>` : base;
           } else {
-            const base = `<b>${escapeHtml(benefit.merchant)}</b> ${cardBadge} – ${escapeHtml(benefit.category)} – ${discountLabel}${limitLabel}, until ${benefit.endDate}${expired ? " (expired)" : ""}`;
+            const base = `${cardBadgeSpan(
+              benefit.card
+            )} <b>${benefit.merchant}</b> – ${discountLabel}${limitLabel}, until ${
+              benefit.endDate
+            }${expired ? " (expired)" : ""}`;
             text = base;
           }
-
-          lines.push(text);
+    
+          merchantLines.push(text);
         }
       }
-
-      el.innerHTML =
-        "<ul>" + lines.map((line) => `<li>${line}</li>`).join("") + "</ul>";
+    
+      // ---- BUILD HTML ----
+    
+      let html = "";
+    
+      if (cardLines.length) {
+        html += `
+          <div class="credits-section">
+            <h3>Credit Card Benefits</h3>
+            <ul>
+              ${cardLines.map((line) => `<li>${line}</li>`).join("")}
+            </ul>
+          </div>
+        `;
+      }
+    
+      if (merchantLines.length) {
+        html += `
+          <div class="credits-section">
+            <h3>Merchant Benefits</h3>
+            <ul>
+              ${merchantLines.map((line) => `<li>${line}</li>`).join("")}
+            </ul>
+          </div>
+        `;
+      }
+    
+      if (!html) {
+        html = "<p>No benefit usage yet.</p>";
+      }
+    
+      el.innerHTML = html;
     }
 
     // ---------- Core category logic (no merchant override) ----------
