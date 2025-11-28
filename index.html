@@ -183,9 +183,9 @@
       color: #0047AB; /* CSR: #0047AB */
     }
     .card-badge.uq {
-      background: #dde3f0;
-      border-color: #002244;
-      color: #002244; /* UQ: #002244 */
+      background: #f2e6ff;
+      border-color: #480080;
+      color: #480080; /* UQ: #480080 */
     }
     .card-badge.mb {
       background: #f0f0f0;
@@ -196,6 +196,13 @@
       background: #ffe6ea;
       border-color: #CE1126;
       color: #CE1126; /* DG: #CE1126 */
+    }
+
+    /* Make badges match tiny table font in these tables */
+    #loggedTable .card-badge,
+    #benefitsTable .card-badge {
+      font-size: 0.5rem;
+      padding: 1px 4px;
     }
   </style>
 </head>
@@ -496,6 +503,16 @@
       const c = String(code).toUpperCase();
       const cls = c.toLowerCase(); // csr, uq, mb, dg
       return `<span class="card-badge ${cls}">${c}</span>`;
+    }
+
+    function escapeHtml(str) {
+      if (str == null) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     // ---------- Transactions storage ----------
@@ -941,12 +958,12 @@
           let text;
           if (benefit.limitType === "total" && ms.limit != null) {
             const met = ms.used >= ms.limit;
-            const base = `<b>${benefit.merchant}</b> ${cardBadge} – ${benefit.category} – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
+            const base = `<b>${escapeHtml(benefit.merchant)}</b> ${cardBadge} – ${escapeHtml(benefit.category)} – ${discountLabel}${limitLabel}, used ~$${ms.used.toFixed(
               2
             )}${expired ? " (expired)" : ""}`;
             text = met ? `<span class="credit-met">${base}</span>` : base;
           } else {
-            const base = `<b>${benefit.merchant}</b> ${cardBadge} – ${benefit.category} – ${discountLabel}${limitLabel}, until ${benefit.endDate}${expired ? " (expired)" : ""}`;
+            const base = `<b>${escapeHtml(benefit.merchant)}</b> ${cardBadge} – ${escapeHtml(benefit.category)} – ${discountLabel}${limitLabel}, until ${benefit.endDate}${expired ? " (expired)" : ""}`;
             text = base;
           }
 
@@ -968,7 +985,7 @@
           return {
             card: "MB",
             channel: "direct",
-            reason: `MB: use Brilliant first to burn the $25 monthly dining credit (you’ve logged ~$${state.mbDiningThisMonth.toFixed(
+            reason: `${renderCardBadge("MB")} Use Brilliant first to burn the $25 monthly dining credit (you’ve logged ~$${state.mbDiningThisMonth.toFixed(
               2
             )} so far this month).`,
           };
@@ -977,7 +994,7 @@
           card: "CSR",
           channel: "direct",
           reason:
-            "CSR: MB dining credit looks used up for this month; default to CSR for flexible points and your stated preference.",
+            `${renderCardBadge("CSR")} MB dining credit looks used up for this month; default to CSR for flexible points and your stated preference.`,
         };
       }
 
@@ -987,7 +1004,7 @@
           return {
             card: "CSR",
             channel: "direct",
-            reason: `CSR: use CSR first to burn the $5 monthly Doordash/food-delivery credit (you’ve logged ~$${state.csrDoordashThisMonth.toFixed(
+            reason: `${renderCardBadge("CSR")} Use CSR first to burn the $5 monthly Doordash/food-delivery credit (you’ve logged ~$${state.csrDoordashThisMonth.toFixed(
               2
             )} so far this month).`,
           };
@@ -996,7 +1013,7 @@
           card: "CSR",
           channel: "direct",
           reason:
-            "CSR: Doordash monthly credit is effectively used; still default to CSR for flexible points here.",
+            `${renderCardBadge("CSR")} Doordash monthly credit is effectively used; still default to CSR for flexible points here.`,
         };
       }
 
@@ -1006,7 +1023,7 @@
           return {
             card: "CSR",
             channel: "lyft_app",
-            reason: `CSR: Lyft has about $${(
+            reason: `${renderCardBadge("CSR")} Lyft has about $${(
               10 - state.csrLyftThisMonth
             ).toFixed(
               2
@@ -1017,7 +1034,7 @@
           card: "CSR",
           channel: "lyft_app",
           reason:
-            "CSR: Lyft monthly credit looks used, but CSR still wins here thanks to Lyft boosts and flexibility.",
+            `${renderCardBadge("CSR")} Lyft monthly credit looks used, but CSR still wins here thanks to Lyft boosts and flexibility.`,
         };
       }
 
@@ -1027,7 +1044,7 @@
           return {
             card: "UQ",
             channel: "direct",
-            reason: `UQ: use United Quest first to burn the $8 monthly rideshare credit (you’ve logged ~$${state.uqRideshareThisMonth.toFixed(
+            reason: `${renderCardBadge("UQ")} Use United Quest first to burn the $8 monthly rideshare credit (you’ve logged ~$${state.uqRideshareThisMonth.toFixed(
               2
             )} so far this month).`,
           };
@@ -1036,7 +1053,7 @@
           card: "CSR",
           channel: "direct",
           reason:
-            "CSR: UQ rideshare monthly credit looks used; default to CSR for flexible points.",
+            `${renderCardBadge("CSR")} UQ rideshare monthly credit looks used; default to CSR for flexible points.`,
         };
       }
 
@@ -1046,7 +1063,7 @@
           card: "UQ",
           channel: "united",
           reason:
-            "UQ: For United flights, use United Quest to get miles, free bags/priority boarding, TravelBank benefits, and PQPs.",
+            `${renderCardBadge("UQ")} For United flights, use United Quest to get miles, free bags/priority boarding, TravelBank benefits, and PQPs.`,
         };
       }
 
@@ -1057,7 +1074,7 @@
           return {
             card: "DG",
             channel: "delta",
-            reason: `DG: You marked this as threshold-chasing and you’ve logged ~$${state.dg10kSpendYTD.toFixed(
+            reason: `${renderCardBadge("DG")} You marked this as threshold-chasing and you’ve logged ~$${state.dg10kSpendYTD.toFixed(
               2
             )} toward the $10,000 YTD spend. Roughly $${remaining.toFixed(
               2
@@ -1068,7 +1085,7 @@
           card: "CSR",
           channel: "delta",
           reason:
-            "CSR: You’ve effectively hit the $10k Delta Gold spend threshold this year; treat this like a normal Delta flight and default to CSR for flexibility.",
+            `${renderCardBadge("CSR")} You’ve effectively hit the $10k Delta Gold spend threshold this year; treat this like a normal Delta flight and default to CSR for flexibility.`,
         };
       }
 
@@ -1078,7 +1095,7 @@
           card: "CSR",
           channel: "delta",
           reason:
-            "CSR: Delta flight booked direct and you’re not treating it as threshold-chasing; default to CSR for travel earn and flexibility.",
+            `${renderCardBadge("CSR")} Delta flight booked direct and you’re not treating it as threshold-chasing; default to CSR for travel earn and flexibility.`,
         };
       }
 
@@ -1088,7 +1105,7 @@
           card: "CSR",
           channel: "chase_travel",
           reason:
-            "CSR: Other airline – book via Chase Travel with CSR to keep travel earn in flexible points (no special airline perks dominating).",
+            `${renderCardBadge("CSR")} Other airline – book via Chase Travel with CSR to keep travel earn in flexible points (no special airline perks dominating).`,
         };
       }
 
@@ -1098,7 +1115,7 @@
           card: "MB",
           channel: "direct",
           reason:
-            "MB: Direct Marriott stay – use Brilliant for 6x Bonvoy points plus status alignment and Marriott-specific perks.",
+            `${renderCardBadge("MB")} Direct Marriott stay – use Brilliant for 6x Bonvoy points plus status alignment and Marriott-specific perks.`,
         };
       }
 
@@ -1108,7 +1125,7 @@
           card: "UQ",
           channel: "renowned_chase",
           reason:
-            "UQ: Renowned Hotels booking – use United Quest to trigger the Renowned credit and boosted United earn.",
+            `${renderCardBadge("UQ")} Renowned Hotels booking – use United Quest to trigger the Renowned credit and boosted United earn.`,
         };
       }
 
@@ -1119,7 +1136,7 @@
           return {
             card: "DG",
             channel: "delta_stays_platform",
-            reason: `DG: Use Delta Gold at Delta Stays until you’ve used the $100 annual credit (you’ve logged ~$${state.dgDeltaStaysYTD.toFixed(
+            reason: `${renderCardBadge("DG")} Use Delta Gold at Delta Stays until you’ve used the $100 annual credit (you’ve logged ~$${state.dgDeltaStaysYTD.toFixed(
               2
             )}, about $${remaining.toFixed(2)} remaining).`,
           };
@@ -1128,7 +1145,7 @@
           card: "CSR",
           channel: "delta_stays_platform",
           reason:
-            "CSR: Delta Stays annual credit looks used; defaulting to CSR for flexible travel points.",
+            `${renderCardBadge("CSR")} Delta Stays annual credit looks used; defaulting to CSR for flexible travel points.`,
         };
       }
 
@@ -1138,7 +1155,7 @@
           card: "CSR",
           channel: "chase_travel",
           reason:
-            "CSR: Non-Marriott hotel – book via Chase Travel with CSR to centralize travel earn in flexible points.",
+            `${renderCardBadge("CSR")} Non-Marriott hotel – book via Chase Travel with CSR to centralize travel earn in flexible points.`,
         };
       }
 
@@ -1149,7 +1166,7 @@
           return {
             card: "CSR",
             channel: "stubhub_platform",
-            reason: `CSR: Use CSR on StubHub/viagogo/soccer.com to work through the $150 semi-annual credit (you’ve logged ~$${state.csrStubhubThisPeriod.toFixed(
+            reason: `${renderCardBadge("CSR")} Use CSR on StubHub/viagogo/soccer.com to work through the $150 semi-annual credit (you’ve logged ~$${state.csrStubhubThisPeriod.toFixed(
               2
             )}, about $${remaining.toFixed(2)} remaining this period).`,
           };
@@ -1158,7 +1175,7 @@
           card: "CSR",
           channel: "stubhub_platform",
           reason:
-            "CSR: StubHub semi-annual credit looks used; CSR still wins here as default for flexibility.",
+            `${renderCardBadge("CSR")} StubHub semi-annual credit looks used; CSR still wins here as default for flexibility.`,
         };
       }
 
@@ -1169,7 +1186,7 @@
           return {
             card: "UQ",
             channel: "instacart_platform",
-            reason: `UQ: Use United Quest for Instacart to burn through the $15 monthly Instacart credits (you’ve logged ~$${state.uqInstacartThisMonth.toFixed(
+            reason: `${renderCardBadge("UQ")} Use United Quest for Instacart to burn through the $15 monthly Instacart credits (you’ve logged ~$${state.uqInstacartThisMonth.toFixed(
               2
             )}, about $${remaining.toFixed(2)} remaining).`,
           };
@@ -1178,7 +1195,7 @@
           card: "CSR",
           channel: "instacart_platform",
           reason:
-            "CSR: Instacart monthly credits look used; defaulting to CSR for flexible points.",
+            `${renderCardBadge("CSR")} Instacart monthly credits look used; defaulting to CSR for flexible points.`,
         };
       }
 
@@ -1188,7 +1205,7 @@
           card: "UQ",
           channel: "direct",
           reason:
-            "UQ: Streaming earns bonus miles on United Quest; after that, CSR stays your general default elsewhere.",
+            `${renderCardBadge("UQ")} Streaming earns bonus miles on United Quest; after that, CSR stays your general default elsewhere.`,
         };
       }
 
@@ -1199,7 +1216,7 @@
           return {
             card: "CSR",
             channel: "peloton_platform",
-            reason: `CSR: Use CSR for Peloton membership to consume the $10 monthly credit (you’ve logged ~$${state.csrPelotonThisMonth.toFixed(
+            reason: `${renderCardBadge("CSR")} Use CSR for Peloton membership to consume the $10 monthly credit (you’ve logged ~$${state.csrPelotonThisMonth.toFixed(
               2
             )}, about $${remaining.toFixed(2)} remaining).`,
           };
@@ -1208,7 +1225,7 @@
           card: "CSR",
           channel: "peloton_platform",
           reason:
-            "CSR: Peloton membership monthly credit looks used; CSR remains your default here for simplicity.",
+            `${renderCardBadge("CSR")} Peloton membership monthly credit looks used; CSR remains your default here for simplicity.`,
         };
       }
 
@@ -1217,7 +1234,7 @@
         card: "CSR",
         channel: "direct",
         reason:
-          "CSR: No special time-bound credit or category perk dominates here, so defaulting to CSR as you requested.",
+          `${renderCardBadge("CSR")} No special time-bound credit or category perk dominates here, so defaulting to CSR as you requested.`,
       };
     }
 
@@ -1274,7 +1291,11 @@
             return {
               card: benefit.card,
               channel: baseRec.channel, // keep same channel logic as category
-              reason: `${benefit.card}: merchant offer at ${benefit.merchant} – ${discountLabel} back in ${benefit.category}${limitLabel}, valid until ${benefit.endDate}. This cash discount takes priority over the usual points optimization.`,
+              reason: `${renderCardBadge(benefit.card)} Merchant offer at ${escapeHtml(
+                benefit.merchant
+              )} – ${discountLabel} back in ${escapeHtml(
+                benefit.category
+              )}${limitLabel}, valid until ${benefit.endDate}. This cash discount takes priority over the usual points optimization.`,
             };
           }
         }
@@ -1376,11 +1397,11 @@
         const expired = end && today && end < today;
     
         tr.innerHTML = `
-          <td>${b.merchant || ""}</td>
+          <td>${b.merchant ? escapeHtml(b.merchant) : ""}</td>
           <td>${b.card ? renderCardBadge(b.card) : ""}</td>
           <td>${discountText}</td>
           <td>${limitText}</td>
-          <td>${categoryText}</td>
+          <td>${escapeHtml(categoryText)}</td>
           <td>${endDateText}</td>
           <td>
             <button
@@ -1471,7 +1492,7 @@
       const channelLabel = CHANNEL_LABELS[rec.channel] || rec.channel;
       document.getElementById("recommendationBox").innerHTML =
         `Recommended: ${renderCardBadge(rec.card)} – ${channelLabel}`;
-      document.getElementById("reasonBox").textContent = rec.reason;
+      document.getElementById("reasonBox").innerHTML = rec.reason;
       document.getElementById("recommendationSection").style.display = "block";
 
       // Reset override dropdowns
