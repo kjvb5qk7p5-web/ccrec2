@@ -795,24 +795,26 @@
     }
 
     function cardBadgeSpan(cardCode) {
-      let label = cardCode;
-      let color = "#999";
+      // Normalize the input
+      const code = (cardCode || "").toUpperCase();
+      let label = code;
+      let variantClass = "";
     
-      if (cardCode === "CSR") {
-        label = "CS";
-        color = "#0047AB";
-      } else if (cardCode === "UQ") {
+      if (code === "CSR") {
+        label = "CS";      // display text
+        variantClass = "csr";
+      } else if (code === "UQ") {
         label = "UQ";
-        color = "#480080";
-      } else if (cardCode === "MB") {
+        variantClass = "uq";
+      } else if (code === "MB") {
         label = "MB";
-        color = "#999999";
-      } else if (cardCode === "DG") {
+        variantClass = "mb";
+      } else if (code === "DG") {
         label = "DG";
-        color = "#CE1126";
+        variantClass = "dg";
       }
     
-      return `<span class="card-badge card-${cardCode}">${label}</span>`;
+      return `<span class="card-badge ${variantClass}">${label}</span>`;
     }
 
     // ---------- State summary ----------
