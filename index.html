@@ -1446,84 +1446,87 @@
     }
 
     // Recommend button
-    document.getElementById("btnRecommend").addEventListener("click", () => {
-      const amount = document.getElementById("amount").value;
-      const date = document.getElementById("date").value;
-      const categoryValue = document.getElementById("category").value;
+// Recommend button
+document.getElementById("btnRecommend").addEventListener("click", () => {
+  const amount = document.getElementById("amount").value;
+  const date = document.getElementById("date").value;
+  const categoryValue = document.getElementById("category").value;
 
-      if (!amount || !date) {
-        alert("Please enter amount and date.");
-        return;
-      }
+  if (!amount || !date) {
+    alert("Please enter amount and date.");
+    return;
+  }
 
-      const txs = loadTransactions();
-      const cardState = computeState(txs);
-      const benefits = loadMerchantBenefits();
-      const merchantState = computeMerchantState(txs, benefits);
+  const txs = loadTransactions();
+  const cardState = computeState(txs);
+  const benefits = loadMerchantBenefits();
+  const merchantState = computeMerchantState(txs, benefits);
 
-      let purchase;
-      let merchantBenefitId = null;
+  let purchase;
+  let merchantBenefitId = null;
 
-      // If category is a merchant benefit (mb:<id>), map to underlying category
-      if (categoryValue.startsWith("mb:")) {
-        const id = categoryValue.slice(3);
-        const benefit = findBenefitById(id, benefits);
-        if (!benefit) {
-          alert("Selected merchant benefit not found. Try refreshing.");
-          return;
-        }
-        merchantBenefitId = id;
-        purchase = {
-          amount,
-          date,
-          category: benefit.category,
-          merchantBenefitId: id,
-        };
-      } else {
-        purchase = {
-          amount,
-          date,
-          category: categoryValue,
-        };
-      }
+  // If category is a merchant benefit (mb:<id>), map to underlying category
+  if (categoryValue.startsWith("mb:")) {
+    const id = categoryValue.slice(3);
+    const benefit = findBenefitById(id, benefits);
+    if (!benefit) {
+      alert("Selected merchant benefit not found. Try refreshing.");
+      return;
+    }
+    merchantBenefitId = id;
+    purchase = {
+      amount,
+      date,
+      category: benefit.category,
+      merchantBenefitId: id,
+    };
+  } else {
+    purchase = {
+      amount,
+      date,
+      category: categoryValue,
+    };
+  }
 
-      const rec = recommendCard(purchase, cardState, merchantState, benefits);
-      lastRecommendation = { purchase, rec };
+  const rec = recommendCard(purchase, cardState, merchantState, benefits);
+  lastRecommendation = { purchase, rec };
 
-      const channelLabel = CHANNEL_LABELS[rec.channel] || rec.channel;
-      document.getElementById("recommendationBox").innerHTML =
-        const recommendationBox = document.getElementById("recommendationBox");
-        const reasonBox = document.getElementById("reasonBox");
-        const cardBadge = renderCardBadge(rec.card);
-        
-        recommendationBox.innerHTML =
-          `<strong>Recommendation:</strong> ${cardBadge} – ${channelLabel}`;
-        
-        reasonBox.innerHTML =
-          `<br><strong>Reason:</strong> ${rec.reason}`;
+  const channelLabel = CHANNEL_LABELS[rec.channel] || rec.channel;
+  const cardBadge = renderCardBadge(rec.card);
 
-      document.getElementById("recommendationSection").style.display = "block";
+  const recommendationBox = document.getElementById("recommendationBox");
+  const reasonBox = document.getElementById("reasonBox");
 
-      // Reset override dropdowns
-      const cardSel = document.getElementById("cardUsedSelect");
-      cardSel.value = "";
+  // New formatted text
+  recommendationBox.innerHTML =
+    `<strong>Recommendation:</strong> ${cardBadge} – ${channelLabel}`;
 
-      const chanSelect = document.getElementById("channelUsedSelect");
-      chanSelect.innerHTML = "";
+  // Extra blank line, then Reason in bold (no badge repeated)
+  reasonBox.innerHTML =
+    `<br><strong>Reason:</strong> ${rec.reason}`;
 
-      const effectiveCategory = purchase.category;
-      const relevantChannels = CHANNELS_BY_CATEGORY[effectiveCategory] || ["direct"];
-      relevantChannels.forEach((code) => {
-        const opt = document.createElement("option");
-        opt.value = code;
-        opt.textContent = CHANNEL_LABELS[code] || code;
-        chanSelect.appendChild(opt);
-      });
+  document.getElementById("recommendationSection").style.display = "block";
 
-      if (relevantChannels.includes(rec.channel)) {
-        chanSelect.value = rec.channel;
-      }
-    });
+  // Reset override dropdowns
+  const cardSel = document.getElementById("cardUsedSelect");
+  cardSel.value = "";
+
+  const chanSelect = document.getElementById("channelUsedSelect");
+  chanSelect.innerHTML = "";
+
+  const effectiveCategory = purchase.category;
+  const relevantChannels = CHANNELS_BY_CATEGORY[effectiveCategory] || ["direct"];
+  relevantChannels.forEach((code) => {
+    const opt = document.createElement("option");
+    opt.value = code;
+    opt.textContent = CHANNEL_LABELS[code] || code;
+    chanSelect.appendChild(opt);
+  });
+
+  if (relevantChannels.includes(rec.channel)) {
+    chanSelect.value = rec.channel;
+  }
+});
 
     // Save transaction
     document.getElementById("btnSaveTx").addEventListener("click", () => {
