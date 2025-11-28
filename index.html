@@ -1492,8 +1492,16 @@
 
       const channelLabel = CHANNEL_LABELS[rec.channel] || rec.channel;
       document.getElementById("recommendationBox").innerHTML =
-        `Recommended: ${renderCardBadge(rec.card)} – ${channelLabel}`;
-      document.getElementById("reasonBox").innerHTML = rec.reason;
+        const recommendationBox = document.getElementById("recommendationBox");
+        const reasonBox = document.getElementById("reasonBox");
+        const cardBadge = renderCardBadge(rec.card);
+        
+        recommendationBox.innerHTML =
+          `<strong>Recommendation:</strong> ${cardBadge} – ${channelLabel}`;
+        
+        reasonBox.innerHTML =
+          `<br><strong>Reason:</strong> ${rec.reason}`;
+
       document.getElementById("recommendationSection").style.display = "block";
 
       // Reset override dropdowns
