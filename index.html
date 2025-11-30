@@ -1363,6 +1363,7 @@
     function recommendCard(purchase, cardState, merchantState, benefits) {
       const baseRec = recommendCardBase(purchase, cardState);
     
+      // 1) If there is a valid merchant benefit, that still takes over
       if (purchase.merchantBenefitId) {
         const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
         if (benefit) {
@@ -1392,9 +1393,7 @@
               benefit.discountType === "percent"
                 ? `${Number(benefit.discountValue || 0)}%`
                 : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
-
-            const categoryLabel = getCategoryLabel(benefit.category);
-
+    
             // For total-cap benefits, compute remaining for the bullet
             let remaining = null;
             if (hasTotalCap && totalLimit != null) {
@@ -1418,8 +1417,69 @@
         }
       }
     
-      // If benefit is expired, exhausted, or below min spend, fall back to base logic
-      return baseRec;
+      // 2) No usable merchant offer -> enrich the base card-native recommendation
+    
+      const rec = { ...baseRec };
+    
+      // Attach human-readable category label
+      rec.categoryLabel = getCategoryLabel(purchase.category);
+    
+      // Default main reason to existing reason text if not present
+      if (!rec.reasonMain && rec.reason) {
+        rec.reasonMain = rec.reason;
+      }
+    
+      // Attach bullet data where we track a clear cap / threshold
+      const cat = purchase.category;
+    
+      if (cat === "dining") {
+        const used = cardState.mbDiningThisMonth || 0;
+        const totalCap = 25; // $25 monthly dining credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "doordash") {
+        const used = cardState.csrDoordashThisMonth || 0;
+        const totalCap = 5; // $5/month Doordash credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "lyft") {
+        const used = cardState.csrLyftThisMonth || 0;
+        const totalCap = 10; // $10/month Lyft credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "rideshare_other") {
+        const used = cardState.uqRideshareThisMonth || 0;
+        const totalCap = 8; // $8/month rideshare credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "instacart") {
+        const used = cardState.uqInstacartThisMonth || 0;
+        const totalCap = 15; // $15/month Instacart credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "peloton") {
+        const used = cardState.csrPelotonThisMonth || 0;
+        const totalCap = 10; // $10/month Peloton credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "stubhub") {
+        const used = cardState.csrStubhubThisPeriod || 0;
+        const totalCap = 150; // $150 semi-annual StubHub/viagogo/soccer.com
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "delta_stays") {
+        const used = cardState.dgDeltaStaysYTD || 0;
+        const totalCap = 100; // $100/year Delta Stays credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "delta_flight_threshold") {
+        const used = cardState.dg10kSpendYTD || 0;
+        const totalCap = 10000; // $10k annual threshold for DG
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      }
+    
+      return rec;
     }
 
 
@@ -1678,6 +1738,11 @@
       // Final non-bulleted sentence (if applicable)
       if (rec.priorityCash) {
         html += `<p>This cash discount takes priority over the usual points optimization.</p>`;
+      }
+    
+      // Optional category label (mainly for card-native benefits)
+      if (rec.categoryLabel) {
+        html += `<p><em>Category: ${escapeHtml(rec.categoryLabel)}</em></p>`;
       }
     
       reasonBox.innerHTML = html;
