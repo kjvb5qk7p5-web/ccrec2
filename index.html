@@ -1106,16 +1106,15 @@
           return {
             card: "MB",
             channel: "direct",
-            reason: `Use Brilliant first to burn the $25 monthly dining credit (you’ve logged ~$${state.mbDiningThisMonth.toFixed(
-              2
-            )} so far this month).`,
+            reason:
+              "Use Brilliant first to use the $25 monthly dining credit before defaulting back to Chase Sapphire.",
           };
         }
         return {
           card: "CSR",
           channel: "direct",
           reason:
-            "MB dining credit looks used up for this month; default to CSR for flexible points and your stated preference.",
+            "MB dining credit is used up for this month; default to Chase Sapphire for flexible points and your stated preference.",
         };
       }
     
@@ -1125,16 +1124,15 @@
           return {
             card: "CSR",
             channel: "direct",
-            reason: `Use CSR first to burn the $5 monthly Doordash/food-delivery credit (you’ve logged ~$${state.csrDoordashThisMonth.toFixed(
-              2
-            )} so far this month).`,
+            reason:
+              "Use CSR first to use the $5 monthly Doordash/food-delivery credit.",
           };
         }
         return {
           card: "CSR",
           channel: "direct",
           reason:
-            "Doordash monthly credit is effectively used; still default to CSR for flexible points here.",
+            "Doordash monthly credit is used up; still default to Chase Sapphire for flexible points here.",
         };
       }
     
@@ -1144,18 +1142,15 @@
           return {
             card: "CSR",
             channel: "lyft_app",
-            reason: `Lyft has about $${(
-              10 - state.csrLyftThisMonth
-            ).toFixed(
-              2
-            )} of the $10 monthly CSR Lyft credit left, plus boosted points on Lyft.`,
+            reason:
+              "Use Chase Sapphire in the Lyft app to use your $10 monthly Lyft credit and earn boosted points.",
           };
         }
         return {
           card: "CSR",
           channel: "lyft_app",
           reason:
-            "Lyft monthly credit looks used, but CSR still wins here thanks to Lyft boosts and flexibility.",
+            "Lyft monthly credit is used up, but Chase Sapphire still wins here thanks to Lyft boosts and flexibility.",
         };
       }
     
@@ -1165,16 +1160,15 @@
           return {
             card: "UQ",
             channel: "direct",
-            reason: `Use United Quest first to burn the $8 monthly rideshare credit (you’ve logged ~$${state.uqRideshareThisMonth.toFixed(
-              2
-            )} so far this month).`,
+            reason:
+              "Use United Quest first to use the $8 monthly rideshare credit before defaulting back to Chase Sapphire.",
           };
         }
         return {
           card: "CSR",
           channel: "direct",
           reason:
-            "UQ rideshare monthly credit looks used; default to CSR for flexible points.",
+            "UQ rideshare monthly credit is used up; default to Chase Sapphire for flexible points.",
         };
       }
     
@@ -1190,23 +1184,19 @@
     
       // DELTA FLIGHTS – threshold chasing
       if (category === "delta_flight_threshold") {
-        const remaining = Math.max(0, 10000 - state.dg10kSpendYTD);
         if (state.dg10kSpendYTD < 10000) {
           return {
             card: "DG",
             channel: "delta",
-            reason: `You marked this as threshold-chasing and you’ve logged ~$${state.dg10kSpendYTD.toFixed(
-              2
-            )} toward the $10,000 YTD spend. Roughly $${remaining.toFixed(
-              2
-            )} to go; use Delta Gold here to work toward the $200 Delta Flight Credit.`,
+            reason:
+              "You marked this as threshold-chasing; use Delta Gold here to work toward the $10,000 YTD spend for the $200 Delta Flight Credit.",
           };
         }
         return {
           card: "CSR",
           channel: "delta",
           reason:
-            "You’ve effectively hit the $10k Delta Gold spend threshold this year; treat this like a normal Delta flight and default to CSR for flexibility.",
+            "You’ve hit the $10k Delta Gold spend threshold this year; treat this like a normal Delta flight and default to Chase Sapphire for flexibility.",
         };
       }
     
@@ -1216,7 +1206,7 @@
           card: "CSR",
           channel: "delta",
           reason:
-            "Delta flight booked direct and you’re not treating it as threshold-chasing; default to CSR for travel earn and flexibility.",
+            "Delta flight booked direct and you’re not treating it as threshold-chasing; default to Chase Sapphire for travel earn and flexibility.",
         };
       }
     
@@ -1226,7 +1216,7 @@
           card: "CSR",
           channel: "chase_travel",
           reason:
-            "Other airline – book via Chase Travel with CSR to keep travel earn in flexible points (no special airline perks dominating).",
+            "Other airline – book via Chase Travel with Chase Sapphire to keep travel earn in flexible points (no special airline perks dominating).",
         };
       }
     
@@ -1253,20 +1243,18 @@
       // DELTA STAYS
       if (category === "delta_stays") {
         if (state.dgDeltaStaysYTD < 100) {
-          const remaining = Math.max(0, 100 - state.dgDeltaStaysYTD);
           return {
             card: "DG",
             channel: "delta_stays_platform",
-            reason: `Use Delta Gold at Delta Stays until you’ve used the $100 annual credit (you’ve logged ~$${state.dgDeltaStaysYTD.toFixed(
-              2
-            )}, about $${remaining.toFixed(2)} remaining).`,
+            reason:
+              "Use Delta Gold at Delta Stays until you’ve used the $100 annual Delta Stays credit.",
           };
         }
         return {
           card: "CSR",
           channel: "delta_stays_platform",
           reason:
-            "Delta Stays annual credit looks used; defaulting to CSR for flexible travel points.",
+            "Delta Stays annual credit is used up; defaulting to Chase Sapphire for flexible travel points.",
         };
       }
     
@@ -1276,47 +1264,43 @@
           card: "CSR",
           channel: "chase_travel",
           reason:
-            "Non-Marriott hotel – book via Chase Travel with CSR to centralize travel earn in flexible points.",
+            "Non-Marriott hotel – book via Chase Travel with Chase Sapphire to centralize travel earn in flexible points.",
         };
       }
     
       // STUBHUB / VIAGOGO / SOCCER.COM
       if (category === "stubhub") {
         if (state.csrStubhubThisPeriod < 150) {
-          const remaining = Math.max(0, 150 - state.csrStubhubThisPeriod);
           return {
             card: "CSR",
             channel: "stubhub_platform",
-            reason: `Use CSR on StubHub/viagogo/soccer.com to work through the $150 semi-annual credit (you’ve logged ~$${state.csrStubhubThisPeriod.toFixed(
-              2
-            )}, about $${remaining.toFixed(2)} remaining this period).`,
+            reason:
+              "Use Chase Sapphire on StubHub/viagogo/soccer.com to work through the $150 semi-annual credit.",
           };
         }
         return {
           card: "CSR",
           channel: "stubhub_platform",
           reason:
-            "StubHub semi-annual credit looks used; CSR still wins here as default for flexibility.",
+            "StubHub semi-annual credit is used up; Chase Sapphire still wins here as default for flexibility.",
         };
       }
     
       // INSTACART
       if (category === "instacart") {
         if (state.uqInstacartThisMonth < 15) {
-          const remaining = Math.max(0, 15 - state.uqInstacartThisMonth);
           return {
             card: "UQ",
             channel: "instacart_platform",
-            reason: `Use United Quest for Instacart to burn through the $15 monthly Instacart credits (you’ve logged ~$${state.uqInstacartThisMonth.toFixed(
-              2
-            )}, about $${remaining.toFixed(2)} remaining).`,
+            reason:
+              "Use United Quest for Instacart to use the $15 monthly Instacart credits before defaulting to Chase Sapphire.",
           };
         }
         return {
           card: "CSR",
           channel: "instacart_platform",
           reason:
-            "Instacart monthly credits look used; defaulting to CSR for flexible points.",
+            "Instacart monthly credits are used up; defaulting to Chase Sapphire for flexible points.",
         };
       }
     
@@ -1326,27 +1310,25 @@
           card: "UQ",
           channel: "direct",
           reason:
-            "Streaming earns bonus miles on United Quest; after that, CSR stays your general default elsewhere.",
+            "Streaming earns bonus miles on United Quest; after that Chase Sapphire stays your general default.",
         };
       }
     
       // PELOTON MEMBERSHIP
       if (category === "peloton") {
         if (state.csrPelotonThisMonth < 10) {
-          const remaining = Math.max(0, 10 - state.csrPelotonThisMonth);
           return {
             card: "CSR",
             channel: "peloton_platform",
-            reason: `Use CSR for Peloton membership to consume the $10 monthly credit (you’ve logged ~$${state.csrPelotonThisMonth.toFixed(
-              2
-            )}, about $${remaining.toFixed(2)} remaining).`,
+            reason:
+              "Use Chase Sapphire for your Peloton membership to earn the $10 monthly credit.",
           };
         }
         return {
           card: "CSR",
           channel: "peloton_platform",
           reason:
-            "Peloton membership monthly credit looks used; CSR remains your default here for simplicity.",
+            "Peloton membership monthly credit is used up; Chase Sapphire remains your default here for simplicity.",
         };
       }
     
@@ -1355,9 +1337,9 @@
         card: "CSR",
         channel: "direct",
         reason:
-          "No special time-bound credit or category perk dominates here, so defaulting to CSR as you requested.",
+          "No special time-bound credit or category perk dominates here, so defaulting to Chase Sapphire as you requested.",
       };
-}
+    }
 
     // ---------- Merchant-first wrapper ----------
     function recommendCard(purchase, cardState, merchantState, benefits) {
