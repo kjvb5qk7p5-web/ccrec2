@@ -1405,7 +1405,7 @@
               card: benefit.card,
               channel: baseRec.channel, // keep same channel logic as category
               // Main sentence (shown right under "Reason:")
-              reasonMain: `Merchant offer at ${benefit.merchant} – ${discountLabel} back in ${benefit.category}.`,
+              reasonMain: `Merchant offer at ${benefit.merchant} – ${discountLabel} back in ${categoryLabel}.`,
               // Keep a plain reason as a fallback (not actually used by the new renderer)
               reason: `Merchant offer at ${benefit.merchant} – ${discountLabel} back in ${escapeHtml(categoryLabel)}.`,
               // Metadata for bullets:
