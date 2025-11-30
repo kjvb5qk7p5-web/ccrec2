@@ -458,6 +458,12 @@
       { value: "other",               label: "other / general spending" }
     ];
 
+    function getCategoryLabel(catValue) {
+    if (!catValue) return "";
+    const found = BASE_CATEGORIES.find(c => c.value === catValue);
+    return found ? found.label : catValue; // fall back to raw value if unknown
+    }
+
     // Channel label mapping for human-readable text
     const CHANNEL_LABELS = {
       direct: "direct with the merchant",
@@ -1386,7 +1392,9 @@
               benefit.discountType === "percent"
                 ? `${Number(benefit.discountValue || 0)}%`
                 : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
-    
+
+            const categoryLabel = getCategoryLabel(benefit.category);
+
             // For total-cap benefits, compute remaining for the bullet
             let remaining = null;
             if (hasTotalCap && totalLimit != null) {
@@ -1399,7 +1407,7 @@
               // Main sentence (shown right under "Reason:")
               reasonMain: `Merchant offer at ${benefit.merchant} – ${discountLabel} back in ${benefit.category}.`,
               // Keep a plain reason as a fallback (not actually used by the new renderer)
-              reason: `Merchant offer at ${benefit.merchant} – ${discountLabel} back in ${benefit.category}.`,
+              reason: `Merchant offer at ${benefit.merchant} – ${discountLabel} back in ${escapeHtml(categoryLabel)}.`,
               // Metadata for bullets:
               remainingAmount: remaining,          // e.g. 12.34
               totalCapAmount: totalLimit,          // e.g. 50.00
