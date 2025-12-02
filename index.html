@@ -989,11 +989,11 @@
         const met = used >= limit;
         const text = `${cardBadge(
           "DG"
-        )} $10k threshold (YTD): ~$${used.toFixed(
+        )} $10k threshold (YTD) for $200 Delta Flight Credit: ~$${used.toFixed(
           2
         )} of $${limit.toFixed(
           0
-        )} eligible spend toward the $200 Delta Flight Credit`;
+        )} spent so far`;
         ccLines.push(met ? `<span class="credit-met">${text}</span>` : text);
       }
     
@@ -1118,7 +1118,7 @@
           card: "CSR",
           channel: "direct",
           reason:
-            "Bonvoy Brilliant dining credit is used up for this month; default back to Chase Sapphire for flexible points.",
+            "Bonvoy Brilliant monthly dining credit is used up; default back to Chase Sapphire for flexible points.",
         };
       }
     
@@ -1220,7 +1220,7 @@
           card: "CSR",
           channel: "chase_travel",
           reason:
-            "Other airline – book via Chase Travel with Chase Sapphire to earn flexible points (no special airline perks dominating).",
+            "Other airline – book via Chase Travel with Chase Sapphire to earn flexible points (no special airline perks to earn).",
         };
       }
     
