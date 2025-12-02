@@ -233,18 +233,21 @@
   <!-- New purchase input -->
   <div class="card new-purchase-card">
     <h2>New Purchase</h2>
-    <label>
+    <label><strong>
       Amount ($)
+      </strong>
       <input type="number" id="amount" min="0" step="0.01" />
     </label>
 
-    <label>
+    <label><strong>
       Date
+      </strong>
       <input type="date" id="date" />
     </label>
 
-    <label>
+    <label><strong>
       Category
+      </strong>
       <!-- Options will be populated dynamically from BASE_CATEGORIES + merchant benefits -->
       <select id="category"></select>
     </label>
