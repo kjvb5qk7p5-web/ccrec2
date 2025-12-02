@@ -338,12 +338,12 @@
       <h3 style="margin-top:0.2rem;">Add / Edit Benefit</h3>
 
       <label>
-        Merchant
+        Merchant<br>
         <input type="text" id="benefitMerchant" placeholder="e.g., Starbucks" />
       </label>
 
       <label>
-        Card
+        Card<br>
         <select id="benefitCard">
           <option value="CSR">CSR</option>
           <option value="UQ">United Quest</option>
@@ -353,7 +353,7 @@
       </label>
 
       <label>
-        Discount type
+        Discount type<br>
         <select id="benefitDiscountType">
           <option value="percent">Percent (e.g. 10% back)</option>
           <option value="amount">Fixed amount ($ back)</option>
@@ -361,17 +361,17 @@
       </label>
 
       <label>
-        Discount value
+        Discount value<br>
         <input type="number" id="benefitDiscountValue" min="0" step="0.01" placeholder="e.g. 10 for 10% or $10" />
       </label>
 
       <label>
-        Minimum spend per transaction (optional, in $)
+        Minimum spend per transaction (optional, in $)<br>
         <input type="number" id="benefitMinSpend" min="0" step="0.01" placeholder="e.g. 50 means $50+ to trigger" />
       </label>
 
       <label>
-        Max total benefit type
+        Max total benefit type<br>
         <select id="benefitLimitType">
           <option value="per_tx">Per transaction</option>
           <option value="total">Total benefit cap</option>
@@ -379,17 +379,17 @@
       </label>
 
       <label>
-        Max total benefit value (optional, in $)
+        Max total benefit value (optional, in $)<br>
         <input type="number" id="benefitLimitValue" min="0" step="0.01" placeholder="e.g. 50 means up to $50 total" />
       </label>
 
       <label>
-        Benefit end date
+        Benefit end date<br>
         <input type="date" id="benefitEndDate" />
       </label>
 
       <label>
-        Category (for card recommendation logic)
+        Category (for card recommendation logic)<br>
         <select id="benefitCategory">
           <option value="dining">Dining / Restaurants</option>
           <option value="doordash">Doordash</option>
