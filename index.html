@@ -1655,11 +1655,17 @@
         tbody.appendChild(tr);
       });
     
-      // Wire up delete buttons
+      // Wire up delete buttons (with confirmation)
       tbody.querySelectorAll(".deleteBenefitBtn").forEach((btn) => {
         btn.addEventListener("click", () => {
           const idx = Number(btn.getAttribute("data-benefit-index"));
           const benefits = loadMerchantBenefits();
+          const benefit = benefits[idx];
+          const name = benefit && benefit.merchant ? benefit.merchant : "this benefit";
+      
+          const ok = confirm(`Delete merchant benefit for ${name}?`);
+          if (!ok) return;
+      
           benefits.splice(idx, 1);
           saveMerchantBenefits(benefits);
           renderMerchantBenefits();
