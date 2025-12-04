@@ -254,7 +254,28 @@
     .state-table tr.expiring-soon td {
       color: #DAA520;
     }
-  
+
+    /* Column widths for Current Credits & Offers state tables */
+    .state-table th:nth-child(1),
+    .state-table td:nth-child(1) {
+      width: 45%;  /* CC benefit / Merchant */
+    }
+    
+    .state-table th:nth-child(2),
+    .state-table td:nth-child(2) {
+      width: 15%;  /* Card badge */
+    }
+    
+    .state-table th:nth-child(3),
+    .state-table td:nth-child(3) {
+      width: 15%;  /* Time (Monthly / YTD / Semi-annual / etc.) */
+    }
+    
+    .state-table th:nth-child(4),
+    .state-table td:nth-child(4) {
+      width: 25%;  /* Usage text */
+    }
+
     /* Card badges */
     .card-badge {
       display: inline-block;
