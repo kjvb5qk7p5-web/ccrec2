@@ -250,9 +250,25 @@
       overflow-wrap: anywhere;
     }
   
-    /* Yellow for expiring-soon merchant benefits (≤7 days) in state tables */
-    .state-table tr.expiring-soon td {
+    /* Green for fully used benefits */
+    .state-table tr.credit-met td,
+    .state-table tr.credit-met-row td {
+      color: green;
+      font-weight: 600;
+    }
+    
+    /* Yellow for expiring-soon merchant benefits (≤7 days) */
+    .state-table tr.expiring-soon td,
+    .state-table tr.expiring-soon-row td {
       color: #DAA520;
+      font-weight: 600;
+    }
+    
+    /* Red for expired merchant benefits */
+    .state-table tr.expired td,
+    .state-table tr.expired-row td {
+      color: red;
+      font-weight: 600;
     }
 
     /* Column widths for Current Credits & Offers state tables */
