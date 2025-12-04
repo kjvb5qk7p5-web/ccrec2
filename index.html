@@ -228,12 +228,32 @@
       top: 0;
       z-index: 1;
     }
-    
+
+    .state-table-wrapper {
+      max-height: 50vh;   /* or 40vh / 60vh to taste */
+      overflow-y: auto;
+      margin-top: 6px;
+    }
+
+    .state-table thead th {
+      position: sticky;
+      top: 0;
+      background: #f7f7f7;
+      z-index: 1;
+    }
+
+
     /* Usage cell – keep numbers tidy */
     .state-summary-table td.usage-cell {
       white-space: nowrap;
     }
     
+    .state-table td.usage-cell {
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+    }
+
     /* Green for fully used benefits */
     .state-summary-table tr.credit-met-row td {
       color: green;
@@ -912,287 +932,274 @@
       const merchantState = computeMerchantState(txs, benefits);
       const el = document.getElementById("stateSummary");
     
-      const todayStr = formatTodayISO();
-      const todayDate = parseISODate(todayStr);
+      // Helper to render the little badge HTML
+      function cardBadge(code) {
+        const normalized = (code || "").toUpperCase();
+        let label = normalized;
+        if (normalized === "CSR") label = "CS";
     
-      // ---------- Credit Card Benefits (rows) ----------
+        const cls =
+          normalized === "CSR"
+            ? "csr"
+            : normalized === "UQ"
+            ? "uq"
+            : normalized === "MB"
+            ? "mb"
+            : normalized === "DG"
+            ? "dg"
+            : "";
+    
+        return `<span class="card-badge ${cls}">${label}</span>`;
+      }
+    
+      // ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
       const ccRows = [];
     
-      // CSR Travel (YTD, $300)
+      // CSR Travel credit (calendar year, $300)
       {
-        const used = cardState.csrTravelYTD;
+        const used = cardState.csrTravelYTD || 0;
         const limit = 300;
         ccRows.push({
-          benefit: "Travel",
+          label: "Travel credit",
           card: "CSR",
           time: "Annual (YTD)",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
-      // CSR StubHub semi-annual ($150)
+      // CSR StubHub semi-annual ($150 per 6-month period)
       {
-        const used = cardState.csrStubhubThisPeriod;
+        const used = cardState.csrStubhubThisPeriod || 0;
         const limit = 150;
         ccRows.push({
-          benefit: "StubHub / Tickets",
+          label: "StubHub / viagogo / soccer.com",
           card: "CSR",
           time: "Semi-annual",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
       // CSR Doordash $5/month
       {
-        const used = cardState.csrDoordashThisMonth;
+        const used = cardState.csrDoordashThisMonth || 0;
         const limit = 5;
         ccRows.push({
-          benefit: "Doordash",
+          label: "Doordash",
           card: "CSR",
           time: "Monthly",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
       // CSR Lyft $10/month
       {
-        const used = cardState.csrLyftThisMonth;
+        const used = cardState.csrLyftThisMonth || 0;
         const limit = 10;
         ccRows.push({
-          benefit: "Lyft",
+          label: "Lyft",
           card: "CSR",
           time: "Monthly",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
       // CSR Peloton $10/month
       {
-        const used = cardState.csrPelotonThisMonth;
+        const used = cardState.csrPelotonThisMonth || 0;
         const limit = 10;
         ccRows.push({
-          benefit: "Peloton membership",
+          label: "Peloton membership",
           card: "CSR",
           time: "Monthly",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
-      // UQ rideshare-other $8/month
+      // UQ Rideshare $8/month
       {
-        const used = cardState.uqRideshareThisMonth;
+        const used = cardState.uqRideshareThisMonth || 0;
         const limit = 8;
         ccRows.push({
-          benefit: "Other rideshare",
+          label: "Rideshare (other)",
           card: "UQ",
           time: "Monthly",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
       // UQ Instacart $15/month
       {
-        const used = cardState.uqInstacartThisMonth;
+        const used = cardState.uqInstacartThisMonth || 0;
         const limit = 15;
         ccRows.push({
-          benefit: "Instacart",
+          label: "Instacart",
           card: "UQ",
           time: "Monthly",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
       // MB Dining $25/month
       {
-        const used = cardState.mbDiningThisMonth;
+        const used = cardState.mbDiningThisMonth || 0;
         const limit = 25;
         ccRows.push({
-          benefit: "Dining",
+          label: "Dining credit",
           card: "MB",
           time: "Monthly",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
       // DG Delta Stays $100/year
       {
-        const used = cardState.dgDeltaStaysYTD;
+        const used = cardState.dgDeltaStaysYTD || 0;
         const limit = 100;
         ccRows.push({
-          benefit: "Delta Stays",
+          label: "Delta Stays",
           card: "DG",
           time: "Annual (YTD)",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
-      // DG $10k threshold (for $200 credit)
+      // DG $10k threshold
       {
-        const used = cardState.dg10kSpendYTD;
+        const used = cardState.dg10kSpendYTD || 0;
         const limit = 10000;
         ccRows.push({
-          benefit: "$10k Flight Threshold",
+          label: "$10k Delta spend threshold",
           card: "DG",
           time: "Annual (YTD)",
-          used,
-          limit,
-          met: used >= limit,
+          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          fullyUsed: used >= limit,
         });
       }
     
-      // ---------- Merchant Benefits (rows) ----------
+      // ---------- MERCHANT BENEFITS TABLE ROWS ----------
       const merchantRows = [];
-      if (benefits.length > 0) {
-        // Sort by merchant name for consistency
-        const sortedBenefits = [...benefits].sort((a, b) => {
-          const nameA = (a.merchant || "").toLowerCase();
-          const nameB = (b.merchant || "").toLowerCase();
-          return nameA.localeCompare(nameB);
-        });
-    
-        for (const benefit of sortedBenefits) {
-          const ms = merchantState[benefit.id] || { used: 0, limit: null };
-          const used = ms.used || 0;
-    
-          let limit = null;
-          if (
-            benefit.limitValue != null &&
-            !isNaN(benefit.limitValue)
-          ) {
-            limit = Number(benefit.limitValue);
-          }
-    
-          const end = parseISODate(benefit.endDate);
-          const expired = end && todayDate && end < todayDate;
-    
-          let expiringSoon = false;
-          if (!expired && end && todayDate) {
-            const soonCutoff = new Date(todayDate);
-            soonCutoff.setDate(soonCutoff.getDate() + 7);
-            expiringSoon = end >= todayDate && end <= soonCutoff;
-          }
-    
-          const hasTotalCap =
-            benefit.limitType === "total" && limit != null;
-          const fullyUsed = hasTotalCap && used >= limit;
-    
-          let timeText = "";
-          if (expired) {
-            timeText = "Expired";
-          } else if (benefit.endDate) {
-            timeText = `Thru ${benefit.endDate}`;
-          }
-    
-          merchantRows.push({
-            label: benefit.merchant || "",
-            card: benefit.card || "",
-            time: timeText,
-            used,
-            limit,
-            expired,
-            expiringSoon,
-            fullyUsed,
-          });
-        }
+      const today = parseISODate(formatTodayISO());
+      let soonCutoff = null;
+      if (today) {
+        soonCutoff = new Date(today);
+        soonCutoff.setDate(soonCutoff.getDate() + 7);
       }
     
-      // ---------- Build HTML for both tables ----------
+      // Sort benefits by merchant, then end date
+      const benefitsSorted = [...benefits].sort((a, b) => {
+        const nameA = (a.merchant || "").toLowerCase();
+        const nameB = (b.merchant || "").toLowerCase();
+        if (nameA !== nameB) return nameA.localeCompare(nameB);
+    
+        const endA = parseISODate(a.endDate);
+        const endB = parseISODate(b.endDate);
+        const timeA = endA ? endA.getTime() : Infinity;
+        const timeB = endB ? endB.getTime() : Infinity;
+        return timeA - timeB;
+      });
+    
+      for (const benefit of benefitsSorted) {
+        const ms = merchantState[benefit.id] || { used: 0, limit: null };
+        const used = ms.used || 0;
+    
+        const end = parseISODate(benefit.endDate);
+        const expired = end && today && end < today;
+        let expiringSoon = false;
+        if (!expired && end && today && soonCutoff) {
+          expiringSoon = end >= today && end <= soonCutoff;
+        }
+    
+        const hasTotalCap =
+          benefit.limitType === "total" &&
+          benefit.limitValue != null &&
+          !isNaN(benefit.limitValue);
+    
+        const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
+        const fullyUsed =
+          hasTotalCap && totalLimit != null && used >= totalLimit;
+    
+        // Usage text
+        let usageText;
+        if (hasTotalCap && totalLimit != null) {
+          usageText = `$${used.toFixed(2)} of $${totalLimit.toFixed(2)}`;
+        } else {
+          usageText = `$${used.toFixed(2)} used`;
+        }
+    
+        // Time text: just the date, optional "(expired)" – no "thru"
+        let timeText = benefit.endDate || "";
+        if (expired) {
+          timeText = timeText ? `${timeText} (expired)` : "Expired";
+        }
+    
+        merchantRows.push({
+          label: benefit.merchant || "",
+          card: benefit.card || "",
+          time: timeText,
+          usage: usageText,
+          fullyUsed,
+          expiringSoon: expiringSoon && !expired,
+        });
+      }
+    
+      // ---------- BUILD HTML ----------
       let html = "";
     
-      if (ccRows.length > 0) {
-        html += `
-          <div class="state-summary-section">
-            <h3>Credit Card Benefits</h3>
-            <div class="state-summary-scroll">
-              <table class="state-summary-table">
-                <thead>
-                  <tr>
-                    <th>Benefit</th>
-                    <th>Card</th>
-                    <th>Time</th>
-                    <th>Usage</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${ccRows
-                    .map((row) => {
-                      const rowClass = row.met ? "credit-met-row" : "";
-                      const usageText =
-                        row.limit != null
-                          ? `$${row.used.toFixed(2)} of $${row.limit.toFixed(0)}`
-                          : `$${row.used.toFixed(2)} used`;
-                      return `
-                        <tr class="${rowClass}">
-                          <td>${escapeHtml(row.benefit)}</td>
-                          <td>${renderCardBadge(row.card)}</td>
-                          <td>${escapeHtml(row.time)}</td>
-                          <td class="usage-cell">${usageText}</td>
-                        </tr>
-                      `;
-                    })
-                    .join("")}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      }
+      // Helper: build a table from row objects
+      function buildTable(title, rows, isMerchantTable) {
+        if (!rows || rows.length === 0) return "";
     
-      if (merchantRows.length > 0) {
-        html += `
-          <div class="state-summary-section">
-            <h3>Merchant Benefits</h3>
-            <div class="state-summary-scroll">
-              <table class="state-summary-table">
+        const headerLabel = isMerchantTable
+          ? "Merchant Benefit"
+          : "Benefit";
+    
+        const tableHtml = `
+          <div${isMerchantTable ? ' style="margin-top:8px;"' : ""}>
+            <h3>${title}</h3>
+            <div class="state-table-wrapper">
+              <table class="state-table">
                 <thead>
                   <tr>
-                    <th>Merchant Benefit</th>
+                    <th>${headerLabel}</th>
                     <th>Card</th>
                     <th>Time</th>
                     <th>Usage</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${merchantRows
+                  ${rows
                     .map((row) => {
                       const classes = [];
-                      if (row.expired) {
-                        classes.push("expired-row");
-                      } else if (row.fullyUsed) {
-                        classes.push("credit-met-row");
-                      } else if (row.expiringSoon) {
-                        classes.push("expiring-soon-row");
+                      if (row.fullyUsed) classes.push("credit-met");
+                      if (isMerchantTable && row.expiringSoon) {
+                        classes.push("expiring-soon");
                       }
+                      const classAttr =
+                        classes.length > 0
+                          ? ` class="${classes.join(" ")}"`
+                          : "";
     
-                      const usageText =
-                        row.limit != null
-                          ? `$${row.used.toFixed(2)} of $${row.limit.toFixed(2)}`
-                          : `$${row.used.toFixed(2)} used`;
+                      const usageCellHtml = row.fullyUsed
+                        ? `<span class="credit-met">${escapeHtml(
+                            row.usage
+                          )}</span>`
+                        : escapeHtml(row.usage);
     
                       return `
-                        <tr class="${classes.join(" ")}">
+                        <tr${classAttr}>
                           <td>${escapeHtml(row.label)}</td>
-                          <td>${renderCardBadge(row.card)}</td>
-                          <td>${escapeHtml(row.time || "")}</td>
-                          <td class="usage-cell">${usageText}</td>
+                          <td>${cardBadge(row.card)}</td>
+                          <td>${escapeHtml(row.time)}</td>
+                          <td class="usage-cell">${usageCellHtml}</td>
                         </tr>
                       `;
                     })
@@ -1202,7 +1209,11 @@
             </div>
           </div>
         `;
+        return tableHtml;
       }
+    
+      html += buildTable("Credit Card Benefits", ccRows, false);
+      html += buildTable("Merchant Benefits", merchantRows, true);
     
       if (!html) {
         html = `<span class="muted">No credits or offers logged yet.</span>`;
