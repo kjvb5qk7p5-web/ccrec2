@@ -1858,22 +1858,30 @@
 
     
 		const end = parseISODate(b.endDate);
-		let expired = end && today && end < today;
 		
+		// how many times benefit has been used
+		const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
+		const txCount = ms.txCount || 0;
+		
+		// normalize maxTransactions
+		const maxTx =
+		  b.maxTransactions != null && !isNaN(b.maxTransactions)
+		    ? Number(b.maxTransactions)
+		    : null;
+		
+		// two independent expiry sources
+		const expiredByDate = end && today && end < today;
+		const expiredByTx   = maxTx != null && txCount >= maxTx;
+		
+		// final expired flag: either condition makes it expired
+		const expired = expiredByDate || expiredByTx;
+		
+		// only compute "expiring soon" if it's NOT already expired
 		let expiringSoon = false;
 		if (!expired && end && today) {
 		  const soonCutoff = new Date(today);
 		  soonCutoff.setDate(soonCutoff.getDate() + 7);
 		  expiringSoon = end >= today && end <= soonCutoff;
-		}
-		
-		// NEW: expire when txCount >= maxTransactions
-		if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
-		  const maxTx = Number(b.maxTransactions);
-		  if (maxTx >= 0 && txCount >= maxTx) {
-			expired = true;
-			expiringSoon = false; // if you want tx cap to override "soon"
-		  }
 		}
     
         tr.innerHTML = `
