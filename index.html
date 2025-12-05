@@ -1790,146 +1790,143 @@
       }
     }
 
-    // ---------- Merchant benefits UI ----------
-    function renderMerchantBenefits() {
-      const benefits = loadMerchantBenefits();
-      const txs = loadTransactions();
-		const merchantState = computeMerchantState(txs, benefits);
-      const tbody = document.getElementById("benefitsTbody");
-      if (!tbody) return;
-    
-      tbody.innerHTML = "";
-    
-      const today = parseISODate(formatTodayISO());
-    
-      // Keep track of original index so delete still works correctly
-      const benefitsWithIndex = benefits.map((b, idx) => ({ b, idx }));
-    
-      // Sort by Merchant Name (case insensitive), then End Date
-      benefitsWithIndex.sort((a, b) => {
-        const nameA = (a.b.merchant || "").toLowerCase();
-        const nameB = (b.b.merchant || "").toLowerCase();
-        if (nameA !== nameB) {
-          return nameA.localeCompare(nameB);
-        }
-    
-        const endA = parseISODate(a.b.endDate);
-        const endB = parseISODate(b.b.endDate);
-        const timeA = endA ? endA.getTime() : Infinity;
-        const timeB = endB ? endB.getTime() : Infinity;
-        return timeA - timeB;
-      });
-    
-      benefitsWithIndex.forEach(({ b, idx }) => {
-        const tr = document.createElement("tr");
-    
-        const discountText =
-          b.discountType === "percent"
-            ? `${b.discountValue}% off`
-            : `$${Number(b.discountValue || 0).toFixed(2)} off`;
-    
-        const parts = [];
-        if (b.minSpend != null && !isNaN(b.minSpend) && Number(b.minSpend) > 0) {
-          parts.push(`Min $${Number(b.minSpend).toFixed(2)}`);
-        }
-        if (b.limitValue != null && !isNaN(b.limitValue)) {
-          const val = Number(b.limitValue).toFixed(2);
-          parts.push(
-            b.limitType === "per_tx"
-              ? `Up to $${val} / txn`
-              : `Up to $${val} total`
-          );
-        }
-        if (
-		  b.maxTransactions != null &&
-		  !isNaN(b.maxTransactions) &&
-		  Number(b.maxTransactions) > 0
-		) {
-		  parts.push(`up to ${Number(b.maxTransactions)} tx`);
-		}
+	// ---------- Merchant benefits UI ----------
+	function renderMerchantBenefits() {
+	  const benefits = loadMerchantBenefits();
+	  const txs = loadTransactions();
+	  const merchantState = computeMerchantState(txs, benefits);
+	  const tbody = document.getElementById("benefitsTbody");
+	  if (!tbody) return;
+	
+	  tbody.innerHTML = "";
+	
+	  const today = parseISODate(formatTodayISO());
+	
+	  // Keep track of original index so delete still works correctly
+	  const benefitsWithIndex = benefits.map((b, idx) => ({ b, idx }));
+	
+	  // Sort by Merchant Name (case insensitive), then End Date
+	  benefitsWithIndex.sort((a, b) => {
+	    const nameA = (a.b.merchant || "").toLowerCase();
+	    const nameB = (b.b.merchant || "").toLowerCase();
+	    if (nameA !== nameB) {
+	      return nameA.localeCompare(nameB);
+	    }
+	
+	    const endA = parseISODate(a.b.endDate);
+	    const endB = parseISODate(b.b.endDate);
+	    const timeA = endA ? endA.getTime() : Infinity;
+	    const timeB = endB ? endB.getTime() : Infinity;
+	    return timeA - timeB;
+	  });
+	
+	  benefitsWithIndex.forEach(({ b, idx }) => {
+	    const tr = document.createElement("tr");
+	
+	    const discountText =
+	      b.discountType === "percent"
+	        ? `${b.discountValue}% off`
+	        : `$${Number(b.discountValue || 0).toFixed(2)} off`;
+	
+	    const parts = [];
+	    if (b.minSpend != null && !isNaN(b.minSpend) && Number(b.minSpend) > 0) {
+	      parts.push(`Min $${Number(b.minSpend).toFixed(2)}`);
+	    }
+	    if (b.limitValue != null && !isNaN(b.limitValue)) {
+	      const val = Number(b.limitValue).toFixed(2);
+	      parts.push(
+	        b.limitType === "per_tx"
+	          ? `Up to $${val} / txn`
+	          : `Up to $${val} total`
+	      );
+	    }
+	    if (
+	      b.maxTransactions != null &&
+	      !isNaN(b.maxTransactions) &&
+	      Number(b.maxTransactions) > 0
+	    ) {
+	      parts.push(`up to ${Number(b.maxTransactions)} tx`);
+	    }
+	
+	    const limitText = parts.join("; ");
+	
+	    const categoryText = b.category || "";
+	    const endDateText = b.endDate || "";
+	
+	    // usage / tx-count state
+	    const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
+	    const txCount = ms.txCount || 0;
+	
+	    const end = parseISODate(b.endDate);
+	
+	    // normalize maxTransactions
+	    const maxTx =
+	      b.maxTransactions != null && !isNaN(b.maxTransactions)
+	        ? Number(b.maxTransactions)
+	        : null;
+	
+	    // two independent expiry sources
+	    const expiredByDate = end && today && end < today;
+	    const expiredByTx = maxTx != null && txCount >= maxTx;
+	
+	    // final expired flag: either condition makes it expired
+	    const expired = expiredByDate || expiredByTx;
+	
+	    // only compute "expiring soon" if it's NOT already expired
+	    let expiringSoon = false;
+	    if (!expired && end && today) {
+	      const soonCutoff = new Date(today);
+	      soonCutoff.setDate(soonCutoff.getDate() + 7);
+	      expiringSoon = end >= today && end <= soonCutoff;
+	    }
+	
+	    tr.innerHTML = `
+	      <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : ""}</td>
+	      <td>${b.card ? renderCardBadge(b.card) : ""}</td>
+	      <td>${discountText}</td>
+	      <td>${limitText}</td>
+	      <td>${escapeHtml(categoryText)}</td>
+	      <td>${endDateText}</td>
+	      <td>
+	        <button
+	          type="button"
+	          class="deleteBenefitBtn"
+	          data-benefit-index="${idx}"
+	        >
+	          Del
+	        </button>
+	      </td>
+	    `;
+	
+	    if (expired) {
+	      tr.classList.add("expired-benefit");
+	    } else if (expiringSoon) {
+	      tr.classList.add("expiring-soon");
+	    }
+	
+	    tbody.appendChild(tr);
+	  });
+	
+	  // Wire up delete buttons (with confirmation)
+	  tbody.querySelectorAll(".deleteBenefitBtn").forEach((btn) => {
+	    btn.addEventListener("click", () => {
+	      const idx = Number(btn.getAttribute("data-benefit-index"));
+	      const benefits = loadMerchantBenefits();
+	      const benefit = benefits[idx];
+	      const name = benefit && benefit.merchant ? benefit.merchant : "this benefit";
+	
+	      const ok = confirm(`Delete merchant benefit for ${name}?`);
+	      if (!ok) return;
+	
+	      benefits.splice(idx, 1);
+	      saveMerchantBenefits(benefits);
+	      renderMerchantBenefits();
+	      populateCategorySelect(); // keep the New Purchase categories in sync
+	      renderStateSummary();     // and the top usage summary
+	    });
+	  });
+	}
 
-        const limitText = parts.join("; ");
-    
-        const categoryText = b.category || "";
-        const endDateText = b.endDate || "";
-        
-        const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
-		const txCount = ms.txCount || 0;
-
-    
-		const end = parseISODate(b.endDate);
-		
-		// how many times benefit has been used
-		const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
-		const txCount = ms.txCount || 0;
-		
-		// normalize maxTransactions
-		const maxTx =
-		  b.maxTransactions != null && !isNaN(b.maxTransactions)
-		    ? Number(b.maxTransactions)
-		    : null;
-		
-		// two independent expiry sources
-		const expiredByDate = end && today && end < today;
-		const expiredByTx   = maxTx != null && txCount >= maxTx;
-		
-		// final expired flag: either condition makes it expired
-		const expired = expiredByDate || expiredByTx;
-		
-		// only compute "expiring soon" if it's NOT already expired
-		let expiringSoon = false;
-		if (!expired && end && today) {
-		  const soonCutoff = new Date(today);
-		  soonCutoff.setDate(soonCutoff.getDate() + 7);
-		  expiringSoon = end >= today && end <= soonCutoff;
-		}
-    
-        tr.innerHTML = `
-          <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : ""}</td>
-          <td>${b.card ? renderCardBadge(b.card) : ""}</td>
-          <td>${discountText}</td>
-          <td>${limitText}</td>
-          <td>${escapeHtml(categoryText)}</td>
-          <td>${endDateText}</td>
-          <td>
-            <button
-              type="button"
-              class="deleteBenefitBtn"
-              data-benefit-index="${idx}"
-            >
-              Del
-            </button>
-          </td>
-        `;
-    
-        if (expired) {
-          tr.classList.add("expired-benefit");
-        } else if (expiringSoon) {
-          tr.classList.add("expiring-soon");
-        }
-    
-        tbody.appendChild(tr);
-      });
-    
-      // Wire up delete buttons (with confirmation)
-      tbody.querySelectorAll(".deleteBenefitBtn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const idx = Number(btn.getAttribute("data-benefit-index"));
-          const benefits = loadMerchantBenefits();
-          const benefit = benefits[idx];
-          const name = benefit && benefit.merchant ? benefit.merchant : "this benefit";
-      
-          const ok = confirm(`Delete merchant benefit for ${name}?`);
-          if (!ok) return;
-      
-          benefits.splice(idx, 1);
-          saveMerchantBenefits(benefits);
-          renderMerchantBenefits();
-          populateCategorySelect(); // keep the New Purchase categories in sync
-          renderStateSummary();     // and the top usage summary
-        });
-      });
-    }
 
     // ---------- UI wiring ----------
 
