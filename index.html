@@ -240,7 +240,13 @@
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
-  
+
+	  /* Make the first column in the usage summary tables bold */
+		.state-table th:first-child,
+		.state-table td:first-child {
+		  font-weight: 600;
+		}
+
     .state-table thead th {
       background: #f7f7f7;
       position: sticky;
