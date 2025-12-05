@@ -1497,10 +1497,12 @@
           "No special time-bound credit or category perk dominates here; default to Chase Sapphire for flexible points.",
       };
     }
-
+    
     // ---------- Merchant-first wrapper ----------
     function recommendCard(purchase, cardState, merchantState, benefits) {
       const baseRec = recommendCardBase(purchase, cardState);
+      let belowMinForMerchant = false;   // track that we skipped due to min spend
+      let belowMinAmount = null;         // store the min spend amount
     
       // 1) If there is a valid merchant benefit, that still takes over
       if (purchase.merchantBenefitId) {
@@ -1544,7 +1546,7 @@
               channel: baseRec.channel, // keep same channel logic as category
               // Main sentence (shown right under "Reason:")
               reasonMain: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
-              // Keep a plain reason as a fallback (not actually used by the new renderer)
+              // Plain-text backup
               reason: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
               // Metadata for bullets:
               remainingAmount: remaining,          // e.g. 12.34
@@ -1553,11 +1555,16 @@
               priorityCash: true,                  // to show the final sentence
             };
           }
+    
+          // Only flag this if the *reason* we didn't use the benefit is min spend
+          if (!expired && !exhausted && belowMinSpend && minSpend != null) {
+            belowMinForMerchant = true;
+            belowMinAmount = minSpend;
+          }
         }
       }
     
       // 2) No usable merchant offer -> enrich the base card-native recommendation
-    
       const rec = { ...baseRec };
     
       // Attach human-readable category label
@@ -1618,9 +1625,20 @@
         rec.totalCapAmount = totalCap;
       }
     
+      // 3) If we skipped the merchant benefit because of min spend, prepend note
+      if (belowMinForMerchant && belowMinAmount != null) {
+        const prefix =
+          `Minimum spend of $${belowMinAmount.toFixed(2)} ` +
+          `for this merchant benefit is not met. `;
+        if (rec.reasonMain) {
+          rec.reasonMain = prefix + rec.reasonMain;
+        } else if (rec.reason) {
+          rec.reason = prefix + rec.reason;
+        }
+      }
+    
       return rec;
     }
-
 
     // ---------- Category select population ----------
     function populateCategorySelect() {
