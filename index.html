@@ -504,6 +504,17 @@
         <input type="number" id="benefitLimitValue" min="0" step="0.01" placeholder="e.g. 50 means up to $50 total" />
       </label>
 
+		<label>
+		  Max number of transactions (optional)<br>
+		  <input
+			type="number"
+			id="benefitMaxTx"
+			min="0"
+			step="1"
+			placeholder="e.g. 3 means up to 3 uses"
+		  />
+		</label>
+
       <label>
         Benefit end date<br>
         <input type="date" id="benefitEndDate" />
@@ -854,6 +865,7 @@
 
       for (const benefit of benefits) {
         let used = 0;
+        let txCount = 0; 
         const end = parseISODate(benefit.endDate);
 
         const minSpend =
@@ -917,6 +929,11 @@
           }
 
           used += discount;
+          
+          if (discount > 0) {
+		  txCount += 1;
+		  }
+
         }
 
         state[benefit.id] = {
@@ -924,6 +941,7 @@
           limit: benefit.limitValue != null && !isNaN(benefit.limitValue)
             ? Number(benefit.limitValue)
             : null,
+          txCount,
         };
       }
 
@@ -1137,12 +1155,25 @@
       });
     
       for (const benefit of benefitsSorted) {
-        const ms = merchantState[benefit.id] || { used: 0, limit: null };
-        const used = ms.used || 0;
-    
-        const end = parseISODate(benefit.endDate);
-        const expired = end && today && end < today;
-        let expiringSoon = false;
+		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+		const used = ms.used || 0;
+		const txCount = ms.txCount || 0;
+		
+		const end = parseISODate(benefit.endDate);
+		let expired = end && today && end < today;
+		let expiringSoon = false;
+		if (!expired && end && today && soonCutoff) {
+		  expiringSoon = end >= today && end <= soonCutoff;
+		}
+		
+		// NEW: expire when max transaction count hit
+		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+		  const maxTx = Number(benefit.maxTransactions);
+		  if (maxTx >= 0 && txCount >= maxTx) {
+			expired = true;
+			expiringSoon = false;
+		  }
+		}
         if (!expired && end && today && soonCutoff) {
           expiringSoon = end >= today && end <= soonCutoff;
         }
@@ -1517,15 +1548,26 @@
           const end = parseISODate(benefit.endDate);
           const expired = end && purchaseDate && purchaseDate > end;
     
-          const ms = merchantState[benefit.id] || { used: 0, limit: null };
-          const hasTotalCap =
-            benefit.limitType === "total" &&
-            benefit.limitValue != null &&
-            !isNaN(benefit.limitValue);
-    
-          const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
-          const exhausted =
-            hasTotalCap && totalLimit != null && ms.used >= totalLimit;
+			const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+			
+			const hasTotalCap =
+			  benefit.limitType === "total" &&
+			  benefit.limitValue != null &&
+			  !isNaN(benefit.limitValue);
+			
+			const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
+			const exhaustedByTotal =
+			  hasTotalCap && totalLimit != null && ms.used >= totalLimit;
+			
+			let exhaustedByTx = false;
+			if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+			  const maxTx = Number(benefit.maxTransactions);
+			  if (maxTx >= 0 && ms.txCount >= maxTx) {
+				exhaustedByTx = true;
+			  }
+			}
+			
+			const exhausted = exhaustedByTotal || exhaustedByTx;
     
           const amount = Number(purchase.amount) || 0;
           const minSpend =
@@ -1682,7 +1724,17 @@
             return false;
           }
         }
-    
+        
+        // Check if fully used by max transaction count
+		if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
+		  const ms = merchantState[b.id] || { txCount: 0 };
+		  const maxTx = Number(b.maxTransactions);
+		  if (maxTx >= 0 && ms.txCount >= maxTx) {
+			// hit max transaction count; hide from dropdown
+			return false;
+		  }
+		}
+
         return true;
       });
     
@@ -1734,6 +1786,8 @@
     // ---------- Merchant benefits UI ----------
     function renderMerchantBenefits() {
       const benefits = loadMerchantBenefits();
+      const txs = loadTransactions();
+		const merchantState = computeMerchantState(txs, benefits);
       const tbody = document.getElementById("benefitsTbody");
       if (!tbody) return;
     
@@ -1779,20 +1833,41 @@
               : `Up to $${val} total`
           );
         }
+        if (
+		  b.maxTransactions != null &&
+		  !isNaN(b.maxTransactions) &&
+		  Number(b.maxTransactions) > 0
+		) {
+		  parts.push(`up to ${Number(b.maxTransactions)} tx`);
+		}
+
         const limitText = parts.join("; ");
     
         const categoryText = b.category || "";
         const endDateText = b.endDate || "";
+        
+        const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
+		const txCount = ms.txCount || 0;
+
     
-        const end = parseISODate(b.endDate);
-        const expired = end && today && end < today;
-    
-        let expiringSoon = false;
-        if (!expired && end && today) {
-          const soonCutoff = new Date(today);
-          soonCutoff.setDate(soonCutoff.getDate() + 7);
-          expiringSoon = end >= today && end <= soonCutoff;
-        }
+		const end = parseISODate(b.endDate);
+		let expired = end && today && end < today;
+		
+		let expiringSoon = false;
+		if (!expired && end && today) {
+		  const soonCutoff = new Date(today);
+		  soonCutoff.setDate(soonCutoff.getDate() + 7);
+		  expiringSoon = end >= today && end <= soonCutoff;
+		}
+		
+		// NEW: expire when txCount >= maxTransactions
+		if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
+		  const maxTx = Number(b.maxTransactions);
+		  if (maxTx >= 0 && txCount >= maxTx) {
+			expired = true;
+			expiringSoon = false; // if you want tx cap to override "soon"
+		  }
+		}
     
         tr.innerHTML = `
           <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : ""}</td>
@@ -2085,6 +2160,7 @@
       const discountValueRaw = document.getElementById("benefitDiscountValue").value;
       const limitType = document.getElementById("benefitLimitType").value;
       const limitValueRaw = document.getElementById("benefitLimitValue").value;
+		const maxTxRaw = document.getElementById("benefitMaxTx").value;
       const minSpendRaw = document.getElementById("benefitMinSpend").value;
       const endDate = document.getElementById("benefitEndDate").value;
       const category = document.getElementById("benefitCategory").value;
@@ -2118,6 +2194,19 @@
         }
       }
 
+		let maxTransactions = null;
+		if (maxTxRaw !== "") {
+		  maxTransactions = Number(maxTxRaw);
+		  if (
+			isNaN(maxTransactions) ||
+			maxTransactions < 0 ||
+			!Number.isInteger(maxTransactions)
+		  ) {
+			alert("Maximum transactions must be a non-negative whole number.");
+			return;
+		  }
+		}
+
       const id = "mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
 
       const newBenefit = {
@@ -2131,6 +2220,7 @@
         minSpend,
         endDate,
         category,
+        maxTransactions,
       };
 
       const benefits = loadMerchantBenefits();
@@ -2143,6 +2233,7 @@
       document.getElementById("benefitLimitValue").value = "";
       document.getElementById("benefitMinSpend").value = "";
       document.getElementById("benefitEndDate").value = "";
+      document.getElementById("benefitMaxTx").value = "";
 
       renderMerchantBenefits();
       populateCategorySelect();
