@@ -1172,6 +1172,7 @@
           usage: usageText,
           fullyUsed,
           expiringSoon: expiringSoon && !expired,
+          expired,  
         });
       }
     
@@ -1203,9 +1204,15 @@
                   ${rows
                     .map((row) => {
                       const classes = [];
-                      if (row.fullyUsed) classes.push("credit-met");
-                      if (isMerchantTable && row.expiringSoon) {
-                        classes.push("expiring-soon");
+                      
+                      if (isMerchantTable && row.expired) {
+                        // expired wins over other states
+                        classes.push("expired");
+                      } else {
+                        if (row.fullyUsed) classes.push("credit-met");
+                        if (isMerchantTable && row.expiringSoon) {
+                          classes.push("expiring-soon");
+                        }
                       }
                       const classAttr =
                         classes.length > 0
