@@ -1193,13 +1193,14 @@
         const fullyUsed =
           hasTotalCap && totalLimit != null && used >= totalLimit;
     
-        // Usage text
-        let usageText;
-        if (hasTotalCap && totalLimit != null) {
-          usageText = `$${used.toFixed(2)} of $${totalLimit.toFixed(2)}`;
-        } else {
-          usageText = `$${used.toFixed(2)} used`;
-        }
+		// Usage text
+		let usageText;
+		if (hasTotalCap && totalLimit != null) {
+		  const roundedLimit = Math.round(totalLimit);  // nearest dollar
+		  usageText = `$${used.toFixed(2)} of $${roundedLimit.toFixed(0)}`;
+		} else {
+		  usageText = `$${used.toFixed(2)} used`;
+		}
     
         // Time text: just the date, optional "(expired)" – no "thru"
         let timeText = benefit.endDate || "";
