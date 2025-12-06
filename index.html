@@ -2190,6 +2190,17 @@
       renderTransactions();
       renderStateSummary();
 
+      // Auto-hide the recommendation section after saving
+      document.getElementById("recommendationSection").style.display = "none";
+      document.getElementById("recommendationBox").textContent = "";
+      document.getElementById("reasonBox").textContent = "";
+      
+      // Clear the form
+      document.getElementById("amount").value = "";
+      document.getElementById("category").value = "dining";
+      
+      lastRecommendation = null;
+		
       alert("Purchase saved.");
     });
 
