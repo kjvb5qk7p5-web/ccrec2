@@ -2213,6 +2213,13 @@
         return;
       }
 
+      // Validate that category is actually valid
+      const validCategories = BASE_CATEGORIES.map(c => c.value);
+      if (!validCategories.includes(category)) {
+        alert("Invalid category selected. Please choose a valid category.");
+        return;
+      }
+
       const discountValue = Number(discountValueRaw);
       if (isNaN(discountValue) || discountValue <= 0) {
         alert("Discount value must be a positive number.");
