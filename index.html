@@ -1036,7 +1036,18 @@
       const benefits = loadMerchantBenefits();
       const merchantState = computeMerchantState(txs, benefits);
       const el = document.getElementById("stateSummary");
-    
+
+	  // Helper to format usage amounts:
+	  // - ≤ 99.99 → show cents
+	  // - > 99.99 → round to nearest dollar
+	  function formatUsageAmount(value) {
+	  const num = Number(value) || 0;
+		  if (Math.abs(num) > 99.99) {
+		    return num.toFixed(0);
+		  }
+	  return num.toFixed(2);
+	  }
+
       // Helper to render the little badge HTML
       function cardBadge(code) {
         const normalized = (code || "").toUpperCase();
@@ -1068,7 +1079,7 @@
           label: "Travel credit",
           card: "CSR",
           time: "Annual (YTD)",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1081,7 +1092,7 @@
           label: "StubHub / viagogo / soccer.com",
           card: "CSR",
           time: "Semi-annual",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1094,7 +1105,7 @@
           label: "Doordash",
           card: "CSR",
           time: "Monthly",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1107,7 +1118,7 @@
           label: "Lyft",
           card: "CSR",
           time: "Monthly",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1120,7 +1131,7 @@
           label: "Peloton membership",
           card: "CSR",
           time: "Monthly",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1133,7 +1144,7 @@
           label: "Rideshare (other)",
           card: "UQ",
           time: "Monthly",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1146,7 +1157,7 @@
           label: "Instacart",
           card: "UQ",
           time: "Monthly",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1159,7 +1170,7 @@
           label: "Dining credit",
           card: "MB",
           time: "Monthly",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1172,7 +1183,7 @@
           label: "Delta Stays",
           card: "DG",
           time: "Annual (YTD)",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1185,7 +1196,7 @@
           label: "$10k Delta spend threshold",
           card: "DG",
           time: "Annual (YTD)",
-          usage: `$${used.toFixed(2)} of $${limit.toFixed(0)}`,
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
@@ -1247,11 +1258,13 @@
     
 		// Usage text
 		let usageText;
+		const usedStr = formatUsageAmount(used);
+		
 		if (hasTotalCap && totalLimit != null) {
-		  const roundedLimit = Math.round(totalLimit);  // nearest dollar
-		  usageText = `$${used.toFixed(2)} of $${roundedLimit.toFixed(0)}`;
+		  const limitStr = formatUsageAmount(totalLimit);
+		  usageText = `$${usedStr} of $${limitStr}`;
 		} else {
-		  usageText = `$${used.toFixed(2)} used`;
+		  usageText = `$${usedStr} used`;
 		}
     
         // Time text: just the date, optional "(expired)" – no "thru"
