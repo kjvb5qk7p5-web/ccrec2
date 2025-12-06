@@ -1253,11 +1253,17 @@
 		const txCount = ms.txCount || 0;
 		
 		const end = parseISODate(benefit.endDate);
-		let expired = end && today && end < today;
-		let expiringSoon = false;
-		if (!expired && end && today && soonCutoff) {
-		  expiringSoon = end >= today && end <= soonCutoff;
-		}
+        
+        // Normalize to date-only for fair comparison (end date is inclusive)
+        const endDateOnly = end ? new Date(end.getFullYear(), end.getMonth(), end.getDate()) : null;
+        const todayDateOnly = today ? new Date(today.getFullYear(), today.getMonth(), today.getDate()) : null;
+        
+        let expired = endDateOnly && todayDateOnly && todayDateOnly > endDateOnly;
+        let expiringSoon = false;
+        if (!expired && endDateOnly && todayDateOnly && soonCutoff) {
+          const soonCutoffDateOnly = new Date(soonCutoff.getFullYear(), soonCutoff.getMonth(), soonCutoff.getDate());
+          expiringSoon = todayDateOnly >= endDateOnly && todayDateOnly <= soonCutoffDateOnly;
+        }		
 		
 		// NEW: expire when max transaction count hit
 		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
@@ -1955,8 +1961,12 @@
 	        ? Number(b.maxTransactions)
 	        : null;
 	
+		// Normalize to date-only for fair comparison
+	    const endDateOnly = end ? new Date(end.getFullYear(), end.getMonth(), end.getDate()) : null;
+	    const todayDateOnly = today ? new Date(today.getFullYear(), today.getMonth(), today.getDate()) : null;
+	
 	    // two independent expiry sources
-	    const expiredByDate = end && today && end < today;
+	    const expiredByDate = endDateOnly && todayDateOnly && todayDateOnly > endDateOnly;
 	    const expiredByTx = maxTx != null && txCount >= maxTx;
 	
 	    // final expired flag: either condition makes it expired
@@ -1964,12 +1974,12 @@
 	
 	    // only compute "expiring soon" if it's NOT already expired
 	    let expiringSoon = false;
-	    if (!expired && end && today) {
-	      const soonCutoff = new Date(today);
+	    if (!expired && endDateOnly && todayDateOnly) {
+	      const soonCutoff = new Date(todayDateOnly);
 	      soonCutoff.setDate(soonCutoff.getDate() + 7);
-	      expiringSoon = end >= today && end <= soonCutoff;
-	    }
-	
+	      expiringSoon = endDateOnly >= todayDateOnly && endDateOnly <= soonCutoff;
+	    }	
+		  
 	    tr.innerHTML = `
 	      <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : ""}</td>
 	      <td>${b.card ? renderCardBadge(b.card) : ""}</td>
