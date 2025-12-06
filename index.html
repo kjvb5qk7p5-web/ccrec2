@@ -2360,7 +2360,7 @@
       renderStateSummary();
     });
 
-      // Init on load
+	  // Init on load
       initFormDefaults();               // sets date to today
       renderTransactions();
       renderMerchantBenefits();
@@ -2368,8 +2368,10 @@
       
       // Default category to Dining / Restaurants on first load
       const categorySelect = document.getElementById("category");
-      if (categorySelect) {
+      if (categorySelect && categorySelect.querySelector('option[value="dining"]')) {
         categorySelect.value = "dining";
+      } else if (categorySelect && categorySelect.options.length > 0) {
+        categorySelect.value = categorySelect.options[0].value;
       }
       
       renderStateSummary();
