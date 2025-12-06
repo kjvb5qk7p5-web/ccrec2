@@ -427,38 +427,6 @@
     <div id="stateSummary" class="muted"></div>
   </div>
 
-  <!-- Logged transactions -->
-  <div class="card">
-    <h2>Logged Purchases</h2>
-
-    <button id="toggleLogBtn" style="margin-bottom:8px;">
-      Show
-    </button>
-
-    <div id="logContent" style="display:none;">
-      <table id="loggedTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Channel</th>
-            <th>Card Used</th>
-          </tr>
-        </thead>
-        <tbody id="txTableBody"></tbody>
-      </table>
-
-      <button id="btnClear" style="margin-top:10px;">
-        Clear All Logged Purchases
-      </button>
-
-      <p class="muted">
-        Stored in your browser’s localStorage. Clearing your browser data will wipe this.
-      </p>
-    </div>
-  </div>
-
   <!-- Merchant Benefits Management -->
   <div class="card merch-input">
     <h2>Merchant Benefits</h2>
@@ -577,6 +545,38 @@
 
       <p class="muted">
         Merchant benefits are stored locally in your browser (separate from purchases).
+      </p>
+    </div>
+  </div>
+
+  <!-- Logged transactions -->
+  <div class="card">
+    <h2>Logged Purchases</h2>
+
+    <button id="toggleLogBtn" style="margin-bottom:8px;">
+      Show
+    </button>
+
+    <div id="logContent" style="display:none;">
+      <table id="loggedTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Channel</th>
+            <th>Card Used</th>
+          </tr>
+        </thead>
+        <tbody id="txTableBody"></tbody>
+      </table>
+
+      <button id="btnClear" style="margin-top:10px;">
+        Clear All Logged Purchases
+      </button>
+
+      <p class="muted">
+        Stored in your browser’s localStorage. Clearing your browser data will wipe this.
       </p>
     </div>
   </div>
