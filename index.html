@@ -355,6 +355,11 @@
       font-size: 0.5rem;
       padding: 1px 4px;
     }
+
+	.tx-delete-badge {
+	  cursor: pointer;
+	}
+
   </style>
 </head>
 <body>
@@ -723,34 +728,75 @@
     }
 
     // ---------- Render transactions ----------
-    function renderTransactions() {
-      const txs = loadTransactions();
-      const tbody = document.getElementById("txTableBody");
-      tbody.innerHTML = "";
-
-      txs.forEach((tx) => {
-        const tr = document.createElement("tr");
-        const tdDate = document.createElement("td");
-        const tdAmt = document.createElement("td");
-        const tdCat = document.createElement("td");
-        const tdChan = document.createElement("td");
-        const tdCard = document.createElement("td");
-
-        tdDate.textContent = tx.date || "";
-        tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
-        tdCat.textContent = tx.category || "";
-        tdChan.textContent = tx.channel || "";
-        tdCard.innerHTML = tx.cardUsed ? renderCardBadge(tx.cardUsed) : "";
-
-        tr.appendChild(tdDate);
-        tr.appendChild(tdAmt);
-        tr.appendChild(tdCat);
-        tr.appendChild(tdChan);
-        tr.appendChild(tdCard);
-
-        tbody.appendChild(tr);
-      });
-    }
+	function renderTransactions() {
+	  const txs = loadTransactions();
+	  const tbody = document.getElementById("txTableBody");
+	  tbody.innerHTML = "";
+	
+	  txs.forEach((tx, idx) => {
+	    const tr = document.createElement("tr");
+	    const tdDate = document.createElement("td");
+	    const tdAmt = document.createElement("td");
+	    const tdCat = document.createElement("td");
+	    const tdChan = document.createElement("td");
+	    const tdCard = document.createElement("td");
+	
+	    tdDate.textContent = tx.date || "";
+	    tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
+	    tdCat.textContent = tx.category || "";
+	    tdChan.textContent = tx.channel || "";
+	
+	    if (tx.cardUsed) {
+	      // Build a special badge just for the log, with a data index
+	      const code = String(tx.cardUsed).toUpperCase();
+	      const cls = code.toLowerCase();              // csr, uq, mb, dg
+	      const label = code === "CSR" ? "CS" : code;  // match your global style
+	
+	      tdCard.innerHTML = `
+	        <span
+	          class="card-badge ${cls} tx-delete-badge"
+	          data-tx-index="${idx}"
+	        >
+	          ${label}
+	        </span>
+	      `;
+	    } else {
+	      tdCard.textContent = "";
+	    }
+	
+	    tr.appendChild(tdDate);
+	    tr.appendChild(tdAmt);
+	    tr.appendChild(tdCat);
+	    tr.appendChild(tdChan);
+	    tr.appendChild(tdCard);
+	
+	    tbody.appendChild(tr);
+	  });
+	
+	  // Wire up "secret" delete handlers on the badges
+	  tbody.querySelectorAll(".tx-delete-badge").forEach((badge) => {
+	    badge.addEventListener("click", () => {
+	      const idx = Number(badge.getAttribute("data-tx-index"));
+	      const txs = loadTransactions();
+	      const tx = txs[idx];
+	
+	      const desc = tx
+	        ? `${tx.date || ""}  $${Number(tx.amount || 0).toFixed(2)}  ${tx.category || ""}`.trim()
+	        : "this transaction";
+	
+	      const ok = confirm(`Delete ${desc}?`);
+	      if (!ok) return;
+	
+	      txs.splice(idx, 1);
+	      saveTransactions(txs);
+	
+	      // Re-render everything that depends on txs
+	      renderTransactions();
+	      renderStateSummary();
+	      populateCategorySelect(); // merchant offers might re-open if usage drops
+	    });
+	  });
+	}
 
     // ---------- Card-native benefits state ----------
     function computeState(txs, now) {
