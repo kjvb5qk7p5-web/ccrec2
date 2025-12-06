@@ -1659,6 +1659,7 @@
               totalCapAmount: totalLimit,          // e.g. 50.00
               expiresOn: benefit.endDate || null,  // "yyyy-mm-dd"
               priorityCash: true,                  // to show the final sentence
+			  categoryLabel: getCategoryLabel(purchase.category),  // to show the category label consistent with other cases
             };
           }
     
