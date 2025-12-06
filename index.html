@@ -865,9 +865,13 @@
 
         const amt = Number(tx.amount) || 0;
 
-        const inMonth = d >= monthStart && d <= nowDate;
-        const inYear = d >= yearStart && d <= nowDate;
-        const inStubhubPeriod = d >= stubhubPeriodStart && d <= nowDate;
+        // Normalize to date-only for fair comparison
+        const dDateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const nowDateOnly = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
+
+        const inMonth = dDateOnly >= monthStart && dDateOnly <= nowDateOnly;
+        const inYear = dDateOnly >= yearStart && dDateOnly <= nowDateOnly;
+        const inStubhubPeriod = dDateOnly >= stubhubPeriodStart && dDateOnly <= nowDateOnly;
 
         // Monthly-limited benefits
         if (inMonth) {
@@ -952,8 +956,14 @@
 
           const d = parseISODate(tx.date);
           if (!d) continue;
-          if (d > nowDate) continue;
-          if (end && d > end) continue;
+          
+          // Normalize to date-only (midnight) for fair comparison
+          const dDateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+          const nowDateOnly = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
+          const endDateOnly = end ? new Date(end.getFullYear(), end.getMonth(), end.getDate()) : null;
+          
+          if (dDateOnly > nowDateOnly) continue;
+          if (endDateOnly && dDateOnly > endDateOnly) continue;
 
           if (tx.cardUsed && tx.cardUsed !== benefit.card) {
             // Logged with a different card than this benefit is on -> ignore
