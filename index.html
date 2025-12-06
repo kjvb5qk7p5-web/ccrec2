@@ -1030,29 +1030,6 @@
       return state;
     }
 
-    function cardBadgeSpan(cardCode) {
-      // Normalize the input
-      const code = (cardCode || "").toUpperCase();
-      let label = code;
-      let variantClass = "";
-    
-      if (code === "CSR") {
-        label = "CS";      // display text
-        variantClass = "csr";
-      } else if (code === "UQ") {
-        label = "UQ";
-        variantClass = "uq";
-      } else if (code === "MB") {
-        label = "MB";
-        variantClass = "mb";
-      } else if (code === "DG") {
-        label = "DG";
-        variantClass = "dg";
-      }
-    
-      return `<span class="card-badge ${variantClass}">${label}</span>`;
-    }
-
     // ---------- State summary ----------
     function renderStateSummary() {
       const txs = loadTransactions();
@@ -1072,27 +1049,7 @@
 	  return num.toFixed(2);
 	  }
 
-      // Helper to render the little badge HTML
-      function cardBadge(code) {
-        const normalized = (code || "").toUpperCase();
-        let label = normalized;
-        if (normalized === "CSR") label = "CS";
-    
-        const cls =
-          normalized === "CSR"
-            ? "csr"
-            : normalized === "UQ"
-            ? "uq"
-            : normalized === "MB"
-            ? "mb"
-            : normalized === "DG"
-            ? "dg"
-            : "";
-    
-        return `<span class="card-badge ${cls}">${label}</span>`;
-      }
-    
-      // ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
+	// ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
       const ccRows = [];
     
       // CSR Travel credit (calendar year, $300)
