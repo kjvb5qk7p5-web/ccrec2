@@ -590,12 +590,16 @@
         <tbody id="txTableBody"></tbody>
       </table>
 
-      <button id="btnClear" style="margin-top:10px;">
-        Clear All Logged Purchases
-      </button>
+      <div style="margin-top:10px;">
+        <button id="btnExportData">Export All Data</button>
+        <button id="btnImportData" style="margin-left:8px;">Import Data</button>
+        <button id="btnClear" style="margin-left:8px;">Clear All Purchases</button>
+      </div>
+      
+      <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
 
       <p class="muted">
-        Stored in your browser’s localStorage. Clearing your browser data will wipe this.
+        Stored in your browser's localStorage. Export to backup your data before clearing browser data.
       </p>
     </div>
   </div>
@@ -1024,6 +1028,88 @@
 		  }
 	  return num.toFixed(2);
 	  }
+
+	// Export all data to JSON file
+    function exportAllData() {
+      const data = {
+        version: "1.0",
+        exportDate: new Date().toISOString(),
+        transactions: loadTransactions(),
+        merchantBenefits: loadMerchantBenefits()
+      };
+
+      const dataStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `card-advisor-backup-${formatTodayISO()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // Import data from JSON file
+    function importDataFromFile(file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          
+          // Validate the data structure
+          if (!data.version) {
+            alert("Invalid backup file format.");
+            return;
+          }
+
+          // Validate transactions array
+          if (!Array.isArray(data.transactions)) {
+            alert("Invalid transactions data in backup file.");
+            return;
+          }
+
+          // Validate merchant benefits array
+          if (!Array.isArray(data.merchantBenefits)) {
+            alert("Invalid merchant benefits data in backup file.");
+            return;
+          }
+
+          // Ask for confirmation
+          const txCount = data.transactions.length;
+          const benefitCount = data.merchantBenefits.length;
+          const msg = `Import ${txCount} transactions and ${benefitCount} merchant benefits?\n\nThis will REPLACE all current data.`;
+          
+          if (!confirm(msg)) {
+            return;
+          }
+
+          // Import the data
+          saveTransactions(data.transactions);
+          saveMerchantBenefits(data.merchantBenefits);
+
+          // Re-render everything
+          renderTransactions();
+          renderMerchantBenefits();
+          populateCategorySelect();
+          renderStateSummary();
+
+          alert(`Successfully imported ${txCount} transactions and ${benefitCount} merchant benefits!`);
+
+        } catch (error) {
+          alert("Error reading backup file. Make sure it's a valid JSON file exported from this app.");
+          console.error("Import error:", error);
+        }
+      };
+
+      reader.onerror = function() {
+        alert("Error reading file. Please try again.");
+      };
+
+      reader.readAsText(file);
+    }
 
 	// ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
       const ccRows = [];
@@ -2334,6 +2420,26 @@
       populateCategorySelect(); // keep the New Purchase categories in sync
       renderStateSummary();     // and the top usage summary
     });
+	  
+	    // Export button handler
+	    document.getElementById("btnExportData").addEventListener("click", () => {
+	      exportAllData();
+	    });
+	
+	    // Import button handler
+	    document.getElementById("btnImportData").addEventListener("click", () => {
+	      document.getElementById("fileImportInput").click();
+	    });
+	
+	    // File input change handler
+	    document.getElementById("fileImportInput").addEventListener("change", (e) => {
+	      const file = e.target.files[0];
+	      if (file) {
+	        importDataFromFile(file);
+	        // Clear the input so the same file can be selected again
+	        e.target.value = '';
+	      }
+	    });
 	  
 	  // Init on load
       initFormDefaults();               // sets date to today
