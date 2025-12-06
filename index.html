@@ -745,6 +745,88 @@
       return benefits.find((b) => b.id === id) || null;
     }
 
+	    // Export all data to JSON file
+    function exportAllData() {
+      const data = {
+        version: "1.0",
+        exportDate: new Date().toISOString(),
+        transactions: loadTransactions(),
+        merchantBenefits: loadMerchantBenefits()
+      };
+
+      const dataStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `card-advisor-backup-${formatTodayISO()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // Import data from JSON file
+    function importDataFromFile(file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          
+          // Validate the data structure
+          if (!data.version) {
+            alert("Invalid backup file format.");
+            return;
+          }
+
+          // Validate transactions array
+          if (!Array.isArray(data.transactions)) {
+            alert("Invalid transactions data in backup file.");
+            return;
+          }
+
+          // Validate merchant benefits array
+          if (!Array.isArray(data.merchantBenefits)) {
+            alert("Invalid merchant benefits data in backup file.");
+            return;
+          }
+
+          // Ask for confirmation
+          const txCount = data.transactions.length;
+          const benefitCount = data.merchantBenefits.length;
+          const msg = `Import ${txCount} transactions and ${benefitCount} merchant benefits?\n\nThis will REPLACE all current data.`;
+          
+          if (!confirm(msg)) {
+            return;
+          }
+
+          // Import the data
+          saveTransactions(data.transactions);
+          saveMerchantBenefits(data.merchantBenefits);
+
+          // Re-render everything
+          renderTransactions();
+          renderMerchantBenefits();
+          populateCategorySelect();
+          renderStateSummary();
+
+          alert(`Successfully imported ${txCount} transactions and ${benefitCount} merchant benefits!`);
+
+        } catch (error) {
+          alert("Error reading backup file. Make sure it's a valid JSON file exported from this app.");
+          console.error("Import error:", error);
+        }
+      };
+
+      reader.onerror = function() {
+        alert("Error reading file. Please try again.");
+      };
+
+      reader.readAsText(file);
+    }
+
     // ---------- Render transactions ----------
 	function renderTransactions() {
 	  const txs = loadTransactions();
@@ -1028,88 +1110,6 @@
 		  }
 	  return num.toFixed(2);
 	  }
-
-	// Export all data to JSON file
-    function exportAllData() {
-      const data = {
-        version: "1.0",
-        exportDate: new Date().toISOString(),
-        transactions: loadTransactions(),
-        merchantBenefits: loadMerchantBenefits()
-      };
-
-      const dataStr = JSON.stringify(data, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `card-advisor-backup-${formatTodayISO()}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }
-
-    // Import data from JSON file
-    function importDataFromFile(file) {
-      const reader = new FileReader();
-      
-      reader.onload = function(e) {
-        try {
-          const data = JSON.parse(e.target.result);
-          
-          // Validate the data structure
-          if (!data.version) {
-            alert("Invalid backup file format.");
-            return;
-          }
-
-          // Validate transactions array
-          if (!Array.isArray(data.transactions)) {
-            alert("Invalid transactions data in backup file.");
-            return;
-          }
-
-          // Validate merchant benefits array
-          if (!Array.isArray(data.merchantBenefits)) {
-            alert("Invalid merchant benefits data in backup file.");
-            return;
-          }
-
-          // Ask for confirmation
-          const txCount = data.transactions.length;
-          const benefitCount = data.merchantBenefits.length;
-          const msg = `Import ${txCount} transactions and ${benefitCount} merchant benefits?\n\nThis will REPLACE all current data.`;
-          
-          if (!confirm(msg)) {
-            return;
-          }
-
-          // Import the data
-          saveTransactions(data.transactions);
-          saveMerchantBenefits(data.merchantBenefits);
-
-          // Re-render everything
-          renderTransactions();
-          renderMerchantBenefits();
-          populateCategorySelect();
-          renderStateSummary();
-
-          alert(`Successfully imported ${txCount} transactions and ${benefitCount} merchant benefits!`);
-
-        } catch (error) {
-          alert("Error reading backup file. Make sure it's a valid JSON file exported from this app.");
-          console.error("Import error:", error);
-        }
-      };
-
-      reader.onerror = function() {
-        alert("Error reading file. Please try again.");
-      };
-
-      reader.readAsText(file);
-    }
 
 	// ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
       const ccRows = [];
