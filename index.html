@@ -140,6 +140,13 @@
     #loggedTable td {
       padding: 2px 4px;
     }
+
+	#loggedTable thead th {
+	position: sticky;
+	top: 0;
+	z-index: 2;         /* above table rows */
+	background: #f7f7f7; /* so it doesn't go transparent over content */
+	}
   
     /* Column widths so Logged Purchases fits nicely on mobile */
     #loggedTable th:nth-child(1),
@@ -174,6 +181,13 @@
     #benefitsTable th {
       background: #f7f7f7;
     }
+
+	#benefitsTable thead th {
+	position: sticky;
+	top: 0;
+	z-index: 2;      /* slightly above row contents */
+	background: #f7f7f7;  /* ensure it covers rows while stuck */
+	}
   
     /* Column widths (sum ≈ 100%) */
     #benefitsTable th:nth-child(1),
