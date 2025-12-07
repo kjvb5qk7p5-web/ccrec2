@@ -2214,6 +2214,7 @@
       saveTransactions(txs);
       renderTransactions();
       renderStateSummary();
+	  populateCategorySelect();
 
       // Auto-hide the recommendation section after saving
       document.getElementById("recommendationSection").style.display = "none";
@@ -2260,6 +2261,7 @@
       saveTransactions([]);
       renderTransactions();
       renderStateSummary();
+	  populateCategorySelect();
     });
 
     // Show/Hide Logged Purchases
