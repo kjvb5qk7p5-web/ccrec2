@@ -1955,7 +1955,7 @@
 	      parts.push(`Min $${formatUsageAmount(b.minSpend)}`);
 	    }
 	    if (b.limitValue != null && !isNaN(b.limitValue)) {
-	      const val = Number(b.limitValue).toFixed(2);
+	      const val = formatUsageAmount(b.limitValue);
 	      parts.push(
 	        b.limitType === "per_tx"
 	          ? `Up to $${val} / txn`
