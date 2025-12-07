@@ -608,6 +608,25 @@
     const STORAGE_KEY = "cardAdvisorTxsV1";
     const MERCHANT_BENEFITS_KEY = "cardAdvisorMerchantBenefitsV1";
 
+	let storageErrorShown = false;
+
+	function safeSetItem(key, value) {
+	  try {
+	    localStorage.setItem(key, value);
+	    return true;
+	  } catch (err) {
+	    console.error("localStorage setItem failed:", err);
+	    if (!storageErrorShown) {
+	      alert(
+	        "Could not save data to this browser's storage.\n" +
+	        "Your entries will work for now but will not persist if you close the page."
+	      );
+	      storageErrorShown = true;
+	    }
+	    return false;
+	  }
+	}
+
     // Base categories (what used to be hard-coded in the HTML select)
     const BASE_CATEGORIES = [
       { value: "dining",              label: "Dining / Restaurants" },
@@ -768,8 +787,8 @@
     }
 
     function saveTransactions(txs) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(txs));
-    }
+	  safeSetItem(STORAGE_KEY, JSON.stringify(txs));
+	}
 
     // ---------- Merchant benefits storage ----------
     function loadMerchantBenefits() {
@@ -785,8 +804,8 @@
     }
 
     function saveMerchantBenefits(benefits) {
-      localStorage.setItem(MERCHANT_BENEFITS_KEY, JSON.stringify(benefits));
-    }
+	  safeSetItem(MERCHANT_BENEFITS_KEY, JSON.stringify(benefits));
+	}
 
     function findBenefitById(id, benefits) {
       return benefits.find((b) => b.id === id) || null;
