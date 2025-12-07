@@ -1716,7 +1716,7 @@
         if (benefit) {
           const purchaseDate = parseISODate(purchase.date);
           const end = parseISODate(benefit.endDate);
-          const expired = end && purchaseDate && purchaseDate > end;
+          const { expired } = classifyBenefitEnd(benefit.endDate, purchaseDate);
     
 			const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
 			
@@ -2042,7 +2042,7 @@
 	    }
 		  
 	    tr.innerHTML = `
-	      <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : ""}</td>
+	      <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : "<em>(unnamed)</em>"}</td>
 	      <td>${b.card ? renderCardBadge(b.card) : ""}</td>
 	      <td>${discountText}</td>
 	      <td>${limitText}</td>
