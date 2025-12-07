@@ -377,6 +377,7 @@
   </style>
 </head>
 <body>
+  <div id="globalStatus"></div>
   <h1>Which Credit Card?</h1>
 <p class="blackmuted">
   Local optimizer for 4 credit cards: <br>
@@ -625,6 +626,12 @@
 	    }
 	    return false;
 	  }
+	}
+
+	function setStatus(message) {
+	  const el = document.getElementById("globalStatus");
+	  if (!el) return;
+	  el.textContent = message || "";
 	}
 
     // Base categories (what used to be hard-coded in the HTML select)
