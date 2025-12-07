@@ -720,6 +720,11 @@
 	  return num.toFixed(2);
 	}
 
+	function getSemiannualLabel(now = new Date()) {
+	  const month = now.getMonth(); // 0 = Jan, ... 11 = Dec
+	  return month < 6 ? "Jan–Jun" : "Jul–Dec";
+	}
+
     // ---------- Transactions storage ----------
     function loadTransactions() {
       try {
@@ -1136,7 +1141,7 @@
         ccRows.push({
           label: "StubHub / viagogo / soccer.com",
           card: "CSR",
-          time: "Semi-annual",
+          time: getSemiannualLabel(),
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
