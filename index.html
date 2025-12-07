@@ -1952,7 +1952,7 @@
 	
 	    const parts = [];
 	    if (b.minSpend != null && !isNaN(b.minSpend) && Number(b.minSpend) > 0) {
-	      parts.push(`Min $${Number(b.minSpend).toFixed(2)}`);
+	      parts.push(`Min $${formatUsageAmount(b.minSpend)}`);
 	    }
 	    if (b.limitValue != null && !isNaN(b.limitValue)) {
 	      const val = Number(b.limitValue).toFixed(2);
