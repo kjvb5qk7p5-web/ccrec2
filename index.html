@@ -316,6 +316,11 @@
       font-weight: 600;
     }
 
+	.usage-positive {
+	  color: green;
+	  font-weight: normal;
+	}
+
     /* Column widths for Current Credits & Offers state tables */
     .state-table th:nth-child(1),
     .state-table td:nth-child(1) {
@@ -1420,6 +1425,7 @@
           fullyUsed,
           expiringSoon: expiringSoon && !expired,
           expired,  
+		  usedAmount: used,
         });
       }
     
@@ -1453,10 +1459,10 @@
 		                const classes = [];
 		
 		                if (isMerchantTable) {
-		                  // Precedence for merchant rows:
-		                  // 1) fully used by total $ cap  -> green (credit-met)
-		                  // 2) expired by date OR max-tx  -> red (expired)
-		                  // 3) expiring soon by date      -> yellow (expiring-soon)
+		                  // MERCHANT PRECEDENCE:
+		                  // 1) fully used by total $ cap -> green row (credit-met)
+		                  // 2) expired by date or max-tx -> red row
+		                  // 3) expiring soon by date    -> yellow row
 		                  if (row.fullyUsed) {
 		                    classes.push("credit-met");
 		                  } else if (row.expired) {
@@ -1465,7 +1471,7 @@
 		                    classes.push("expiring-soon");
 		                  }
 		                } else {
-		                  // Card-native benefits: just mark fully used
+		                  // CARD BENEFITS: keep original behavior
 		                  if (row.fullyUsed) {
 		                    classes.push("credit-met");
 		                  }
@@ -1474,9 +1480,30 @@
 		                const classAttr =
 		                  classes.length > 0 ? ` class="${classes.join(" ")}"` : "";
 		
-		                const usageCellHtml = row.fullyUsed
-		                  ? `<span class="credit-met">${escapeHtml(row.usage)}</span>`
-		                  : escapeHtml(row.usage);
+		                // ----- Usage cell formatting -----
+		                let usageCellHtml;
+		
+		                if (row.fullyUsed) {
+		                  // For fully used (merchant or card), keep old behavior:
+		                  // bold + green via credit-met span.
+		                  usageCellHtml = `<span class="credit-met">${escapeHtml(
+		                    row.usage
+		                  )}</span>`;
+		                } else if (
+		                  isMerchantTable &&
+		                  row.usedAmount != null &&
+		                  !isNaN(row.usedAmount) &&
+		                  Number(row.usedAmount) > 0
+		                ) {
+		                  // For all *other* merchant situations:
+		                  // if used > 0, make the usage cell text green, normal weight.
+		                  usageCellHtml = `<span class="usage-positive">${escapeHtml(
+		                    row.usage
+		                  )}</span>`;
+		                } else {
+		                  // Default unstyled usage text
+		                  usageCellHtml = escapeHtml(row.usage);
+		                }
 		
 		                return `
 		                  <tr${classAttr}>
