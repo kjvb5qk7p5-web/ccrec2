@@ -2059,28 +2059,42 @@
 	    const categoryText = b.category || "";
 	    const endDateText = b.endDate || "";
 	
-	    // usage / tx-count state
-	    const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
-	    const txCount = ms.txCount || 0;
-	
-	    // normalize maxTransactions
-	    const maxTx =
-	      b.maxTransactions != null && !isNaN(b.maxTransactions)
-	        ? Number(b.maxTransactions)
-	        : null;
-	
-	    // Date-based expiry (inclusive end date, shared logic)
-	    let { expired: expiredByDate, expiringSoon } = classifyBenefitEnd(b.endDate, today);
-	
-	    // Transaction-count based expiry
-	    const expiredByTx = maxTx != null && txCount >= maxTx;
-	
-	    // Final flags
-	    const expired = expiredByDate || expiredByTx;
-	    if (expiredByTx) {
-	      // If we hit the tx cap, don't also show as "expiring soon"
-	      expiringSoon = false;
-	    }
+		// usage / tx-count state
+		const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
+		const used = ms.used || 0;
+		const txCount = ms.txCount || 0;
+		
+		// normalize maxTransactions
+		const maxTx =
+		  b.maxTransactions != null && !isNaN(b.maxTransactions)
+		    ? Number(b.maxTransactions)
+		    : null;
+		
+		// Date-based expiry (inclusive end date, shared logic)
+		let { expired: expiredByDate, expiringSoon } = classifyBenefitEnd(b.endDate, today);
+		
+		// Transaction-count based expiry
+		const expiredByTx = maxTx != null && txCount >= maxTx;
+		
+		// Total-cap-based expiry (only for limitType === "total")
+		let expiredByCap = false;
+		if (
+		  b.limitType === "total" &&
+		  b.limitValue != null &&
+		  !isNaN(b.limitValue)
+		) {
+		  const totalCap = Number(b.limitValue);
+		  if (totalCap > 0 && used >= totalCap) {
+		    expiredByCap = true;
+		  }
+		}
+		
+		// Final flags
+		const expired = expiredByDate || expiredByTx || expiredByCap;
+		if (expiredByTx || expiredByCap) {
+		  // If we hit tx cap or total cap, don't also show "expiring soon"
+		  expiringSoon = false;
+		}
 		  
 	    tr.innerHTML = `
 	      <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : "<em>(unnamed)</em>"}</td>
