@@ -1427,68 +1427,74 @@
       let html = "";
     
       // Helper: build a table from row objects
-      function buildTable(title, rows, isMerchantTable) {
-        if (!rows || rows.length === 0) return "";
-    
-        const headerLabel = isMerchantTable
-          ? "Merchant<br>Benefit"
-          : "Credit Card<br>Benefit";
-    
-        const tableHtml = `
-          <div${isMerchantTable ? ' style="margin-top:8px;"' : ""}>
-            <h3>${title}</h3>
-            <div class="state-table-wrapper">
-              <table class="state-table">
-                <thead>
-                  <tr>
-                    <th>${headerLabel}</th>
-                    <th>Card</th>
-                    <th>Time</th>
-                    <th>Usage</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${rows
-                    .map((row) => {
-                      const classes = [];
-                      
-                      if (isMerchantTable && row.expired) {
-                        // expired wins over other states
-                        classes.push("expired");
-                      } else {
-                        if (row.fullyUsed) classes.push("credit-met");
-                        if (isMerchantTable && row.expiringSoon) {
-                          classes.push("expiring-soon");
-                        }
-                      }
-                      const classAttr =
-                        classes.length > 0
-                          ? ` class="${classes.join(" ")}"`
-                          : "";
-    
-                      const usageCellHtml = row.fullyUsed
-                        ? `<span class="credit-met">${escapeHtml(
-                            row.usage
-                          )}</span>`
-                        : escapeHtml(row.usage);
-    
-                      return `
-                        <tr${classAttr}>
-                          <td>${escapeHtml(row.label)}</td>
-                          <td>${renderCardBadge(row.card)}</td>
-                          <td>${escapeHtml(row.time)}</td>
-                          <td class="usage-cell">${usageCellHtml}</td>
-                        </tr>
-                      `;
-                    })
-                    .join("")}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-        return tableHtml;
-      }
+		function buildTable(title, rows, isMerchantTable) {
+		  if (!rows || rows.length === 0) return "";
+		
+		  const headerLabel = isMerchantTable
+		    ? "Merchant<br>Benefit"
+		    : "Credit Card<br>Benefit";
+		
+		  const tableHtml = `
+		    <div${isMerchantTable ? ' style="margin-top:8px;"' : ""}>
+		      <h3>${title}</h3>
+		      <div class="state-table-wrapper">
+		        <table class="state-table">
+		          <thead>
+		            <tr>
+		              <th>${headerLabel}</th>
+		              <th>Card</th>
+		              <th>Time</th>
+		              <th>Usage</th>
+		            </tr>
+		          </thead>
+		          <tbody>
+		            ${rows
+		              .map((row) => {
+		                const classes = [];
+		
+		                if (isMerchantTable) {
+		                  // Precedence for merchant rows:
+		                  // 1) fully used by total $ cap  -> green (credit-met)
+		                  // 2) expired by date OR max-tx  -> red (expired)
+		                  // 3) expiring soon by date      -> yellow (expiring-soon)
+		                  if (row.fullyUsed) {
+		                    classes.push("credit-met");
+		                  } else if (row.expired) {
+		                    classes.push("expired");
+		                  } else if (row.expiringSoon) {
+		                    classes.push("expiring-soon");
+		                  }
+		                } else {
+		                  // Card-native benefits: just mark fully used
+		                  if (row.fullyUsed) {
+		                    classes.push("credit-met");
+		                  }
+		                }
+		
+		                const classAttr =
+		                  classes.length > 0 ? ` class="${classes.join(" ")}"` : "";
+		
+		                const usageCellHtml = row.fullyUsed
+		                  ? `<span class="credit-met">${escapeHtml(row.usage)}</span>`
+		                  : escapeHtml(row.usage);
+		
+		                return `
+		                  <tr${classAttr}>
+		                    <td>${escapeHtml(row.label)}</td>
+		                    <td>${renderCardBadge(row.card)}</td>
+		                    <td>${escapeHtml(row.time)}</td>
+		                    <td class="usage-cell">${usageCellHtml}</td>
+		                  </tr>
+		                `;
+		              })
+		              .join("")}
+		          </tbody>
+		        </table>
+		      </div>
+		    </div>
+		  `;
+		  return tableHtml;
+		}
     
       html += buildTable("Credit Card Benefits", ccRows, false);
       html += buildTable("Merchant Benefits", merchantRows, true);
