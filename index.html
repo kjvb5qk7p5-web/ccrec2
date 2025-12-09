@@ -381,7 +381,13 @@
       border-color: #CE1126;
       color: #CE1126; /* DG: #CE1126 */
     }
-  
+
+	.card-badge.ag {
+	  background: #fff3cd;  /* some gold-ish background */
+	  border-color: #b8860b;
+	  color: #b8860b;
+	}
+
     /* Make badges match tiny table font in these tables */
     #loggedTable .card-badge,
     #benefitsTable .card-badge {
@@ -418,8 +424,9 @@
   <div id="globalStatus"></div>
   <h1>Which Credit Card?</h1>
 <p class="blackmuted">
-  Local optimizer for 4 credit cards: <br>
+  Local optimizer for 5 credit cards: <br>
     &nbsp;&nbsp;&nbsp;- <span class="card-badge csr">CS</span> Chase Sapphire Reserve<br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge ag">AG</span> American Express Gold<br>
     &nbsp;&nbsp;&nbsp;- <span class="card-badge uq">UQ</span> United Quest<br>
     &nbsp;&nbsp;&nbsp;- <span class="card-badge mb">MB</span> Marriott Bonvoy Brilliant<br>
     &nbsp;&nbsp;&nbsp;- <span class="card-badge dg">DG</span> Delta SkyMiles Amex Gold<br>
@@ -456,13 +463,7 @@
       <div style="margin-top: 10px;">
         <label>
           Card used (optional override)
-          <select id="cardUsedSelect">
-            <option value="">Use recommended card</option>
-            <option value="CSR">CSR</option>
-            <option value="UQ">United Quest</option>
-            <option value="MB">Marriott Brilliant</option>
-            <option value="DG">Delta Gold</option>
-          </select>
+          <select id="cardUsedSelect"></select>
         </label>
 
         <label>
@@ -503,12 +504,7 @@
 
       <label>
         Card<br>
-        <select id="benefitCard">
-          <option value="CSR">CSR</option>
-          <option value="UQ">United Quest</option>
-          <option value="MB">Marriott Brilliant</option>
-          <option value="DG">Delta Gold</option>
-        </select>
+        <select id="benefitCard"></select>
       </label>
 
       <label>
@@ -646,6 +642,13 @@
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
     const MERCHANT_BENEFITS_KEY = "cardAdvisorMerchantBenefitsV1";
+	const CARDS = {
+	  CSR: { code: "CSR", short: "CS", label: "Chase Sapphire Reserve",  badgeClass: "csr" },
+	  UQ:  { code: "UQ",  short: "UQ", label: "United Quest",            badgeClass: "uq" },
+	  MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",      badgeClass: "mb" },
+	  DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg" },
+	  AG:  { code: "AG",  short: "AG", label: "American Express Gold",    badgeClass: "ag" },
+	};
 
 	function showToast(message) {
 	  const toast = document.createElement('div');
@@ -791,12 +794,41 @@
 
     // Render a card badge as HTML
     function renderCardBadge(code) {
-      if (!code) return "";
-      const c = String(code).toUpperCase();
-      const cls = c.toLowerCase(); // csr, uq, mb, dg
-      const label = c === "CSR" ? "CS" : c;
-      return `<span class="card-badge ${cls}">${label}</span>`;
-    }
+	  if (!code) return "";
+	  const c = String(code).toUpperCase();
+	  const meta = CARDS[c];
+	
+	  if (!meta) {
+	    // Fallback for anything unknown
+	    return `<span class="card-badge">${c}</span>`;
+	  }
+	
+	  const label = meta.short || c;
+	  const cls = meta.badgeClass || c.toLowerCase();
+	
+	  return `<span class="card-badge ${cls}">${escapeHtml(label)}</span>`;
+	}
+
+	function populateCardSelect(selectEl, options = {}) {
+	  if (!selectEl) return;
+	
+	  const { includeEmpty, emptyLabel } = options;
+	  selectEl.innerHTML = "";
+	
+	  if (includeEmpty) {
+	    const opt = document.createElement("option");
+	    opt.value = "";
+	    opt.textContent = emptyLabel || "";
+	    selectEl.appendChild(opt);
+	  }
+	
+	  Object.values(CARDS).forEach(card => {
+	    const opt = document.createElement("option");
+	    opt.value = card.code; // e.g., "CSR", "UQ", "MB", "DG", "AG"
+	    opt.textContent = card.label;
+	    selectEl.appendChild(opt);
+	  });
+	}
 
     function escapeHtml(str) {
       if (str == null) return "";
@@ -2596,7 +2628,18 @@
       } else if (categorySelect && categorySelect.options.length > 0) {
         categorySelect.value = categorySelect.options[0].value;
       }
-      
+
+	  // Populate card dropdowns from CARDS registry
+		populateCardSelect(
+		  document.getElementById("cardUsedSelect"),
+		  { includeEmpty: true, emptyLabel: "Use recommended card" }
+		);
+		
+		populateCardSelect(
+		  document.getElementById("benefitCard"),
+		  { includeEmpty: false }
+		);
+
       renderStateSummary();
   </script>
 </body>
