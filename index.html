@@ -557,20 +557,20 @@
       <label>
         Category (for card recommendation logic)<br>
         <select id="benefitCategory">
-          <option value="dining">Dining / Restaurants</option>
-          <option value="doordash">Doordash</option>
-          <option value="lyft">Lyft</option>
-          <option value="rideshare_other">Other rideshare (Uber, etc.)</option>
-          <option value="united_flight">United flight</option>
-          <option value="delta_flight_threshold">Delta flight – threshold chasing</option>
-          <option value="delta_flight">Delta flight (not threshold)</option>
-          <option value="other_flight">Other airline flight</option>
-          <option value="marriott_hotel">Marriott hotel</option>
-          <option value="renowned_hotel">Renowned hotel (United program)</option>
-          <option value="delta_stays">Delta Stays hotel</option>
-          <option value="other_hotel">Other hotel / lodging</option>
+          <option value="dining">Dining- Restaurants</option>
+          <option value="doordash">Dining- Doordash</option>
+          <option value="lyft">Rideshare- Lyft</option>
+          <option value="rideshare_other">Rideshare- Uber</option>
+          <option value="united_flight">Flight- United</option>
+          <option value="delta_flight_threshold">Flight- Delta threshold chasing</option>
+          <option value="delta_flight">Flight- Delta (not threshold)</option>
+          <option value="other_flight">Flight- other airline</option>
+          <option value="marriott_hotel">Hotel- Marriott</option>
+          <option value="renowned_hotel">Hotel- Renowned (United program)</option>
+          <option value="delta_stays">Hotel- Delta Stays</option>
+          <option value="other_hotel">Hotel- other hotel / lodging</option>
           <option value="stubhub">StubHub / viagogo</option>
-          <option value="instacart">Instacart</option>
+          <option value="instacart">Groceries- Instacart</option>
           <option value="streaming">Streaming</option>
           <option value="peloton">Peloton membership</option>
           <option value="other">other / general spending</option>
@@ -685,25 +685,25 @@
 
     // Base categories (what used to be hard-coded in the HTML select)
     const BASE_CATEGORIES = [
-      { value: "dining",              label: "Dining / Restaurants" },
-      { value: "doordash",            label: "Doordash" },
-      { value: "lyft",                label: "Lyft" },
-      { value: "rideshare_other",     label: "Other rideshare (Uber, etc.)" },
-      { value: "united_flight",       label: "United flight" },
-      { value: "delta_flight_threshold", label: "Delta flight – threshold chasing" },
-      { value: "delta_flight",        label: "Delta flight (not threshold)" },
-      { value: "other_flight",        label: "Other airline flight" },
-      { value: "marriott_hotel",      label: "Marriott hotel" },
-      { value: "renowned_hotel",      label: "Renowned hotel (United program)" },
-      { value: "delta_stays",         label: "Delta Stays hotel" },
-      { value: "other_hotel",         label: "Other hotel / lodging" },
+      { value: "dining",              label: "Dining- Restaurants" },
+      { value: "doordash",            label: "Dining- Doordash" },
+      { value: "lyft",                label: "Rideshare- Lyft" },
+      { value: "rideshare_other",     label: "Rideshare- Uber" },
+      { value: "united_flight",       label: "Flight- United" },
+      { value: "delta_flight_threshold", label: "Flight– Delta threshold chasing" },
+      { value: "delta_flight",        label: "Flight- Delta not threshold" },
+      { value: "other_flight",        label: "Flight- other airline" },
+      { value: "marriott_hotel",      label: "Hotel- Marriott" },
+      { value: "renowned_hotel",      label: "Hotel- Renowned (United program)" },
+      { value: "delta_stays",         label: "Hotel- Delta Stays" },
+      { value: "other_hotel",         label: "Hotel- other hotel / lodging" },
       { value: "stubhub",             label: "StubHub / viagogo" },
-      { value: "instacart",           label: "Instacart" },
+      { value: "instacart",           label: "Groceries- Instacart" },
       { value: "streaming",           label: "Streaming" },
       { value: "peloton",             label: "Peloton membership" },
       { value: "other",               label: "other / general spending" }
     ];
-
+	  
     function getCategoryLabel(catValue) {
     if (!catValue) return "";
     const found = BASE_CATEGORIES.find(c => c.value === catValue);
