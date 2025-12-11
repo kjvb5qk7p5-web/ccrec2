@@ -20,7 +20,7 @@
       border-radius: 8px;
       padding: 12px 16px;
       margin-bottom: 16px;
-	  box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
     }
   
     label {
@@ -29,10 +29,10 @@
       font-size: 1.1rem;
     }
 
-	.new-purchase-card {
-	  border-color: #0b6efd;
-	  border-width: 2px;
-	}
+    .new-purchase-card {
+      border-color: #0b6efd;
+      border-width: 2px;
+    }
   
     .new-purchase-card label {
       font-weight: bold;
@@ -63,11 +63,11 @@
       width: 150px;
     }
 
-	/* Make Amount and Date inputs same width in New Purchase section */
-	.new-purchase-card input[type="number"],
-	.new-purchase-card input[type="date"] {
-	  width: 120px;
-	}
+    /* Make Amount and Date inputs same width in New Purchase section */
+    .new-purchase-card input[type="number"],
+    .new-purchase-card input[type="date"] {
+      width: 120px;
+    }
 
     select {
       min-width: 220px;
@@ -147,12 +147,12 @@
       padding: 2px 4px;
     }
 
-	#loggedTable thead th {
-	position: sticky;
-	top: 0;
-	z-index: 2;         /* above table rows */
-	background: #f7f7f7; /* so it doesn't go transparent over content */
-	}
+    #loggedTable thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;         /* above table rows */
+      background: #f7f7f7; /* so it doesn't go transparent over content */
+    }
   
     /* Column widths so Logged Purchases fits nicely on mobile */
     #loggedTable th:nth-child(1),
@@ -188,12 +188,12 @@
       background: #f7f7f7;
     }
 
-	#benefitsTable thead th {
-	position: sticky;
-	top: 0;
-	z-index: 2;      /* slightly above row contents */
-	background: #f7f7f7;  /* ensure it covers rows while stuck */
-	}
+    #benefitsTable thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;      /* slightly above row contents */
+      background: #f7f7f7;  /* ensure it covers rows while stuck */
+    }
   
     /* Column widths (sum ≈ 100%) */
     #benefitsTable th:nth-child(1),
@@ -220,13 +220,13 @@
       color: red;
     }
 
-	#recommendationSection {
-	  background: #f0f8ff;        /* Light blue background */
-	  border-left: 4px solid #0b6efd;  /* Accent bar */
-	  padding: 12px;
-	  border-radius: 4px;
-	  margin-top: 12px;
-	}
+    #recommendationSection {
+      background: #f0f8ff;        /* Light blue background */
+      border-left: 4px solid #0b6efd;  /* Accent bar */
+      padding: 12px;
+      border-radius: 4px;
+      margin-top: 12px;
+    }
   
     .muted {
       color: #777;
@@ -275,11 +275,11 @@
       overflow-wrap: break-word;
     }
 
-	  /* Make the first column in the usage summary tables bold */
-		.state-table th:first-child,
-		.state-table td:first-child {
-		  font-weight: 600;
-		}
+    /* Make the first column in the usage summary tables bold */
+    .state-table th:first-child,
+    .state-table td:first-child {
+      font-weight: 600;
+    }
 
     .state-table thead th {
       background: #f7f7f7;
@@ -316,10 +316,10 @@
       font-weight: 600;
     }
 
-	.usage-positive {
-	  color: green;
-	  font-weight: normal;
-	}
+    .usage-positive {
+      color: green;
+      font-weight: normal;
+    }
 
     /* Column widths for Current Credits & Offers state tables */
     .state-table th:nth-child(1),
@@ -382,11 +382,11 @@
       color: #CE1126; /* DG: #CE1126 */
     }
 
-	.card-badge.ag {
-	  background: #fff3cd;  /* some gold-ish background */
-	  border-color: #b8860b;
-	  color: #b8860b;
-	}
+    .card-badge.ag {
+      background: #fff3cd;  /* some gold-ish background */
+      border-color: #b8860b;
+      color: #b8860b;
+    }
 
     /* Make badges match tiny table font in these tables */
     #loggedTable .card-badge,
@@ -395,28 +395,28 @@
       padding: 1px 4px;
     }
 
-	.tx-delete-badge {
-	  cursor: pointer;
-	}
+    .tx-delete-badge {
+      cursor: pointer;
+    }
 
-	.toast {
-	  position: fixed;
-	  bottom: 20px;
-	  left: 50%;
-	  transform: translateX(-50%);
-	  background: #28a745;
-	  color: white;
-	  padding: 12px 24px;
-	  border-radius: 8px;
-	  font-size: 1rem;
-	  z-index: 1000;
-	  animation: fadeInOut 2s ease-in-out;
-	}
-	
-	@keyframes fadeInOut {
-	  0%, 100% { opacity: 0; }
-	  10%, 90% { opacity: 1; }
-	}
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #28a745;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      z-index: 1000;
+      animation: fadeInOut 2s ease-in-out;
+    }
+    
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; }
+      10%, 90% { opacity: 1; }
+    }
 
   </style>
 </head>
@@ -538,16 +538,16 @@
         <input type="number" id="benefitLimitValue" min="0" step="0.01" placeholder="e.g. 50 means up to $50 total" />
       </label>
 
-		<label>
-		  Max number of transactions (optional)<br>
-		  <input
-			type="number"
-			id="benefitMaxTx"
-			min="0"
-			step="1"
-			placeholder="e.g. 3 means up to 3 uses"
-		  />
-		</label>
+      <label>
+        Max number of transactions (optional)<br>
+        <input
+          type="number"
+          id="benefitMaxTx"
+          min="0"
+          step="1"
+          placeholder="e.g. 3 means up to 3 uses"
+        />
+      </label>
 
       <label>
         Benefit end date<br>
@@ -558,7 +558,10 @@
         Category (for card recommendation logic)<br>
         <select id="benefitCategory">
           <option value="dining">Dining- Restaurants</option>
+          <option value="uber_eats">Dining- Uber Eats</option>
+          <option value="ag_dining">Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com</option>
           <option value="doordash">Dining- Doordash</option>
+          <option value="resy">Dining- Resy</option>
           <option value="lyft">Rideshare- Lyft</option>
           <option value="rideshare_other">Rideshare- Uber</option>
           <option value="united_flight">Flight- United</option>
@@ -571,6 +574,7 @@
           <option value="other_hotel">Hotel- other hotel / lodging</option>
           <option value="stubhub">StubHub / viagogo</option>
           <option value="instacart">Groceries- Instacart</option>
+          <option value="groceries">Groceries- grocery store</option>
           <option value="streaming">Streaming</option>
           <option value="peloton">Peloton membership</option>
           <option value="other">other / general spending</option>
@@ -642,51 +646,54 @@
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
     const MERCHANT_BENEFITS_KEY = "cardAdvisorMerchantBenefitsV1";
-	const CARDS = {
-	  CSR: { code: "CSR", short: "CS", label: "Chase Sapphire Reserve",  badgeClass: "csr" },
-	  AG:  { code: "AG",  short: "AG", label: "American Express Gold",    badgeClass: "ag" },
-	  UQ:  { code: "UQ",  short: "UQ", label: "United Quest",            badgeClass: "uq" },
-	  MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",      badgeClass: "mb" },
-	  DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg" },
-	};
+    const CARDS = {
+      CSR: { code: "CSR", short: "CS", label: "Chase Sapphire Reserve",  badgeClass: "csr" },
+      AG:  { code: "AG",  short: "AG", label: "American Express Gold",    badgeClass: "ag" },
+      UQ:  { code: "UQ",  short: "UQ", label: "United Quest",            badgeClass: "uq" },
+      MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",      badgeClass: "mb" },
+      DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg" },
+    };
 
-	function showToast(message) {
-	  const toast = document.createElement('div');
-	  toast.className = 'toast';
-	  toast.textContent = message;
-	  document.body.appendChild(toast);
-	  setTimeout(() => document.body.removeChild(toast), 2000);
-	}
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => document.body.removeChild(toast), 2000);
+    }
 
-	  let storageErrorShown = false;
+    let storageErrorShown = false;
 
-	function safeSetItem(key, value) {
-	  try {
-	    localStorage.setItem(key, value);
-	    return true;
-	  } catch (err) {
-	    console.error("localStorage setItem failed:", err);
-	    if (!storageErrorShown) {
-	      alert(
-	        "Could not save data to this browser's storage.\n" +
-	        "Your entries will work for now but will not persist if you close the page."
-	      );
-	      storageErrorShown = true;
-	    }
-	    return false;
-	  }
-	}
+    function safeSetItem(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (err) {
+        console.error("localStorage setItem failed:", err);
+        if (!storageErrorShown) {
+          alert(
+            "Could not save data to this browser's storage.\n" +
+            "Your entries will work for now but will not persist if you close the page."
+          );
+          storageErrorShown = true;
+        }
+        return false;
+      }
+    }
 
-	function setStatus(message) {
-	  const el = document.getElementById("globalStatus");
-	  if (!el) return;
-	  el.textContent = message || "";
-	}
+    function setStatus(message) {
+      const el = document.getElementById("globalStatus");
+      if (!el) return;
+      el.textContent = message || "";
+    }
 
     // Base categories (what used to be hard-coded in the HTML select)
     const BASE_CATEGORIES = [
       { value: "dining",              label: "Dining- Restaurants" },
+      { value: "uber_eats",           label: "Dining- Uber Eats" },
+      { value: "ag_dining",           label: "Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com" },
       { value: "doordash",            label: "Dining- Doordash" },
+      { value: "resy",                label: "Dining- Resy" },
       { value: "lyft",                label: "Rideshare- Lyft" },
       { value: "rideshare_other",     label: "Rideshare- Uber" },
       { value: "united_flight",       label: "Flight- United" },
@@ -699,15 +706,16 @@
       { value: "other_hotel",         label: "Hotel- other hotel / lodging" },
       { value: "stubhub",             label: "StubHub / viagogo" },
       { value: "instacart",           label: "Groceries- Instacart" },
+      { value: "groceries",           label: "Groceries- grocery store" },
       { value: "streaming",           label: "Streaming" },
       { value: "peloton",             label: "Peloton membership" },
       { value: "other",               label: "other / general spending" }
     ];
-	  
+      
     function getCategoryLabel(catValue) {
-    if (!catValue) return "";
-    const found = BASE_CATEGORIES.find(c => c.value === catValue);
-    return found ? found.label : catValue; // fall back to raw value if unknown
+      if (!catValue) return "";
+      const found = BASE_CATEGORIES.find(c => c.value === catValue);
+      return found ? found.label : catValue; // fall back to raw value if unknown
     }
 
     // Channel label mapping for human-readable text
@@ -722,12 +730,16 @@
       stubhub_platform: "on StubHub / viagogo",
       instacart_platform: "on Instacart",
       peloton_platform: "on the Peloton site / app",
+      resy: "via Resy (book on Resy)",
     };
 
     // Allowed channels per category (for override dropdown)
     const CHANNELS_BY_CATEGORY = {
       dining: ["direct"],
+      uber_eats: ["direct"],
+      ag_dining: ["direct"],
       doordash: ["direct"],
+      resy: ["resy"],
       lyft: ["lyft_app"],
       rideshare_other: ["direct"],
       united_flight: ["united"],
@@ -740,45 +752,46 @@
       other_hotel: ["direct", "chase_travel"],
       stubhub: ["stubhub_platform"],
       instacart: ["instacart_platform"],
+      groceries: ["direct"],
       streaming: ["direct"],
       peloton: ["peloton_platform"],
       other: ["direct"],
     };
 
-	function parseISODate(str) {
-	  if (!str) return null;
-	  const parts = str.split("-");
-	  if (parts.length !== 3) return null;
-	
-	  const [y, m, d] = parts.map(Number);
-	  if (!y || !m || !d) return null;
-	
-	  // Local midnight, cross-browser safe, no timezone drift
-	  return new Date(y, m - 1, d);
-	}
+    function parseISODate(str) {
+      if (!str) return null;
+      const parts = str.split("-");
+      if (parts.length !== 3) return null;
+    
+      const [y, m, d] = parts.map(Number);
+      if (!y || !m || !d) return null;
+    
+      // Local midnight, cross-browser safe, no timezone drift
+      return new Date(y, m - 1, d);
+    }
 
-	function classifyBenefitEnd(endDateStr, todayDate) {
-	  const today = todayDate || parseISODate(formatTodayISO());
-	  const end = parseISODate(endDateStr);
-	
-	  if (!today || !end) {
-	    return { expired: false, expiringSoon: false };
-	  }
-	
-	  // Inclusive rule:
-	  // - Active if end >= today
-	  // - Expired if end < today
-	  const expired = end < today;
-	
-	  let expiringSoon = false;
-	  if (!expired) {
-	    const soonCutoff = new Date(today);
-	    soonCutoff.setDate(soonCutoff.getDate() + 7); // 7-day window
-	    expiringSoon = end >= today && end <= soonCutoff;
-	  }
-	
-	  return { expired, expiringSoon };
-	}
+    function classifyBenefitEnd(endDateStr, todayDate) {
+      const today = todayDate || parseISODate(formatTodayISO());
+      const end = parseISODate(endDateStr);
+    
+      if (!today || !end) {
+        return { expired: false, expiringSoon: false };
+      }
+    
+      // Inclusive rule:
+      // - Active if end >= today
+      // - Expired if end < today
+      const expired = end < today;
+    
+      let expiringSoon = false;
+      if (!expired) {
+        const soonCutoff = new Date(today);
+        soonCutoff.setDate(soonCutoff.getDate() + 7); // 7-day window
+        expiringSoon = end >= today && end <= soonCutoff;
+      }
+    
+      return { expired, expiringSoon };
+    }
 
     function formatTodayISO() {
       const today = new Date();
@@ -794,41 +807,41 @@
 
     // Render a card badge as HTML
     function renderCardBadge(code) {
-	  if (!code) return "";
-	  const c = String(code).toUpperCase();
-	  const meta = CARDS[c];
-	
-	  if (!meta) {
-	    // Fallback for anything unknown
-	    return `<span class="card-badge">${c}</span>`;
-	  }
-	
-	  const label = meta.short || c;
-	  const cls = meta.badgeClass || c.toLowerCase();
-	
-	  return `<span class="card-badge ${cls}">${escapeHtml(label)}</span>`;
-	}
+      if (!code) return "";
+      const c = String(code).toUpperCase();
+      const meta = CARDS[c];
+    
+      if (!meta) {
+        // Fallback for anything unknown
+        return `<span class="card-badge">${c}</span>`;
+      }
+    
+      const label = meta.short || c;
+      const cls = meta.badgeClass || c.toLowerCase();
+    
+      return `<span class="card-badge ${cls}">${escapeHtml(label)}</span>`;
+    }
 
-	function populateCardSelect(selectEl, options = {}) {
-	  if (!selectEl) return;
-	
-	  const { includeEmpty, emptyLabel } = options;
-	  selectEl.innerHTML = "";
-	
-	  if (includeEmpty) {
-	    const opt = document.createElement("option");
-	    opt.value = "";
-	    opt.textContent = emptyLabel || "";
-	    selectEl.appendChild(opt);
-	  }
-	
-	  Object.values(CARDS).forEach(card => {
-	    const opt = document.createElement("option");
-	    opt.value = card.code; // e.g., "CSR", "UQ", "MB", "DG", "AG"
-	    opt.textContent = card.label;
-	    selectEl.appendChild(opt);
-	  });
-	}
+    function populateCardSelect(selectEl, options = {}) {
+      if (!selectEl) return;
+    
+      const { includeEmpty, emptyLabel } = options;
+      selectEl.innerHTML = "";
+    
+      if (includeEmpty) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = emptyLabel || "";
+        selectEl.appendChild(opt);
+      }
+    
+      Object.values(CARDS).forEach(card => {
+        const opt = document.createElement("option");
+        opt.value = card.code; // e.g., "CSR", "UQ", "MB", "DG", "AG"
+        opt.textContent = card.label;
+        selectEl.appendChild(opt);
+      });
+    }
 
     function escapeHtml(str) {
       if (str == null) return "";
@@ -840,23 +853,23 @@
         .replace(/'/g, "&#39;");
     }
 
-	function formatUsageAmount(value) {
-	  const parsed = Number(value);
-	  const num = Number.isFinite(parsed) ? parsed : 0;
-	
-	  // For 0 or large values, show whole dollars.
-	  if (num === 0 || Math.abs(num) > 99.99) {
-	    return num.toFixed(0);
-	  }
-	
-	  // For small non-zero values, keep cents.
-	  return num.toFixed(2);
-	}
+    function formatUsageAmount(value) {
+      const parsed = Number(value);
+      const num = Number.isFinite(parsed) ? parsed : 0;
+    
+      // For 0 or large values, show whole dollars.
+      if (num === 0 || Math.abs(num) > 99.99) {
+        return num.toFixed(0);
+      }
+    
+      // For small non-zero values, keep cents.
+      return num.toFixed(2);
+    }
 
-	function getSemiannualLabel(now = new Date()) {
-	  const month = now.getMonth(); // 0 = Jan, ... 11 = Dec
-	  return month < 6 ? "Jan–Jun" : "Jul–Dec";
-	}
+    function getSemiannualLabel(now = new Date()) {
+      const month = now.getMonth(); // 0 = Jan, ... 11 = Dec
+      return month < 6 ? "Jan–Jun" : "Jul–Dec";
+    }
 
     // ---------- Transactions storage ----------
     function loadTransactions() {
@@ -872,8 +885,8 @@
     }
 
     function saveTransactions(txs) {
-	  safeSetItem(STORAGE_KEY, JSON.stringify(txs));
-	}
+      safeSetItem(STORAGE_KEY, JSON.stringify(txs));
+    }
 
     // ---------- Merchant benefits storage ----------
     function loadMerchantBenefits() {
@@ -889,14 +902,14 @@
     }
 
     function saveMerchantBenefits(benefits) {
-	  safeSetItem(MERCHANT_BENEFITS_KEY, JSON.stringify(benefits));
-	}
+      safeSetItem(MERCHANT_BENEFITS_KEY, JSON.stringify(benefits));
+    }
 
     function findBenefitById(id, benefits) {
       return benefits.find((b) => b.id === id) || null;
     }
 
-	    // Export all data to JSON file
+    // Export all data to JSON file
     function exportAllData() {
       const data = {
         version: "1.0",
@@ -979,51 +992,51 @@
     }
 
     // ---------- Render transactions ----------
-	function renderTransactions() {
-	  const txs = loadTransactions();
-	  const tbody = document.getElementById("txTableBody");
-	  tbody.innerHTML = "";
-	
-	  txs.forEach((tx, idx) => {
-	    const tr = document.createElement("tr");
-	    const tdDate = document.createElement("td");
-	    const tdAmt = document.createElement("td");
-	    const tdCat = document.createElement("td");
-	    const tdChan = document.createElement("td");
-	    const tdCard = document.createElement("td");
-	
-	    tdDate.textContent = tx.date || "";
-	    tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
-	    tdCat.textContent = tx.category || "";
-	    tdChan.textContent = tx.channel || "";
-	
-	    if (tx.cardUsed) {
-	      // Build a special badge just for the log, with a data index
-	      const code = String(tx.cardUsed).toUpperCase();
-	      const cls = code.toLowerCase();              // csr, uq, mb, dg
-	      const label = code === "CSR" ? "CS" : code;  // match your global style
-	
-	      tdCard.innerHTML = `
-	        <span
-	          class="card-badge ${cls} tx-delete-badge"
-	          data-tx-index="${idx}"
-	        >
-	          ${escapeHtml(label)}
-	        </span>
-	      `;
-	    } else {
-	      tdCard.textContent = "";
-	    }
-	
-	    tr.appendChild(tdDate);
-	    tr.appendChild(tdAmt);
-	    tr.appendChild(tdCat);
-	    tr.appendChild(tdChan);
-	    tr.appendChild(tdCard);
-	
-	    tbody.appendChild(tr);
-	  });
-	}
+    function renderTransactions() {
+      const txs = loadTransactions();
+      const tbody = document.getElementById("txTableBody");
+      tbody.innerHTML = "";
+    
+      txs.forEach((tx, idx) => {
+        const tr = document.createElement("tr");
+        const tdDate = document.createElement("td");
+        const tdAmt = document.createElement("td");
+        const tdCat = document.createElement("td");
+        const tdChan = document.createElement("td");
+        const tdCard = document.createElement("td");
+    
+        tdDate.textContent = tx.date || "";
+        tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
+        tdCat.textContent = tx.category || "";
+        tdChan.textContent = tx.channel || "";
+    
+        if (tx.cardUsed) {
+          // Build a special badge just for the log, with a data index
+          const code = String(tx.cardUsed).toUpperCase();
+          const cls = code.toLowerCase();              // csr, uq, mb, dg, ag
+          const label = code === "CSR" ? "CS" : code;  // match your global style
+    
+          tdCard.innerHTML = `
+            <span
+              class="card-badge ${cls} tx-delete-badge"
+              data-tx-index="${idx}"
+            >
+              ${escapeHtml(label)}
+            </span>
+          `;
+        } else {
+          tdCard.textContent = "";
+        }
+    
+        tr.appendChild(tdDate);
+        tr.appendChild(tdAmt);
+        tr.appendChild(tdCat);
+        tr.appendChild(tdChan);
+        tr.appendChild(tdCard);
+    
+        tbody.appendChild(tr);
+      });
+    }
 
     // ---------- Card-native benefits state ----------
     function computeState(txs, now) {
@@ -1033,13 +1046,12 @@
       const monthStart = startOfMonth(nowDate);
       const yearStart = new Date(nowDate.getFullYear(), 0, 1);
 
-      // Semi-annual StubHub period:
-      // Jan–Jun  => period starts Jan 1
-      // Jul–Dec  => period starts Jul 1
+      // Semi-annual periods (Jan–Jun / Jul–Dec)
       const stubhubPeriodStart =
         nowDate.getMonth() < 6
           ? new Date(nowDate.getFullYear(), 0, 1)
           : new Date(nowDate.getFullYear(), 6, 1);
+      const resyPeriodStart = stubhubPeriodStart;
 
       // Monthly
       let mbDiningThisMonth = 0;
@@ -1048,9 +1060,12 @@
       let uqRideshareThisMonth = 0;
       let uqInstacartThisMonth = 0;
       let csrPelotonThisMonth = 0;
+      let agUberThisMonth = 0;
+      let agDiningPartnersThisMonth = 0;
 
       // Semi-annual
       let csrStubhubThisPeriod = 0;
+      let agResyThisPeriod = 0;
 
       // Annual / calendar-year
       let csrTravelYTD = 0;
@@ -1085,6 +1100,7 @@
         const inMonth = dDateOnly >= monthStart && dDateOnly <= nowDateOnly;
         const inYear = dDateOnly >= yearStart && dDateOnly <= nowDateOnly;
         const inStubhubPeriod = dDateOnly >= stubhubPeriodStart && dDateOnly <= nowDateOnly;
+        const inResyPeriod = dDateOnly >= resyPeriodStart && dDateOnly <= nowDateOnly;
 
         // Monthly-limited benefits
         if (inMonth) {
@@ -1106,6 +1122,17 @@
           if (tx.cardUsed === "CSR" && tx.category === "peloton") {
             csrPelotonThisMonth += amt;
           }
+          // AG Uber Cash – count Uber rides + Uber Eats on AG
+          if (
+            tx.cardUsed === "AG" &&
+            (tx.category === "rideshare_other" || tx.category === "uber_eats")
+          ) {
+            agUberThisMonth += amt;
+          }
+          // AG Dining partners $10/mo
+          if (tx.cardUsed === "AG" && tx.category === "ag_dining") {
+            agDiningPartnersThisMonth += amt;
+          }
         }
 
         // Semi-annual StubHub credit (CSR only)
@@ -1115,6 +1142,15 @@
           tx.category === "stubhub"
         ) {
           csrStubhubThisPeriod += amt;
+        }
+
+        // Semi-annual Resy credit (AG only)
+        if (
+          inResyPeriod &&
+          tx.cardUsed === "AG" &&
+          tx.category === "resy"
+        ) {
+          agResyThisPeriod += amt;
         }
 
         // Annual / calendar-year benefits
@@ -1140,7 +1176,10 @@
         uqRideshareThisMonth,
         uqInstacartThisMonth,
         csrPelotonThisMonth,
+        agUberThisMonth,
+        agDiningPartnersThisMonth,
         csrStubhubThisPeriod,
+        agResyThisPeriod,
         csrTravelYTD,
         dgDeltaStaysYTD,
         dg10kSpendYTD,
@@ -1226,8 +1265,8 @@
           used += discount;
           
           if (discount > 0) {
-		  txCount += 1;
-		  }
+            txCount += 1;
+          }
 
         }
 
@@ -1251,7 +1290,7 @@
       const merchantState = computeMerchantState(txs, benefits);
       const el = document.getElementById("stateSummary");
 
-	// ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
+      // ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
       const ccRows = [];
     
       // CSR Travel credit (calendar year, $300)
@@ -1357,6 +1396,45 @@
           fullyUsed: used >= limit,
         });
       }
+
+      // AG Uber Cash $10/month (rides + Uber Eats)
+      {
+        const used = cardState.agUberThisMonth || 0;
+        const limit = 10;
+        ccRows.push({
+          label: "Uber Cash (rides + Eats)",
+          card: "AG",
+          time: "Monthly",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+
+      // AG Dining partners $10/month
+      {
+        const used = cardState.agDiningPartnersThisMonth || 0;
+        const limit = 10;
+        ccRows.push({
+          label: "Dining partners (GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com)",
+          card: "AG",
+          time: "Monthly",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+
+      // AG Resy $50 per semi-annual period
+      {
+        const used = cardState.agResyThisPeriod || 0;
+        const limit = 50;
+        ccRows.push({
+          label: "Resy dining",
+          card: "AG",
+          time: getSemiannualLabel(),
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
     
       // DG Delta Stays $100/year
       {
@@ -1407,21 +1485,21 @@
       });
     
       for (const benefit of benefitsSorted) {
-		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
-		const used = ms.used || 0;
-		const txCount = ms.txCount || 0;
-		
-		// Date-based classification (inclusive end date, shared logic)
-		let { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, today);
-		
-		// Respect max transaction cap as an additional expiry source
-		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
-		  const maxTx = Number(benefit.maxTransactions);
-		  if (maxTx >= 0 && txCount >= maxTx) {
-		    expired = true;
-		    expiringSoon = false; // can't be "expiring soon" if already expired
-		  }
-		}
+        const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+        const used = ms.used || 0;
+        const txCount = ms.txCount || 0;
+        
+        // Date-based classification (inclusive end date, shared logic)
+        let { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, today);
+        
+        // Respect max transaction cap as an additional expiry source
+        if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+          const maxTx = Number(benefit.maxTransactions);
+          if (maxTx >= 0 && txCount >= maxTx) {
+            expired = true;
+            expiringSoon = false; // can't be "expiring soon" if already expired
+          }
+        }
     
         const hasTotalCap =
           benefit.limitType === "total" &&
@@ -1432,16 +1510,16 @@
         const fullyUsed =
           hasTotalCap && totalLimit != null && used >= totalLimit;
     
-		// Usage text
-		let usageText;
-		const usedStr = formatUsageAmount(used);
-		
-		if (hasTotalCap && totalLimit != null) {
-		  const limitStr = formatUsageAmount(totalLimit);
-		  usageText = `$${usedStr} of $${limitStr}`;
-		} else {
-		  usageText = `$${usedStr} used`;
-		}
+        // Usage text
+        let usageText;
+        const usedStr = formatUsageAmount(used);
+        
+        if (hasTotalCap && totalLimit != null) {
+          const limitStr = formatUsageAmount(totalLimit);
+          usageText = `$${usedStr} of $${limitStr}`;
+        } else {
+          usageText = `$${usedStr} used`;
+        }
     
         // Time text: just the date, optional "(expired)" – no "thru"
         let timeText = benefit.endDate || "";
@@ -1457,7 +1535,7 @@
           fullyUsed,
           expiringSoon: expiringSoon && !expired,
           expired,  
-		  usedAmount: used,
+          usedAmount: used,
         });
       }
     
@@ -1465,95 +1543,95 @@
       let html = "";
     
       // Helper: build a table from row objects
-		function buildTable(title, rows, isMerchantTable) {
-		  if (!rows || rows.length === 0) return "";
-		
-		  const headerLabel = isMerchantTable
-		    ? "Merchant<br>Benefit"
-		    : "Credit Card<br>Benefit";
-		
-		  const tableHtml = `
-		    <div${isMerchantTable ? ' style="margin-top:8px;"' : ""}>
-		      <h3>${title}</h3>
-		      <div class="state-table-wrapper">
-		        <table class="state-table">
-		          <thead>
-		            <tr>
-		              <th>${headerLabel}</th>
-		              <th>Card</th>
-		              <th>Time</th>
-		              <th>Usage</th>
-		            </tr>
-		          </thead>
-		          <tbody>
-		            ${rows
-		              .map((row) => {
-		                const classes = [];
-		
-		                if (isMerchantTable) {
-		                  // MERCHANT PRECEDENCE:
-		                  // 1) fully used by total $ cap -> green row (credit-met)
-		                  // 2) expired by date or max-tx -> red row
-		                  // 3) expiring soon by date    -> yellow row
-		                  if (row.fullyUsed) {
-		                    classes.push("credit-met");
-		                  } else if (row.expired) {
-		                    classes.push("expired");
-		                  } else if (row.expiringSoon) {
-		                    classes.push("expiring-soon");
-		                  }
-		                } else {
-		                  // CARD BENEFITS: keep original behavior
-		                  if (row.fullyUsed) {
-		                    classes.push("credit-met");
-		                  }
-		                }
-		
-		                const classAttr =
-		                  classes.length > 0 ? ` class="${classes.join(" ")}"` : "";
-		
-		                // ----- Usage cell formatting -----
-		                let usageCellHtml;
-		
-		                if (row.fullyUsed) {
-		                  // For fully used (merchant or card), keep old behavior:
-		                  // bold + green via credit-met span.
-		                  usageCellHtml = `<span class="credit-met">${escapeHtml(
-		                    row.usage
-		                  )}</span>`;
-		                } else if (
-		                  isMerchantTable &&
-		                  row.usedAmount != null &&
-		                  !isNaN(row.usedAmount) &&
-		                  Number(row.usedAmount) > 0
-		                ) {
-		                  // For all *other* merchant situations:
-		                  // if used > 0, make the usage cell text green, normal weight.
-		                  usageCellHtml = `<span class="usage-positive">${escapeHtml(
-		                    row.usage
-		                  )}</span>`;
-		                } else {
-		                  // Default unstyled usage text
-		                  usageCellHtml = escapeHtml(row.usage);
-		                }
-		
-		                return `
-		                  <tr${classAttr}>
-		                    <td>${escapeHtml(row.label)}</td>
-		                    <td>${renderCardBadge(row.card)}</td>
-		                    <td>${escapeHtml(row.time)}</td>
-		                    <td class="usage-cell">${usageCellHtml}</td>
-		                  </tr>
-		                `;
-		              })
-		              .join("")}
-		          </tbody>
-		        </table>
-		      </div>
-		    </div>
-		  `;
-		  return tableHtml;
-		}
+      function buildTable(title, rows, isMerchantTable) {
+        if (!rows || rows.length === 0) return "";
+      
+        const headerLabel = isMerchantTable
+          ? "Merchant<br>Benefit"
+          : "Credit Card<br>Benefit";
+      
+        const tableHtml = `
+          <div${isMerchantTable ? ' style="margin-top:8px;"' : ""}>
+            <h3>${title}</h3>
+            <div class="state-table-wrapper">
+              <table class="state-table">
+                <thead>
+                  <tr>
+                    <th>${headerLabel}</th>
+                    <th>Card</th>
+                    <th>Time</th>
+                    <th>Usage</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows
+                    .map((row) => {
+                      const classes = [];
+      
+                      if (isMerchantTable) {
+                        // MERCHANT PRECEDENCE:
+                        // 1) fully used by total $ cap -> green row (credit-met)
+                        // 2) expired by date or max-tx -> red row
+                        // 3) expiring soon by date    -> yellow row
+                        if (row.fullyUsed) {
+                          classes.push("credit-met");
+                        } else if (row.expired) {
+                          classes.push("expired");
+                        } else if (row.expiringSoon) {
+                          classes.push("expiring-soon");
+                        }
+                      } else {
+                        // CARD BENEFITS: keep original behavior
+                        if (row.fullyUsed) {
+                          classes.push("credit-met");
+                        }
+                      }
+      
+                      const classAttr =
+                        classes.length > 0 ? ` class="${classes.join(" ")}"` : "";
+      
+                      // ----- Usage cell formatting -----
+                      let usageCellHtml;
+      
+                      if (row.fullyUsed) {
+                        // For fully used (merchant or card), keep old behavior:
+                        // bold + green via credit-met span.
+                        usageCellHtml = `<span class="credit-met">${escapeHtml(
+                          row.usage
+                        )}</span>`;
+                      } else if (
+                        isMerchantTable &&
+                        row.usedAmount != null &&
+                        !isNaN(row.usedAmount) &&
+                        Number(row.usedAmount) > 0
+                      ) {
+                        // For all *other* merchant situations:
+                        // if used > 0, make the usage cell text green, normal weight.
+                        usageCellHtml = `<span class="usage-positive">${escapeHtml(
+                          row.usage
+                        )}</span>`;
+                      } else {
+                        // Default unstyled usage text
+                        usageCellHtml = escapeHtml(row.usage);
+                      }
+      
+                      return `
+                        <tr${classAttr}>
+                          <td>${escapeHtml(row.label)}</td>
+                          <td>${renderCardBadge(row.card)}</td>
+                          <td>${escapeHtml(row.time)}</td>
+                          <td class="usage-cell">${usageCellHtml}</td>
+                        </tr>
+                      `;
+                    })
+                    .join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        return tableHtml;
+      }
     
       html += buildTable("Credit Card Benefits", ccRows, false);
       html += buildTable("Merchant Benefits", merchantRows, true);
@@ -1569,7 +1647,7 @@
     function recommendCardBase(purchase, state) {
       const { category } = purchase;
     
-      // DINING
+      // DINING – general restaurants
       if (category === "dining") {
         if (state.mbDiningThisMonth < 25) {
           return {
@@ -1584,6 +1662,24 @@
           channel: "direct",
           reason:
             "Bonvoy Brilliant monthly dining credit is used up; default back to Chase Sapphire for flexible points.",
+        };
+      }
+
+      // AMEX GOLD DINING PARTNERS (Grubhub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com)
+      if (category === "ag_dining") {
+        if (state.agDiningPartnersThisMonth < 10) {
+          return {
+            card: "AG",
+            channel: "direct",
+            reason:
+              "Use Amex Gold with eligible partners (Grubhub/Seamless, Cheesecake Factory, Goldbelly, Wine.com, Five Guys) to use the $10 monthly dining-partner credit.",
+          };
+        }
+        return {
+          card: "CSR",
+          channel: "direct",
+          reason:
+            "Amex Gold dining-partner credit is used up; default back to Chase Sapphire for flexible points.",
         };
       }
     
@@ -1602,6 +1698,24 @@
           channel: "direct",
           reason:
             "Doordash monthly credit is used up; default back to Chase Sapphire for flexible points.",
+        };
+      }
+
+      // UBER EATS (treated as part of Amex Gold Uber Cash)
+      if (category === "uber_eats") {
+        if (state.agUberThisMonth < 10) {
+          return {
+            card: "AG",
+            channel: "direct",
+            reason:
+              "Use Amex Gold on Uber Eats to use your $10 monthly Uber Cash (treated here as a credit).",
+          };
+        }
+        return {
+          card: "CSR",
+          channel: "direct",
+          reason:
+            "Uber Cash for this month is effectively used up; default back to Chase Sapphire for flexible points.",
         };
       }
     
@@ -1623,21 +1737,29 @@
         };
       }
     
-      // OTHER RIDESHARE (Uber, etc.)
+      // RIDESHARE - UBER
       if (category === "rideshare_other") {
+        if (state.agUberThisMonth < 10) {
+          return {
+            card: "AG",
+            channel: "direct",
+            reason:
+              "Use Amex Gold first for Uber rides to use your $10 monthly Uber Cash (treated here as a credit).",
+          };
+        }
         if (state.uqRideshareThisMonth < 8) {
           return {
             card: "UQ",
             channel: "direct",
             reason:
-              "Use United Quest first to earn the $8 monthly rideshare credit.",
+              "Amex Gold's Uber Cash is used up; next use United Quest to earn the $8 monthly rideshare credit.",
           };
         }
         return {
           card: "CSR",
           channel: "direct",
           reason:
-            "United Quest rideshare monthly credit is used up; default back to Chase Sapphire for flexible points.",
+            "Both Amex Gold's Uber Cash and United Quest's rideshare credit are used up; default back to Chase Sapphire for flexible points.",
         };
       }
     
@@ -1800,6 +1922,34 @@
             "Peloton membership monthly credit is used up; default back to Chase Sapphire for flexible points.",
         };
       }
+
+      // RESY DINING (semi-annual $50 credit)
+      if (category === "resy") {
+        if (state.agResyThisPeriod < 50) {
+          return {
+            card: "AG",
+            channel: "resy",
+            reason:
+              "Use Amex Gold via Resy to burn your $50 semi-annual Resy dining credit.",
+          };
+        }
+        return {
+          card: "AG",
+          channel: "resy",
+          reason:
+            "Resy semi-annual credit on Amex Gold is used up; still book via Resy, and use Amex Gold for 4x points.",
+        };
+      }
+
+      // GROCERIES (U.S. supermarkets)
+      if (category === "groceries") {
+        return {
+          card: "AG",
+          channel: "direct",
+          reason:
+            "Use Amex Gold at U.S. grocery stores to earn 4x Membership Rewards on supermarket spend.",
+        };
+      }
     
       // GENERAL / FALLBACK
       return {
@@ -1824,26 +1974,26 @@
           const end = parseISODate(benefit.endDate);
           const { expired } = classifyBenefitEnd(benefit.endDate, purchaseDate);
     
-			const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
-			
-			const hasTotalCap =
-			  benefit.limitType === "total" &&
-			  benefit.limitValue != null &&
-			  !isNaN(benefit.limitValue);
-			
-			const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
-			const exhaustedByTotal =
-			  hasTotalCap && totalLimit != null && ms.used >= totalLimit;
-			
-			let exhaustedByTx = false;
-			if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
-			  const maxTx = Number(benefit.maxTransactions);
-			  if (maxTx >= 0 && ms.txCount >= maxTx) {
-				exhaustedByTx = true;
-			  }
-			}
-			
-			const exhausted = exhaustedByTotal || exhaustedByTx;
+          const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+      
+          const hasTotalCap =
+            benefit.limitType === "total" &&
+            benefit.limitValue != null &&
+            !isNaN(benefit.limitValue);
+      
+          const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
+          const exhaustedByTotal =
+            hasTotalCap && totalLimit != null && ms.used >= totalLimit;
+      
+          let exhaustedByTx = false;
+          if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+            const maxTx = Number(benefit.maxTransactions);
+            if (maxTx >= 0 && ms.txCount >= maxTx) {
+              exhaustedByTx = true;
+            }
+          }
+      
+          const exhausted = exhaustedByTotal || exhaustedByTx;
     
           const amount = Number(purchase.amount) || 0;
           const minSpend =
@@ -1876,7 +2026,7 @@
               totalCapAmount: totalLimit,          // e.g. 50.00
               expiresOn: benefit.endDate || null,  // "yyyy-mm-dd"
               priorityCash: true,                  // to show the final sentence
-			  categoryLabel: getCategoryLabel(purchase.category),  // to show the category label consistent with other cases
+              categoryLabel: getCategoryLabel(purchase.category),  // to show the category label consistent with other cases
             };
           }
     
@@ -1907,19 +2057,32 @@
         const totalCap = 25; // $25 monthly dining credit
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
+      } else if (cat === "ag_dining") {
+        const used = cardState.agDiningPartnersThisMonth || 0;
+        const totalCap = 10; // $10 monthly AG dining partners
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
       } else if (cat === "doordash") {
         const used = cardState.csrDoordashThisMonth || 0;
         const totalCap = 5; // $5/month Doordash credit
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
+      } else if (cat === "uber_eats" || cat === "rideshare_other") {
+        // Shared Uber credit + UQ rideshare credit depending on recommended card
+        if (rec.card === "AG") {
+          const used = cardState.agUberThisMonth || 0;
+          const totalCap = 10; // $10/month Uber Cash via Amex Gold
+          rec.remainingAmount = Math.max(0, totalCap - used);
+          rec.totalCapAmount = totalCap;
+        } else if (rec.card === "UQ") {
+          const used = cardState.uqRideshareThisMonth || 0;
+          const totalCap = 8; // $8/month UQ rideshare credit
+          rec.remainingAmount = Math.max(0, totalCap - used);
+          rec.totalCapAmount = totalCap;
+        }
       } else if (cat === "lyft") {
         const used = cardState.csrLyftThisMonth || 0;
         const totalCap = 10; // $10/month Lyft credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "rideshare_other") {
-        const used = cardState.uqRideshareThisMonth || 0;
-        const totalCap = 8; // $8/month rideshare credit
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
       } else if (cat === "instacart") {
@@ -1945,6 +2108,11 @@
       } else if (cat === "delta_flight_threshold") {
         const used = cardState.dg10kSpendYTD || 0;
         const totalCap = 10000; // $10k annual threshold for DG
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "resy") {
+        const used = cardState.agResyThisPeriod || 0;
+        const totalCap = 50; // $50 semi-annual Resy credit
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
       }
@@ -1977,44 +2145,44 @@
       const txs = loadTransactions();
       const merchantState = computeMerchantState(txs, benefits);
     
-		const today = parseISODate(formatTodayISO());
-		
-		// Active merchant offers:
-		// - not expired (inclusive end date)
-		// - AND, if they have a total cap, not fully used
-		// - AND, if they have a max tx cap, not exhausted
-		const active = benefits.filter((b) => {
-		  if (!b.endDate) return false;
-		
-		  const { expired } = classifyBenefitEnd(b.endDate, today);
-		  if (expired) return false;
-		
-		  // Check if fully used for total-cap benefits
-		  if (
-			b.limitType === "total" &&
-			b.limitValue != null &&
-			!isNaN(b.limitValue)
-		  ) {
-			const ms = merchantState[b.id] || { used: 0, limit: null };
-			const limitNum = Number(b.limitValue);
-			if (ms.used >= limitNum) {
-			  // fully used, hide from dropdown
-			  return false;
-			}
-		  }
-		
-		  // Check if fully used by max transaction count
-		  if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
-			const ms = merchantState[b.id] || { txCount: 0 };
-			const maxTx = Number(b.maxTransactions);
-			if (maxTx >= 0 && ms.txCount >= maxTx) {
-			  // hit max transaction count; hide from dropdown
-			  return false;
-			}
-		  }
-		
-		  return true;
-		});
+      const today = parseISODate(formatTodayISO());
+      
+      // Active merchant offers:
+      // - not expired (inclusive end date)
+      // - AND, if they have a total cap, not fully used
+      // - AND, if they have a max tx cap, not exhausted
+      const active = benefits.filter((b) => {
+        if (!b.endDate) return false;
+      
+        const { expired } = classifyBenefitEnd(b.endDate, today);
+        if (expired) return false;
+      
+        // Check if fully used for total-cap benefits
+        if (
+          b.limitType === "total" &&
+          b.limitValue != null &&
+          !isNaN(b.limitValue)
+        ) {
+          const ms = merchantState[b.id] || { used: 0, limit: null };
+          const limitNum = Number(b.limitValue);
+          if (ms.used >= limitNum) {
+            // fully used, hide from dropdown
+            return false;
+          }
+        }
+      
+        // Check if fully used by max transaction count
+        if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
+          const ms = merchantState[b.id] || { txCount: 0 };
+          const maxTx = Number(b.maxTransactions);
+          if (maxTx >= 0 && ms.txCount >= maxTx) {
+            // hit max transaction count; hide from dropdown
+            return false;
+          }
+        }
+      
+        return true;
+      });
     
       // Sort active benefits alphabetically by merchant name
       active.sort((a, b) => {
@@ -2061,133 +2229,133 @@
       }
     }
 
-	// ---------- Merchant benefits UI ----------
-	function renderMerchantBenefits() {
-	  const benefits = loadMerchantBenefits();
-	  const txs = loadTransactions();
-	  const merchantState = computeMerchantState(txs, benefits);
-	  const tbody = document.getElementById("benefitsTbody");
-	  if (!tbody) return;
-	
-	  tbody.innerHTML = "";
-	
-	  const today = parseISODate(formatTodayISO());
-	
-	  // Keep track of original index so delete still works correctly
-	  const benefitsWithIndex = benefits.map((b, idx) => ({ b, idx }));
-	
-	  // Sort by Merchant Name (case insensitive), then End Date
-	  benefitsWithIndex.sort((a, b) => {
-	    const nameA = (a.b.merchant || "").toLowerCase();
-	    const nameB = (b.b.merchant || "").toLowerCase();
-	    if (nameA !== nameB) {
-	      return nameA.localeCompare(nameB);
-	    }
-	
-	    const endA = parseISODate(a.b.endDate);
-	    const endB = parseISODate(b.b.endDate);
-	    const timeA = endA ? endA.getTime() : Infinity;
-	    const timeB = endB ? endB.getTime() : Infinity;
-	    return timeA - timeB;
-	  });
-	
-	  benefitsWithIndex.forEach(({ b, idx }) => {
-	    const tr = document.createElement("tr");
-	
-	    const discountText =
-	      b.discountType === "percent"
-	        ? `${b.discountValue}% off`
-	        : `$${Number(b.discountValue || 0).toFixed(2)} off`;
-	
-	    const parts = [];
-	    if (b.minSpend != null && !isNaN(b.minSpend) && Number(b.minSpend) > 0) {
-	      parts.push(`Min $${formatUsageAmount(b.minSpend)}`);
-	    }
-	    if (b.limitValue != null && !isNaN(b.limitValue)) {
-	      const val = formatUsageAmount(b.limitValue);
-	      parts.push(
-	        b.limitType === "per_tx"
-	          ? `Up to $${val} / txn`
-	          : `Up to $${val} total`
-	      );
-	    }
-	    if (
-	      b.maxTransactions != null &&
-	      !isNaN(b.maxTransactions) &&
-	      Number(b.maxTransactions) > 0
-	    ) {
-	      parts.push(`up to ${Number(b.maxTransactions)} tx`);
-	    }
-	
-	    const limitText = parts.join("; ");
-	
-	    const categoryText = b.category || "";
-	    const endDateText = b.endDate || "";
-	
-		// usage / tx-count state
-		const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
-		const used = ms.used || 0;
-		const txCount = ms.txCount || 0;
-		
-		// normalize maxTransactions
-		const maxTx =
-		  b.maxTransactions != null && !isNaN(b.maxTransactions)
-		    ? Number(b.maxTransactions)
-		    : null;
-		
-		// Date-based expiry (inclusive end date, shared logic)
-		let { expired: expiredByDate, expiringSoon } = classifyBenefitEnd(b.endDate, today);
-		
-		// Transaction-count based expiry
-		const expiredByTx = maxTx != null && txCount >= maxTx;
-		
-		// Total-cap-based expiry (only for limitType === "total")
-		let expiredByCap = false;
-		if (
-		  b.limitType === "total" &&
-		  b.limitValue != null &&
-		  !isNaN(b.limitValue)
-		) {
-		  const totalCap = Number(b.limitValue);
-		  if (totalCap > 0 && used >= totalCap) {
-		    expiredByCap = true;
-		  }
-		}
-		
-		// Final flags
-		const expired = expiredByDate || expiredByTx || expiredByCap;
-		if (expiredByTx || expiredByCap) {
-		  // If we hit tx cap or total cap, don't also show "expiring soon"
-		  expiringSoon = false;
-		}
-		  
-	    tr.innerHTML = `
-	      <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : "<em>(unnamed)</em>"}</td>
-	      <td>${b.card ? renderCardBadge(b.card) : ""}</td>
-	      <td>${discountText}</td>
-	      <td>${limitText}</td>
-	      <td>${escapeHtml(categoryText)}</td>
-	      <td>${endDateText}</td>
-	      <td>
-	        <button
-	          type="button"
-	          class="deleteBenefitBtn"
-	          data-benefit-index="${idx}"
-	        >
-	          Del
-	        </button>
-	      </td>
-	    `;
-	
-	    if (expired) {
-	      tr.classList.add("expired-benefit");
-	    } else if (expiringSoon) {
-	      tr.classList.add("expiring-soon");
-	    }
-	
-	    tbody.appendChild(tr);
-	  });
-	}
+    // ---------- Merchant benefits UI ----------
+    function renderMerchantBenefits() {
+      const benefits = loadMerchantBenefits();
+      const txs = loadTransactions();
+      const merchantState = computeMerchantState(txs, benefits);
+      const tbody = document.getElementById("benefitsTbody");
+      if (!tbody) return;
+    
+      tbody.innerHTML = "";
+    
+      const today = parseISODate(formatTodayISO());
+    
+      // Keep track of original index so delete still works correctly
+      const benefitsWithIndex = benefits.map((b, idx) => ({ b, idx }));
+    
+      // Sort by Merchant Name (case insensitive), then End Date
+      benefitsWithIndex.sort((a, b) => {
+        const nameA = (a.b.merchant || "").toLowerCase();
+        const nameB = (b.b.merchant || "").toLowerCase();
+        if (nameA !== nameB) {
+          return nameA.localeCompare(nameB);
+        }
+    
+        const endA = parseISODate(a.b.endDate);
+        const endB = parseISODate(b.b.endDate);
+        const timeA = endA ? endA.getTime() : Infinity;
+        const timeB = endB ? endB.getTime() : Infinity;
+        return timeA - timeB;
+      });
+    
+      benefitsWithIndex.forEach(({ b, idx }) => {
+        const tr = document.createElement("tr");
+    
+        const discountText =
+          b.discountType === "percent"
+            ? `${b.discountValue}% off`
+            : `$${Number(b.discountValue || 0).toFixed(2)} off`;
+    
+        const parts = [];
+        if (b.minSpend != null && !isNaN(b.minSpend) && Number(b.minSpend) > 0) {
+          parts.push(`Min $${formatUsageAmount(b.minSpend)}`);
+        }
+        if (b.limitValue != null && !isNaN(b.limitValue)) {
+          const val = formatUsageAmount(b.limitValue);
+          parts.push(
+            b.limitType === "per_tx"
+              ? `Up to $${val} / txn`
+              : `Up to $${val} total`
+          );
+        }
+        if (
+          b.maxTransactions != null &&
+          !isNaN(b.maxTransactions) &&
+          Number(b.maxTransactions) > 0
+        ) {
+          parts.push(`up to ${Number(b.maxTransactions)} tx`);
+        }
+    
+        const limitText = parts.join("; ");
+    
+        const categoryText = b.category || "";
+        const endDateText = b.endDate || "";
+    
+        // usage / tx-count state
+        const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
+        const used = ms.used || 0;
+        const txCount = ms.txCount || 0;
+        
+        // normalize maxTransactions
+        const maxTx =
+          b.maxTransactions != null && !isNaN(b.maxTransactions)
+            ? Number(b.maxTransactions)
+            : null;
+        
+        // Date-based expiry (inclusive end date, shared logic)
+        let { expired: expiredByDate, expiringSoon } = classifyBenefitEnd(b.endDate, today);
+        
+        // Transaction-count based expiry
+        const expiredByTx = maxTx != null && txCount >= maxTx;
+        
+        // Total-cap-based expiry (only for limitType === "total")
+        let expiredByCap = false;
+        if (
+          b.limitType === "total" &&
+          b.limitValue != null &&
+          !isNaN(b.limitValue)
+        ) {
+          const totalCap = Number(b.limitValue);
+          if (totalCap > 0 && used >= totalCap) {
+            expiredByCap = true;
+          }
+        }
+        
+        // Final flags
+        const expired = expiredByDate || expiredByTx || expiredByCap;
+        if (expiredByTx || expiredByCap) {
+          // If we hit tx cap or total cap, don't also show "expiring soon"
+          expiringSoon = false;
+        }
+          
+        tr.innerHTML = `
+          <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : "<em>(unnamed)</em>"}</td>
+          <td>${b.card ? renderCardBadge(b.card) : ""}</td>
+          <td>${discountText}</td>
+          <td>${limitText}</td>
+          <td>${escapeHtml(categoryText)}</td>
+          <td>${endDateText}</td>
+          <td>
+            <button
+              type="button"
+              class="deleteBenefitBtn"
+              data-benefit-index="${idx}"
+            >
+              Del
+            </button>
+          </td>
+        `;
+    
+        if (expired) {
+          tr.classList.add("expired-benefit");
+        } else if (expiringSoon) {
+          tr.classList.add("expiring-soon");
+        }
+    
+        tbody.appendChild(tr);
+      });
+    }
 
     // ---------- UI wiring ----------
 
@@ -2360,8 +2528,8 @@
       saveTransactions(txs);
       renderTransactions();
       renderStateSummary();
-	  populateCategorySelect();
-	  renderMerchantBenefits(); 
+      populateCategorySelect();
+      renderMerchantBenefits(); 
 
       // Auto-hide the recommendation section after saving
       document.getElementById("recommendationSection").style.display = "none";
@@ -2373,7 +2541,7 @@
       document.getElementById("category").value = "dining";
       
       lastRecommendation = null;
-		
+        
       showToast("✓ Purchase saved");
     });
 
@@ -2408,8 +2576,8 @@
       saveTransactions([]);
       renderTransactions();
       renderStateSummary();
-	  populateCategorySelect();
-	  renderMerchantBenefits(); 
+      populateCategorySelect();
+      renderMerchantBenefits(); 
     });
 
     // Show/Hide Logged Purchases
@@ -2455,7 +2623,7 @@
       const discountValueRaw = document.getElementById("benefitDiscountValue").value;
       const limitType = document.getElementById("benefitLimitType").value;
       const limitValueRaw = document.getElementById("benefitLimitValue").value;
-		const maxTxRaw = document.getElementById("benefitMaxTx").value;
+      const maxTxRaw = document.getElementById("benefitMaxTx").value;
       const minSpendRaw = document.getElementById("benefitMinSpend").value;
       const endDate = document.getElementById("benefitEndDate").value;
       const category = document.getElementById("benefitCategory").value;
@@ -2496,18 +2664,18 @@
         }
       }
 
-		let maxTransactions = null;
-		if (maxTxRaw !== "") {
-		  maxTransactions = Number(maxTxRaw);
-		  if (
-			isNaN(maxTransactions) ||
-			maxTransactions < 0 ||
-			!Number.isInteger(maxTransactions)
-		  ) {
-			alert("Maximum transactions must be a non-negative whole number.");
-			return;
-		  }
-		}
+      let maxTransactions = null;
+      if (maxTxRaw !== "") {
+        maxTransactions = Number(maxTxRaw);
+        if (
+          isNaN(maxTransactions) ||
+          maxTransactions < 0 ||
+          !Number.isInteger(maxTransactions)
+        ) {
+          alert("Maximum transactions must be a non-negative whole number.");
+          return;
+        }
+      }
 
       const id = "mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
 
@@ -2541,10 +2709,10 @@
       populateCategorySelect();
       renderStateSummary();
 
-	  showToast("✓ Merchant Benefit saved");
+      showToast("✓ Merchant Benefit saved");
     });
 
-	      // Event delegation for transaction delete (set up once)
+    // Event delegation for transaction delete (set up once)
     document.getElementById("txTableBody").addEventListener("click", (e) => {
       const badge = e.target.closest(".tx-delete-badge");
       if (!badge) return;
@@ -2567,10 +2735,10 @@
       renderTransactions();
       renderStateSummary();
       populateCategorySelect(); // merchant offers might re-open if usage drops
-	  renderMerchantBenefits(); 
+      renderMerchantBenefits(); 
     });
-	  
-	      // Event delegation for benefit delete (set up once)
+      
+    // Event delegation for benefit delete (set up once)
     document.getElementById("benefitsTbody").addEventListener("click", (e) => {
       const btn = e.target.closest(".deleteBenefitBtn");
       if (!btn) return;
@@ -2589,61 +2757,61 @@
       populateCategorySelect(); // keep the New Purchase categories in sync
       renderStateSummary();     // and the top usage summary
     });
-	  
-	// Event delegation for export/import buttons (they're inside hidden section)
-	    document.body.addEventListener("click", (e) => {
-	      // Export button
-	      if (e.target.id === "btnExportData") {
-	        exportAllData();
-	      }
-	      
-	      // Import button
-	      if (e.target.id === "btnImportData") {
-	        const fileInput = document.getElementById("fileImportInput");
-	        if (fileInput) {
-	          fileInput.click();
-	        }
-	      }
-	    });
-	
-	    // File input change handler (also needs delegation since it's hidden)
-	    document.body.addEventListener("change", (e) => {
-	      if (e.target.id === "fileImportInput") {
-	        const file = e.target.files[0];
-	        if (file) {
-	          importDataFromFile(file);
-	          // Clear the input so the same file can be selected again
-	          e.target.value = '';
-	        }
-	      }
-	    });
-	  
-	  // Init on load
-      initFormDefaults();               // sets date to today
-      renderTransactions();
-      renderMerchantBenefits();
-      populateCategorySelect();         // build Merchant Offers + Card Benefits
       
-      // Default category to Dining / Restaurants on first load
-      const categorySelect = document.getElementById("category");
-      if (categorySelect && categorySelect.querySelector('option[value="dining"]')) {
-        categorySelect.value = "dining";
-      } else if (categorySelect && categorySelect.options.length > 0) {
-        categorySelect.value = categorySelect.options[0].value;
+    // Event delegation for export/import buttons (they're inside hidden section)
+    document.body.addEventListener("click", (e) => {
+      // Export button
+      if (e.target.id === "btnExportData") {
+        exportAllData();
       }
+      
+      // Import button
+      if (e.target.id === "btnImportData") {
+        const fileInput = document.getElementById("fileImportInput");
+        if (fileInput) {
+          fileInput.click();
+        }
+      }
+    });
+  
+    // File input change handler (also needs delegation since it's hidden)
+    document.body.addEventListener("change", (e) => {
+      if (e.target.id === "fileImportInput") {
+        const file = e.target.files[0];
+        if (file) {
+          importDataFromFile(file);
+          // Clear the input so the same file can be selected again
+          e.target.value = '';
+        }
+      }
+    });
+      
+    // Init on load
+    initFormDefaults();               // sets date to today
+    renderTransactions();
+    renderMerchantBenefits();
+    populateCategorySelect();         // build Merchant Offers + Card Benefits
+      
+    // Default category to Dining / Restaurants on first load
+    const categorySelect = document.getElementById("category");
+    if (categorySelect && categorySelect.querySelector('option[value="dining"]')) {
+      categorySelect.value = "dining";
+    } else if (categorySelect && categorySelect.options.length > 0) {
+      categorySelect.value = categorySelect.options[0].value;
+    }
 
-	  // Populate card dropdowns from CARDS registry
-		populateCardSelect(
-		  document.getElementById("cardUsedSelect"),
-		  { includeEmpty: true, emptyLabel: "Use recommended card" }
-		);
-		
-		populateCardSelect(
-		  document.getElementById("benefitCard"),
-		  { includeEmpty: false }
-		);
+    // Populate card dropdowns from CARDS registry
+    populateCardSelect(
+      document.getElementById("cardUsedSelect"),
+      { includeEmpty: true, emptyLabel: "Use recommended card" }
+    );
+    
+    populateCardSelect(
+      document.getElementById("benefitCard"),
+      { includeEmpty: false }
+    );
 
-      renderStateSummary();
+    renderStateSummary();
   </script>
 </body>
 </html>
