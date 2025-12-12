@@ -562,6 +562,7 @@
           <option value="ag_dining">Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com</option>
           <option value="doordash">Dining- Doordash</option>
           <option value="resy">Dining- Resy</option>
+          <option value="dunkin">Dunkin</option>
           <option value="lyft">Rideshare- Lyft</option>
           <option value="rideshare_other">Rideshare- Uber</option>
           <option value="united_flight">Flight- United</option>
@@ -690,10 +691,11 @@
     // Base categories (what used to be hard-coded in the HTML select)
     const BASE_CATEGORIES = [
       { value: "dining",              label: "Dining- Restaurants" },
-      { value: "uber_eats",           label: "Dining- Uber Eats" },
-      { value: "ag_dining",           label: "Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com" },
-      { value: "doordash",            label: "Dining- Doordash" },
       { value: "resy",                label: "Dining- Resy" },
+      { value: "ag_dining",           label: "Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com" },
+      { value: "uber_eats",           label: "Dining- Uber Eats" },
+      { value: "doordash",            label: "Dining- Doordash" },
+      { value: "dunkin",              label: "Dunkin" },
       { value: "lyft",                label: "Rideshare- Lyft" },
       { value: "rideshare_other",     label: "Rideshare- Uber" },
       { value: "united_flight",       label: "Flight- United" },
@@ -740,6 +742,7 @@
       ag_dining: ["direct"],
       doordash: ["direct"],
       resy: ["resy"],
+      dunkin: ["direct"],
       lyft: ["lyft_app"],
       rideshare_other: ["direct"],
       united_flight: ["united"],
@@ -1062,6 +1065,7 @@
       let csrPelotonThisMonth = 0;
       let agUberThisMonth = 0;
       let agDiningPartnersThisMonth = 0;
+      let agDunkinThisMonth = 0;
 
       // Semi-annual
       let csrStubhubThisPeriod = 0;
@@ -1122,6 +1126,9 @@
           if (tx.cardUsed === "CSR" && tx.category === "peloton") {
             csrPelotonThisMonth += amt;
           }
+           if (tx.cardUsed === "AG" && tx.category === "dunkin") {
+            agDunkinThisMonth += amt;
+          }
           // AG Uber Cash – count Uber rides + Uber Eats on AG
           if (
             tx.cardUsed === "AG" &&
@@ -1178,6 +1185,7 @@
         csrPelotonThisMonth,
         agUberThisMonth,
         agDiningPartnersThisMonth,
+        agDunkinThisMonth,
         csrStubhubThisPeriod,
         agResyThisPeriod,
         csrTravelYTD,
@@ -1431,6 +1439,19 @@
           label: "Resy dining",
           card: "AG",
           time: getSemiannualLabel(),
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+
+      // G Dunkin $7/month
+      {
+        const used = cardState.agDunkinThisMonth || 0;
+        const limit = 7;
+        ccRows.push({
+          label: "Dunkin",
+          card: "AG",
+          time: "Monthly",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
@@ -1716,6 +1737,24 @@
           channel: "direct",
           reason:
             "Uber Cash for this month is effectively used up; default back to Chase Sapphire for flexible points.",
+        };
+      }
+
+      // DUNKIN (AG Gold: $7 monthly credit, then 4x points)
+      if (category === "dunkin") {
+        if (state.agDunkinThisMonth < 7) {
+          return {
+            card: "AG",
+            channel: "direct",
+            reason:
+              "Use Amex Gold at Dunkin to use the $7 monthly Dunkin credit (on top of 4x points on dining).",
+          };
+        }
+        return {
+          card: "AG",
+          channel: "direct",
+          reason:
+            "Your Dunkin monthly credit is used, but Amex Gold still wins for 4x points at Dunkin.",
         };
       }
     
@@ -2127,7 +2166,13 @@
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
       }
-    
+      } else if (cat === "dunkin") {
+        const used = cardState.agDunkinThisMonth || 0;
+        const totalCap = 7; // $7/month Dunkin credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      }
+
       // 3) If we skipped the merchant benefit because of min spend, prepend note
       if (belowMinForMerchant && belowMinAmount != null) {
         const prefix =
