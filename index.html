@@ -1354,6 +1354,10 @@
         const limit = 150;
         ccRows.push({
           label: "Dining partners on OpenTable",
+          labelHtml:
+            'Dining partners on ' +
+            '<a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" ' +
+            'target="_blank" rel="noopener noreferrer">OpenTable</a>',
           card: "CSR",
           time: getSemiannualLabel(),
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -1700,6 +1704,11 @@
                         // Default unstyled usage text
                         usageCellHtml = escapeHtml(row.usage);
                       }
+
+                      // Allow an optional HTML label
+                      const labelCellHtml = row.labelHtml
+                        ? row.labelHtml
+                        : escapeHtml(row.label);
       
                       return `
                         <tr${classAttr}>
