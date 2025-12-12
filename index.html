@@ -2165,7 +2165,6 @@
         const totalCap = 50; // $50 semi-annual Resy credit
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
-      }
       } else if (cat === "dunkin") {
         const used = cardState.agDunkinThisMonth || 0;
         const totalCap = 7; // $7/month Dunkin credit
