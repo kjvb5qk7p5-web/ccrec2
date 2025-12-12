@@ -565,6 +565,7 @@
         <select id="benefitCategory">
           <option value="dining">Dining- Restaurants</option>
           <option value="resy">Dining- Resy</option>
+          <option value="csr_opentable">Dining- OpenTable CSR partners</option>
           <option value="ag_dining">Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com</option>
           <option value="doordash">Dining- Doordash</option>
           <option value="uber_eats">Dining- Uber Eats</option>
@@ -699,6 +700,7 @@
     const BASE_CATEGORIES = [
       { value: "dining",              label: "Dining- Restaurants" },
       { value: "resy",                label: "Dining- Resy" },
+      { value: "csr_opentable",       label: "Dining- OpenTable CSR partners" },
       { value: "ag_dining",           label: "Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com" },
       { value: "doordash",            label: "Dining- Doordash" },
       { value: "uber_eats",           label: "Dining- Uber Eats" },
@@ -743,6 +745,7 @@
       peloton_platform: "on the Peloton site / app",
       resy: "via Resy (book on Resy)",
       doordash_groceries_platform: "in the Doordash app",
+      opentable_platform: "via OpenTable",
     };
 
     // Allowed channels per category (for override dropdown)
@@ -769,6 +772,7 @@
       streaming: ["direct"],
       peloton: ["peloton_platform"],
       doordash_groceries: ["doordash_groceries_platform"],
+      csr_opentable: ["opentable_platform"],
       other: ["direct"],
     };
 
@@ -1083,7 +1087,8 @@
       // Semi-annual
       let csrStubhubThisPeriod = 0;
       let agResyThisPeriod = 0;
-
+      let csrOpenTableThisPeriod = 0;
+      
       // Annual / calendar-year
       let csrTravelYTD = 0;
       let dgDeltaStaysYTD = 0;
@@ -1177,6 +1182,15 @@
           agResyThisPeriod += amt;
         }
 
+        // Semi-annual OpenTable dining partners (CSR only)
+        if (
+          inResyPeriod &&           // same Jan–Jun / Jul–Dec periods
+          tx.cardUsed === "CSR" &&
+          tx.category === "csr_opentable"
+        ) {
+          csrOpenTableThisPeriod += amt;
+        }
+
         // Annual / calendar-year benefits
         if (inYear) {
           if (tx.cardUsed === "CSR" && CSR_TRAVEL_CATEGORIES.has(tx.category)) {
@@ -1205,6 +1219,7 @@
         agDunkinThisMonth,
         csrStubhubThisPeriod,
         agResyThisPeriod,
+        csrOpenTableThisPeriod,
         csrTravelYTD,
         dgDeltaStaysYTD,
         dg10kSpendYTD,
@@ -1333,19 +1348,19 @@
         });
       }
     
-      // CSR StubHub semi-annual ($150 per 6-month period)
+      // CSR OpenTable dining partners semi-annual ($150 per 6 month period)
       {
-        const used = cardState.csrStubhubThisPeriod || 0;
+        const used = cardState.csrOpenTableThisPeriod || 0;
         const limit = 150;
         ccRows.push({
-          label: "StubHub / viagogo / soccer.com",
+          label: "Dining partners on OpenTable",
           card: "CSR",
           time: getSemiannualLabel(),
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
       }
-    
+      
       // CSR Doordash Dining $5/month
       {
         const used = cardState.csrDoordashThisMonth || 0;
@@ -1385,6 +1400,19 @@
           label: "Lyft",
           card: "CSR",
           time: "Monthly",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+    
+      // CSR StubHub semi-annual ($150 per 6-month period)
+      {
+        const used = cardState.csrStubhubThisPeriod || 0;
+        const limit = 150;
+        ccRows.push({
+          label: "StubHub / viagogo / soccer.com",
+          card: "CSR",
+          time: getSemiannualLabel(),
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
@@ -1740,7 +1768,65 @@
             "Your Amex Gold dining partner credit is used up, but Amex Gold still wins here for 4X points on dining.",
         };
       }
+
+        // CSR OpenTable dining partners (semi-annual $150)
+        if (category === "csr_opentable") {
+        // 1) Use CSR while the OpenTable credit is still available
+          if (state.csrOpenTableThisPeriod < 150) {
+            return {
+              card: "CSR",
+              channel: "opentable_platform",
+              reason:
+                "Use Chase Sapphire Reserve with OpenTable dining partners to use your $150 semi-annual OpenTable dining credit.",
+            };
+          }
+          // 2) OpenTable credit used up: check MB dining credit
+          if (state.mbDiningThisMonth < 25) { // MB's $25 dining credit
+            return {
+              card: "MB",
+              channel: "direct",
+              reason:
+                "Your OpenTable partner credit is used; switch to Bonvoy Brilliant to use the $25 monthly dining credit before going back to Amex Gold.",
+            };
+          }
+          // 3) OpenTable + MB credits both used → AG for 4x dining
+          return {
+            card: "AG",
+            channel: "opentable_platform",
+            reason:
+              "OpenTable and Bonvoy Brilliant dining credits are used up; use Amex Gold for 4X points on dining.",
+          };
+        }
     
+      // RESY DINING (semi-annual $50 credit)
+      if (category === "resy") {
+        // 1) Use AG while the Resy credit is still available
+        if (state.agResyThisPeriod < 50) {
+          return {
+            card: "AG",
+            channel: "resy",
+            reason:
+              "Use Amex Gold via Resy to burn your $50 semi-annual Resy dining credit.",
+          };
+        }
+        // 2) Resy credit used up: check MB dining credit
+        if (state.mbDiningThisMonth < 25) { // MB's $25 dining credit
+          return {
+            card: "MB",
+            channel: "direct",
+            reason:
+              "Your Resy credit is used; switch to Bonvoy Brilliant to use the $25 monthly dining credit before going back to Amex Gold.",
+          };
+        }
+        // 3) Resy + MB credits both used → AG for 4x dining
+        return {
+          card: "AG",
+          channel: "direct",
+          reason:
+            "Resy and Bonvoy Brilliant dining credits are used up; use Amex Gold for 4X points on dining.",
+        };
+      }
+
       // DOORDASH
       if (category === "doordash") {
         if (state.csrDoordashThisMonth < 5) {
@@ -1999,35 +2085,6 @@
         };
       }
 
-      // RESY DINING (semi-annual $50 credit)
-      if (category === "resy") {
-        // 1) Use AG while the Resy credit is still available
-        if (state.agResyThisPeriod < 50) {
-          return {
-            card: "AG",
-            channel: "resy",
-            reason:
-              "Use Amex Gold via Resy to burn your $50 semi-annual Resy dining credit.",
-          };
-        }
-        // 2) Resy credit used up: check MB dining credit
-        if (state.mbDiningThisMonth < 25) { // MB's $25 dining credit
-          return {
-            card: "MB",
-            channel: "direct",
-            reason:
-              "Your Resy credit is used; switch to Bonvoy Brilliant to use the $25 monthly dining credit before going back to Amex Gold.",
-          };
-        }
-        // 3) Resy + MB credits both used → AG for 4x dining
-        return {
-          card: "AG",
-          channel: "direct",
-          reason:
-            "Resy and Bonvoy Brilliant dining credits are used up; use Amex Gold for 4x points on dining.",
-        };
-      }
-
       // DOORDASH GROCERIES (CSR: 2 × $10/mo)
       if (category === "doordash_groceries") {
         const used = state.csrDoordashGroceriesThisMonth || 0;
@@ -2057,7 +2114,7 @@
           card: "AG",
           channel: "direct",
           reason:
-            "Use Amex Gold at U.S. grocery stores to earn 4x Membership Rewards on supermarket spend.",
+            "Use Amex Gold at U.S. grocery stores to earn 4X Membership Rewards on supermarket spend.",
         };
       }
     
@@ -2170,6 +2227,11 @@
       } else if (cat === "ag_dining") {
         const used = cardState.agDiningPartnersThisMonth || 0;
         const totalCap = 10; // $10 monthly AG dining partners
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "csr_opentable") {
+        const used = cardState.csrOpenTableThisPeriod || 0;
+        const totalCap = 150; // $150 semi-annual OpenTable dining credit
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
       } else if (cat === "doordash") {
