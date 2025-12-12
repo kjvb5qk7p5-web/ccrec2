@@ -564,10 +564,10 @@
         Category (for card recommendation logic)<br>
         <select id="benefitCategory">
           <option value="dining">Dining- Restaurants</option>
-          <option value="uber_eats">Dining- Uber Eats</option>
+          <option value="resy">Dining- Resy</option>
           <option value="ag_dining">Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com</option>
           <option value="doordash">Dining- Doordash</option>
-          <option value="resy">Dining- Resy</option>
+          <option value="uber_eats">Dining- Uber Eats</option>
           <option value="dunkin">Dunkin</option>
           <option value="groceries">Groceries- grocery store</option>
           <option value="doordash_groceries">Groceries- Doordash</option>
@@ -700,8 +700,8 @@
       { value: "dining",              label: "Dining- Restaurants" },
       { value: "resy",                label: "Dining- Resy" },
       { value: "ag_dining",           label: "Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com" },
-      { value: "uber_eats",           label: "Dining- Uber Eats" },
       { value: "doordash",            label: "Dining- Doordash" },
+      { value: "uber_eats",           label: "Dining- Uber Eats" },
       { value: "dunkin",              label: "Dunkin" },
       { value: "groceries",           label: "Groceries- grocery store" },
       { value: "doordash_groceries",  label: "Groceries- Doordash" },
@@ -1366,9 +1366,9 @@
         const dollarCap = 20; // 2 × $10
       
         ccRows.push({
-          label: "Doordash Groceries (2 × $10/mo)",
+          label: "Doordash Groceries",
           card: "CSR",
-          time: "Monthly",
+          time: "Monthly (2x $10)",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(dollarCap)}`,
           // Treat it as "fully used" if EITHER:
           // - you’ve consumed $20 of credit, OR
@@ -1442,14 +1442,14 @@
         });
       }
 
-      // AG Uber Cash $10/month (rides + Uber Eats)
+      // AG Resy $50 per semi-annual period
       {
-        const used = cardState.agUberThisMonth || 0;
-        const limit = 10;
+        const used = cardState.agResyThisPeriod || 0;
+        const limit = 50;
         ccRows.push({
-          label: "Uber rides + Eats",
+          label: "Resy dining",
           card: "AG",
-          time: "Monthly",
+          time: getSemiannualLabel(),
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
@@ -1468,20 +1468,7 @@
         });
       }
 
-      // AG Resy $50 per semi-annual period
-      {
-        const used = cardState.agResyThisPeriod || 0;
-        const limit = 50;
-        ccRows.push({
-          label: "Resy dining",
-          card: "AG",
-          time: getSemiannualLabel(),
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-
-      // G Dunkin $7/month
+      // AG Dunkin $7/month
       {
         const used = cardState.agDunkinThisMonth || 0;
         const limit = 7;
@@ -1494,6 +1481,19 @@
         });
       }
     
+      // AG Uber Cash $10/month (rides + Uber Eats)
+      {
+        const used = cardState.agUberThisMonth || 0;
+        const limit = 10;
+        ccRows.push({
+          label: "Uber rides + Eats",
+          card: "AG",
+          time: "Monthly",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+
       // DG Delta Stays $100/year
       {
         const used = cardState.dgDeltaStaysYTD || 0;
