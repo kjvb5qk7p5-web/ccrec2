@@ -570,6 +570,7 @@
           <option value="resy">Dining- Resy</option>
           <option value="dunkin">Dunkin</option>
           <option value="groceries">Groceries- grocery store</option>
+          <option value="doordash_groceries">Groceries- Doordash</option>
           <option value="instacart">Groceries- Instacart</option>
           <option value="lyft">Rideshare- Lyft</option>
           <option value="rideshare_other">Rideshare- Uber</option>
@@ -703,6 +704,7 @@
       { value: "doordash",            label: "Dining- Doordash" },
       { value: "dunkin",              label: "Dunkin" },
       { value: "groceries",           label: "Groceries- grocery store" },
+      { value: "doordash_groceries",  label: "Groceries- Doordash" },
       { value: "instacart",           label: "Groceries- Instacart" },
       { value: "lyft",                label: "Rideshare- Lyft" },
       { value: "rideshare_other",     label: "Rideshare- Uber" },
@@ -740,6 +742,7 @@
       instacart_platform: "on Instacart",
       peloton_platform: "on the Peloton site / app",
       resy: "via Resy (book on Resy)",
+      doordash_groceries_platform: "in the Doordash app",
     };
 
     // Allowed channels per category (for override dropdown)
@@ -765,6 +768,7 @@
       groceries: ["direct"],
       streaming: ["direct"],
       peloton: ["peloton_platform"],
+      doordash_groceries: ["doordash_groceries_platform"],
       other: ["direct"],
     };
 
@@ -1073,6 +1077,8 @@
       let agUberThisMonth = 0;
       let agDiningPartnersThisMonth = 0;
       let agDunkinThisMonth = 0;
+      let csrDoordashGroceriesThisMonth = 0;
+      let csrDoordashGroceriesTxThisMonth = 0;
 
       // Semi-annual
       let csrStubhubThisPeriod = 0;
@@ -1120,6 +1126,10 @@
           }
           if (tx.cardUsed === "CSR" && tx.category === "doordash") {
             csrDoordashThisMonth += amt;
+          }
+          if (tx.cardUsed === "CSR" && tx.category === "doordash_groceries") {
+            csrDoordashGroceriesThisMonth += amt;
+            csrDoordashGroceriesTxThisMonth += 1;
           }
           if (tx.cardUsed === "CSR" && tx.category === "lyft") {
             csrLyftThisMonth += amt;
@@ -1198,6 +1208,8 @@
         csrTravelYTD,
         dgDeltaStaysYTD,
         dg10kSpendYTD,
+        csrDoordashGroceriesThisMonth,
+        csrDoordashGroceriesTxThisMonth,
       };
     }
 
@@ -1334,7 +1346,7 @@
         });
       }
     
-      // CSR Doordash $5/month
+      // CSR Doordash Dining $5/month
       {
         const used = cardState.csrDoordashThisMonth || 0;
         const limit = 5;
@@ -1347,6 +1359,24 @@
         });
       }
     
+      // CSR Doordash Groceries – 2 × $10 per month (up to $20/mo)
+      {
+        const used = cardState.csrDoordashGroceriesThisMonth || 0;
+        const txCount = cardState.csrDoordashGroceriesTxThisMonth || 0;
+        const dollarCap = 20; // 2 × $10
+      
+        ccRows.push({
+          label: "Doordash Groceries (2 × $10/mo)",
+          card: "CSR",
+          time: "Monthly",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(dollarCap)}`,
+          // Treat it as "fully used" if EITHER:
+          // - you’ve consumed $20 of credit, OR
+          // - you’ve used it on 2 qualifying transactions
+          fullyUsed: used >= dollarCap || txCount >= 2,
+        });
+      }
+
       // CSR Lyft $10/month
       {
         const used = cardState.csrLyftThisMonth || 0;
@@ -1998,6 +2028,29 @@
         };
       }
 
+      // DOORDASH GROCERIES (CSR: 2 × $10/mo)
+      if (category === "doordash_groceries") {
+        const used = state.csrDoordashGroceriesThisMonth || 0;
+        const txCount = state.csrDoordashGroceriesTxThisMonth || 0;
+        const dollarCap = 20; // 2 × $10
+      
+        if (used < dollarCap && txCount < 2) {
+          return {
+            card: "CSR",
+            channel: "doordash_groceries_platform",
+            reason:
+              "Use Chase Sapphire Reserve on Doordash Groceries to tap your 2 × $10 monthly grocery credits (up to $20 total per month).",
+          };
+        }
+      
+        return {
+          card: "CSR",
+          channel: "doordash_groceries_platform",
+          reason:
+            "You’ve already used your 2 × $10 Doordash Groceries credits this month; keep using CSR for points and protections, but there’s no remaining grocery credit to burn.",
+        };
+      }
+
       // GROCERIES (U.S. supermarkets)
       if (category === "groceries") {
         return {
@@ -2122,6 +2175,11 @@
       } else if (cat === "doordash") {
         const used = cardState.csrDoordashThisMonth || 0;
         const totalCap = 5; // $5/month Doordash credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "doordash_groceries") {
+        const used = cardState.csrDoordashGroceriesThisMonth || 0;
+        const totalCap = 20; // 2 × $10
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
       } else if (cat === "uber_eats" || cat === "rideshare_other") {
