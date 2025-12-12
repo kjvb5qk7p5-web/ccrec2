@@ -1676,10 +1676,10 @@
           };
         }
         return {
-          card: "CSR",
+          card: "AG",
           channel: "direct",
           reason:
-            "Amex Gold dining-partner credit is used up; default back to Chase Sapphire for flexible points.",
+            "Your Amex Gold dining partner credit is used up, but Amex Gold still wins here for 4x points on dining.",
         };
       }
     
@@ -1925,6 +1925,7 @@
 
       // RESY DINING (semi-annual $50 credit)
       if (category === "resy") {
+        // 1) Use AG while the Resy credit is still available
         if (state.agResyThisPeriod < 50) {
           return {
             card: "AG",
@@ -1933,11 +1934,21 @@
               "Use Amex Gold via Resy to burn your $50 semi-annual Resy dining credit.",
           };
         }
+        // 2) Resy credit used up: check MB dining credit
+        if (state.mbDiningThisMonth < 25) { // MB's $25 dining credit
+          return {
+            card: "MB",
+            channel: "direct",
+            reason:
+              "Your Resy credit is used; switch to Bonvoy Brilliant to use the $25 monthly dining credit before going back to Amex Gold.",
+          };
+        }
+        // 3) Resy + MB credits both used → AG for 4x dining
         return {
           card: "AG",
-          channel: "resy",
+          channel: "direct",
           reason:
-            "Resy semi-annual credit on Amex Gold is used up; still book via Resy, and use Amex Gold for 4x points.",
+            "Resy and Bonvoy Brilliant dining credits are used up; use Amex Gold for 4x points on dining.",
         };
       }
 
