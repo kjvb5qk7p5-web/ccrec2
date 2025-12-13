@@ -1380,7 +1380,7 @@
           labelHtml:
             '<a href="https://www.doordash.com" ' +
             'target="_blank" rel="noopener noreferrer">Doordash</a>' +
-            'Dining',
+            ' dining',
           card: "CSR",
           time: "Monthly",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -1396,6 +1396,10 @@
       
         ccRows.push({
           label: "Doordash Groceries",
+          labelHtml:
+            '<a href="https://www.doordash.com" ' +
+            'target="_blank" rel="noopener noreferrer">Doordash</a>' +
+            ' groceries',
           card: "CSR",
           time: "Monthly (2x $10)",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(dollarCap)}`,
@@ -1412,6 +1416,9 @@
         const limit = 10;
         ccRows.push({
           label: "Lyft",
+          labelHtml:
+            '<a href="https://www.lyft.com" ' +
+            'target="_blank" rel="noopener noreferrer">Lyft</a>',
           card: "CSR",
           time: "Monthly",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -1425,6 +1432,15 @@
         const limit = 150;
         ccRows.push({
           label: "StubHub / viagogo / soccer.com",
+          labelHtml:
+            '<a href="https://www.StubHub.com" ' +
+            'target="_blank" rel="noopener noreferrer">StubHub</a>' +
+            ' / ' +
+            '<a href="https://www.viagogo.com" ' +
+            'target="_blank" rel="noopener noreferrer">viagogo</a>' +
+            ' / ' +
+            '<a href="https://www.soccer.com" ' +
+            'target="_blank" rel="noopener noreferrer">soccer&#46;com</a>',
           card: "CSR",
           time: getSemiannualLabel(),
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -1451,6 +1467,10 @@
         const limit = 8;
         ccRows.push({
           label: "Uber rides",
+          labelHtml:
+            '<a href="https://www.uber.com" ' +
+            'target="_blank" rel="noopener noreferrer">Uber</a>' +
+            ' rides',
           card: "UQ",
           time: "Monthly",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -1464,6 +1484,9 @@
         const limit = 15;
         ccRows.push({
           label: "Instacart",
+          labelHtml:
+            '<a href="https://www.instacart.com" ' +
+            'target="_blank" rel="noopener noreferrer">Instacart</a>',
           card: "UQ",
           time: "Monthly",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -1490,6 +1513,10 @@
         const limit = 50;
         ccRows.push({
           label: "Resy dining",
+          labelHtml:
+            '<a href="https://www.resy.com" ' +
+            'target="_blank" rel="noopener noreferrer">Resy</a>' +
+            ' dining',
           card: "AG",
           time: getSemiannualLabel(),
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -1503,6 +1530,14 @@
         const limit = 10;
         ccRows.push({
           label: "Dining partners (GrubHub/Seamless, Cheesecake Factory, Goldbelly, Five Guys, Wine.com)",
+          labelHtml:
+            'Dining partners (' +
+            '<a href="https://www.grubhub.com" ' +
+            'target="_blank" rel="noopener noreferrer">GrubHub</a>' +
+            '/' +
+            '<a href="https://www.seamless.com" ' +
+            'target="_blank" rel="noopener noreferrer">Seamless</a>' +
+            ', Cheesecake Factory, Goldbelly, Five Guys, Wine.com)',
           card: "AG",
           time: "Monthly",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -1529,6 +1564,10 @@
         const limit = 10;
         ccRows.push({
           label: "Uber rides + Eats",
+          labelHtml:
+            '<a href="https://www.uber.com" ' +
+            'target="_blank" rel="noopener noreferrer">Uber</a>' +
+            ' rides + Eats',
           card: "AG",
           time: "Monthly",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -1542,6 +1581,9 @@
         const limit = 100;
         ccRows.push({
           label: "Delta Stays",
+          labelHtml:
+            '<a href="https://carsandstays.delta.com/Hotels#" ' +
+            'target="_blank" rel="noopener noreferrer">Delta Stays</a>',
           card: "DG",
           time: "Annual (YTD)",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
