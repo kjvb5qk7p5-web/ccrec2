@@ -114,6 +114,12 @@
     .new-purchase-card #recommendationBox {
       font-size: 1.2rem;
     }
+
+    #recommendationBox a:link,
+    #recommendationBox a:visited {
+      color: inherit;          /* same color as surrounding text */
+      text-decoration: underline; /* or change to 'none' if you want zero visual hint */
+    }
   
     .new-purchase-card #reasonBox {
       font-size: 1.1rem;
@@ -759,6 +765,15 @@
       resy: "via Resy (book on Resy)",
       doordash_groceries_platform: "in the Doordash app",
       opentable_platform: "via OpenTable",
+    };
+
+    const CHANNEL_LABELS_HTML = {
+      // default: nothing special for most channels,
+      // we only override where we want links
+    
+      opentable_platform:
+        'via <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" ' +
+        'target="_blank" rel="noopener noreferrer">OpenTable</a>',
     };
 
     // Allowed channels per category (for override dropdown)
@@ -2630,13 +2645,16 @@
       }
     
       const cardBadgeHtml = renderCardBadge(rec.card);
-      const channelLabel = CHANNEL_LABELS[rec.channel] || rec.channel;
-    
-      // Recommendation:
+      
+      const channelLabelPlain = CHANNEL_LABELS[rec.channel] || rec.channel;
+      const channelLabelHtml =
+        CHANNEL_LABELS_HTML[rec.channel] ||
+        escapeHtml(channelLabelPlain);
+      
       // "Recommendation:" (bold) on first line, then card badge + channel on next line
       recommendationBox.innerHTML =
         `<strong>Recommendation:</strong><br>` +
-        `${cardBadgeHtml} – ${escapeHtml(channelLabel)}`;
+        `${cardBadgeHtml} – ${channelLabelHtml}`;
     
       // Reason:
       // First line: "Reason:" (bold)
