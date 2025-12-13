@@ -119,6 +119,13 @@
       font-size: 1.1rem;
       margin-top: 0.9rem;  /* roughly “one extra line” of space */
     }
+
+    /* Recommendation text links: look like normal text but clickable */
+    #reasonBox a:link,
+    #reasonBox a:visited {
+      color: inherit;
+      text-decoration: underline;  /* or remove if you want truly stealth links */
+    }
   
     /* TABLE STYLING – base */
     table {
@@ -2634,8 +2641,16 @@
       // Reason:
       // First line: "Reason:" (bold)
       // Next line: main reason text (no badge)
-      const mainReason = rec.reasonMain || rec.reason || "";
-      let html = `<strong>Reason:</strong><br>${escapeHtml(mainReason)}`;
+      let mainReasonHtml;
+      if (rec.reasonMainHtml) {
+        // Use trusted HTML if provided
+        mainReasonHtml = rec.reasonMainHtml;
+      } else {
+        const mainReason = rec.reasonMain || rec.reason || "";
+        mainReasonHtml = escapeHtml(mainReason);
+      }
+      
+      let html = `<strong>Reason:</strong><br>${mainReasonHtml}`;
     
       const bullets = [];
     
