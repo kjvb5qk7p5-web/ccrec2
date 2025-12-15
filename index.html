@@ -773,7 +773,7 @@
       // we only override where we want links
     
       chase_travel:
-        'via <a href="https://www.chase.com/travel" ' +
+        'via the <a href="https://www.chase.com/travel" ' +
         'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
       
       lyft_app:
@@ -793,12 +793,12 @@
         'target="_blank" rel="noopener noreferrer">Delta&#46;com</a> / app',
       
       renowned_chase:
-        'via Renowned Hotels (' +
+        'via Renowned Hotels at ' +
         '<a href="https://www.chase.com/travel" ' +
-        'target="_blank" rel="noopener noreferrer">Chase Travel</a>)',
+        'target="_blank" rel="noopener noreferrer">Chase Travel</a>',
       
       delta_stays_platform:
-        'via <a href="https://carsandstays.delta.com/Hotels#" ' +
+        'via the <a href="https://carsandstays.delta.com/Hotels#" ' +
         'target="_blank" rel="noopener noreferrer">Delta Stays platform</a>',
         
 	  stubhub_platform:
@@ -812,27 +812,24 @@
             'target="_blank" rel="noopener noreferrer">soccer&#46;com</a>',
  
       instacart_platform:
-            '<a href="https://www.instacart.com" ' +
-            'target="_blank" rel="noopener noreferrer">Instacart</a>',
+            'via the <a href="https://www.instacart.com" ' +
+            'target="_blank" rel="noopener noreferrer">Instacart app</a>',
 
       resy:
             'via the <a href="https://www.resy.com" ' +
-            'target="_blank" rel="noopener noreferrer">Resy</a>' +
-            ' app',
+            'target="_blank" rel="noopener noreferrer">Resy app</a>',
 
       doordash:
-            'in the <a href="https://www.doordash.com" ' +
-            'target="_blank" rel="noopener noreferrer">Doordash</a>' +
-            ' app',
+            'via the <a href="https://www.doordash.com" ' +
+            'target="_blank" rel="noopener noreferrer">Doordash app</a>',
 
       doordash_groceries_platform:
-            'in the <a href="https://www.doordash.com" ' +
-            'target="_blank" rel="noopener noreferrer">Doordash</a>' +
-            ' app',
+            'via the <a href="https://www.doordash.com" ' +
+            'target="_blank" rel="noopener noreferrer">Doordash app</a>',
 
       opentable_platform:
         'via <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" ' +
-        'target="_blank" rel="noopener noreferrer">OpenTable</a> exclusive CSR partners',
+        'target="_blank" rel="noopener noreferrer">OpenTable exclusive CSR partners</a>',
     };
 
     // Allowed channels per category (for override dropdown)
@@ -1966,7 +1963,7 @@
         // 3) Resy + MB credits both used → AG for 4x dining
         return {
           card: "AG",
-          channel: "direct",
+          channel: "resy",
           reason:
             "Resy and Bonvoy Brilliant dining credits are used up; use Amex Gold for 4X points on dining.",
         };
@@ -1977,14 +1974,14 @@
         if (state.csrDoordashThisMonth < 5) {
           return {
             card: "CSR",
-            channel: "direct",
+            channel: "doordash",
             reason:
               "Use Chase Sapphire first to use the $5 monthly Doordash/food-delivery credit.",
           };
         }
         return {
           card: "CSR",
-          channel: "direct",
+          channel: "doordash",
           reason:
             "Doordash monthly credit is used up; default back to Chase Sapphire for flexible points.",
         };
@@ -1995,16 +1992,16 @@
         if (state.agUberThisMonth < 10) {
           return {
             card: "AG",
-            channel: "direct",
+            channel: "uber_app",
             reason:
-              "Use Amex Gold on Uber Eats to use your $10 monthly Uber Cash (treated here as a credit).",
+              "Use Amex Gold on Uber Eats to use your $10 monthly Uber Cash.",
           };
         }
         return {
           card: "CSR",
           channel: "direct",
           reason:
-            "Uber Cash for this month is effectively used up; default back to Chase Sapphire for flexible points.",
+            "Uber Cash for this month is used up; default back to Chase Sapphire for flexible points.",
         };
       }
 
@@ -2049,7 +2046,7 @@
         if (state.agUberThisMonth < 10) {
           return {
             card: "AG",
-            channel: "direct",
+            channel: "uber_app",
             reason:
               "Use Amex Gold first for Uber rides to use your $10 monthly Uber Cash.",
           };
@@ -2057,7 +2054,7 @@
         if (state.uqRideshareThisMonth < 8) {
           return {
             card: "UQ",
-            channel: "direct",
+            channel: "uber_app",
             reason:
               "Amex Gold's Uber Cash is used up; next use United Quest to earn the $8 monthly rideshare credit.",
           };
