@@ -1899,8 +1899,21 @@
           return {
             card: "AG",
             channel: "direct",
-            reason:
-              "Use Amex Gold with eligible partners (Grubhub/Seamless, Cheesecake Factory, Goldbelly, Wine.com, Five Guys) to use the $10 monthly dining-partner credit.",
+            // HTML version with links
+		    reasonMainHtml:
+            'Use Amex Gold with eligible partners (' +
+            '<a href="https://www.grubhub.com" ' +
+            'target="_blank" rel="noopener noreferrer">GrubHub</a>' +
+            '/' +
+            '<a href="https://www.seamless.com" ' +
+            'target="_blank" rel="noopener noreferrer">Seamless</a>' +
+            ', Cheesecake Factory, Goldbelly, Five Guys, '+
+            '<a href="https://www.wine.com" ' +
+            'target="_blank" rel="noopener noreferrer">Wine&#46;com</a>'+
+            ') to use the $10 monthly dining-partner credit.',
+		    // Plain-text fallback (for safety / consistency)
+			reason:
+            "Use Amex Gold with eligible partners (Grubhub/Seamless, Cheesecake Factory, Goldbelly, Wine.com, Five Guys) to use the $10 monthly dining-partner credit.",
           };
         }
         return {
