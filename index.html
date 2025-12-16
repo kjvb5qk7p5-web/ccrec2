@@ -2165,23 +2165,25 @@
         };
       }
     
-      // THE EDIT HOTELS
-      if (category === "theedit_hotel") {
-		if (state.csrTheEditThisPeriod < 250) {
+		// THE EDIT HOTELS
+		if (category === "theedit_hotel") {
+		  if (state.csrTheEditThisPeriod < 250) {
+			return {
+			  card: "CSR",
+			  channel: "theedit_chase",
+			  reason:
+				"Book via the Chase Travel portal to earn the $250 semi-annual credit, $100 property credit per stay, daily breakfast for 2 and other benefits. Minimum of 2-night stay.",
+			};
+		  }
+		  return {
 			card: "CSR",
-          channel: "theedit_chase",
-          reason:
-            "Book via the Chase Travel portal to earn the $250 semi-annual credit, $100 property credit per stay, daily breakfast for 2 and other benefits. Minimum of 2-night stay.",
-        };
-	    return {
-          card: "CSR",
-          channel: "theedit_chase",
-          reason:
-            "Semi-annual credit is used up but still book via the Chase Travel portal to earn 8X points.",
-        };
-      }
-    
-      // MARRIOTT HOTELS
+			channel: "theedit_chase",
+			reason:
+			  "Semi-annual credit is used up but still book via the Chase Travel portal to earn 8X points.",
+		  };
+		}
+		
+	  // MARRIOTT HOTELS
       if (category === "marriott_hotel") {
         return {
           card: "MB",
