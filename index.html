@@ -759,7 +759,7 @@
       uber_app: "in the Uber app",
       united: "on United.com / app",
       delta: "on Delta.com / app",
-      renowned_chase: "via Renowned Hotels (Chase Travel)",
+      renowned_chase: "via the Chase Travel portal",
       theedit_chase: "via the Chase Travel portal",
 	  delta_stays_platform: "on the Delta Stays platform",
       stubhub_platform: "on StubHub / viagogo",
@@ -796,9 +796,9 @@
         'target="_blank" rel="noopener noreferrer">Delta&#46;com</a> / app',
       
       renowned_chase:
-        'via Renowned Hotels at ' +
-        '<a href="https://www.chase.com/travel" ' +
-        'target="_blank" rel="noopener noreferrer">Chase Travel</a>',
+        'via Renowned Hotels at the ' +
+        '<a href="https://www.chase.com/travel/renowned-hotels" ' +
+        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
       
       theedit_chase:
         'via the <a href="https://www.chase.com/travel/the-edit" ' +
@@ -842,9 +842,9 @@
     // Allowed channels per category (for override dropdown)
     const CHANNELS_BY_CATEGORY = {
       dining: ["direct"],
-      uber_eats: ["direct"],
+      uber_eats: ["uber_app"],
       ag_dining: ["direct"],
-      doordash: ["direct"],
+      doordash: ["doordash"],
       resy: ["resy"],
       dunkin: ["direct"],
       lyft: ["lyft_app"],
@@ -852,10 +852,10 @@
       united_flight: ["united"],
       delta_flight_threshold: ["delta"],
       delta_flight: ["delta"],
-      other_flight: ["direct", "chase_travel"],
-	  theedit_hotel: ["theedit_chase"],
-      marriott_hotel: ["direct"],
-      renowned_hotel: ["renowned_chase"],
+      other_flight: ["chase_travel", "direct"],
+	  theedit_hotel: ["theedit_chase", "direct"],
+      marriott_hotel: ["direct", "chase_travel"],
+      renowned_hotel: ["renowned_chase", "direct"],
       delta_stays: ["delta_stays_platform"],
       other_hotel: ["direct", "chase_travel"],
       stubhub: ["stubhub_platform"],
