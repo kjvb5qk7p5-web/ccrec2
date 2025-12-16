@@ -599,6 +599,7 @@
           <option value="delta_flight">Flight- Delta (not threshold)</option>
           <option value="other_flight">Flight- other airline</option>
           <option value="marriott_hotel">Hotel- Marriott</option>
+          <option value="theedit_hotel">Hotel- The Edit (Chase Travel collection)</option>
           <option value="renowned_hotel">Hotel- Renowned (United program)</option>
           <option value="delta_stays">Hotel- Delta Stays</option>
           <option value="other_hotel">Hotel- other hotel / lodging</option>
@@ -734,6 +735,7 @@
       { value: "delta_flight",        label: "Flight- Delta not threshold" },
       { value: "other_flight",        label: "Flight- other airline" },
       { value: "marriott_hotel",      label: "Hotel- Marriott" },
+      { value: "theedit_hotel",       label: "Hotel- The Edit (Chase Travel collection)" },
       { value: "renowned_hotel",      label: "Hotel- Renowned (United program)" },
       { value: "delta_stays",         label: "Hotel- Delta Stays" },
       { value: "other_hotel",         label: "Hotel- other hotel / lodging" },
@@ -752,13 +754,14 @@
     // Channel label mapping for human-readable text
     const CHANNEL_LABELS = {
       direct: "direct with the merchant",
-      chase_travel: "via Chase Travel portal",
+      chase_travel: "via the Chase Travel portal",
       lyft_app: "in the Lyft app",
       uber_app: "in the Uber app",
       united: "on United.com / app",
       delta: "on Delta.com / app",
       renowned_chase: "via Renowned Hotels (Chase Travel)",
-      delta_stays_platform: "on Delta Stays platform",
+      theedit_chase: "via the Chase Travel portal",
+	  delta_stays_platform: "on the Delta Stays platform",
       stubhub_platform: "on StubHub / viagogo",
       instacart_platform: "on Instacart",
       peloton_platform: "on the Peloton site / app",
@@ -796,6 +799,10 @@
         'via Renowned Hotels at ' +
         '<a href="https://www.chase.com/travel" ' +
         'target="_blank" rel="noopener noreferrer">Chase Travel</a>',
+      
+      theedit_chase:
+        'via the <a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" ' +
+        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
       
       delta_stays_platform:
         'via the <a href="https://carsandstays.delta.com/Hotels#" ' +
@@ -846,6 +853,7 @@
       delta_flight_threshold: ["delta"],
       delta_flight: ["delta"],
       other_flight: ["direct", "chase_travel"],
+	  theedit_hotel: ["theedit_chase"],
       marriott_hotel: ["direct"],
       renowned_hotel: ["renowned_chase"],
       delta_stays: ["delta_stays_platform"],
@@ -1172,6 +1180,7 @@
       let csrStubhubThisPeriod = 0;
       let agResyThisPeriod = 0;
       let csrOpenTableThisPeriod = 0;
+	  let csrTheEditThisPeriod = 0;
       
       // Annual / calendar-year
       let csrTravelYTD = 0;
@@ -1184,6 +1193,7 @@
         "delta_flight_threshold",
         "delta_flight",
         "other_flight",
+		"theedit_hotel",
         "marriott_hotel",
         "renowned_hotel",
         "delta_stays",
@@ -1275,6 +1285,15 @@
           csrOpenTableThisPeriod += amt;
         }
 
+        // Semi-annual The Edit hotel partners (CSR only)
+        if (
+          inResyPeriod &&           // same Jan–Jun / Jul–Dec periods
+          tx.cardUsed === "CSR" &&
+          tx.category === "theedit_hotel"
+        ) {
+          csrTheEditThisPeriod += amt;
+        }
+
         // Annual / calendar-year benefits
         if (inYear) {
           if (tx.cardUsed === "CSR" && CSR_TRAVEL_CATEGORIES.has(tx.category)) {
@@ -1309,6 +1328,7 @@
         dg10kSpendYTD,
         csrDoordashGroceriesThisMonth,
         csrDoordashGroceriesTxThisMonth,
+		csrTheEditThisPeriod,
       };
     }
 
@@ -1504,6 +1524,23 @@
         });
       }
     
+      // CSR The Edit hotel partners semi-annual ($250 per 6 month period)
+      {
+        const used = cardState.csrTheEditThisPeriod || 0;
+        const limit = 250;
+        ccRows.push({
+          label: "The Edit hotel partners",
+          labelHtml:
+            'The Edit hotel partners on ' +
+	        '<a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" ' +
+	        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+          card: "CSR",
+          time: getSemiannualLabel(),
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+      
       // CSR StubHub semi-annual ($150 per 6-month period)
       {
         const used = cardState.csrStubhubThisPeriod || 0;
@@ -2128,6 +2165,22 @@
         };
       }
     
+      // THE EDIT HOTELS
+      if (category === "theedit_hotel") {
+		if (state.csrTheEditThisPeriod < 250) {
+			card: "CSR",
+          channel: "theedit_chase",
+          reason:
+            "Book via the Chase Travel portal to earn the $250 semi-annual credit, $100 property credit per stay, daily breakfast for 2 and other benefits. Minimum of 2-night stay.",
+        };
+	    return {
+          card: "CSR",
+          channel: "theedit_chase",
+          reason:
+            "Semi-annual credit is used up but still book via the Chase Travel portal to earn 8X points.",
+        };
+      }
+    
       // MARRIOTT HOTELS
       if (category === "marriott_hotel") {
         return {
@@ -2382,6 +2435,11 @@
       } else if (cat === "ag_dining") {
         const used = cardState.agDiningPartnersThisMonth || 0;
         const totalCap = 10; // $10 monthly AG dining partners
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "theedit_hotel") {
+        const used = cardState.csrTheEditThisPeriod || 0;
+        const totalCap = 250; // $250 semi-annual credit for stays at The Edit hotel collection
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
       } else if (cat === "csr_opentable") {
