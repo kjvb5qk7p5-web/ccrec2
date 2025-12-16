@@ -2418,8 +2418,8 @@
       // 2) No usable merchant offer -> enrich the base card-native recommendation
       const rec = { ...baseRec };
     
-      // Attach human-readable category label
-      rec.categoryLabel = getCategoryLabel(purchase.category);
+		// Do NOT set categoryLabel here.  rec.categoryLabel = getCategoryLabel(purchase.category);
+		// We only want Category: ... shown when a merchant offer is actually used.
     
       // Default main reason to existing reason text if not present
       if (!rec.reasonMain && rec.reason) {
