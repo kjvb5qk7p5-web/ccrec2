@@ -632,8 +632,7 @@
           <option value="lyft">Rideshare- Lyft</option>
           <option value="rideshare_other">Rideshare- Uber</option>
           <option value="united_flight">Flight- United</option>
-          <option value="delta_flight_threshold">Flight- Delta threshold chasing</option>
-          <option value="delta_flight">Flight- Delta (not threshold)</option>
+          <option value="delta_flight_threshold">Flight- Delta</option>
           <option value="other_flight">Flight- other airline</option>
           <option value="marriott_hotel">Hotel- Marriott</option>
           <option value="theedit_hotel">Hotel- The Edit (Chase Travel collection)</option>
@@ -768,8 +767,7 @@
       { value: "lyft",                label: "Rideshare- Lyft" },
       { value: "rideshare_other",     label: "Rideshare- Uber" },
       { value: "united_flight",       label: "Flight- United" },
-      { value: "delta_flight_threshold", label: "Flight– Delta threshold chasing" },
-      { value: "delta_flight",        label: "Flight- Delta not threshold" },
+      { value: "delta_flight_threshold", label: "Flight– Delta" },
       { value: "other_flight",        label: "Flight- other airline" },
       { value: "marriott_hotel",      label: "Hotel- Marriott" },
       { value: "theedit_hotel",       label: "Hotel- The Edit (Chase Travel collection)" },
@@ -888,7 +886,6 @@
       rideshare_other: ["uber_app"],
       united_flight: ["united"],
       delta_flight_threshold: ["delta"],
-      delta_flight: ["delta"],
       other_flight: ["chase_travel", "direct"],
 	  theedit_hotel: ["theedit_chase", "direct"],
       marriott_hotel: ["direct", "chase_travel"],
@@ -1228,7 +1225,6 @@
       const CSR_TRAVEL_CATEGORIES = new Set([
         "united_flight",
         "delta_flight_threshold",
-        "delta_flight",
         "other_flight",
 		"theedit_hotel",
         "marriott_hotel",
@@ -1746,18 +1742,18 @@
         });
       }
     
-      // DG $10k threshold
-      {
-        const used = cardState.dg10kSpendYTD || 0;
-        const limit = 10000;
-        ccRows.push({
-          label: "$10k Delta spend threshold",
-          card: "DG",
-          time: "Annual (YTD)",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
+      // DG $10k threshold - REMOVE
+      // {
+      //  const used = cardState.dg10kSpendYTD || 0;
+      //  const limit = 10000;
+      //  ccRows.push({
+      //    label: "$10k Delta spend threshold",
+      //    card: "DG",
+      //    time: "Annual (YTD)",
+      //    usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+      //    fullyUsed: used >= limit,
+      //  });
+      // }
     
       // ---------- MERCHANT BENEFITS TABLE ROWS ----------
       const merchantRows = [];
@@ -2171,7 +2167,7 @@
             card: "DG",
             channel: "delta",
             reason:
-              "You marked this as threshold-chasing; use Delta Gold here to work toward the $10,000 YTD spend for the $200 Delta Flight Credit.",
+              "Use Delta Gold here to work toward the $10,000 YTD spend for the $200 Delta Flight Credit.",
           };
         }
         return {
@@ -2179,16 +2175,6 @@
           channel: "delta",
           reason:
             "You’ve hit the $10k Delta Gold spend threshold this year; treat this like a normal Delta flight and default to Chase Sapphire for flexibility.",
-        };
-      }
-    
-      // DELTA FLIGHTS – normal
-      if (category === "delta_flight") {
-        return {
-          card: "CSR",
-          channel: "delta",
-          reason:
-            "Delta flight booked direct and you’re not treating it as threshold-chasing; default back to Chase Sapphire for flexible points.",
         };
       }
     
