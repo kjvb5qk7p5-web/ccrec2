@@ -109,7 +109,38 @@
     .new-purchase-card button {
       font-size: 1.1rem;
     }
-  
+
+	/* New Purchase: Amount + Date side-by-side, right-justified */
+	.new-purchase-card .np-row {
+	  display: flex;
+	  gap: 16px;
+	  margin-top: 8px;
+	}
+	
+	.new-purchase-card .np-field {
+	  flex: 1;
+	  display: flex;
+	  flex-direction: column;
+	  align-items: flex-end;   /* right-justify label + input */
+	  margin-top: 0;           /* override global label margin-top */
+	}
+	
+	.new-purchase-card .np-label {
+	  font-weight: bold;       /* matches your New Purchase label style */
+	  font-size: 1.1rem;
+	  line-height: 1.2;
+	  margin-bottom: 4px;      /* same spacing label->input for both */
+	  text-align: right;
+	  width: 100%;
+	}
+	
+	.new-purchase-card .np-field input[type="number"],
+	.new-purchase-card .np-field input[type="date"] {
+	  width: 140px;            /* same width for both */
+	  height: 38px;            /* same height for both */
+	  box-sizing: border-box;
+	}
+
     /* Bigger recommendation text */
     .new-purchase-card #recommendationBox {
       font-size: 1.2rem;
@@ -460,15 +491,18 @@
   <!-- New purchase input -->
   <div class="card new-purchase-card">
     <h2>New Purchase</h2>
-    <label>
-      Amount ($)<br>
-      <input type="number" id="amount" min="0" step="0.01" required />
-    </label>
 
-    <label>
-      Date<br>
-      <input type="date" id="date" required />
-    </label>
+	<div class="np-row">
+	  <label class="np-field">
+		<span class="np-label">Amount ($)</span>
+		<input type="number" id="amount" min="0" step="0.01" required />
+	  </label>
+	
+	  <label class="np-field">
+		<span class="np-label">Date</span>
+		<input type="date" id="date" required />
+	  </label>
+	</div>
 
     <label>
       Category<br>
