@@ -1260,7 +1260,7 @@
             csrDoordashThisMonth += amt;
           }
           if (tx.cardUsed === "CSR" && tx.category === "doordash_groceries") {
-            csrDoordashGroceriesThisMonth += amt;
+            csrDoordashGroceriesThisMonth += Math.min(10, amt);
             csrDoordashGroceriesTxThisMonth += 1;
           }
           if (tx.cardUsed === "CSR" && tx.category === "lyft") {
