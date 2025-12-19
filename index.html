@@ -749,6 +749,7 @@
       { value: "renowned_hotel",      label: "🏨 Hotel- Renowned (United program)" },
       { value: "delta_stays",         label: "🏨 Hotel- Delta Stays" },
       { value: "other_hotel",         label: "🏨 Hotel- other hotel / lodging" },
+      { value: "uq_rentalcar",        label: "🚙 Rental Car- Avis / Budget" },
       { value: "peloton",             label: "🚲 Peloton membership" },
       { value: "streaming",           label: "📺 Streaming" },
       { value: "stubhub",             label: "🎫 StubHub / viagogo" },
@@ -768,6 +769,7 @@
       lyft_app: "in the Lyft app",
       uber_app: "in the Uber app",
       united: "on United.com / app",
+      united_rentalcar: "on cars.united.com",
       delta: "on Delta.com / app",
       renowned_chase: "via the Chase Travel portal",
       theedit_chase: "via the Chase Travel portal",
@@ -788,6 +790,10 @@
       chase_travel:
         'via the <a href="https://www.chase.com/travel" ' +
         'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+      
+      united_rentalcar:
+        'via <a href="https://cars.united.com" ' +
+        'target="_blank" rel="noopener noreferrer">cars&#46;united&#46;com</a>',
       
       lyft_app:
         'in the <a href="https://www.lyft.com/" ' +
@@ -862,6 +868,7 @@
       united_flight: ["united"],
       delta_flight_threshold: ["delta"],
       other_flight: ["chase_travel", "direct"],
+      uq_rentalcar: ["united_rentalcar"],
 	  theedit_hotel: ["theedit_chase", "direct"],
       marriott_hotel: ["direct", "chase_travel"],
       renowned_hotel: ["renowned_chase", "direct"],
@@ -1197,6 +1204,9 @@
       let dgDeltaStaysYTD = 0;
       let dg10kSpendYTD = 0;
 	  let uqRenownedYTD = 0;
+      let uqRentalCarYTD = 0;
+      let uqRentalCarTxYTD = 0;
+
 
       // Which categories we treat as "travel" for CSR travel credit tracking
       const CSR_TRAVEL_CATEGORIES = new Set([
@@ -1210,6 +1220,7 @@
         "other_hotel",
         "lyft",
         "rideshare_other",
+        "uq_rentalcar",
       ]);
 
       for (const tx of txs) {
@@ -1321,6 +1332,10 @@
           if (tx.cardUsed === "DG") {
             dg10kSpendYTD += amt;
           }
+          if (tx.cardUsed === "UQ" && tx.category === "uq_rentalcar") {
+            uqRentalCarYTD += Math.min(40, amt);
+            uqRentalCarTxYTD += 1;
+          }
         }
       }
 
@@ -1344,6 +1359,8 @@
         csrDoordashGroceriesThisMonth,
         csrDoordashGroceriesTxThisMonth,
 		csrTheEditThisPeriod,
+		uqRentalCarYTD,
+		uqRentalCarTxYTD,
       };
     }
 
@@ -1641,6 +1658,27 @@
         });
       }
     
+      // UQ Avis and Budget car rentals – 2 × $40 per year (up to $80/year)
+      {
+        const used = cardState.uqRentalCarYTD || 0;
+        const txCount = cardState.uqRentalCarTxYTD || 0;
+        const dollarCap = 80; // 2 × $10
+      
+        ccRows.push({
+          label: "Avis & Budget car rental",
+          labelHtml:
+            'Avis &amp; Budget car rental on <a href="https://cars.united.com" ' +
+            'target="_blank" rel="noopener noreferrer">cars&#46;united&#46;com</a>' ,
+          card: "UQ",
+          time: "Annual (2x $40)",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(dollarCap)}`,
+          // Treat it as "fully used" if EITHER:
+          // - you’ve consumed $80 of credit, OR
+          // - you’ve used it on 2 qualifying transactions
+          fullyUsed: used >= dollarCap || txCount >= 2,
+        });
+      }
+
       // MB Dining $25/month
       {
         const used = cardState.mbDiningThisMonth || 0;
@@ -2348,6 +2386,29 @@
         };
       }
 
+      // Avis & Budget rental car (UQ: 2 × $40/year)
+      if (category === "uq_rentalcar") {
+        const used = state.uqRentalCarYTD || 0;
+        const txCount = state.uqRentalCarTxYTD  || 0;
+        const dollarCap = 80; // 2 × $40
+      
+        if (used < dollarCap && txCount < 2) {
+          return {
+            card: "UQ",
+            channel: "united_rentalcar",
+            reason:
+              "Use United Quest at cars.united.com to tap your 2 × $40 annual United cash benefit (up to $80 total per year).",
+          };
+        }
+      
+        return {
+          card: "CSR",
+          channel: "united_rentalcar",
+          reason:
+            "You’ve already used your 2 × $40 annual benefit this year; default back to CSR for flexible points.",
+        };
+      }
+
       // GROCERIES (U.S. supermarkets)
       if (category === "groceries") {
         return {
@@ -2487,6 +2548,11 @@
       } else if (cat === "doordash_groceries") {
         const used = cardState.csrDoordashGroceriesThisMonth || 0;
         const totalCap = 20; // 2 × $10
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "uq_rentalcar") {
+        const used = cardState.uqRentalCarYTD  || 0;
+        const totalCap = 80; // 2 × $40
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
       } else if (cat === "uber_eats" || cat === "rideshare_other") {
