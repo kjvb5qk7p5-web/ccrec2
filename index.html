@@ -1196,6 +1196,7 @@
       let csrTravelYTD = 0;
       let dgDeltaStaysYTD = 0;
       let dg10kSpendYTD = 0;
+	  let uqRenownedYTD = 0;
 
       // Which categories we treat as "travel" for CSR travel credit tracking
       const CSR_TRAVEL_CATEGORIES = new Set([
@@ -1313,6 +1314,10 @@
             dgDeltaStaysYTD += amt;
           }
 
+		  if (tx.cardUsed === "UQ" && tx.category === "renowned_hotel") {
+            uqRenownedYTD += amt;
+          }
+
           if (tx.cardUsed === "DG") {
             dg10kSpendYTD += amt;
           }
@@ -1335,6 +1340,7 @@
         csrTravelYTD,
         dgDeltaStaysYTD,
         dg10kSpendYTD,
+		uqRenownedYTD,
         csrDoordashGroceriesThisMonth,
         csrDoordashGroceriesTxThisMonth,
 		csrTheEditThisPeriod,
@@ -1613,6 +1619,23 @@
             'target="_blank" rel="noopener noreferrer">Instacart</a>',
           card: "UQ",
           time: "Monthly",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+    
+      // UQ Renowned Hotel $150/year
+      {
+        const used = cardState.uqRenownedYTD || 0;
+        const limit = 150;
+        ccRows.push({
+          label: "Renowned Hotel",
+          labelHtml:
+            'Renowned hotel partners on ' +
+	        '<a href="https://www.chase.com/travel/renowned-hotels" ' +
+	        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+          card: "UQ",
+          time: "Annual (YTD)",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
         });
@@ -2194,11 +2217,19 @@
     
       // RENOWNED HOTELS
       if (category === "renowned_hotel") {
-        return {
-          card: "UQ",
+		  if (state.uqRenownedYTD <150) {
+	        return {
+	          card: "UQ",
+	          channel: "renowned_chase",
+	          reason:
+	            "Renowned Hotels booking – use United Quest on the Chase Travel platform to trigger the $150 Renowned credit and boosted United earn.",
+	        };
+		  }
+		  return {
+          card: "CSR",
           channel: "renowned_chase",
           reason:
-            "Renowned Hotels booking – use United Quest to trigger the Renowned credit and boosted United earn.",
+            "Renowned Hotel annual credit is used up; default back to Chase Sapphire for flexible travel points.",
         };
       }
     
@@ -2494,6 +2525,11 @@
       } else if (cat === "delta_stays") {
         const used = cardState.dgDeltaStaysYTD || 0;
         const totalCap = 100; // $100/year Delta Stays credit
+        rec.remainingAmount = Math.max(0, totalCap - used);
+        rec.totalCapAmount = totalCap;
+      } else if (cat === "renowned_hotel") {
+        const used = cardState.uqRenownedYTD || 0;
+        const totalCap = 150; // $150/year Renowned hotel credit
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
       } else if (cat === "delta_flight_threshold") {
