@@ -548,16 +548,16 @@
     <div id="stateSummary" class="muted"></div>
   </div>
 
-  <!-- Merchant Benefits Management -->
+  <!-- Merchant Offers Management -->
   <div class="card merch-input">
-    <h2>Merchant Benefits</h2>
+    <h2>Merchant Offers</h2>
 
     <button id="toggleBenefitsBtn" style="margin-bottom:8px;">
       Show
     </button>
 
     <div id="benefitsContent" style="display:none;">
-      <h3 style="margin-top:0.8rem;">Add / Edit Benefit</h3>
+      <h3 style="margin-top:0.8rem;">Add / Edit Merchant Offer</h3>
 
       <label>
         Merchant<br>
@@ -625,7 +625,7 @@
         Add Benefit
       </button>
 
-      <h3 style="margin-top:0.8rem;">Saved Benefits</h3>
+      <h3 style="margin-top:0.8rem;">Saved Merchant Offers</h3>
       <table id="benefitsTable">
         <thead>
           <tr>
@@ -1877,7 +1877,7 @@
         if (!rows || rows.length === 0) return "";
       
         const headerLabel = isMerchantTable
-          ? "Merchant<br>Benefit"
+          ? "Merchant<br>Offer"
           : "Credit Card<br>Benefit";
       
         const tableHtml = `
@@ -1969,7 +1969,7 @@
       }
     
       html += buildTable("Credit Card Benefits", ccRows, false);
-      html += buildTable("Merchant Benefits", merchantRows, true);
+      html += buildTable("Merchant Offers", merchantRows, true);
     
       if (!html) {
         html = `<span class="muted">No credits or offers logged yet.</span>`;
