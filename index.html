@@ -82,7 +82,7 @@
       box-sizing: border-box;
     }
 
-    .merch-input #benefitCategory {
+    .merch-input #benefitCategorySelect {
       width: 100%;
       min-width: 0;      /* override the global 220px min-width */
       box-sizing: border-box;
@@ -618,32 +618,7 @@
 
       <label>
         Category (for card recommendation logic)<br>
-        <select id="benefitCategory">
-          <option value="dining">🍔 Dining- Restaurants</option>
-          <option value="resy">🍔 Dining- Resy</option>
-          <option value="csr_opentable">🍔 Dining- OpenTable CSR partners</option>
-          <option value="ag_dining">🥡 Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com</option>
-          <option value="doordash">🥡 Dining- Doordash</option>
-          <option value="uber_eats">🥡 Dining- Uber Eats</option>
-          <option value="dunkin">🍩 Dunkin</option>
-          <option value="groceries">🛒 Groceries- grocery store</option>
-          <option value="doordash_groceries">🛒 Groceries- Doordash</option>
-          <option value="instacart">🛒 Groceries- Instacart</option>
-          <option value="lyft">🚗 Rideshare- Lyft</option>
-          <option value="rideshare_other">🚗 Rideshare- Uber</option>
-          <option value="united_flight">✈️ Flight- United</option>
-          <option value="delta_flight_threshold">✈️ Flight- Delta</option>
-          <option value="other_flight">✈️ Flight- other airline</option>
-          <option value="marriott_hotel">🏨 Hotel- Marriott</option>
-          <option value="theedit_hotel">🏨 Hotel- The Edit (Chase Travel collection)</option>
-          <option value="renowned_hotel">🏨 Hotel- Renowned (United program)</option>
-          <option value="delta_stays">🏨 Hotel- Delta Stays</option>
-          <option value="other_hotel">🏨 Hotel- other hotel / lodging</option>
-          <option value="peloton">🚲 Peloton membership</option>
-          <option value="streaming">📺 Streaming</option>
-          <option value="stubhub">🎫 StubHub / viagogo</option>
-          <option value="other">🛍️ other / general spending</option>
-        </select>
+        <select id="benefitCategorySelect"></select>
       </label>
 
       <button id="btnAddBenefit" class="primary" style="margin-top:8px;">
@@ -1118,6 +1093,7 @@
           renderTransactions();
           renderMerchantBenefits();
           populateCategorySelect();
+		  populateMerchantBenefitCategorySelect();
           renderStateSummary();
 
           alert(`Successfully imported ${txCount} transactions and ${benefitCount} merchant benefits!`);
@@ -2552,7 +2528,7 @@
       return rec;
     }
 
-    // ---------- Category select population ----------
+    // ---------- New Purchase Category select population ----------
     function populateCategorySelect() {
       const select = document.getElementById("category");
       if (!select) return;
@@ -2648,6 +2624,29 @@
         select.value = "dining";
       }
     }
+    
+        // ---------- Merchant Benefit Category select population ----------
+		function populateMerchantBenefitCategorySelect() {
+		  const select = document.getElementById("benefitCategorySelect");
+		  if (!select) return;
+		
+		  // Clear any existing options
+		  select.innerHTML = "";
+		
+		  // Add default placeholder
+		  const defaultOption = document.createElement("option");
+		  defaultOption.value = "";
+		  defaultOption.textContent = "-- Select category --";
+		  select.appendChild(defaultOption);
+		
+		  // Use the same BASE_CATEGORIES array (with emojis if you’ve added them)
+		  BASE_CATEGORIES.forEach(cat => {
+			const option = document.createElement("option");
+			option.value = cat.value;
+			option.textContent = cat.label; // or `${cat.emoji || ""} ${cat.label}` if you separated emojis
+			select.appendChild(option);
+		  });
+		}
 
     // ---------- Merchant benefits UI ----------
     function renderMerchantBenefits() {
@@ -2960,6 +2959,7 @@
       renderTransactions();
       renderStateSummary();
       populateCategorySelect();
+      populateMerchantBenefitCategorySelect();
       renderMerchantBenefits(); 
 
       // Auto-hide the recommendation section after saving
@@ -3008,6 +3008,7 @@
       renderTransactions();
       renderStateSummary();
       populateCategorySelect();
+      populateMerchantBenefitCategorySelect();
       renderMerchantBenefits(); 
     });
 
@@ -3057,7 +3058,7 @@
       const maxTxRaw = document.getElementById("benefitMaxTx").value;
       const minSpendRaw = document.getElementById("benefitMinSpend").value;
       const endDate = document.getElementById("benefitEndDate").value;
-      const category = document.getElementById("benefitCategory").value;
+      const category = document.getElementById("benefitCategorySelect").value;
 
       if (!merchant || !card || !discountType || !discountValueRaw || !endDate || !category) {
         alert("Please fill at least Merchant, Card, Discount type/value, End date, and Category.");
@@ -3138,6 +3139,7 @@
 
       renderMerchantBenefits();
       populateCategorySelect();
+      populateMerchantBenefitCategorySelect();
       renderStateSummary();
 
       showToast("✓ Merchant Benefit saved");
@@ -3222,6 +3224,7 @@
     renderTransactions();
     renderMerchantBenefits();
     populateCategorySelect();         // build Merchant Offers + Card Benefits
+    populateMerchantBenefitCategorySelect();
       
     // Default category to Dining / Restaurants on first load
     const categorySelect = document.getElementById("category");
