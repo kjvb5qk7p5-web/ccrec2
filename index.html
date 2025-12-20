@@ -186,120 +186,81 @@
       background: #f7f7f7;
     }
   
-	/* Logged Purchases */
-	#loggedTable {
-	  border-collapse: collapse;
-	  width: 100%;
-	  font-size: 0.5rem;
-	  table-layout: fixed;
-	}
-	
-	#loggedTable thead {
-	  display: table;
-	  width: 100%;
-	  table-layout: fixed;
-	}
-	
-	#loggedTable tbody {
-	  display: block;
-	  max-height: 60vh;
-	  overflow-y: auto;
-	  width: 100%;
-	}
-	
-	#loggedTable tr {
-	  display: table;
-	  width: 100%;
-	  table-layout: fixed;
-	}
-	
-	#loggedTable th,
-	#loggedTable td {
-	  border: 1px solid #ddd;
-	  padding: 2px 4px;
-	  text-align: left;
-	  word-wrap: break-word;
-	  overflow-wrap: break-word;
-	}
-	
-	#loggedTable thead th {
-	  position: sticky;
-	  top: 0;
-	  z-index: 2;
-	  background: #f7f7f7;
-	}
-	
-	/* Column widths */
-	#loggedTable th:nth-child(1),
-	#loggedTable td:nth-child(1) { width: 18%; } /* Date */
-	#loggedTable th:nth-child(2),
-	#loggedTable td:nth-child(2) { width: 14%; } /* Amount */
-	#loggedTable th:nth-child(3),
-	#loggedTable td:nth-child(3) { width: 24%; } /* Category */
-	#loggedTable th:nth-child(4),
-	#loggedTable td:nth-child(4) { width: 24%; } /* Channel */
-	#loggedTable th:nth-child(5),
-	#loggedTable td:nth-child(5) { width: 20%; } /* Card Used */  
+    /* Logged purchases table: extra small font */
+    #loggedTable {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.5rem;
+    }
+  
+    #loggedTable th,
+    #loggedTable td {
+      padding: 2px 4px;
+    }
 
-	/* Saved Merchant Benefits */
-	#benefitsTable {
-	  border-collapse: collapse;
-	  width: 100%;
-	  table-layout: fixed;
-	  font-size: 0.5rem;
-	  margin-top: 6px;
-	}
-	
-	#benefitsTable thead {
-	  display: table;
-	  width: 100%;
-	  table-layout: fixed;
-	}
-	
-	#benefitsTable tbody {
-	  display: block;
-	  max-height: 60vh;
-	  overflow-y: auto;
-	  width: 100%;
-	}
-	
-	#benefitsTable tr {
-	  display: table;
-	  width: 100%;
-	  table-layout: fixed;
-	}
-	
-	#benefitsTable th,
-	#benefitsTable td {
-	  border: 1px solid #ddd;
-	  padding: 3px 4px;
-	  text-align: left;
-	  word-wrap: break-word;
-	  overflow-wrap: break-word;
-	}
-	
-	#benefitsTable thead th {
-	  position: sticky;
-	  top: 0;
-	  z-index: 2;
-	  background: #f7f7f7;
-	}
-	
-	/* Column widths (sum ≈ 100%) */
-	#benefitsTable th:nth-child(1),
-	#benefitsTable td:nth-child(1) { width: 17%; } /* Merchant */
-	#benefitsTable th:nth-child(2),
-	#benefitsTable td:nth-child(2) { width: 10%; } /* Card */
-	#benefitsTable th:nth-child(3),
-	#benefitsTable td:nth-child(3) { width: 15%; } /* Discount */
-	#benefitsTable th:nth-child(4),
-	#benefitsTable td:nth-child(4) { width: 15%; } /* Limit */
-	#benefitsTable th:nth-child(5),
-	#benefitsTable td:nth-child(5) { width: 16%; } /* Category */
-	#benefitsTable th:nth-child(6),
-	#benefitsTable td:nth-child(6) { width: 12%; } /* End date */
-	#benefitsTable th:nth-child(7),
-	#benefitsTable td:nth-child(7) { width: 15%; } /* Delete */
+    #loggedTable thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;         /* above table rows */
+      background: #f7f7f7; /* so it doesn't go transparent over content */
+    }
+  
+    /* Column widths so Logged Purchases fits nicely on mobile */
+    #loggedTable th:nth-child(1),
+    #loggedTable td:nth-child(1) { width: 18%; } /* Date */
+    #loggedTable th:nth-child(2),
+    #loggedTable td:nth-child(2) { width: 14%; } /* Amount */
+    #loggedTable th:nth-child(3),
+    #loggedTable td:nth-child(3) { width: 24%; } /* Category */
+    #loggedTable th:nth-child(4),
+    #loggedTable td:nth-child(4) { width: 24%; } /* Channel */
+    #loggedTable th:nth-child(5),
+    #loggedTable td:nth-child(5) { width: 20%; } /* Card Used */
+  
+    /* Saved Merchant Benefits table */
+    #benefitsTable {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;       /* so widths are respected */
+      font-size: 0.5rem;         /* smaller to fit on phone */
+      margin-top: 6px;
+    }
+  
+    #benefitsTable th,
+    #benefitsTable td {
+      border: 1px solid #ddd;
+      padding: 3px 4px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+  
+    #benefitsTable th {
+      background: #f7f7f7;
+    }
+
+    #benefitsTable thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;      /* slightly above row contents */
+      background: #f7f7f7;  /* ensure it covers rows while stuck */
+    }
+  
+    /* Column widths (sum ≈ 100%) */
+    #benefitsTable th:nth-child(1),
+    #benefitsTable td:nth-child(1) { width: 17%; } /* Merchant */
+    #benefitsTable th:nth-child(2),
+    #benefitsTable td:nth-child(2) { width: 10%; } /* Card */
+    #benefitsTable th:nth-child(3),
+    #benefitsTable td:nth-child(3) { width: 15%; } /* Discount */
+    #benefitsTable th:nth-child(4),
+    #benefitsTable td:nth-child(4) { width: 15%; } /* Limit */
+    #benefitsTable th:nth-child(5),
+    #benefitsTable td:nth-child(5) { width: 16%; } /* Category */
+    #benefitsTable th:nth-child(6),
+    #benefitsTable td:nth-child(6) { width: 12%; } /* End date */
+    #benefitsTable th:nth-child(7),
+    #benefitsTable td:nth-child(7) { width: 15%; } /* Delete button */
   
     /* Expired / expiring merchant benefits in Saved Benefits table */
     #benefitsTable tr.expiring-soon td {
@@ -338,75 +299,46 @@
       margin-right: 12px;
     }
   
-	/* State Summary Tables (Current Credits & Offers Usage) */
-	.state-table-wrapper {
-	  margin-top: 6px;
-	}
-	
-	.state-table {
-	  border-collapse: collapse;
-	  width: 100%;
-	  table-layout: fixed;
-	  font-size: 0.8rem;
-	}
-	
-	.state-table thead {
-	  display: table;
-	  width: 100%;
-	  table-layout: fixed;
-	}
-	
-	.state-table tbody {
-	  display: block;
-	  max-height: 60vh;
-	  overflow-y: auto;
-	  width: 100%;
-	}
-	
-	.state-table tr {
-	  display: table;
-	  width: 100%;
-	  table-layout: fixed;
-	}
-	
-	.state-table th,
-	.state-table td {
-	  border: 1px solid #ddd;
-	  padding: 3px 4px;
-	  text-align: left;
-	  word-wrap: break-word;
-	  overflow-wrap: break-word;
-	}
-	
-	.state-table thead th {
-	  background: #f7f7f7;
-	  position: sticky;
-	  top: 0;
-	  z-index: 1;
-	}
-	
-	/* Column widths */
-	.state-table th:nth-child(1),
-	.state-table td:nth-child(1) { width: 45%; }
-	.state-table th:nth-child(2),
-	.state-table td:nth-child(2) { width: 15%; }
-	.state-table th:nth-child(3),
-	.state-table td:nth-child(3) { width: 20%; }
-	.state-table th:nth-child(4),
-	.state-table td:nth-child(4) { width: 20%; }
-
     /* Make state summary text black instead of muted grey */
     #stateSummary {
       color: #000;
       font-size: 0.8rem;
     }
   
+    /* State summary tables (Current Credits & Offers Usage) */
+    .state-table-wrapper {
+      margin-top: 6px;
+    }
+  
+    .state-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.8rem;
+    }
+  
+    .state-table th,
+    .state-table td {
+      border: 1px solid #ddd;
+      padding: 3px 4px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
     /* Make the first column in the usage summary tables bold */
     .state-table th:first-child,
     .state-table td:first-child {
       font-weight: 600;
     }
 
+    .state-table thead th {
+      background: #f7f7f7;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+  
     /* Usage cell – wrap text nicely in state tables */
     .state-table td.usage-cell {
       white-space: normal;
@@ -438,6 +370,27 @@
     .usage-positive {
       color: green;
       font-weight: normal;
+    }
+
+    /* Column widths for Current Credits & Offers state tables */
+    .state-table th:nth-child(1),
+    .state-table td:nth-child(1) {
+      width: 45%;  /* CC benefit / Merchant */
+    }
+    
+    .state-table th:nth-child(2),
+    .state-table td:nth-child(2) {
+      width: 15%;  /* Card badge */
+    }
+    
+    .state-table th:nth-child(3),
+    .state-table td:nth-child(3) {
+      width: 20%;  /* Time (Monthly / YTD / Semi-annual / etc.) */
+    }
+    
+    .state-table th:nth-child(4),
+    .state-table td:nth-child(4) {
+      width: 20%;  /* Usage text */
     }
 
     /* Card badges */
