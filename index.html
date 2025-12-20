@@ -76,11 +76,36 @@
       background-color: #f4f4f4; /* keep dropdowns visually consistent */
     }
   
+    /* if messed up replace from here */
     .new-purchase-card #category {
       width: 100%;
       min-width: 0;    /* override the 220px */
       box-sizing: border-box;
+      max-height: 300px;    /* scrollable box */
+	  overflow-y: auto;     /* allows scrolling */
+	  display: block;
+	  appearance: none;     /* removes native OS bevel */
+	  border-radius: 4px;
     }
+    
+    .new-purchase-card select optgroup {
+	  font-weight: 700;
+	  background-color: #f2f2f2;
+	  color: #333;
+	  padding-top: 4px;
+	  padding-bottom: 4px;
+	  border-top: 1px solid #ddd;
+	}
+	
+	.new-purchase-card select option {
+	  padding-left: 12px;
+	}
+	
+	.new-purchase-card select:focus {
+	  outline: 2px solid #0b6efd;
+	  box-shadow: 0 0 4px rgba(11,110,253,0.4);
+	  transition: box-shadow 0.2s ease;
+	}
 
     .merch-input #benefitCategorySelect {
       width: 100%;
@@ -2699,7 +2724,7 @@
       // ----- Merchant Offers group (on top) -----
       if (active.length > 0) {
         const offersGroup = document.createElement("optgroup");
-        offersGroup.label = "Merchant Offers";
+        offersGroup.label = "🏪 Merchant Offers";
     
         active.forEach((benefit) => {
           const opt = document.createElement("option");
@@ -2716,7 +2741,7 @@
     
       // ----- Card Benefits group (base categories) -----
       const cardGroup = document.createElement("optgroup");
-      cardGroup.label = "Card Benefits";
+      cardGroup.label = "💳 Card Benefits";
     
       BASE_CATEGORIES.forEach((cat) => {
         const opt = document.createElement("option");
