@@ -191,6 +191,9 @@
       border-collapse: collapse;
       width: 100%;
       font-size: 0.5rem;
+      display: block;         /* so sticky header sticks within the scroll area */
+	  overflow-x: auto;
+	  max-height: 60vh;
     }
   
     #loggedTable th,
@@ -224,6 +227,9 @@
       table-layout: fixed;       /* so widths are respected */
       font-size: 0.5rem;         /* smaller to fit on phone */
       margin-top: 6px;
+      display: block;            /* so sticky header sticks within the scroll area */
+	  overflow-x: auto;
+	  max-height: 60vh;
     }
   
     #benefitsTable th,
@@ -509,7 +515,7 @@
     <label>
       Category<br>
       <!-- Options will be populated dynamically from BASE_CATEGORIES + merchant benefits -->
-      <select id="category"></select>
+      <select id="category" style="font-family: system-ui, emoji;"></select>
     </label>
     </div>
 
@@ -618,7 +624,7 @@
 
       <label>
         Category (for card recommendation logic)<br>
-        <select id="benefitCategorySelect"></select>
+        <select id="benefitCategorySelect" style="font-family: system-ui, emoji;"></select>
       </label>
 
       <button id="btnAddBenefit" class="primary" style="margin-top:8px;">
@@ -693,6 +699,13 @@
       MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",      badgeClass: "mb" },
       DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg" },
     };
+    
+    // --- Cross-browser safe date parser (no UTC shift) ---
+	function parseISODateLocal(dateStr) {
+	  if (!dateStr) return null;
+	  const [y, m, d] = dateStr.split("-").map(Number);
+	  return new Date(y, m - 1, d);
+	}
 
     function showToast(message) {
       const toast = document.createElement('div');
@@ -897,8 +910,8 @@
     }
 
     function classifyBenefitEnd(endDateStr, todayDate) {
-      const today = todayDate || parseISODate(formatTodayISO());
-      const end = parseISODate(endDateStr);
+      const today = todayDate || parseISODateLocal(formatTodayISO());
+      const end = parseISODateLocal(endDateStr);
     
       if (!today || !end) {
         return { expired: false, expiringSoon: false };
@@ -1225,7 +1238,7 @@
 
       for (const tx of txs) {
         if (!tx.date) continue;
-        const d = parseISODate(tx.date);
+        const d = parseISODateLocal(tx.date);
         if (!d) continue;
 
         const amt = Number(tx.amount) || 0;
@@ -1372,7 +1385,7 @@
       for (const benefit of benefits) {
         let used = 0;
         let txCount = 0; 
-        const end = parseISODate(benefit.endDate);
+        const end = parseISODateLocal(benefit.endDate);
 
         const minSpend =
           benefit.minSpend != null && !isNaN(benefit.minSpend)
@@ -1384,7 +1397,7 @@
           if (!tx.merchantBenefitId) continue;
           if (tx.merchantBenefitId !== benefit.id) continue;
 
-          const d = parseISODate(tx.date);
+          const d = parseISODateLocal(tx.date);
           if (!d) continue;
           
           // Normalize to date-only (midnight) for fair comparison
@@ -1794,7 +1807,7 @@
     
       // ---------- MERCHANT BENEFITS TABLE ROWS ----------
       const merchantRows = [];
-      const today = parseISODate(formatTodayISO());
+      const today = parseISODateLocal(formatTodayISO());
       let soonCutoff = null;
       if (today) {
         soonCutoff = new Date(today);
@@ -1807,8 +1820,8 @@
         const nameB = (b.merchant || "").toLowerCase();
         if (nameA !== nameB) return nameA.localeCompare(nameB);
     
-        const endA = parseISODate(a.endDate);
-        const endB = parseISODate(b.endDate);
+        const endA = parseISODateLocal(a.endDate);
+        const endB = parseISODateLocal(b.endDate);
         const timeA = endA ? endA.getTime() : Infinity;
         const timeB = endB ? endB.getTime() : Infinity;
         return timeA - timeB;
@@ -2438,8 +2451,8 @@
       if (purchase.merchantBenefitId) {
         const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
         if (benefit) {
-          const purchaseDate = parseISODate(purchase.date);
-          const end = parseISODate(benefit.endDate);
+          const purchaseDate = parseISODateLocal(purchase.date);
+          const end = parseISODateLocal(benefit.endDate);
           const { expired } = classifyBenefitEnd(benefit.endDate, purchaseDate);
     
           const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
@@ -2760,7 +2773,7 @@
     
       tbody.innerHTML = "";
     
-      const today = parseISODate(formatTodayISO());
+      const today = parseISODateLocal(formatTodayISO());
     
       // Keep track of original index so delete still works correctly
       const benefitsWithIndex = benefits.map((b, idx) => ({ b, idx }));
@@ -2773,8 +2786,8 @@
           return nameA.localeCompare(nameB);
         }
     
-        const endA = parseISODate(a.b.endDate);
-        const endB = parseISODate(b.b.endDate);
+        const endA = parseISODateLocal(a.b.endDate);
+        const endB = parseISODateLocal(b.b.endDate);
         const timeA = endA ? endA.getTime() : Infinity;
         const timeB = endB ? endB.getTime() : Infinity;
         return timeA - timeB;
@@ -3074,7 +3087,15 @@
       document.getElementById("category").value = "dining";
       
       lastRecommendation = null;
-        
+      
+      try {
+		  saveTransactions(txs);
+		  renderMerchantBenefits();
+		  renderStateSummary();
+		} catch (e) {
+		  showToast("⚠️ Unable to save transactions — storage full or private mode.");
+		}
+
       showToast("✓ Purchase saved");
     });
 
@@ -3243,6 +3264,15 @@
       populateCategorySelect();
       populateMerchantBenefitCategorySelect();
       renderStateSummary();
+      
+	  try {
+		  saveMerchantBenefits(benefits);
+		  renderMerchantBenefits();
+		  renderStateSummary();
+		  populateCategorySelect();
+		} catch (e) {
+		  showToast("⚠️ Unable to save merchant benefits.");
+		}
 
       showToast("✓ Merchant Benefit saved");
     });
