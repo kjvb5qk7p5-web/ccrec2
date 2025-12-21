@@ -1512,8 +1512,8 @@
     
       // CSR Travel credit (calendar year, $300)
       {
-        const used = cardState.csrTravelYTD || 0;
         const limit = 300;
+        const used = Math.min(cardState.csrTravelYTD || 0, limit);
         ccRows.push({
           label: "Travel credit",
           card: "CSR",
@@ -1525,8 +1525,8 @@
     
       // CSR OpenTable dining partners semi-annual ($150 per 6 month period)
       {
-        const used = cardState.csrOpenTableThisPeriod || 0;
         const limit = 150;
+        const used = Math.min(cardState.csrOpenTableThisPeriod || 0, limit);
         ccRows.push({
           label: "Dining partners on OpenTable",
           labelHtml:
@@ -1542,8 +1542,8 @@
       
       // CSR Doordash Dining $5/month
       {
-        const used = cardState.csrDoordashThisMonth || 0;
         const limit = 5;
+        const used = Math.min(cardState.csrDoordashThisMonth || 0, limit);
         ccRows.push({
           label: "Doordash Dining",
           labelHtml:
@@ -1559,9 +1559,9 @@
     
       // CSR Doordash Groceries – 2 × $10 per month (up to $20/mo)
       {
-        const used = cardState.csrDoordashGroceriesThisMonth || 0;
-        const txCount = cardState.csrDoordashGroceriesTxThisMonth || 0;
         const dollarCap = 20; // 2 × $10
+        const used = Math.min(cardState.csrDoordashGroceriesThisMonth || 0, dollarCap);
+        const txCount = cardState.csrDoordashGroceriesTxThisMonth || 0;
       
         ccRows.push({
           label: "Doordash Groceries",
@@ -1581,8 +1581,8 @@
 
       // CSR Lyft $10/month
       {
-        const used = cardState.csrLyftThisMonth || 0;
         const limit = 10;
+        const used = Math.min(cardState.csrLyftThisMonth || 0, limit);
         ccRows.push({
           label: "Lyft",
           labelHtml:
@@ -1597,8 +1597,8 @@
     
       // CSR The Edit hotel partners semi-annual ($250 per 6 month period)
       {
-        const used = cardState.csrTheEditThisPeriod || 0;
         const limit = 250;
+        const used = Math.min(cardState.csrTheEditThisPeriod || 0, limit);
         ccRows.push({
           label: "The Edit hotel partners",
           labelHtml:
@@ -1614,8 +1614,8 @@
       
       // CSR StubHub semi-annual ($150 per 6-month period)
       {
-        const used = cardState.csrStubhubThisPeriod || 0;
         const limit = 150;
+        const used = Math.min(cardState.csrStubhubThisPeriod || 0, limit);
         ccRows.push({
           label: "StubHub / viagogo / soccer.com",
           labelHtml:
@@ -1636,8 +1636,8 @@
     
       // CSR Peloton $10/month
       {
-        const used = cardState.csrPelotonThisMonth || 0;
         const limit = 10;
+        const used = Math.min(cardState.csrPelotonThisMonth || 0, limit);
         ccRows.push({
           label: "Peloton membership",
           card: "CSR",
@@ -1649,8 +1649,8 @@
     
       // UQ Rideshare $8/month
       {
-        const used = cardState.uqRideshareThisMonth || 0;
         const limit = 8;
+        const used = Math.min(cardState.uqRideshareThisMonth || 0, limit);
         ccRows.push({
           label: "Uber rides",
           labelHtml:
@@ -1666,8 +1666,8 @@
     
       // UQ Instacart $15/month
       {
-        const used = cardState.uqInstacartThisMonth || 0;
         const limit = 15;
+        const used = Math.min(cardState.uqInstacartThisMonth || 0, limit);
         ccRows.push({
           label: "Instacart",
           labelHtml:
@@ -1682,8 +1682,8 @@
     
       // UQ Renowned Hotel $150/year
       {
-        const used = cardState.uqRenownedYTD || 0;
         const limit = 150;
+        const used = Math.min(cardState.uqRenownedYTD || 0, limit);
         ccRows.push({
           label: "Renowned Hotel",
           labelHtml:
@@ -1699,9 +1699,9 @@
     
       // UQ Avis and Budget car rentals – 2 × $40 per year (up to $80/year)
       {
-        const used = cardState.uqRentalCarYTD || 0;
-        const txCount = cardState.uqRentalCarTxYTD || 0;
         const dollarCap = 80; // 2 × $10
+        const used = Math.min(cardState.uqRentalCarYTD || 0, dollarCap);
+        const txCount = cardState.uqRentalCarTxYTD || 0;
       
         ccRows.push({
           label: "Avis & Budget car rental",
@@ -1720,8 +1720,8 @@
 
       // MB Dining $25/month
       {
-        const used = cardState.mbDiningThisMonth || 0;
         const limit = 25;
+        const used = Math.min(cardState.mbDiningThisMonth || 0, limit);
         ccRows.push({
           label: "Dining credit",
           card: "MB",
@@ -1733,8 +1733,8 @@
 
       // AG Resy $50 per semi-annual period
       {
-        const used = cardState.agResyThisPeriod || 0;
         const limit = 50;
+        const used = Math.min(cardState.agResyThisPeriod || 0, limit);
         ccRows.push({
           label: "Resy dining",
           labelHtml:
@@ -1750,8 +1750,8 @@
 
       // AG Dining partners $10/month
       {
-        const used = cardState.agDiningPartnersThisMonth || 0;
         const limit = 10;
+        const used = Math.min(cardState.agDiningPartnersThisMonth || 0, limit);
         ccRows.push({
           label: "Dining partners (GrubHub/Seamless, Cheesecake Factory, Goldbelly, Five Guys, Wine.com)",
           labelHtml:
@@ -1774,8 +1774,8 @@
 
       // AG Dunkin $7/month
       {
-        const used = cardState.agDunkinThisMonth || 0;
         const limit = 7;
+        const used = Math.min(cardState.agDunkinThisMonth || 0, limit);
         ccRows.push({
           label: "Dunkin",
           card: "AG",
@@ -1787,8 +1787,8 @@
     
       // AG Uber Cash $10/month (rides + Uber Eats)
       {
-        const used = cardState.agUberThisMonth || 0;
         const limit = 10;
+        const used = Math.min(cardState.agUberThisMonth || 0, limit);
         ccRows.push({
           label: "Uber rides + Eats",
           labelHtml:
@@ -1804,8 +1804,8 @@
 
       // DG Delta Stays $100/year
       {
-        const used = cardState.dgDeltaStaysYTD || 0;
         const limit = 100;
+        const used = Math.min(cardState.dgDeltaStaysYTD || 0, limit);
         ccRows.push({
           label: "Delta Stays",
           labelHtml:
