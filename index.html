@@ -1023,7 +1023,7 @@
       const num = Number.isFinite(parsed) ? parsed : 0;
     
       // For 0 or large values, show whole dollars.
-      if (num === 0 || Math.abs(num) > 99.99) {
+      if (num === 0 || Math.abs(num) > 9.99) {
         return num.toFixed(0);
       }
     
