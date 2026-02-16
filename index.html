@@ -1652,8 +1652,11 @@
         const limit = 8;
         const used = Math.min(cardState.uqRideshareThisMonth || 0, limit);
         ccRows.push({
-          label: "Uber rides",
+          label: "Lyft and Uber rides",
           labelHtml:
+            '<a href="https://www.lyft.com" ' +
+            'target="_blank" rel="noopener noreferrer">Lyft</a>'+
+            ' and '+
             '<a href="https://www.uber.com" ' +
             'target="_blank" rel="noopener noreferrer">Uber</a>' +
             ' rides',
@@ -2192,7 +2195,15 @@
               "Use Chase Sapphire in the Lyft app to earn your $10 monthly Lyft credit and boosted points.",
           };
         }
-        return {
+        if (state.uqRideshareThisMonth < 8) {
+          return {
+            card: "UQ",
+            channel: "lyft_app",
+            reason:
+              "Lyft monthly credit on Sapphire Reserve is used up; next use United Quest to earn the $8 monthly rideshare credit.",
+          };
+        }
+       return {
           card: "CSR",
           channel: "lyft_app",
           reason:
