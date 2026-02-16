@@ -1898,9 +1898,17 @@
         if (expired) {
           timeText = timeText ? `${timeText} Expired` : "Expired";
         }
+
+		// Discount Label text
+		let discountLabel = "";		
+		if (benefit.discountType === "percent") {
+		  discountLabel = `${Number(benefit.discountValue || 0)}%`;
+		} else {
+		  discountLabel = `$${Number(benefit.discountValue || 0).toFixed(2)}`;
+		}
     
         merchantRows.push({
-          label: benefit.merchant || "",
+		  label: `${benefit.merchant || ""} (${discountLabel})`,
           card: benefit.card || "",
           time: timeText,
           usage: usageText,
