@@ -2207,7 +2207,7 @@
           card: "CSR",
           channel: "lyft_app",
           reason:
-            "Lyft monthly credit is used up, but Chase Sapphire still wins thanks to Lyft boosts and flexibility.",
+            "Sapphire Reserve Lyft monthly credit and United Quest rideshare credit are used up, but Chase Sapphire still wins thanks to Lyft boosts and flexibility.",
         };
       }
     
@@ -2231,7 +2231,7 @@
         }
         return {
           card: "CSR",
-          channel: "direct",
+          channel: "uber_app",
           reason:
             "Both Amex Gold's Uber Cash and United Quest's rideshare credit are used up; default back to Chase Sapphire for flexible points.",
         };
@@ -2619,10 +2619,17 @@
           rec.totalCapAmount = totalCap;
         }
       } else if (cat === "lyft") {
+		if (rec.card === "UQ") {
+          const used = cardState.uqRideshareThisMonth || 0;
+          const totalCap = 8; // $8/month UQ rideshare credit
+          rec.remainingAmount = Math.max(0, totalCap - used);
+          rec.totalCapAmount = totalCap;
+        } else {
         const used = cardState.csrLyftThisMonth || 0;
         const totalCap = 10; // $10/month Lyft credit
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
+        }
       } else if (cat === "instacart") {
         const used = cardState.uqInstacartThisMonth || 0;
         const totalCap = 15; // $15/month Instacart credit
