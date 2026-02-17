@@ -1296,6 +1296,9 @@
           if (tx.cardUsed === "UQ" && tx.category === "rideshare_other") {
             uqRideshareThisMonth += amt;
           }
+          if (tx.cardUsed === "UQ" && tx.category === "lyft") {
+            uqRideshareThisMonth += amt;
+          }
           if (tx.cardUsed === "UQ" && tx.category === "instacart") {
             uqInstacartThisMonth += amt;
           }
