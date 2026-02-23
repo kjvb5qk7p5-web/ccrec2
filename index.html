@@ -580,6 +580,11 @@
     <div id="stateSummary" class="muted"></div>
   </div>
 
+  <div class="card">
+    <h2>Rolling Annual Benefit Summary</h2>
+    <div id="rollingAnnualSummary"></div>
+  </div>
+
   <!-- Merchant Offers Management -->
   <div class="card merch-input">
     <h2>Merchant Offers</h2>
@@ -725,7 +730,91 @@
       MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",      badgeClass: "mb" },
       DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg" },
     };
-    
+    const ROLLING_BENEFITS = [
+		// ----- CSR -----
+		{ id:"csr_travel", card:"CSR", label:"Travel credit", cadence:"annual", cap:300,
+		match:(tx)=> new Set([
+		  "united_flight","delta_flight_threshold","other_flight","theedit_hotel",
+		  "marriott_hotel","renowned_hotel","delta_stays","other_hotel",
+		  "lyft","rideshare_other","uq_rentalcar"
+		]).has(tx.category)
+		},
+		
+		{ id:"csr_doordash_dining", card:"CSR", label:"Doordash dining", cadence:"monthly", cap:5,
+		match:(tx)=> tx.category==="doordash"
+		},
+		
+		{ id:"csr_doordash_groceries", card:"CSR", label:"Doordash groceries", cadence:"monthly", cap:20,
+		perTxCap:10, maxTxPerPeriod:2,
+		match:(tx)=> tx.category==="doordash_groceries"
+		},
+		
+		{ id:"csr_lyft", card:"CSR", label:"Lyft", cadence:"monthly", cap:10,
+		match:(tx)=> tx.category==="lyft"
+		},
+		
+		{ id:"csr_peloton", card:"CSR", label:"Peloton", cadence:"monthly", cap:10,
+		match:(tx)=> tx.category==="peloton"
+		},
+		
+		{ id:"csr_opentable", card:"CSR", label:"OpenTable dining partners", cadence:"semiannual", cap:150,
+		match:(tx)=> tx.category==="csr_opentable"
+		},
+		
+		{ id:"csr_theedit", card:"CSR", label:"The Edit hotel partners", cadence:"semiannual", cap:250,
+		match:(tx)=> tx.category==="theedit_hotel"
+		},
+		
+		{ id:"csr_stubhub", card:"CSR", label:"StubHub / viagogo / soccer.com", cadence:"semiannual", cap:150,
+		match:(tx)=> tx.category==="stubhub"
+		},
+		
+		// ----- AG -----
+		{ id:"ag_uber", card:"AG", label:"Uber rides + Eats", cadence:"monthly", cap:10,
+		match:(tx)=> tx.category==="rideshare_other" || tx.category==="uber_eats"
+		},
+		
+		{ id:"ag_dining_partners", card:"AG", label:"Dining partners", cadence:"monthly", cap:10,
+		match:(tx)=> tx.category==="ag_dining"
+		},
+		
+		{ id:"ag_dunkin", card:"AG", label:"Dunkin", cadence:"monthly", cap:7,
+		match:(tx)=> tx.category==="dunkin"
+		},
+		
+		{ id:"ag_resy", card:"AG", label:"Resy dining", cadence:"semiannual", cap:50,
+		match:(tx)=> tx.category==="resy"
+		},
+		
+		// ----- MB -----
+		{ id:"mb_dining", card:"MB", label:"Dining credit", cadence:"monthly", cap:25,
+		match:(tx)=> tx.category==="dining"
+		},
+		
+		// ----- DG -----
+		{ id:"dg_delta_stays", card:"DG", label:"Delta Stays", cadence:"annual", cap:100,
+		match:(tx)=> tx.category==="delta_stays"
+		},
+		
+		// ----- UQ -----
+		{ id:"uq_rideshare", card:"UQ", label:"Lyft + Uber rides", cadence:"monthly", cap:8,
+		match:(tx)=> tx.category==="rideshare_other" || tx.category==="lyft"
+		},
+		
+		{ id:"uq_instacart", card:"UQ", label:"Instacart", cadence:"monthly", cap:15,
+		match:(tx)=> tx.category==="instacart"
+		},
+		
+		{ id:"uq_renowned", card:"UQ", label:"Renowned Hotels", cadence:"annual", cap:150,
+		match:(tx)=> tx.category==="renowned_hotel"
+		},
+		
+		{ id:"uq_rentalcar", card:"UQ", label:"Avis & Budget car rental", cadence:"annual", cap:80,
+		perTxCap:40, maxTxPerPeriod:2,
+		match:(tx)=> tx.category==="uq_rentalcar"
+		},
+	];
+
     // --- Cross-browser safe date parser (no UTC shift) ---
 	function parseISODateLocal(dateStr) {
 	  if (!dateStr) return null;
@@ -1036,6 +1125,128 @@
       return month < 6 ? "Jan–Jun" : "Jul–Dec";
     }
 
+	function addMonths(date, n) {
+	  const d = new Date(date);
+	  d.setMonth(d.getMonth() + n);
+	  return d;
+	}
+	
+	function getBenefitMonthIndex(start, date) {
+	  let months =
+		(date.getFullYear() - start.getFullYear()) * 12 +
+		(date.getMonth() - start.getMonth());
+	  if (date.getDate() < start.getDate()) months -= 1;
+	  return Math.max(0, months);
+	}
+	
+	function getSemiannualIndex(start, date) {
+	  const m = getBenefitMonthIndex(start, date);
+	  return Math.floor(m / 6); // 0 or 1 within a 12-mo benefit year
+	}
+
+	function computeRollingAnnualBenefits(txs, today = new Date()) {
+	  const out = {};
+	
+	  // init per card
+	  for (const card of Object.keys(ROLLING_BENEFIT_YEARS)) {
+		const win = getRollingBenefitYear(card, today);
+		if (!win) continue;
+		out[card] = {
+		  start: win.start,
+		  end: win.end,
+		  totalUsed: 0,
+		  benefits: {}, // benefitId -> { label, used, cap, cadence }
+		  // internal period trackers:
+		  _periodUsed: {},   // benefitId:periodKey -> used
+		  _periodTxCount: {},// benefitId:periodKey -> txCount
+		};
+	  }
+	
+	  // pre-seed benefit rows so “$0 used” still shows (optional)
+	  for (const b of ROLLING_BENEFITS) {
+		const cardBucket = out[b.card];
+		if (!cardBucket) continue;
+		cardBucket.benefits[b.id] = {
+		  label: b.label,
+		  used: 0,
+		  cap: b.cap,
+		  cadence: b.cadence,
+		};
+	  }
+	
+	  for (const tx of txs) {
+		if (!tx.date || !tx.cardUsed) continue;
+	
+		const card = tx.cardUsed;
+		const bucket = out[card];
+		if (!bucket) continue;
+	
+		const d = parseISODateLocal(tx.date);
+		if (!d) continue;
+		if (d < bucket.start || d >= bucket.end) continue;
+	
+		const amt = Number(tx.amount) || 0;
+		if (amt <= 0) continue;
+	
+		// IMPORTANT: ignore merchant discount dollars entirely — we only look at tx spend to count against native credits
+		for (const b of ROLLING_BENEFITS) {
+		  if (b.card !== card) continue;
+		  if (!b.match(tx)) continue;
+	
+		  // figure period key
+		  let periodKey = "annual";
+		  if (b.cadence === "monthly") {
+			periodKey = "m" + getBenefitMonthIndex(bucket.start, d);
+		  } else if (b.cadence === "semiannual") {
+			periodKey = "s" + getSemiannualIndex(bucket.start, d);
+		  }
+	
+		  const pk = `${b.id}:${periodKey}`;
+	
+		  // apply per-tx cap if any (e.g., $10 per grocery tx, $40 per rental tx)
+		  let applied = amt;
+		  if (b.perTxCap != null) applied = Math.min(applied, b.perTxCap);
+	
+		  // enforce tx-count cap per period if any
+		  if (b.maxTxPerPeriod != null) {
+			const usedTx = bucket._periodTxCount[pk] || 0;
+			if (usedTx >= b.maxTxPerPeriod) continue;
+		  }
+	
+		  // enforce dollar cap per period (monthly/semiannual) OR annual cap
+		  const cap = Number(b.cap) || 0;
+		  const periodUsed = bucket._periodUsed[pk] || 0;
+		  const remaining = Math.max(0, cap - periodUsed);
+		  if (remaining <= 0) continue;
+	
+		  const credit = Math.min(applied, remaining);
+	
+		  bucket._periodUsed[pk] = periodUsed + credit;
+		  if (credit > 0 && b.maxTxPerPeriod != null) {
+			bucket._periodTxCount[pk] = (bucket._periodTxCount[pk] || 0) + 1;
+		  }
+	
+		  // roll up into per-benefit + total
+		  bucket.benefits[b.id].used += credit;
+		  bucket.totalUsed += credit;
+	
+		  // If one tx could match multiple benefits on same card, you can either:
+		  // - allow it (current behavior here), or
+		  // - break after first match to prevent double-counting.
+		  // In your taxonomy, categories are mutually exclusive, so double-counting shouldn’t happen.
+		  break;
+		}
+	  }
+	
+	  // cleanup internal fields
+	  for (const card of Object.keys(out)) {
+		delete out[card]._periodUsed;
+		delete out[card]._periodTxCount;
+	  }
+	
+	  return out;
+	}
+
     // ---------- Transactions storage ----------
     function loadTransactions() {
       try {
@@ -1141,6 +1352,7 @@
           populateCategorySelect();
 		  populateMerchantBenefitCategorySelect();
           renderStateSummary();
+          renderRollingAnnualSummary();
 
           alert(`Successfully imported ${txCount} transactions and ${benefitCount} merchant benefits!`);
 
@@ -2030,6 +2242,83 @@
     
       el.innerHTML = html;
     }
+
+	function renderRollingAnnualSummary() {
+	  const txs = loadTransactions();
+	  const state = computeRollingAnnualBenefits(txs);
+	  const el = document.getElementById("rollingAnnualSummary");
+	  if (!el) return;
+	
+	  const rows = Object.entries(state);
+	
+	  if (rows.length === 0) {
+		el.innerHTML = `<span class="muted">No rolling annual benefit config found.</span>`;
+		return;
+	  }
+	
+	  let html = `
+		<table class="state-table">
+		  <thead>
+			<tr>
+			  <th>Card</th>
+			  <th>Benefit Year</th>
+			  <th>Total Used</th>
+			  <th>Breakdown</th>
+			</tr>
+		  </thead>
+		  <tbody>
+	  `;
+	
+	  for (const [card, d] of rows) {
+		const startISO = d.start.toISOString().slice(0,10);
+		const endISO = d.end.toISOString().slice(0,10);
+	
+		// Sort benefits: used desc, then label
+		const benefitList = Object.values(d.benefits || {})
+		  .sort((a,b) => (b.used - a.used) || a.label.localeCompare(b.label));
+	
+		const breakdownHtml = `
+		  <details>
+			<summary>Show</summary>
+			<table class="state-table" style="margin-top:6px;">
+			  <thead>
+				<tr>
+				  <th>Benefit</th>
+				  <th>Cadence</th>
+				  <th>Used</th>
+				  <th>Cap</th>
+				</tr>
+			  </thead>
+			  <tbody>
+				${benefitList.map(b => `
+				  <tr>
+					<td>${escapeHtml(b.label)}</td>
+					<td>${escapeHtml(
+					  b.cadence === "monthly" ? "Monthly" :
+					  b.cadence === "semiannual" ? "Semi-annual" : "Annual"
+					)}</td>
+					<td>$${formatUsageAmount(b.used)}</td>
+					<td>$${formatUsageAmount(b.cap)}</td>
+				  </tr>
+				`).join("")}
+			  </tbody>
+			</table>
+		  </details>
+		`;
+	
+		html += `
+		  <tr>
+			<td>${renderCardBadge(card)}</td>
+			<td>${startISO} → ${endISO}</td>
+			<td>$${formatUsageAmount(d.totalUsed)}</td>
+			<td>${breakdownHtml}</td>
+		  </tr>
+		`;
+	  }
+	
+	  html += `</tbody></table>`;
+	  el.innerHTML = html;
+	}
 
     // ---------- Core category logic (no merchant override) ----------
     function recommendCardBase(purchase, state) {
@@ -3128,6 +3417,7 @@
       saveTransactions(txs);
       renderTransactions();
       renderStateSummary();
+      renderRollingAnnualSummary();
       populateCategorySelect();
       populateMerchantBenefitCategorySelect();
       renderMerchantBenefits(); 
@@ -3147,6 +3437,7 @@
 		  saveTransactions(txs);
 		  renderMerchantBenefits();
 		  renderStateSummary();
+		  renderRollingAnnualSummary();
 		} catch (e) {
 		  showToast("⚠️ Unable to save transactions — storage full or private mode.");
 		}
@@ -3185,6 +3476,7 @@
       saveTransactions([]);
       renderTransactions();
       renderStateSummary();
+      renderRollingAnnualSummary();
       populateCategorySelect();
       populateMerchantBenefitCategorySelect();
       renderMerchantBenefits(); 
@@ -3319,11 +3611,13 @@
       populateCategorySelect();
       populateMerchantBenefitCategorySelect();
       renderStateSummary();
+      renderRollingAnnualSummary();
       
 	  try {
 		  saveMerchantBenefits(benefits);
 		  renderMerchantBenefits();
 		  renderStateSummary();
+		  renderRollingAnnualSummary();
 		  populateCategorySelect();
 		} catch (e) {
 		  showToast("⚠️ Unable to save merchant benefits.");
@@ -3354,6 +3648,7 @@
       // Re-render everything that depends on txs
       renderTransactions();
       renderStateSummary();
+      renderRollingAnnualSummary();
       populateCategorySelect(); // merchant offers might re-open if usage drops
       renderMerchantBenefits(); 
     });
@@ -3376,6 +3671,7 @@
       renderMerchantBenefits();
       populateCategorySelect(); // keep the New Purchase categories in sync
       renderStateSummary();     // and the top usage summary
+      renderRollingAnnualSummary();
     });
       
     // Event delegation for export/import buttons (they're inside hidden section)
@@ -3433,6 +3729,7 @@
     );
 
     renderStateSummary();
+    renderRollingAnnualSummary();
   </script>
 </body>
 </html>
