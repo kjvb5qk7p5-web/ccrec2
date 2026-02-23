@@ -451,14 +451,14 @@
 	/* Column widths: compact summary row */
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(1),
 	#rollingAnnualSummary .rolling-summary-table td:nth-child(1) {
-	  width: 13%;            /* Card */
+	  width: 15%;            /* Card */
 	  text-align: center;
 	  white-space: nowrap;
 	}
 	
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(2),
 	#rollingAnnualSummary .rolling-summary-table td:nth-child(2) {
-	  width: 13%;           /* Start */
+	  width: 15%;           /* Start */
 	  white-space: nowrap;
 	}
 	
@@ -478,7 +478,7 @@
 	
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(5),
 	#rollingAnnualSummary .rolling-summary-table td:nth-child(5) {
-	  width: 35%;           /* Progress */
+	  width: 31%;           /* Progress */
 	}
 	
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(6),
@@ -2461,7 +2461,7 @@
 	  function formatMonthDay(d) {
 		const mm = String(d.getMonth() + 1).padStart(2, "0");
 		const dd = String(d.getDate()).padStart(2, "0");
-		return `${mm}-${dd}`;
+		return `${mm}/${dd}`;
 	  }
 	
 	  // Keep cards in your preferred display order
@@ -2484,7 +2484,7 @@
 			  <th>Used</th>
 			  <th>Fee</th>
 			  <th>% Recouped</th>
-			  <th>Details</th>
+			  <th>Deets</th>
 			</tr>
 		  </thead>
 		  <tbody>
