@@ -432,25 +432,27 @@
 	
 	#rollingAnnualSummary .state-table th:nth-child(1),
 	#rollingAnnualSummary .state-table td:nth-child(1) {
-	  width: 15%;              /* thin badge column */
+	  width: 7%;              /* thin badge column */
 	  text-align: center;
 	  white-space: nowrap;
 	}
 	
 	#rollingAnnualSummary .state-table th:nth-child(2),
 	#rollingAnnualSummary .state-table td:nth-child(2) {
-	  width: 20%;             /* just start date */
+	  width: 22%;             /* just start date */
+	  white-space: nowrap;
 	}
 	
 	#rollingAnnualSummary .state-table th:nth-child(3),
 	#rollingAnnualSummary .state-table td:nth-child(3) {
-	  width: 12%;             /* $#### */
+	  width: 14%;             /* $#### */
+	  white-space: nowrap;
 	  text-align: right;
 	}
 	
 	#rollingAnnualSummary .state-table th:nth-child(4),
 	#rollingAnnualSummary .state-table td:nth-child(4) {
-	  width: 53%;             /* breakdown gets the runway */
+	  width: 57%;             /* breakdown gets the runway */
 	}
 
     /* Card badges */
@@ -2351,21 +2353,14 @@
 			  <thead>
 				<tr>
 				  <th>Benefit</th>
-				  <th>Cadence</th>
 				  <th>Used</th>
-				  <th>Cap</th>
 				</tr>
 			  </thead>
 			  <tbody>
 				${benefitList.map(b => `
 				  <tr>
 					<td>${escapeHtml(b.label)}</td>
-					<td>${escapeHtml(
-					  b.cadence === "monthly" ? "Monthly" :
-					  b.cadence === "semiannual" ? "Semi-annual" : "Annual"
-					)}</td>
 					<td>$${formatUsageAmount(b.used)}</td>
-					<td>$${formatUsageAmount(b.cap)}</td>
 				  </tr>
 				`).join("")}
 			  </tbody>
