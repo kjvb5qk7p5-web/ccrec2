@@ -217,22 +217,6 @@
     th {
       background: #f7f7f7;
     }
-
-	/* Rolling Annual breakdown: remove gridlines + keep it compact */
-	#rollingAnnualSummary table.rolling-breakdown,
-	#rollingAnnualSummary table.rolling-breakdown th,
-	#rollingAnnualSummary table.rolling-breakdown td {
-	  border: none !important;
-	}
-	
-	#rollingAnnualSummary table.rolling-breakdown {
-	  border-collapse: collapse;
-	}
-	
-	#rollingAnnualSummary table.rolling-breakdown th,
-	#rollingAnnualSummary table.rolling-breakdown td {
-	  padding: 2px 4px;
-	}
   
     /* Logged purchases table: extra small font */
     #loggedTable {
@@ -441,56 +425,165 @@
       width: 20%;  /* Usage text */
     }
 
-	/* Rolling Annual Summary: make columns sane */
-	#rollingAnnualSummary .state-table {
+	/* ===========================
+	   Rolling Annual Summary UI
+	   =========================== */
+	
+	/* Main summary table */
+	#rollingAnnualSummary .rolling-summary-table {
+	  width: 100%;
+	  border-collapse: collapse;
 	  table-layout: fixed;
+	  font-size: 0.8rem;
 	}
 	
-	#rollingAnnualSummary .state-table th:nth-child(1),
-	#rollingAnnualSummary .state-table td:nth-child(1) {
-	  width: 15%;              /* thin badge column */
+	#rollingAnnualSummary .rolling-summary-table th,
+	#rollingAnnualSummary .rolling-summary-table td {
+	  border: 1px solid #ddd;
+	  padding: 4px 6px;
+	  vertical-align: middle;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table thead th {
+	  background: #f7f7f7;
+	}
+	
+	/* Column widths: compact summary row */
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(1),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(1) {
+	  width: 9%;            /* Card */
 	  text-align: center;
 	  white-space: nowrap;
 	}
 	
-	#rollingAnnualSummary .state-table th:nth-child(2),
-	#rollingAnnualSummary .state-table td:nth-child(2) {
-	  width: 20%;             /* just start date */
-	  text-align: center;
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(2),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(2) {
+	  width: 13%;           /* Start */
+	  white-space: nowrap;
 	}
 	
-	#rollingAnnualSummary .state-table th:nth-child(3),
-	#rollingAnnualSummary .state-table td:nth-child(3) {
-	  width: 15%;             /* $#### */
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(3),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(3) {
+	  width: 13%;           /* Used */
 	  text-align: right;
+	  white-space: nowrap;
 	}
 	
-	#rollingAnnualSummary .state-table th:nth-child(4),
-	#rollingAnnualSummary .state-table td:nth-child(4) {
-	  width: 50%;             /* breakdown gets the runway */
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(4),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(4) {
+	  width: 13%;           /* Fee */
+	  text-align: right;
+	  white-space: nowrap;
 	}
 	
-	/* Rolling Annual breakdown table: Benefit wide, Used narrow + right aligned */
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(5),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(5) {
+	  width: 40%;           /* Progress */
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(6),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(6) {
+	  width: 12%;           /* Details toggle */
+	  text-align: center;
+	  white-space: nowrap;
+	}
+	
+	/* Detail row under each summary row */
+	#rollingAnnualSummary .rolling-detail-row td {
+	  background: #fafafa;
+	  padding: 6px 8px;
+	}
+	
+	/* Remove borders / gridlines in nested breakdown for a cleaner look */
+	#rollingAnnualSummary table.rolling-breakdown,
+	#rollingAnnualSummary table.rolling-breakdown th,
+	#rollingAnnualSummary table.rolling-breakdown td {
+	  border: none !important;
+	}
+	
 	#rollingAnnualSummary table.rolling-breakdown {
-	  table-layout: fixed;   /* keep the Used column stable */
 	  width: 100%;
+	  border-collapse: collapse;
+	  table-layout: fixed;
+	  margin-top: 4px;
 	}
-
+	
+	#rollingAnnualSummary table.rolling-breakdown th,
+	#rollingAnnualSummary table.rolling-breakdown td {
+	  padding: 2px 4px;
+	  font-size: 0.78rem;
+	}
+	
+	#rollingAnnualSummary table.rolling-breakdown thead th {
+	  background: transparent;
+	  color: #555;
+	  font-weight: 600;
+	}
+	
+	/* Breakdown columns: Benefit wraps, Used fixed */
 	#rollingAnnualSummary table.rolling-breakdown th:nth-child(1),
 	#rollingAnnualSummary table.rolling-breakdown td:nth-child(1) {
 	  text-align: left;
-	  white-space: normal;        /* allow wrapping */
-	  overflow-wrap: anywhere;    /* wrap long chunks */
-	  word-break: break-word;     /* safe fallback */
+	  white-space: normal;
+	  overflow-wrap: anywhere;
+	  word-break: break-word;
 	}
 	
 	#rollingAnnualSummary table.rolling-breakdown th:nth-child(2),
 	#rollingAnnualSummary table.rolling-breakdown td:nth-child(2) {
-	  width: 30px;          /* fixed width for $#### */
+	  width: 78px;
 	  text-align: right;
 	  white-space: nowrap;
 	}
-
+	
+	/* Optional subtle separators in breakdown rows */
+	#rollingAnnualSummary table.rolling-breakdown tbody td {
+	  border-bottom: 1px solid #eee !important;
+	}
+	#rollingAnnualSummary table.rolling-breakdown tbody tr:last-child td {
+	  border-bottom: none !important;
+	}
+	
+	/* Progress bar */
+	#rollingAnnualSummary .fee-progress-wrap {
+	  display: flex;
+	  align-items: center;
+	  gap: 8px;
+	}
+	
+	#rollingAnnualSummary .fee-progress {
+	  flex: 1;
+	  min-width: 90px;
+	  height: 10px;
+	  border-radius: 999px;
+	  background: #e9ecef;
+	  overflow: hidden;
+	  border: 1px solid #dcdcdc;
+	}
+	
+	#rollingAnnualSummary .fee-progress-fill {
+	  height: 100%;
+	  background: #28a745;
+	  width: 0%;
+	}
+	
+	#rollingAnnualSummary .fee-progress-label {
+	  min-width: 42px;
+	  text-align: right;
+	  white-space: nowrap;
+	  font-variant-numeric: tabular-nums;
+	}
+	
+	/* Totals row */
+	#rollingAnnualSummary .rolling-total-row td {
+	  font-weight: 700;
+	  background: #f7f7f7;
+	}
+	
+	#rollingAnnualSummary .rolling-total-row td:nth-child(3),
+	#rollingAnnualSummary .rolling-total-row td:nth-child(4) {
+	  text-align: right;
+	}
     /* Card badges */
     .card-badge {
       display: inline-block;
@@ -789,13 +882,13 @@
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
     const MERCHANT_BENEFITS_KEY = "cardAdvisorMerchantBenefitsV1";
-    const CARDS = {
-      CSR: { code: "CSR", short: "CS", label: "Chase Sapphire Reserve",  badgeClass: "csr" },
-      AG:  { code: "AG",  short: "AG", label: "American Express Gold",    badgeClass: "ag" },
-      UQ:  { code: "UQ",  short: "UQ", label: "United Quest",            badgeClass: "uq" },
-      MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",      badgeClass: "mb" },
-      DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg" },
-    };
+	const CARDS = {
+	  CSR: { code: "CSR", short: "CS", label: "Chase Sapphire Reserve",  badgeClass: "csr", annualFee: 795 },
+	  AG:  { code: "AG",  short: "AG", label: "American Express Gold",    badgeClass: "ag",  annualFee: 325 },
+	  UQ:  { code: "UQ",  short: "UQ", label: "United Quest",             badgeClass: "uq",  annualFee: 250 },
+	  MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",       badgeClass: "mb",  annualFee: 650 },
+	  DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg",  annualFee: 150 },
+	};
     const ROLLING_BENEFITS = [
 		// ----- CSR -----
 		{ id:"csr_travel", card:"CSR", label:"Travel credit", cadence:"annual", cap:300,
@@ -2357,65 +2450,163 @@
 	  const rows = Object.entries(state);
 	
 	  if (rows.length === 0) {
-		el.innerHTML = `<span class="muted">No rolling annual benefit config found.</span>`;
+		el.innerHTML = `<span class="muted">No rolling annual benefit data yet.</span>`;
 		return;
 	  }
 	
+	  function formatMoneyWhole(n) {
+		return Math.round(Number(n || 0)).toLocaleString();
+	  }
+	
+	  function formatMonthDay(d) {
+		const mm = String(d.getMonth() + 1).padStart(2, "0");
+		const dd = String(d.getDate()).padStart(2, "0");
+		return `${mm}-${dd}`;
+	  }
+	
+	  // Keep cards in your preferred display order
+	  const cardOrder = ["CSR", "AG", "UQ", "MB", "DG"];
+	  rows.sort((a, b) => {
+		const ia = cardOrder.indexOf(a[0]);
+		const ib = cardOrder.indexOf(b[0]);
+		return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+	  });
+	
+	  let grandUsed = 0;
+	  let grandFees = 0;
+	
 	  let html = `
-		<table class="state-table">
+		<table class="rolling-summary-table">
 		  <thead>
 			<tr>
 			  <th>Card</th>
-			  <th>Yearly Start</th>
-			  <th>Total Used</th>
-			  <th>Breakdown</th>
+			  <th>Start</th>
+			  <th>Used</th>
+			  <th>Fee</th>
+			  <th>% Recouped</th>
+			  <th>Details</th>
 			</tr>
 		  </thead>
 		  <tbody>
 	  `;
 	
 	  for (const [card, d] of rows) {
-		const startISO = `${d.start.getMonth() + 1}/${d.start.getDate()}`;
-		const endISO = formatDateISO_Local(d.end);
+		const cardMeta = CARDS[card] || {};
+		const annualFee = Number(cardMeta.annualFee || 0);
+		const totalUsed = Number(d.totalUsed || 0);
 	
-		// Sort benefits: used desc, then label
+		grandUsed += totalUsed;
+		grandFees += annualFee;
+	
+		// % recouped (cap 0..100). If fee is 0, show 100 if used>0 else 0 (or change if you prefer)
+		let pct = 0;
+		if (annualFee > 0) {
+		  pct = Math.min(100, Math.max(0, (totalUsed / annualFee) * 100));
+		} else {
+		  pct = totalUsed > 0 ? 100 : 0;
+		}
+	
+		const pctLabel = `${Math.round(pct)}%`;
+		const startLabel = d.start ? formatMonthDay(d.start) : "";
+	
+		// Sort breakdown benefits: used desc, then alpha
 		const benefitList = Object.values(d.benefits || {})
-		  .sort((a,b) => (b.used - a.used) || a.label.localeCompare(b.label));
+		  .sort((a, b) => (Number(b.used || 0) - Number(a.used || 0)) || String(a.label || "").localeCompare(String(b.label || "")));
 	
-		const breakdownHtml = `
-		  <details>
-			<summary>Show</summary>
-			<table class="state-table rolling-breakdown" style="margin-top:6px;">
-			  <thead>
-				<tr>
-				  <th>Benefit</th>
-				  <th>Used</th>
-				</tr>
-			  </thead>
-			  <tbody>
-				${benefitList.map(b => `
-				  <tr>
-					<td>${escapeHtml(b.label)}</td>
-					<td>$${formatUsageAmount(b.used)}</td>
-				  </tr>
-				`).join("")}
-			  </tbody>
-			</table>
-		  </details>
-		`;
+		// Include all benefits; if you later want to hide zero rows, easy tweak here
+		const breakdownRows = benefitList.map((b) => `
+		  <tr>
+			<td>${escapeHtml(b.label)}</td>
+			<td>$${formatMoneyWhole(b.used)}</td>
+		  </tr>
+		`).join("");
+	
+		const detailsId = `rolling-details-${card}`;
 	
 		html += `
-		  <tr>
+		  <tr class="rolling-summary-row">
 			<td>${renderCardBadge(card)}</td>
-			<td>${startISO}</td>
-			<td>$${Math.round(d.totalUsed)}</td>
-			<td>${breakdownHtml}</td>
+			<td>${escapeHtml(startLabel)}</td>
+			<td>$${formatMoneyWhole(totalUsed)}</td>
+			<td>$${formatMoneyWhole(annualFee)}</td>
+			<td>
+			  <div class="fee-progress-wrap">
+				<div class="fee-progress" aria-label="${escapeHtml(card)} annual fee recoup progress">
+				  <div class="fee-progress-fill" style="width:${pct.toFixed(1)}%;"></div>
+				</div>
+				<span class="fee-progress-label">${escapeHtml(pctLabel)}</span>
+			  </div>
+			</td>
+			<td>
+			  <details id="${detailsId}">
+				<summary>Show</summary>
+			  </details>
+			</td>
+		  </tr>
+	
+		  <tr class="rolling-detail-row">
+			<td colspan="6">
+			  <table class="state-table rolling-breakdown">
+				<thead>
+				  <tr>
+					<th>Benefit</th>
+					<th>Used</th>
+				  </tr>
+				</thead>
+				<tbody>
+				  ${breakdownRows}
+				</tbody>
+			  </table>
+			</td>
 		  </tr>
 		`;
 	  }
 	
-	  html += `</tbody></table>`;
+	  // Grand total progress (portfolio-level)
+	  let grandPct = 0;
+	  if (grandFees > 0) {
+		grandPct = Math.min(100, Math.max(0, (grandUsed / grandFees) * 100));
+	  } else {
+		grandPct = grandUsed > 0 ? 100 : 0;
+	  }
+	
+	  html += `
+		  <tr class="rolling-total-row">
+			<td colspan="2">All cards total</td>
+			<td>$${formatMoneyWhole(grandUsed)}</td>
+			<td>$${formatMoneyWhole(grandFees)}</td>
+			<td>
+			  <div class="fee-progress-wrap">
+				<div class="fee-progress" aria-label="All cards annual fee recoup progress">
+				  <div class="fee-progress-fill" style="width:${grandPct.toFixed(1)}%;"></div>
+				</div>
+				<span class="fee-progress-label">${Math.round(grandPct)}%</span>
+			  </div>
+			</td>
+			<td></td>
+		  </tr>
+		</tbody>
+		</table>
+	  `;
+	
 	  el.innerHTML = html;
+	
+	  // Optional behavior tweak:
+	  // hide the detail row unless the <details> in the summary row is open
+	  // (keeps layout compact and gives breakdowns their own row only when expanded)
+	  const summaryRows = el.querySelectorAll(".rolling-summary-row");
+	  summaryRows.forEach((summaryRow) => {
+		const detailRow = summaryRow.nextElementSibling;
+		const details = summaryRow.querySelector("details");
+		if (!detailRow || !details) return;
+	
+		// start collapsed
+		detailRow.style.display = details.open ? "table-row" : "none";
+	
+		details.addEventListener("toggle", () => {
+		  detailRow.style.display = details.open ? "table-row" : "none";
+		});
+	  });
 	}
 
     // ---------- Core category logic (no merchant override) ----------
