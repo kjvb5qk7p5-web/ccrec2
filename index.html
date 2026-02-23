@@ -815,11 +815,50 @@
 		},
 	];
 
+	// Rolling annual benefit-year anchors (per card)
+	const ROLLING_BENEFIT_YEARS = {
+	  MB:  { start: "2025-04-11" },
+	  AG:  { start: "2025-12-21" },
+	  DG:  { start: "2026-01-13" },
+	  CSR: { start: "2025-12-01" },
+	  UQ:  { start: "2025-02-01" },
+	};
+	
+	// Compute the current rolling benefit-year window for a card
+	function getRollingBenefitYear(cardCode, today = new Date()) {
+	  const cfg = ROLLING_BENEFIT_YEARS[cardCode];
+	  if (!cfg) return null;
+	
+	  const anchor = parseISODateLocal(cfg.start);
+	  if (!anchor) return null;
+	
+	  // Make "this year's anniversary" using the anchor month/day
+	  const thisYearStart = new Date(anchor);
+	  thisYearStart.setFullYear(today.getFullYear());
+	
+	  // If we haven't reached the anniversary yet, use last year's start
+	  if (today < thisYearStart) {
+		thisYearStart.setFullYear(today.getFullYear() - 1);
+	  }
+	
+	  const end = new Date(thisYearStart);
+	  end.setFullYear(end.getFullYear() + 1);
+	
+	  return { start: thisYearStart, end };
+	}
+
     // --- Cross-browser safe date parser (no UTC shift) ---
 	function parseISODateLocal(dateStr) {
 	  if (!dateStr) return null;
 	  const [y, m, d] = dateStr.split("-").map(Number);
 	  return new Date(y, m - 1, d);
+	}
+
+	function formatDateISO_Local(d) {
+	  const yyyy = d.getFullYear();
+	  const mm = String(d.getMonth() + 1).padStart(2, "0");
+	  const dd = String(d.getDate()).padStart(2, "0");
+	  return `${yyyy}-${mm}-${dd}`;
 	}
 
     function showToast(message) {
@@ -2270,8 +2309,8 @@
 	  `;
 	
 	  for (const [card, d] of rows) {
-		const startISO = d.start.toISOString().slice(0,10);
-		const endISO = d.end.toISOString().slice(0,10);
+		const startISO = formatDateISO_Local(d.start);
+		const endISO = formatDateISO_Local(d.end);
 	
 		// Sort benefits: used desc, then label
 		const benefitList = Object.values(d.benefits || {})
