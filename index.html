@@ -425,6 +425,36 @@
       width: 20%;  /* Usage text */
     }
 
+	/* Rolling Annual Summary: make columns sane */
+	#rollingAnnualSummary .state-table {
+	  table-layout: fixed;
+	}
+	
+	#rollingAnnualSummary .state-table th:nth-child(1),
+	#rollingAnnualSummary .state-table td:nth-child(1) {
+	  width: 7%;              /* thin badge column */
+	  text-align: center;
+	  white-space: nowrap;
+	}
+	
+	#rollingAnnualSummary .state-table th:nth-child(2),
+	#rollingAnnualSummary .state-table td:nth-child(2) {
+	  width: 22%;             /* just start date */
+	  white-space: nowrap;
+	}
+	
+	#rollingAnnualSummary .state-table th:nth-child(3),
+	#rollingAnnualSummary .state-table td:nth-child(3) {
+	  width: 14%;             /* $#### */
+	  white-space: nowrap;
+	  text-align: right;
+	}
+	
+	#rollingAnnualSummary .state-table th:nth-child(4),
+	#rollingAnnualSummary .state-table td:nth-child(4) {
+	  width: 57%;             /* breakdown gets the runway */
+	}
+
     /* Card badges */
     .card-badge {
       display: inline-block;
@@ -2300,7 +2330,7 @@
 		  <thead>
 			<tr>
 			  <th>Card</th>
-			  <th>Benefit Year</th>
+			  <th>Yearly Start</th>
 			  <th>Total Used</th>
 			  <th>Breakdown</th>
 			</tr>
@@ -2348,8 +2378,8 @@
 		html += `
 		  <tr>
 			<td>${renderCardBadge(card)}</td>
-			<td>${startISO} → ${endISO}</td>
-			<td>$${formatUsageAmount(d.totalUsed)}</td>
+			<td>${startISO}</td>
+			<td>$${Math.round(d.totalUsed)}</td>
 			<td>${breakdownHtml}</td>
 		  </tr>
 		`;
