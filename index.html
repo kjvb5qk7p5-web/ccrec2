@@ -468,10 +468,19 @@
 	#rollingAnnualSummary .state-table td:nth-child(4) {
 	  width: 50%;             /* breakdown gets the runway */
 	}
+	
 	/* Rolling Annual breakdown table: Benefit wide, Used narrow + right aligned */
+	#rollingAnnualSummary table.rolling-breakdown {
+	  table-layout: fixed;   /* keep the Used column stable */
+	  width: 100%;
+	}
+
 	#rollingAnnualSummary table.rolling-breakdown th:nth-child(1),
 	#rollingAnnualSummary table.rolling-breakdown td:nth-child(1) {
 	  text-align: left;
+	  white-space: normal;        /* allow wrapping */
+	  overflow-wrap: anywhere;    /* wrap long chunks */
+	  word-break: break-word;     /* safe fallback */
 	}
 	
 	#rollingAnnualSummary table.rolling-breakdown th:nth-child(2),
