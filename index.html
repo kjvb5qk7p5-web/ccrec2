@@ -448,6 +448,21 @@
 	  background: #f7f7f7;
 	}
 	
+	#rollingAnnualSummary .rolling-summary-table details {
+	  display: inline-block;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table summary {
+	  cursor: pointer;
+	  list-style: none;
+	  white-space: nowrap;
+	  font-size: 0.75rem;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table summary::-webkit-details-marker {
+	  display: none;
+	}
+	
 	/* Column widths: compact summary row */
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(1),
 	#rollingAnnualSummary .rolling-summary-table td:nth-child(1) {
@@ -471,19 +486,19 @@
 	
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(4),
 	#rollingAnnualSummary .rolling-summary-table td:nth-child(4) {
-	  width: 13%;           /* Fee */
+	  width: 16%;           /* Fee */
 	  text-align: right;
 	  white-space: nowrap;
 	}
 	
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(5),
 	#rollingAnnualSummary .rolling-summary-table td:nth-child(5) {
-	  width: 31%;           /* Progress */
+	  width: 26%;           /* Progress */
 	}
 	
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(6),
 	#rollingAnnualSummary .rolling-summary-table td:nth-child(6) {
-	  width: 13%;           /* Details toggle */
+	  width: 15%;           /* Details toggle */
 	  text-align: center;
 	  white-space: nowrap;
 	}
@@ -523,6 +538,7 @@
 	/* Breakdown columns: Benefit wraps, Used fixed */
 	#rollingAnnualSummary table.rolling-breakdown th:nth-child(1),
 	#rollingAnnualSummary table.rolling-breakdown td:nth-child(1) {
+	  width: auto;
 	  text-align: left;
 	  white-space: normal;
 	  overflow-wrap: anywhere;
@@ -548,12 +564,14 @@
 	#rollingAnnualSummary .fee-progress-wrap {
 	  display: flex;
 	  align-items: center;
-	  gap: 8px;
+	  justify-content: flex-start;
+	  gap: 4px;
+	  min-width: 0;
 	}
 	
 	#rollingAnnualSummary .fee-progress {
-	  flex: 1;
-	  min-width: 90px;
+	  width: 96px;              /* fixed width for every row */
+	  flex: 0 0 96px;           /* do not grow/shrink */
 	  height: 10px;
 	  border-radius: 999px;
 	  background: #e9ecef;
@@ -568,9 +586,11 @@
 	}
 	
 	#rollingAnnualSummary .fee-progress-label {
-	  min-width: 42px;
+	  width: 34px;              /* fixed label width (e.g., 100%) */
+	  flex: 0 0 34px;
 	  text-align: right;
 	  white-space: nowrap;
+	  font-size: 0.72rem;
 	  font-variant-numeric: tabular-nums;
 	}
 	
@@ -584,6 +604,7 @@
 	#rollingAnnualSummary .rolling-total-row td:nth-child(4) {
 	  text-align: right;
 	}
+	
     /* Card badges */
     .card-badge {
       display: inline-block;
@@ -2539,14 +2560,14 @@
 			</td>
 			<td>
 			  <details id="${detailsId}">
-				<summary>Show</summary>
+				<summary>View</summary>
 			  </details>
 			</td>
 		  </tr>
 	
 		  <tr class="rolling-detail-row">
 			<td colspan="6">
-			  <table class="state-table rolling-breakdown">
+			  <table class="rolling-breakdown">
 				<thead>
 				  <tr>
 					<th>Benefit</th>
@@ -2572,7 +2593,7 @@
 	
 	  html += `
 		  <tr class="rolling-total-row">
-			<td colspan="2">All cards total</td>
+			<td colspan="2">Total</td>
 			<td>$${formatMoneyWhole(grandUsed)}</td>
 			<td>$${formatMoneyWhole(grandFees)}</td>
 			<td>
