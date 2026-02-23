@@ -217,6 +217,22 @@
     th {
       background: #f7f7f7;
     }
+
+	/* Rolling Annual breakdown: remove gridlines + keep it compact */
+	#rollingAnnualSummary table.rolling-breakdown,
+	#rollingAnnualSummary table.rolling-breakdown th,
+	#rollingAnnualSummary table.rolling-breakdown td {
+	  border: none !important;
+	}
+	
+	#rollingAnnualSummary table.rolling-breakdown {
+	  border-collapse: collapse;
+	}
+	
+	#rollingAnnualSummary table.rolling-breakdown th,
+	#rollingAnnualSummary table.rolling-breakdown td {
+	  padding: 2px 4px;
+	}
   
     /* Logged purchases table: extra small font */
     #loggedTable {
@@ -453,10 +469,6 @@
 	  width: 50%;             /* breakdown gets the runway */
 	}
 	/* Rolling Annual breakdown table: Benefit wide, Used narrow + right aligned */
-	#rollingAnnualSummary table.rolling-breakdown th,
-	#rollingAnnualSummary table.rolling-breakdown td {
-	  padding: 2px 4px;
-	}
 	#rollingAnnualSummary table.rolling-breakdown th:nth-child(1),
 	#rollingAnnualSummary table.rolling-breakdown td:nth-child(1) {
 	  text-align: left;
@@ -464,7 +476,7 @@
 	
 	#rollingAnnualSummary table.rolling-breakdown th:nth-child(2),
 	#rollingAnnualSummary table.rolling-breakdown td:nth-child(2) {
-	  width: 72px;          /* fixed width for $#### */
+	  width: 30px;          /* fixed width for $#### */
 	  text-align: right;
 	  white-space: nowrap;
 	}
