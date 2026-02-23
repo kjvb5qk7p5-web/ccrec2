@@ -494,6 +494,7 @@
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(5),
 	#rollingAnnualSummary .rolling-summary-table td:nth-child(5) {
 	  width: 26%;           /* Progress */
+	  text-align: left;
 	}
 	
 	#rollingAnnualSummary .rolling-summary-table th:nth-child(6),
@@ -562,11 +563,10 @@
 	
 	/* Progress bar */
 	#rollingAnnualSummary .fee-progress-wrap {
-	  display: flex;
+	  display: inline-flex;      
 	  align-items: center;
-	  justify-content: flex-start;
-	  gap: 4px;
-	  min-width: 0;
+	  gap: 3px;                  
+	  white-space: nowrap;
 	}
 	
 	#rollingAnnualSummary .fee-progress {
@@ -586,8 +586,8 @@
 	}
 	
 	#rollingAnnualSummary .fee-progress-label {
-	  width: 34px;              /* fixed label width (e.g., 100%) */
-	  flex: 0 0 34px;
+	  width: 30px;              /* fixed label width (e.g., 100%) */
+	  flex: 0 0 30px;
 	  text-align: right;
 	  white-space: nowrap;
 	  font-size: 0.72rem;
