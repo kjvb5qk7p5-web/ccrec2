@@ -452,6 +452,22 @@
 	#rollingAnnualSummary .state-table td:nth-child(4) {
 	  width: 50%;             /* breakdown gets the runway */
 	}
+	/* Rolling Annual breakdown table: Benefit wide, Used narrow + right aligned */
+	#rollingAnnualSummary table.rolling-breakdown th,
+	#rollingAnnualSummary table.rolling-breakdown td {
+	  padding: 2px 4px;
+	}
+	#rollingAnnualSummary table.rolling-breakdown th:nth-child(1),
+	#rollingAnnualSummary table.rolling-breakdown td:nth-child(1) {
+	  text-align: left;
+	}
+	
+	#rollingAnnualSummary table.rolling-breakdown th:nth-child(2),
+	#rollingAnnualSummary table.rolling-breakdown td:nth-child(2) {
+	  width: 72px;          /* fixed width for $#### */
+	  text-align: right;
+	  white-space: nowrap;
+	}
 
     /* Card badges */
     .card-badge {
@@ -2347,7 +2363,7 @@
 		const breakdownHtml = `
 		  <details>
 			<summary>Show</summary>
-			<table class="state-table" style="margin-top:6px;">
+			<table class="state-table rolling-breakdown" style="margin-top:6px;">
 			  <thead>
 				<tr>
 				  <th>Benefit</th>
