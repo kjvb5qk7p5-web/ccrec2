@@ -506,7 +506,7 @@
 	  padding: 6px 8px;
 	}
 	
-	/* Remove borders / gridlines in nested breakdown for a cleaner look */
+	/* Strip table borders, keep subtle row separators in nested breakdown for a cleaner look */
 	#rollingAnnualSummary table.rolling-breakdown,
 	#rollingAnnualSummary table.rolling-breakdown th,
 	#rollingAnnualSummary table.rolling-breakdown td {
@@ -1501,8 +1501,8 @@
     }
 
     function saveTransactions(txs) {
-      safeSetItem(STORAGE_KEY, JSON.stringify(txs));
-    }
+	  return safeSetItem(STORAGE_KEY, JSON.stringify(txs));
+	}
 
     // ---------- Merchant benefits storage ----------
     function loadMerchantBenefits() {
@@ -1518,8 +1518,8 @@
     }
 
     function saveMerchantBenefits(benefits) {
-      safeSetItem(MERCHANT_BENEFITS_KEY, JSON.stringify(benefits));
-    }
+	  return safeSetItem(MERCHANT_BENEFITS_KEY, JSON.stringify(benefits));
+	}
 
     function findBenefitById(id, benefits) {
       return benefits.find((b) => b.id === id) || null;
@@ -3727,59 +3727,59 @@
       }
     });
 
-    // Save transaction
-    document.getElementById("btnSaveTx").addEventListener("click", () => {
-      if (!lastRecommendation) {
-        alert("Get a recommendation first.");
-        return;
-      }
-      const overrideCard = document.getElementById("cardUsedSelect").value;
-      const overrideChannel = document.getElementById("channelUsedSelect").value;
-
-      const cardUsed = overrideCard || lastRecommendation.rec.card;
-      const channelUsed = overrideChannel || lastRecommendation.rec.channel;
-
-      const tx = {
-        date: lastRecommendation.purchase.date,
-        amount: lastRecommendation.purchase.amount,
-        category: lastRecommendation.purchase.category,
-        channel: channelUsed,
-        cardUsed,
-        merchantBenefitId: lastRecommendation.purchase.merchantBenefitId || null,
-      };
-
-      const txs = loadTransactions();
-      txs.push(tx);
-      saveTransactions(txs);
-      renderTransactions();
-      renderStateSummary();
-      renderRollingAnnualSummary();
-      populateCategorySelect();
-      populateMerchantBenefitCategorySelect();
-      renderMerchantBenefits(); 
-
-      // Auto-hide the recommendation section after saving
-      document.getElementById("recommendationSection").style.display = "none";
-      document.getElementById("recommendationBox").textContent = "";
-      document.getElementById("reasonBox").textContent = "";
-      
-      // Clear the form
-      document.getElementById("amount").value = "";
-      document.getElementById("category").value = "dining";
-      
-      lastRecommendation = null;
-      
-      try {
-		  saveTransactions(txs);
-		  renderMerchantBenefits();
-		  renderStateSummary();
-		  renderRollingAnnualSummary();
-		} catch (e) {
-		  showToast("⚠️ Unable to save transactions — storage full or private mode.");
-		}
-
-      showToast("✓ Purchase saved");
-    });
+	// Save transaction
+	document.getElementById("btnSaveTx").addEventListener("click", () => {
+	  if (!lastRecommendation) {
+		alert("Get a recommendation first.");
+		return;
+	  }
+	
+	  const overrideCard = document.getElementById("cardUsedSelect").value;
+	  const overrideChannel = document.getElementById("channelUsedSelect").value;
+	
+	  const cardUsed = overrideCard || lastRecommendation.rec.card;
+	  const channelUsed = overrideChannel || lastRecommendation.rec.channel;
+	
+	  const tx = {
+		date: lastRecommendation.purchase.date,
+		amount: lastRecommendation.purchase.amount,
+		category: lastRecommendation.purchase.category,
+		channel: channelUsed,
+		cardUsed,
+		merchantBenefitId: lastRecommendation.purchase.merchantBenefitId || null,
+	  };
+	
+	  const txs = loadTransactions();
+	  txs.push(tx);
+	
+	  // Save first and check success explicitly
+	  const ok = saveTransactions(txs);
+	  if (!ok) {
+		showToast("⚠️ Unable to save transactions — storage full or private mode.");
+		return;
+	  }
+	
+	  // Re-render everything that depends on transactions
+	  renderTransactions();
+	  renderStateSummary();
+	  renderRollingAnnualSummary();
+	  populateCategorySelect();
+	  populateMerchantBenefitCategorySelect();
+	  renderMerchantBenefits();
+	
+	  // Auto-hide the recommendation section after saving
+	  document.getElementById("recommendationSection").style.display = "none";
+	  document.getElementById("recommendationBox").textContent = "";
+	  document.getElementById("reasonBox").textContent = "";
+	
+	  // Clear the form
+	  document.getElementById("amount").value = "";
+	  document.getElementById("category").value = "dining";
+	
+	  lastRecommendation = null;
+	
+	  showToast("✓ Purchase saved");
+	});
 
     // Reset New Purchase section
     document.getElementById("btnReset").addEventListener("click", () => {
@@ -3853,114 +3853,111 @@
       }
     });
 
-    // Add merchant benefit
-    document.getElementById("btnAddBenefit").addEventListener("click", () => {
-      const merchant = document.getElementById("benefitMerchant").value.trim();
-      const card = document.getElementById("benefitCard").value;
-      const discountType = document.getElementById("benefitDiscountType").value;
-      const discountValueRaw = document.getElementById("benefitDiscountValue").value;
-      const limitType = document.getElementById("benefitLimitType").value;
-      const limitValueRaw = document.getElementById("benefitLimitValue").value;
-      const maxTxRaw = document.getElementById("benefitMaxTx").value;
-      const minSpendRaw = document.getElementById("benefitMinSpend").value;
-      const endDate = document.getElementById("benefitEndDate").value;
-      const category = document.getElementById("benefitCategorySelect").value;
-
-      if (!merchant || !card || !discountType || !discountValueRaw || !endDate || !category) {
-        alert("Please fill at least Merchant, Card, Discount type/value, End date, and Category.");
-        return;
-      }
-
-      // Validate that category is actually valid
-      const validCategories = BASE_CATEGORIES.map(c => c.value);
-      if (!validCategories.includes(category)) {
-        alert("Invalid category selected. Please choose a valid category.");
-        return;
-      }
-
-      const discountValue = Number(discountValueRaw);
-      if (isNaN(discountValue) || discountValue <= 0) {
-        alert("Discount value must be a positive number.");
-        return;
-      }
-
-      let limitValue = null;
-      if (limitValueRaw !== "") {
-        limitValue = Number(limitValueRaw);
-        if (isNaN(limitValue) || limitValue < 0) {
-          alert("Discount limit value must be a non-negative number.");
-          return;
-        }
-      }
-
-      let minSpend = null;
-      if (minSpendRaw !== "") {
-        minSpend = Number(minSpendRaw);
-        if (isNaN(minSpend) || minSpend < 0) {
-          alert("Minimum spend must be a non-negative number.");
-          return;
-        }
-      }
-
-      let maxTransactions = null;
-      if (maxTxRaw !== "") {
-        maxTransactions = Number(maxTxRaw);
-        if (
-          isNaN(maxTransactions) ||
-          maxTransactions < 0 ||
-          !Number.isInteger(maxTransactions)
-        ) {
-          alert("Maximum transactions must be a non-negative whole number.");
-          return;
-        }
-      }
-
-      const id = "mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-
-      const newBenefit = {
-        id,
-        merchant,
-        card,
-        discountType,
-        discountValue,
-        limitType,
-        limitValue,
-        minSpend,
-        endDate,
-        category,
-        maxTransactions,
-      };
-
-      const benefits = loadMerchantBenefits();
-      benefits.push(newBenefit);
-      saveMerchantBenefits(benefits);
-
-      // Clear inputs
-      document.getElementById("benefitMerchant").value = "";
-      document.getElementById("benefitDiscountValue").value = "";
-      document.getElementById("benefitLimitValue").value = "";
-      document.getElementById("benefitMinSpend").value = "";
-      document.getElementById("benefitEndDate").value = "";
-      document.getElementById("benefitMaxTx").value = "";
-
-      renderMerchantBenefits();
-      populateCategorySelect();
-      populateMerchantBenefitCategorySelect();
-      renderStateSummary();
-      renderRollingAnnualSummary();
-      
-	  try {
-		  saveMerchantBenefits(benefits);
-		  renderMerchantBenefits();
-		  renderStateSummary();
-		  renderRollingAnnualSummary();
-		  populateCategorySelect();
-		} catch (e) {
-		  showToast("⚠️ Unable to save merchant benefits.");
+	// Add merchant benefit
+	document.getElementById("btnAddBenefit").addEventListener("click", () => {
+	  const merchant = document.getElementById("benefitMerchant").value.trim();
+	  const card = document.getElementById("benefitCard").value;
+	  const discountType = document.getElementById("benefitDiscountType").value;
+	  const discountValueRaw = document.getElementById("benefitDiscountValue").value;
+	  const limitType = document.getElementById("benefitLimitType").value;
+	  const limitValueRaw = document.getElementById("benefitLimitValue").value;
+	  const maxTxRaw = document.getElementById("benefitMaxTx").value;
+	  const minSpendRaw = document.getElementById("benefitMinSpend").value;
+	  const endDate = document.getElementById("benefitEndDate").value;
+	  const category = document.getElementById("benefitCategorySelect").value;
+	
+	  if (!merchant || !card || !discountType || !discountValueRaw || !endDate || !category) {
+		alert("Please fill at least Merchant, Card, Discount type/value, End date, and Category.");
+		return;
+	  }
+	
+	  // Validate that category is actually valid
+	  const validCategories = BASE_CATEGORIES.map(c => c.value);
+	  if (!validCategories.includes(category)) {
+		alert("Invalid category selected. Please choose a valid category.");
+		return;
+	  }
+	
+	  const discountValue = Number(discountValueRaw);
+	  if (isNaN(discountValue) || discountValue <= 0) {
+		alert("Discount value must be a positive number.");
+		return;
+	  }
+	
+	  let limitValue = null;
+	  if (limitValueRaw !== "") {
+		limitValue = Number(limitValueRaw);
+		if (isNaN(limitValue) || limitValue < 0) {
+		  alert("Discount limit value must be a non-negative number.");
+		  return;
 		}
-
-      showToast("✓ Merchant Benefit saved");
-    });
+	  }
+	
+	  let minSpend = null;
+	  if (minSpendRaw !== "") {
+		minSpend = Number(minSpendRaw);
+		if (isNaN(minSpend) || minSpend < 0) {
+		  alert("Minimum spend must be a non-negative number.");
+		  return;
+		}
+	  }
+	
+	  let maxTransactions = null;
+	  if (maxTxRaw !== "") {
+		maxTransactions = Number(maxTxRaw);
+		if (
+		  isNaN(maxTransactions) ||
+		  maxTransactions < 0 ||
+		  !Number.isInteger(maxTransactions)
+		) {
+		  alert("Maximum transactions must be a non-negative whole number.");
+		  return;
+		}
+	  }
+	
+	  const id = "mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+	
+	  const newBenefit = {
+		id,
+		merchant,
+		card,
+		discountType,
+		discountValue,
+		limitType,
+		limitValue,
+		minSpend,
+		endDate,
+		category,
+		maxTransactions,
+	  };
+	
+	  const benefits = loadMerchantBenefits();
+	  benefits.push(newBenefit);
+	
+	  // Save first and check success explicitly
+	  const ok = saveMerchantBenefits(benefits);
+	  if (!ok) {
+		showToast("⚠️ Unable to save merchant benefits.");
+		return;
+	  }
+	
+	  // Clear inputs (only after successful save)
+	  document.getElementById("benefitMerchant").value = "";
+	  document.getElementById("benefitDiscountValue").value = "";
+	  document.getElementById("benefitLimitValue").value = "";
+	  document.getElementById("benefitMinSpend").value = "";
+	  document.getElementById("benefitEndDate").value = "";
+	  document.getElementById("benefitMaxTx").value = "";
+	
+	  // Re-render everything that depends on merchant benefits
+	  renderMerchantBenefits();
+	  populateCategorySelect();
+	  populateMerchantBenefitCategorySelect();
+	  renderStateSummary();
+	  renderRollingAnnualSummary();
+	
+	  showToast("✓ Merchant Benefit saved");
+	});
 
     // Event delegation for transaction delete (set up once)
     document.getElementById("txTableBody").addEventListener("click", (e) => {
