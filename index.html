@@ -1040,6 +1040,28 @@
 	  return `${yyyy}-${mm}-${dd}`;
 	}
 
+	function formatBenefitEndDateDisplay(endDateStr, todayDate) {
+	  if (!endDateStr) return "";
+	
+	  const d = parseISODateLocal(endDateStr);
+	  if (!d) return endDateStr; // fallback if malformed
+	
+	  const today = todayDate || parseISODateLocal(formatTodayISO());
+	  const currentYear = today ? today.getFullYear() : new Date().getFullYear();
+	
+	  const mm = String(d.getMonth() + 1).padStart(2, "0");
+	  const dd = String(d.getDate()).padStart(2, "0");
+	  const yyyy = d.getFullYear();
+	
+	  // Current year: MM/DD
+	  if (yyyy === currentYear) {
+		return `${mm}/${dd}`;
+	  }
+	
+	  // Prior or future year: MM/DD/YYYY
+	  return `${mm}/${dd}/${yyyy}`;
+	}
+
     function showToast(message) {
       const toast = document.createElement('div');
       toast.className = 'toast';
@@ -2327,7 +2349,7 @@
         }
     
         // Time text: just the date, optional "(expired)" – no "thru"
-        let timeText = benefit.endDate || "";
+        let timeText = formatBenefitEndDateDisplay(benefit.endDate, today);
         if (expired) {
           timeText = timeText ? `${timeText} Expired` : "Expired";
         }
@@ -2362,6 +2384,10 @@
         const headerLabel = isMerchantTable
           ? "Merchant<br>Offer"
           : "Credit Card<br>Benefit";
+          
+        const timingLabel = isMerchantTable
+          ? "Expiry"
+          : "Timing";
       
         const tableHtml = `
           <div${isMerchantTable ? ' style="margin-top:8px;"' : ""}>
@@ -2372,7 +2398,7 @@
                   <tr>
                     <th>${headerLabel}</th>
                     <th>Card</th>
-                    <th>Time</th>
+                    <th>${timingLabel}</th>
                     <th>Usage</th>
                   </tr>
                 </thead>
