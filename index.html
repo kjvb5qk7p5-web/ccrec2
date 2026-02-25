@@ -1592,6 +1592,9 @@
           }
 
 		// Import the data (save first, verify both succeeded)
+		const oldTxs = loadTransactions();
+		const oldBenefits = loadMerchantBenefits();
+		
 		const txOk = saveTransactions(data.transactions);
 		if (!txOk) {
 		  showToast("⚠️ Unable to import transactions — storage full or private mode.");
@@ -1600,7 +1603,9 @@
 		
 		const benefitsOk = saveMerchantBenefits(data.merchantBenefits);
 		if (!benefitsOk) {
-		  showToast("⚠️ Transactions imported, but merchant benefits could not be saved.");
+		  // Roll back transactions so import is all-or-nothing
+		  saveTransactions(oldTxs);
+		  showToast("⚠️ Import failed — merchant benefits could not be saved. No changes were applied.");
 		  return;
 		}
 		
@@ -3522,7 +3527,7 @@
         const limitText = parts.join("; ");
     
         const categoryText = b.category || "";
-        const endDateText = b.endDate || "";
+        const endDateText = formatBenefitEndDateDisplay(b.endDate, today);
     
         // usage / tx-count state
         const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
@@ -3999,8 +4004,10 @@
 		const confirmed = confirm(`Delete ${desc}?`);
 		if (!confirmed) return;
 		
-		txs.splice(idx, 1);
-		const savedOk = saveTransactions(txs);
+		const nextTxs = txs.slice();
+		nextTxs.splice(idx, 1);
+		
+		const savedOk = saveTransactions(nextTxs);
 		if (!savedOk) {
 		  showToast("⚠️ Unable to delete transaction — storage full or private mode.");
 		  return;
@@ -4027,8 +4034,10 @@
 		const confirmed = confirm(`Delete merchant benefit for ${name}?`);
 		if (!confirmed) return;
 		
-		benefits.splice(idx, 1);
-		const savedOk = saveMerchantBenefits(benefits);
+		const nextBenefits = benefits.slice();
+		nextBenefits.splice(idx, 1);
+		
+		const savedOk = saveMerchantBenefits(nextBenefits);
 		if (!savedOk) {
 		  showToast("⚠️ Unable to delete merchant benefit — storage full or private mode.");
 		  return;
