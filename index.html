@@ -1095,6 +1095,15 @@
       el.textContent = message || "";
     }
 
+	function refreshAllViews() {
+	  renderTransactions();
+	  renderMerchantBenefits();
+	  populateCategorySelect();
+	  populateMerchantBenefitCategorySelect();
+	  renderStateSummary();
+	  renderRollingAnnualSummary();
+	}
+
     // Base categories (what used to be hard-coded in the HTML select)
     const BASE_CATEGORIES = [
       { value: "dining",              label: "🍔 Dining- Restaurants" },
@@ -1582,19 +1591,28 @@
             return;
           }
 
-          // Import the data
-          saveTransactions(data.transactions);
-          saveMerchantBenefits(data.merchantBenefits);
-
-          // Re-render everything
-          renderTransactions();
-          renderMerchantBenefits();
-          populateCategorySelect();
-		  populateMerchantBenefitCategorySelect();
-          renderStateSummary();
-          renderRollingAnnualSummary();
-
-          alert(`Successfully imported ${txCount} transactions and ${benefitCount} merchant benefits!`);
+		// Import the data (save first, verify both succeeded)
+		const txOk = saveTransactions(data.transactions);
+		if (!txOk) {
+		  showToast("⚠️ Unable to import transactions — storage full or private mode.");
+		  return;
+		}
+		
+		const benefitsOk = saveMerchantBenefits(data.merchantBenefits);
+		if (!benefitsOk) {
+		  showToast("⚠️ Transactions imported, but merchant benefits could not be saved.");
+		  return;
+		}
+		
+		// Re-render everything
+		renderTransactions();
+		renderMerchantBenefits();
+		populateCategorySelect();
+		populateMerchantBenefitCategorySelect();
+		renderStateSummary();
+		renderRollingAnnualSummary();
+		
+		alert(`Successfully imported ${txCount} transactions and ${benefitCount} merchant benefits!`);
 
         } catch (error) {
           alert("Error reading backup file. Make sure it's a valid JSON file exported from this app.");
@@ -3807,16 +3825,22 @@
     });
 
     // Clear all tx
-    document.getElementById("btnClear").addEventListener("click", () => {
-      if (!confirm("Clear all logged purchases?")) return;
-      saveTransactions([]);
-      renderTransactions();
-      renderStateSummary();
-      renderRollingAnnualSummary();
-      populateCategorySelect();
-      populateMerchantBenefitCategorySelect();
-      renderMerchantBenefits(); 
-    });
+	document.getElementById("btnClear").addEventListener("click", () => {
+	  if (!confirm("Clear all logged purchases?")) return;
+	
+	  const ok = saveTransactions([]);
+	  if (!ok) {
+		showToast("⚠️ Unable to clear transactions — storage full or private mode.");
+		return;
+	  }
+	
+	  renderTransactions();
+	  renderStateSummary();
+	  renderRollingAnnualSummary();
+	  populateCategorySelect();
+	  populateMerchantBenefitCategorySelect();
+	  renderMerchantBenefits();
+	});
 
     // Show/Hide Logged Purchases
     const logContent = document.getElementById("logContent");
@@ -3976,14 +4000,18 @@
       if (!ok) return;
 
       txs.splice(idx, 1);
-      saveTransactions(txs);
-
-      // Re-render everything that depends on txs
-      renderTransactions();
-      renderStateSummary();
-      renderRollingAnnualSummary();
-      populateCategorySelect(); // merchant offers might re-open if usage drops
-      renderMerchantBenefits(); 
+		const ok = saveTransactions(txs);
+		if (!ok) {
+		  showToast("⚠️ Unable to delete transaction — storage full or private mode.");
+		  return;
+		}
+		
+		// Re-render everything that depends on txs
+		renderTransactions();
+		renderStateSummary();
+		renderRollingAnnualSummary();
+		populateCategorySelect(); // merchant offers might re-open if usage drops
+		renderMerchantBenefits();
     });
       
     // Event delegation for benefit delete (set up once)
@@ -4000,11 +4028,16 @@
       if (!ok) return;
 
       benefits.splice(idx, 1);
-      saveMerchantBenefits(benefits);
-      renderMerchantBenefits();
-      populateCategorySelect(); // keep the New Purchase categories in sync
-      renderStateSummary();     // and the top usage summary
-      renderRollingAnnualSummary();
+		const ok = saveMerchantBenefits(benefits);
+		if (!ok) {
+		  showToast("⚠️ Unable to delete merchant benefit — storage full or private mode.");
+		  return;
+		}
+		
+		renderMerchantBenefits();
+		populateCategorySelect(); // keep the New Purchase categories in sync
+		renderStateSummary();     // and the top usage summary
+		renderRollingAnnualSummary();
     });
       
     // Event delegation for export/import buttons (they're inside hidden section)
