@@ -3996,12 +3996,12 @@
         ? `${tx.date || ""}  $${Number(tx.amount || 0).toFixed(2)}  ${tx.category || ""}`.trim()
         : "this transaction";
 
-      const ok = confirm(`Delete ${desc}?`);
-      if (!ok) return;
-
-      txs.splice(idx, 1);
-		const ok = saveTransactions(txs);
-		if (!ok) {
+		const confirmed = confirm(`Delete ${desc}?`);
+		if (!confirmed) return;
+		
+		txs.splice(idx, 1);
+		const savedOk = saveTransactions(txs);
+		if (!savedOk) {
 		  showToast("⚠️ Unable to delete transaction — storage full or private mode.");
 		  return;
 		}
@@ -4024,12 +4024,12 @@
       const benefit = benefits[idx];
       const name = benefit && benefit.merchant ? benefit.merchant : "this benefit";
 
-      const ok = confirm(`Delete merchant benefit for ${name}?`);
-      if (!ok) return;
-
-      benefits.splice(idx, 1);
-		const ok = saveMerchantBenefits(benefits);
-		if (!ok) {
+		const confirmed = confirm(`Delete merchant benefit for ${name}?`);
+		if (!confirmed) return;
+		
+		benefits.splice(idx, 1);
+		const savedOk = saveMerchantBenefits(benefits);
+		if (!savedOk) {
 		  showToast("⚠️ Unable to delete merchant benefit — storage full or private mode.");
 		  return;
 		}
