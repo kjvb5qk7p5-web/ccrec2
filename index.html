@@ -755,7 +755,7 @@
 
   <!-- Current month / year credit usage summary -->
   <div class="card">
-    <h2>Card Benefits & <br>Merchant Offers Usage</h2>
+    <h2>Credit Card Benefits & <br>Merchant Offers</h2>
     <div id="stateSummary" class="muted"></div>
   </div>
 
@@ -2125,6 +2125,77 @@
         });
       }
     
+      // AG Resy $50 per semi-annual period
+      {
+        const limit = 50;
+        const used = Math.min(cardState.agResyThisPeriod || 0, limit);
+        ccRows.push({
+          label: "Resy dining",
+          labelHtml:
+            '<a href="https://www.resy.com" ' +
+            'target="_blank" rel="noopener noreferrer">Resy</a>' +
+            ' dining',
+          card: "AG",
+          time: getSemiannualLabel(),
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+
+      // AG Dining partners $10/month
+      {
+        const limit = 10;
+        const used = Math.min(cardState.agDiningPartnersThisMonth || 0, limit);
+        ccRows.push({
+          label: "Dining partners (GrubHub/Seamless, Cheesecake Factory, Goldbelly, Five Guys, Wine.com)",
+          labelHtml:
+            'Dining partners (' +
+            '<a href="https://www.grubhub.com" ' +
+            'target="_blank" rel="noopener noreferrer">GrubHub</a>' +
+            '/' +
+            '<a href="https://www.seamless.com" ' +
+            'target="_blank" rel="noopener noreferrer">Seamless</a>' +
+            ', Cheesecake Factory, Goldbelly, Five Guys, '+
+            '<a href="https://www.wine.com" ' +
+            'target="_blank" rel="noopener noreferrer">Wine&#46;com</a>'+
+            ')',
+          card: "AG",
+          time: "Monthly",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+
+      // AG Dunkin $7/month
+      {
+        const limit = 7;
+        const used = Math.min(cardState.agDunkinThisMonth || 0, limit);
+        ccRows.push({
+          label: "Dunkin",
+          card: "AG",
+          time: "Monthly",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+    
+      // AG Uber Cash $10/month (rides + Uber Eats)
+      {
+        const limit = 10;
+        const used = Math.min(cardState.agUberThisMonth || 0, limit);
+        ccRows.push({
+          label: "Uber rides + Eats",
+          labelHtml:
+            '<a href="https://www.uber.com" ' +
+            'target="_blank" rel="noopener noreferrer">Uber</a>' +
+            ' rides + Eats',
+          card: "AG",
+          time: "Monthly",
+          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+          fullyUsed: used >= limit,
+        });
+      }
+
       // UQ Rideshare $8/month
       {
         const limit = 8;
@@ -2206,77 +2277,6 @@
         ccRows.push({
           label: "Dining credit",
           card: "MB",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-
-      // AG Resy $50 per semi-annual period
-      {
-        const limit = 50;
-        const used = Math.min(cardState.agResyThisPeriod || 0, limit);
-        ccRows.push({
-          label: "Resy dining",
-          labelHtml:
-            '<a href="https://www.resy.com" ' +
-            'target="_blank" rel="noopener noreferrer">Resy</a>' +
-            ' dining',
-          card: "AG",
-          time: getSemiannualLabel(),
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-
-      // AG Dining partners $10/month
-      {
-        const limit = 10;
-        const used = Math.min(cardState.agDiningPartnersThisMonth || 0, limit);
-        ccRows.push({
-          label: "Dining partners (GrubHub/Seamless, Cheesecake Factory, Goldbelly, Five Guys, Wine.com)",
-          labelHtml:
-            'Dining partners (' +
-            '<a href="https://www.grubhub.com" ' +
-            'target="_blank" rel="noopener noreferrer">GrubHub</a>' +
-            '/' +
-            '<a href="https://www.seamless.com" ' +
-            'target="_blank" rel="noopener noreferrer">Seamless</a>' +
-            ', Cheesecake Factory, Goldbelly, Five Guys, '+
-            '<a href="https://www.wine.com" ' +
-            'target="_blank" rel="noopener noreferrer">Wine&#46;com</a>'+
-            ')',
-          card: "AG",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-
-      // AG Dunkin $7/month
-      {
-        const limit = 7;
-        const used = Math.min(cardState.agDunkinThisMonth || 0, limit);
-        ccRows.push({
-          label: "Dunkin",
-          card: "AG",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // AG Uber Cash $10/month (rides + Uber Eats)
-      {
-        const limit = 10;
-        const used = Math.min(cardState.agUberThisMonth || 0, limit);
-        ccRows.push({
-          label: "Uber rides + Eats",
-          labelHtml:
-            '<a href="https://www.uber.com" ' +
-            'target="_blank" rel="noopener noreferrer">Uber</a>' +
-            ' rides + Eats',
-          card: "AG",
           time: "Monthly",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
           fullyUsed: used >= limit,
