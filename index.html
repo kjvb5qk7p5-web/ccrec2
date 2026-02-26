@@ -1648,8 +1648,8 @@
     
         tdDate.textContent = tx.date || "";
         tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
-        tdCat.textContent = tx.category || "";
-        tdChan.textContent = tx.channel || "";
+        tdCat.textContent = getCategoryLabel(tx.category) || tx.category || "";
+		tdChan.textContent = CHANNEL_LABELS[tx.channel] || tx.channel || "";
     
         if (tx.cardUsed) {
           // Build a special badge just for the log, with a data index
@@ -1761,7 +1761,7 @@
           if (tx.cardUsed === "CSR" && tx.category === "doordash") {
             csrDoordashThisMonth += amt;
           }
-          if (tx.cardUsed === "CSR" && tx.category === "doordash_groceries") {
+          if (tx.cardUsed === "CSR" && tx.category === "doordash_groceries" && amt > 0) {
             csrDoordashGroceriesThisMonth += Math.min(10, amt);
             csrDoordashGroceriesTxThisMonth += 1;
           }
@@ -1849,7 +1849,7 @@
           if (tx.cardUsed === "DG") {
             dg10kSpendYTD += amt;
           }
-          if (tx.cardUsed === "UQ" && tx.category === "uq_rentalcar") {
+          if (tx.cardUsed === "UQ" && tx.category === "uq_rentalcar" && amt > 0) {
             uqRentalCarYTD += Math.min(40, amt);
             uqRentalCarTxYTD += 1;
           }
@@ -2797,7 +2797,7 @@
             card: "CSR",
             channel: "doordash",
             reason:
-              "Use Chase Sapphire first to use the $5 monthly Doordash/food-delivery credit.",
+              "Use Chase Sapphire first to use the $5 monthly Doordash restaurant delivery credit.",
           };
         }
         return {
@@ -2820,7 +2820,7 @@
         }
         return {
           card: "CSR",
-          channel: "direct",
+          channel: "uber_app",
           reason:
             "Uber Cash for this month is used up; default back to Chase Sapphire for flexible points.",
         };
