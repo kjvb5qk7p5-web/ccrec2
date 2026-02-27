@@ -685,67 +685,6 @@
       0%, 100% { opacity: 0; }
       10%, 90% { opacity: 1; }
     }
-    
-	/* =============================================
-	   FLOATING SAVE BUTTON
-	   ============================================= */
-	
-	#floatingSaveBar {
-	  position: fixed;
-	  bottom: 0;
-	  left: 0;
-	  right: 0;
-	  z-index: 200;
-	  display: flex;
-	  justify-content: center;
-	  border-top: 1px solid #ddd;
-	  background: #fff;
-	  opacity: 0;
-	  pointer-events: none;
-	  transition: opacity 0.2s ease;
-	}
-	
-	#floatingSaveBar.visible {
-	  opacity: 1;
-	  pointer-events: auto;
-	}
-	
-	#floatingSaveBar .float-inner {
-	  width: 100%;
-	  max-width: 900px;
-	  padding: 8px 20px;
-	  padding-bottom: calc(8px + env(safe-area-inset-bottom));
-	  box-sizing: border-box;
-	}
-	
-	#btnFloatingSave {
-	  width: 100%;
-	  padding: 10px 16px;
-	  font-size: 1.1rem;
-	  font-family: inherit;
-	  background: #0b6efd;
-	  color: white;
-	  border: 1px solid #0b6efd;
-	  border-radius: 4px;
-	  cursor: pointer;
-	  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-	  display: flex;
-	  align-items: center;
-	  justify-content: center;
-	  gap: 8px;
-	  white-space: nowrap;
-	  overflow: hidden;
-	  text-overflow: ellipsis;
-	}
-	
-	#btnFloatingSave:active {
-	  background: #0958d9;
-	  border-color: #0958d9;
-	}
-	
-	body.float-bar-visible {
-	  padding-bottom: 72px;
-	}
 
   </style>
 </head>
@@ -3655,30 +3594,6 @@
       });
     }
 
-	// ---------- Floating Save Bar ----------
-	
-	let floatingSaveTimer = null;
-	
-	function showFloatingSaveBar(rec) {
-	  const bar = document.getElementById("floatingSaveBar");
-	  const btn = document.getElementById("btnFloatingSave");
-	  if (!bar || !btn) return;
-	  const channelPlain = CHANNEL_LABELS[rec.channel] || rec.channel || "";
-	  btn.innerHTML = `Save &nbsp; ${renderCardBadge(rec.card)} &nbsp; ${escapeHtml(channelPlain)}`;
-	  clearTimeout(floatingSaveTimer);
-	  floatingSaveTimer = setTimeout(() => {
-		bar.classList.add("visible");
-		document.body.classList.add("float-bar-visible");
-	  }, 400);
-	}
-	
-	function hideFloatingSaveBar() {
-	  clearTimeout(floatingSaveTimer);
-	  const bar = document.getElementById("floatingSaveBar");
-	  if (bar) bar.classList.remove("visible");
-	  document.body.classList.remove("float-bar-visible");
-	}
-	
     // ---------- UI wiring ----------
 
     let lastRecommendation = null;
@@ -3813,7 +3728,6 @@
       // New centralized renderer
       renderRecommendationSection(rec);
       document.getElementById("recommendationSection").style.display = "block";
-      showFloatingSaveBar(rec);
     
       // Reset override dropdowns
       const cardSel = document.getElementById("cardUsedSelect");
@@ -3837,7 +3751,7 @@
     });
 
 	// Save transaction
-	function savePurchase() {
+	document.getElementById("btnSaveTx").addEventListener("click", () => {
 	  if (!lastRecommendation) {
 		alert("Get a recommendation first.");
 		return;
@@ -3845,6 +3759,7 @@
 	
 	  const overrideCard = document.getElementById("cardUsedSelect").value;
 	  const overrideChannel = document.getElementById("channelUsedSelect").value;
+	
 	  const cardUsed = overrideCard || lastRecommendation.rec.card;
 	  const channelUsed = overrideChannel || lastRecommendation.rec.channel;
 	
@@ -3860,12 +3775,14 @@
 	  const txs = loadTransactions();
 	  txs.push(tx);
 	
+	  // Save first and check success explicitly
 	  const ok = saveTransactions(txs);
 	  if (!ok) {
 		showToast("⚠️ Unable to save transactions — storage full or private mode.");
 		return;
 	  }
 	
+	  // Re-render everything that depends on transactions
 	  renderTransactions();
 	  renderStateSummary();
 	  renderRollingAnnualSummary();
@@ -3873,20 +3790,19 @@
 	  populateMerchantBenefitCategorySelect();
 	  renderMerchantBenefits();
 	
-	  hideFloatingSaveBar();
+	  // Auto-hide the recommendation section after saving
 	  document.getElementById("recommendationSection").style.display = "none";
 	  document.getElementById("recommendationBox").textContent = "";
 	  document.getElementById("reasonBox").textContent = "";
 	
+	  // Clear the form
 	  document.getElementById("amount").value = "";
 	  document.getElementById("category").value = "dining";
 	
 	  lastRecommendation = null;
-	  showToast("✓ Purchase saved");
-	}
 	
-	document.getElementById("btnSaveTx").addEventListener("click", savePurchase);
-	document.getElementById("btnFloatingSave").addEventListener("click", savePurchase);
+	  showToast("✓ Purchase saved");
+	});
 
     // Reset New Purchase section
     document.getElementById("btnReset").addEventListener("click", () => {
@@ -3902,7 +3818,6 @@
         categorySelect.value = categorySelect.options[0].value;
       }
 
-      hideFloatingSaveBar();
       document.getElementById("recommendationSection").style.display = "none";
       document.getElementById("recommendationBox").textContent = "";
       document.getElementById("reasonBox").textContent = "";
@@ -4191,10 +4106,5 @@
     renderStateSummary();
     renderRollingAnnualSummary();
   </script>
-	<div id="floatingSaveBar">
-	  <div class="float-inner">
-		<button id="btnFloatingSave" type="button"></button>
-	  </div>
-	</div>
 </body>
 </html>
