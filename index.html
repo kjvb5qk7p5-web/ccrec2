@@ -711,6 +711,7 @@
 	}
 	
 	#floatingSaveBar .float-inner {
+	  position: relative;
 	  width: 100%;
 	  max-width: 900px;
 	  padding: 8px 20px;
@@ -741,6 +742,26 @@
 	#btnFloatingSave:active {
 	  background: #0958d9;
 	  border-color: #0958d9;
+	}
+	
+	.floating-save-close {
+	  position: absolute;
+	  top: 4px;
+	  right: 6px;
+	  border: none;
+	  background: transparent;
+	  padding: 0;
+	  margin: 0;
+	  font-size: 0.85rem;
+	  line-height: 1;
+	  cursor: pointer;
+	  color: #666;
+	  width: 18px;
+	  height: 18px;
+	}
+	
+	.floating-save-close:hover {
+	  color: #000;
 	}
 	
 	body.float-bar-visible {
@@ -961,6 +982,7 @@
   </div>
 	<div id="floatingSaveBar">
 	  <div class="float-inner">
+		<button id="floatingSaveCloseBtn" class="floating-save-close" type="button" aria-label="Dismiss save bar">×</button>
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
@@ -4166,7 +4188,12 @@
         }
       }
     });
-      
+
+	// Dismiss floating Save button if needed
+	document.getElementById("floatingSaveCloseBtn").addEventListener("click", () => {
+	  hideFloatingSaveBar();
+	});
+
     // Init on load
     initFormDefaults();               // sets date to today
     renderTransactions();
