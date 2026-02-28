@@ -1060,6 +1060,14 @@
 		},
 	];
 
+	const ROLLING_BENEFITS_BY_CARD = ROLLING_BENEFITS.reduce((acc, benefit) => {
+	  if (!acc[benefit.card]) {
+		acc[benefit.card] = [];
+	  }
+	  acc[benefit.card].push(benefit);
+	  return acc;
+	}, {});
+
 	// Rolling annual benefit-year anchors (per card)
 	const ROLLING_BENEFIT_YEARS = {
 	  MB:  { start: "2025-04-11" },
@@ -1095,7 +1103,12 @@
     // --- Cross-browser safe date parser (no UTC shift) ---
 	function parseISODateLocal(dateStr) {
 	  if (!dateStr) return null;
-	  const [y, m, d] = dateStr.split("-").map(Number);
+	  const parts = String(dateStr).split("-");
+	  if (parts.length !== 3) return null;
+	
+	  const [y, m, d] = parts.map(Number);
+	  if (!y || !m || !d) return null;
+	
 	  return new Date(y, m - 1, d);
 	}
 
@@ -1327,18 +1340,6 @@
       other: ["direct"],
     };
 
-    function parseISODate(str) {
-      if (!str) return null;
-      const parts = str.split("-");
-      if (parts.length !== 3) return null;
-    
-      const [y, m, d] = parts.map(Number);
-      if (!y || !m || !d) return null;
-    
-      // Local midnight, cross-browser safe, no timezone drift
-      return new Date(y, m - 1, d);
-    }
-
     function classifyBenefitEnd(endDateStr, todayDate) {
       const today = todayDate || parseISODateLocal(formatTodayISO());
       const end = parseISODateLocal(endDateStr);
@@ -1478,9 +1479,11 @@
 	  }
 	
 	  // pre-seed benefit rows so “$0 used” still shows (optional)
-	  for (const b of ROLLING_BENEFITS) {
-		const cardBucket = out[b.card];
-		if (!cardBucket) continue;
+	for (const [card, benefitList] of Object.entries(ROLLING_BENEFITS_BY_CARD)) {
+	  const cardBucket = out[card];
+	  if (!cardBucket) continue;
+	
+	  for (const b of benefitList) {
 		cardBucket.benefits[b.id] = {
 		  label: b.label,
 		  used: 0,
@@ -1488,11 +1491,12 @@
 		  cadence: b.cadence,
 		};
 	  }
+	}
 	
 	  for (const tx of txs) {
 		if (!tx.date || !tx.cardUsed) continue;
 	
-		const card = tx.cardUsed;
+		const card = String(tx.cardUsed).toUpperCase();
 		const bucket = out[card];
 		if (!bucket) continue;
 	
@@ -1504,10 +1508,11 @@
 		if (amt <= 0) continue;
 	
 		// IMPORTANT: ignore merchant discount dollars entirely — we only look at tx spend to count against native credits
-		for (const b of ROLLING_BENEFITS) {
-		  if (b.card !== card) continue;
+		const benefitList = ROLLING_BENEFITS_BY_CARD[card] || [];
+		
+		for (const b of benefitList) {
 		  if (!b.match(tx)) continue;
-	
+		
 		  // figure period key
 		  let periodKey = "annual";
 		  if (b.cadence === "monthly") {
@@ -1515,40 +1520,35 @@
 		  } else if (b.cadence === "semiannual") {
 			periodKey = "s" + getSemiannualIndex(bucket.start, d);
 		  }
-	
+		
 		  const pk = `${b.id}:${periodKey}`;
-	
-		  // apply per-tx cap if any (e.g., $10 per grocery tx, $40 per rental tx)
+		
+		  // apply per-tx cap if any
 		  let applied = amt;
 		  if (b.perTxCap != null) applied = Math.min(applied, b.perTxCap);
-	
+		
 		  // enforce tx-count cap per period if any
 		  if (b.maxTxPerPeriod != null) {
 			const usedTx = bucket._periodTxCount[pk] || 0;
 			if (usedTx >= b.maxTxPerPeriod) continue;
 		  }
-	
-		  // enforce dollar cap per period (monthly/semiannual) OR annual cap
+		
+		  // enforce dollar cap per period (or annual cap)
 		  const cap = Number(b.cap) || 0;
 		  const periodUsed = bucket._periodUsed[pk] || 0;
 		  const remaining = Math.max(0, cap - periodUsed);
 		  if (remaining <= 0) continue;
-	
+		
 		  const credit = Math.min(applied, remaining);
-	
+		
 		  bucket._periodUsed[pk] = periodUsed + credit;
 		  if (credit > 0 && b.maxTxPerPeriod != null) {
 			bucket._periodTxCount[pk] = (bucket._periodTxCount[pk] || 0) + 1;
 		  }
-	
-		  // roll up into per-benefit + total
+		
 		  bucket.benefits[b.id].used += credit;
 		  bucket.totalUsed += credit;
-	
-		  // If one tx could match multiple benefits on same card, you can either:
-		  // - allow it (current behavior here), or
-		  // - break after first match to prevent double-counting.
-		  // In your taxonomy, categories are mutually exclusive, so double-counting shouldn’t happen.
+		
 		  break;
 		}
 	  }
@@ -3425,7 +3425,7 @@
       const txs = loadTransactions();
       const merchantState = computeMerchantState(txs, benefits);
     
-      const today = parseISODate(formatTodayISO());
+      const today = parseISODateLocal(formatTodayISO());
       
       // Active merchant offers:
       // - not expired (inclusive end date)
@@ -3855,7 +3855,7 @@
 	
 	  const tx = {
 		date: lastRecommendation.purchase.date,
-		amount: lastRecommendation.purchase.amount,
+		amount: Number(lastRecommendation.purchase.amount) || 0,
 		category: lastRecommendation.purchase.category,
 		channel: channelUsed,
 		cardUsed,
