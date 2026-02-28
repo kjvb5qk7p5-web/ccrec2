@@ -1121,6 +1121,101 @@
 	
 	  return { start: thisYearStart, end };
 	}
+	
+	// -------- Calculate native card benefit for a single transaction -------
+	function calculateCardBenefitApplied(tx, txsBeforeSave, today = new Date()) {
+	  const card = tx.cardUsed;
+	  if (!card) {
+		return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  }
+	
+	  const benefitList = ROLLING_BENEFITS_BY_CARD[card] || [];
+	  if (!benefitList.length) {
+		return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  }
+	
+	  const txDate = parseISODateLocal(tx.date);
+	  if (!txDate) {
+		return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  }
+	
+	  const win = getRollingBenefitYear(card, today);
+	  if (!win) {
+		return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  }
+	
+	  if (txDate < win.start || txDate >= win.end) {
+		return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  }
+	
+	  const amount = Number(tx.amount) || 0;
+	  if (amount <= 0) {
+		return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  }
+	
+	  for (const b of benefitList) {
+		if (!b.match(tx)) continue;
+	
+		let periodKey = "annual";
+		if (b.cadence === "monthly") {
+		  periodKey = "m" + getBenefitMonthIndex(win.start, txDate);
+		} else if (b.cadence === "semiannual") {
+		  periodKey = "s" + getSemiannualIndex(win.start, txDate);
+		}
+	
+		// Prior usage for THIS SAME benefit + same period
+		let priorUsed = 0;
+		let priorTxCount = 0;
+	
+		for (const priorTx of txsBeforeSave) {
+		  if (priorTx.cardUsed !== card) continue;
+		  if (priorTx.cardBenefitId !== b.id) continue;
+	
+		  const priorDate = parseISODateLocal(priorTx.date);
+		  if (!priorDate) continue;
+		  if (priorDate < win.start || priorDate >= win.end) continue;
+	
+		  let priorPeriodKey = "annual";
+		  if (b.cadence === "monthly") {
+			priorPeriodKey = "m" + getBenefitMonthIndex(win.start, priorDate);
+		  } else if (b.cadence === "semiannual") {
+			priorPeriodKey = "s" + getSemiannualIndex(win.start, priorDate);
+		  }
+	
+		  if (priorPeriodKey !== periodKey) continue;
+	
+		  priorUsed += Number(priorTx.cardBenefitApplied) || 0;
+	
+		  if ((Number(priorTx.cardBenefitApplied) || 0) > 0 && b.maxTxPerPeriod != null) {
+			priorTxCount += 1;
+		  }
+		}
+	
+		if (b.maxTxPerPeriod != null && priorTxCount >= b.maxTxPerPeriod) {
+		  return { cardBenefitId: b.id, cardBenefitApplied: 0 };
+		}
+	
+		let applied = amount;
+		if (b.perTxCap != null) {
+		  applied = Math.min(applied, b.perTxCap);
+		}
+	
+		const cap = Number(b.cap) || 0;
+		const remaining = Math.max(0, cap - priorUsed);
+		if (remaining <= 0) {
+		  return { cardBenefitId: b.id, cardBenefitApplied: 0 };
+		}
+	
+		const credit = Math.min(applied, remaining);
+	
+		return {
+		  cardBenefitId: b.id,
+		  cardBenefitApplied: Math.max(0, credit),
+		};
+	  }
+	
+	  return { cardBenefitId: null, cardBenefitApplied: 0 };
+	}
 
     // --- Cross-browser safe date parser (no UTC shift) ---
 	function parseISODateLocal(dateStr) {
@@ -1161,6 +1256,24 @@
 	
 	  // Prior or future year: MM/DD/YYYY
 	  return `${mm}/${dd}/${yyyy}`;
+	}
+
+	function normalizeImportedTransaction(tx) {
+	  return {
+		date: tx.date || "",
+		amount: Number(tx.amount) || 0,
+		category: tx.category || "",
+		channel: tx.channel || "direct",
+		cardUsed: tx.cardUsed || "",
+		merchantBenefitId: tx.merchantBenefitId || null,
+		merchantBenefitApplied: Number.isFinite(Number(tx.merchantBenefitApplied))
+		  ? Number(tx.merchantBenefitApplied)
+		  : 0,
+		cardBenefitId: tx.cardBenefitId || null,
+		cardBenefitApplied: Number.isFinite(Number(tx.cardBenefitApplied))
+		  ? Number(tx.cardBenefitApplied)
+		  : 0,
+	  };
 	}
 
     function showToast(message) {
@@ -1683,7 +1796,8 @@
 		const oldTxs = loadTransactions();
 		const oldBenefits = loadMerchantBenefits();
 		
-		const txOk = saveTransactions(data.transactions);
+		const normalizedTxs = data.transactions.map(normalizeImportedTransaction);
+		const txOk = saveTransactions(normalizedTxs);
 		if (!txOk) {
 		  showToast("⚠️ Unable to import transactions — storage full or private mode.");
 		  return;
@@ -2064,6 +2178,101 @@
 
       return state;
     }
+    
+    // ---------- Calculate merchant benefit for a single transaction -----------
+    function calculateMerchantBenefitApplied(tx, benefits, txsBeforeSave) {
+	  if (!tx.merchantBenefitId) {
+		return { merchantBenefitId: null, merchantBenefitApplied: 0 };
+	  }
+	
+	  const benefit = findBenefitById(tx.merchantBenefitId, benefits);
+	  if (!benefit) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  const amount = Number(tx.amount) || 0;
+	  if (amount <= 0) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  const txDate = parseISODateLocal(tx.date);
+	  if (!txDate) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  const end = parseISODateLocal(benefit.endDate);
+	  if (end && txDate > end) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  if (tx.cardUsed && tx.cardUsed !== benefit.card) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  const minSpend =
+		benefit.minSpend != null && !isNaN(benefit.minSpend)
+		  ? Number(benefit.minSpend)
+		  : null;
+	
+	  if (minSpend != null && amount < minSpend) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  // Compute prior usage from already-saved txs only
+	  let used = 0;
+	  let txCount = 0;
+	
+	  for (const priorTx of txsBeforeSave) {
+		if (!priorTx.merchantBenefitId) continue;
+		if (priorTx.merchantBenefitId !== benefit.id) continue;
+	
+		used += Number(priorTx.merchantBenefitApplied) || 0;
+	
+		if ((Number(priorTx.merchantBenefitApplied) || 0) > 0) {
+		  txCount += 1;
+		}
+	  }
+	
+	  if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+		const maxTx = Number(benefit.maxTransactions);
+		if (txCount >= maxTx) {
+		  return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+		}
+	  }
+	
+	  let discount = 0;
+	
+	  if (benefit.discountType === "percent") {
+		discount = (amount * Number(benefit.discountValue || 0)) / 100;
+	  } else {
+		discount = Number(benefit.discountValue || 0);
+	  }
+	
+	  if (
+		benefit.limitType === "per_tx" &&
+		benefit.limitValue != null &&
+		!isNaN(benefit.limitValue)
+	  ) {
+		discount = Math.min(discount, Number(benefit.limitValue));
+	  }
+	
+	  if (
+		benefit.limitType === "total" &&
+		benefit.limitValue != null &&
+		!isNaN(benefit.limitValue)
+	  ) {
+		const totalLimit = Number(benefit.limitValue);
+		const remaining = Math.max(0, totalLimit - used);
+		discount = Math.min(discount, remaining);
+	  }
+	
+	  discount = Math.max(0, discount);
+	
+	  return {
+		merchantBenefitId: tx.merchantBenefitId,
+		merchantBenefitApplied: discount,
+	  };
+	}
 
     // ---------- State summary ----------
     function renderStateSummary() {
@@ -3877,14 +4086,29 @@
 	
 	  const tx = {
 		date: lastRecommendation.purchase.date,
-		amount: Number(lastRecommendation.purchase.amount) || 0,
+		amount: Number(lastRecommendation.purchase.amount),
 		category: lastRecommendation.purchase.category,
 		channel: channelUsed,
 		cardUsed,
 		merchantBenefitId: lastRecommendation.purchase.merchantBenefitId || null,
+		merchantBenefitApplied: 0,
+		cardBenefitId: null,
+		cardBenefitApplied: 0,
 	  };
 	
 	  const txs = loadTransactions();
+	  const benefits = loadMerchantBenefits();
+	
+	  // Calculate merchant benefit value for this transaction
+	  const merchantApplied = calculateMerchantBenefitApplied(tx, benefits, txs);
+	  tx.merchantBenefitId = merchantApplied.merchantBenefitId;
+	  tx.merchantBenefitApplied = merchantApplied.merchantBenefitApplied;
+	
+	  // Calculate card benefit value for this transaction
+	  const cardApplied = calculateCardBenefitApplied(tx, txs);
+	  tx.cardBenefitId = cardApplied.cardBenefitId;
+	  tx.cardBenefitApplied = cardApplied.cardBenefitApplied;
+	
 	  txs.push(tx);
 	
 	  const ok = saveTransactions(txs);
