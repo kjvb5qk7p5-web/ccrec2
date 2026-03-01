@@ -238,16 +238,35 @@
     }
   
     /* Column widths so Logged Purchases fits nicely on mobile */
-    #loggedTable th:nth-child(1),
-    #loggedTable td:nth-child(1) { width: 18%; } /* Date */
-    #loggedTable th:nth-child(2),
-    #loggedTable td:nth-child(2) { width: 14%; } /* Amount */
-    #loggedTable th:nth-child(3),
-    #loggedTable td:nth-child(3) { width: 24%; } /* Category */
-    #loggedTable th:nth-child(4),
-    #loggedTable td:nth-child(4) { width: 24%; } /* Channel */
-    #loggedTable th:nth-child(5),
-    #loggedTable td:nth-child(5) { width: 20%; } /* Card Used */
+	#loggedTable th:nth-child(1),
+	#loggedTable td:nth-child(1) { width: 18%; } /* Date */
+	
+	#loggedTable th:nth-child(2),
+	#loggedTable td:nth-child(2) { 
+		width: 14%;
+		text-align: right;
+	  	white-space: nowrap;
+	   } /* Amount */
+	
+	#loggedTable th:nth-child(3),
+	#loggedTable td:nth-child(3) { width: 30%; } /* Category */
+	
+	#loggedTable th:nth-child(4),
+	#loggedTable td:nth-child(4) { 
+		width: 13%; 
+		text-align: right;
+	  	white-space: nowrap;
+		} /* Card Ben Amt */
+	
+	#loggedTable th:nth-child(5),
+	#loggedTable td:nth-child(5) { 
+		width: 13%; 
+		text-align: right;
+	  	white-space: nowrap;
+		} /* Mrch Ben Amt */
+	
+	#loggedTable th:nth-child(6),
+	#loggedTable td:nth-child(6) { width: 12%; } /* Card Used */
   
     /* Saved Merchant Benefits table */
     #benefitsTable {
@@ -956,13 +975,14 @@
     <div id="logContent" style="display:none;">
       <table id="loggedTable">
         <thead>
-          <tr>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Channel</th>
-            <th>Card Used</th>
-          </tr>
+			<tr>
+			  <th>Date</th>
+			  <th>Amount</th>
+			  <th>Category</th>
+			  <th>Card Ben Amt</th>
+			  <th>Mrch Ben Amt</th>
+			  <th>Card Used</th>
+			</tr>
         </thead>
         <tbody id="txTableBody"></tbody>
       </table>
@@ -1836,22 +1856,28 @@
 
     // ---------- Render transactions ----------
     function renderTransactions() {
-      const txs = loadTransactions();
-      const tbody = document.getElementById("txTableBody");
-      tbody.innerHTML = "";
-    
-      txs.forEach((tx, idx) => {
-        const tr = document.createElement("tr");
-        const tdDate = document.createElement("td");
-        const tdAmt = document.createElement("td");
-        const tdCat = document.createElement("td");
-        const tdChan = document.createElement("td");
-        const tdCard = document.createElement("td");
-    
-        tdDate.textContent = tx.date || "";
-        tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
-        tdCat.textContent = getCategoryLabel(tx.category) || tx.category || "";
-		tdChan.textContent = CHANNEL_LABELS[tx.channel] || tx.channel || "";
+	  const txs = loadTransactions();
+	  const tbody = document.getElementById("txTableBody");
+	  tbody.innerHTML = "";
+	
+	  txs.forEach((tx, idx) => {
+		const tr = document.createElement("tr");
+		const tdDate = document.createElement("td");
+		const tdAmt = document.createElement("td");
+		const tdCat = document.createElement("td");
+		const tdCardBen = document.createElement("td");
+		const tdMrchBen = document.createElement("td");
+		const tdCard = document.createElement("td");
+	
+		tdDate.textContent = tx.date || "";
+		tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
+		tdCat.textContent = tx.category || "";
+	
+		const cardBenAmt = Number(tx.cardBenefitApplied || 0);
+		const mrchBenAmt = Number(tx.merchantBenefitApplied || 0);
+	
+		tdCardBen.textContent = cardBenAmt > 0 ? `$${cardBenAmt.toFixed(2)}` : "";
+		tdMrchBen.textContent = mrchBenAmt > 0 ? `$${mrchBenAmt.toFixed(2)}` : "";
     
         if (tx.cardUsed) {
           // Build a special badge just for the log, with a data index
@@ -1871,13 +1897,14 @@
           tdCard.textContent = "";
         }
     
-        tr.appendChild(tdDate);
-        tr.appendChild(tdAmt);
-        tr.appendChild(tdCat);
-        tr.appendChild(tdChan);
-        tr.appendChild(tdCard);
-    
-        tbody.appendChild(tr);
+		tr.appendChild(tdDate);
+		tr.appendChild(tdAmt);
+		tr.appendChild(tdCat);
+		tr.appendChild(tdCardBen);
+		tr.appendChild(tdMrchBen);
+		tr.appendChild(tdCard);
+	
+		tbody.appendChild(tr);
       });
     }
 
