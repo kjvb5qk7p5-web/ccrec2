@@ -574,6 +574,43 @@
 	  border-bottom: none !important;
 	}
 	
+	/* Added for merchant benefits summary table */
+	#rollingAnnualSummary .annual-summary-subhead {
+	  margin: 0.4rem 0 0.35rem 0;
+	  font-size: 1rem;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table {
+	  width: 100%;
+	  border-collapse: collapse;
+	  table-layout: fixed;
+	  font-size: 0.8rem;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table th,
+	#rollingAnnualSummary .merchant-summary-table td {
+	  border: 1px solid #ddd;
+	  padding: 3px 4px;
+	  vertical-align: middle;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table thead th {
+	  background: #f7f7f7;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table th:nth-child(1),
+	#rollingAnnualSummary .merchant-summary-table td:nth-child(1) {
+	  width: 20%;
+	  text-align: center;
+	  white-space: nowrap;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table th:nth-child(2),
+	#rollingAnnualSummary .merchant-summary-table td:nth-child(2) {
+	  width: 80%;
+	  text-align: right;
+	}
+	
 	/* Progress bar */
 	#rollingAnnualSummary .fee-progress-wrap {
 	  display: inline-flex;      
@@ -859,7 +896,7 @@
   </div>
 
   <div class="card">
-    <h2>Annual Benefit Summary</h2>
+    <h2>Annual Benefits Summaries</h2>
     <div id="rollingAnnualSummary"></div>
   </div>
 
@@ -1025,11 +1062,11 @@
 		]).has(tx.category)
 		},
 		
-		{ id:"csr_doordash_dining", card:"CSR", label:"Doordash dining", cadence:"monthly", cap:5,
+		{ id:"csr_doordash_dining", card:"CSR", label:"DoorDash dining", cadence:"monthly", cap:5,
 		match:(tx)=> tx.category==="doordash"
 		},
 		
-		{ id:"csr_doordash_groceries", card:"CSR", label:"Doordash groceries", cadence:"monthly", cap:20,
+		{ id:"csr_doordash_groceries", card:"CSR", label:"DoorDash groceries", cadence:"monthly", cap:20,
 		perTxCap:10, maxTxPerPeriod:2,
 		match:(tx)=> tx.category==="doordash_groceries"
 		},
@@ -1342,11 +1379,11 @@
       { value: "resy",                label: "🍔 Dining- Resy" },
       { value: "csr_opentable",       label: "🍔 Dining- OpenTable CSR partners" },
       { value: "ag_dining",           label: "🥡 Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com" },
-      { value: "doordash",            label: "🥡 Dining- Doordash" },
+      { value: "doordash",            label: "🥡 Dining- DoorDash" },
       { value: "uber_eats",           label: "🥡 Dining- Uber Eats" },
       { value: "dunkin",              label: "🍩 Dunkin" },
       { value: "groceries",           label: "🛒 Groceries- grocery store" },
-      { value: "doordash_groceries",  label: "🛒 Groceries- Doordash" },
+      { value: "doordash_groceries",  label: "🛒 Groceries- DoorDash" },
       { value: "instacart",           label: "🛒 Groceries- Instacart" },
       { value: "lyft",                label: "🚗 Rideshare- Lyft" },
       { value: "rideshare_other",     label: "🚗 Rideshare- Uber" },
@@ -1387,8 +1424,8 @@
       instacart_platform: "on Instacart",
       peloton_platform: "on the Peloton site / app",
       resy: "via Resy (book on Resy)",
-      doordash: "in the Doordash app",
-      doordash_groceries_platform: "in the Doordash app",
+      doordash: "in the DoorDash app",
+      doordash_groceries_platform: "in the DoorDash app",
       opentable_platform: "via OpenTable",
     };
 
@@ -1453,11 +1490,11 @@
 
       doordash:
             'via the <a href="https://www.doordash.com" ' +
-            'target="_blank" rel="noopener noreferrer">Doordash app</a>',
+            'target="_blank" rel="noopener noreferrer">DoorDash app</a>',
 
       doordash_groceries_platform:
             'via the <a href="https://www.doordash.com" ' +
-            'target="_blank" rel="noopener noreferrer">Doordash app</a>',
+            'target="_blank" rel="noopener noreferrer">DoorDash app</a>',
 
       opentable_platform:
         'via <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" ' +
@@ -1710,6 +1747,30 @@
 	  for (const card of Object.keys(out)) {
 		delete out[card]._periodUsed;
 		delete out[card]._periodTxCount;
+	  }
+	
+	  return out;
+	}
+	
+	function computeMerchantBenefitsYTDFromSavedTxs(txs, today = new Date()) {
+	  const out = {};
+	  const yearStart = new Date(today.getFullYear(), 0, 1);
+	
+	  for (const tx of txs) {
+		if (!tx.date || !tx.cardUsed) continue;
+	
+		const d = parseISODateLocal(tx.date);
+		if (!d) continue;
+		if (d < yearStart || d > today) continue;
+	
+		const amount = Number(tx.merchantBenefitApplied) || 0;
+		if (amount <= 0) continue;
+	
+		if (!out[tx.cardUsed]) {
+		  out[tx.cardUsed] = 0;
+		}
+	
+		out[tx.cardUsed] += amount;
 	  }
 	
 	  return out;
@@ -2340,15 +2401,15 @@
         });
       }
       
-      // CSR Doordash Dining $5/month
+      // CSR DoorDash Dining $5/month
       {
         const limit = 5;
         const used = Math.min(cardState.csrDoordashThisMonth || 0, limit);
         ccRows.push({
-          label: "🥡 Doordash Dining",
+          label: "🥡 DoorDash Dining",
           labelHtml:
             '🥡 <a href="https://www.doordash.com" ' +
-            'target="_blank" rel="noopener noreferrer">Doordash</a>' +
+            'target="_blank" rel="noopener noreferrer">DoorDash</a>' +
             ' dining',
           card: "CSR",
           time: "Monthly",
@@ -2357,17 +2418,17 @@
         });
       }
     
-      // CSR Doordash Groceries – 2 × $10 per month (up to $20/mo)
+      // CSR DoorDash Groceries – 2 × $10 per month (up to $20/mo)
       {
         const dollarCap = 20; // 2 × $10
         const used = Math.min(cardState.csrDoordashGroceriesThisMonth || 0, dollarCap);
         const txCount = cardState.csrDoordashGroceriesTxThisMonth || 0;
       
         ccRows.push({
-          label: "🛒 Doordash Groceries",
+          label: "🛒 DoorDash Groceries",
           labelHtml:
             '🛒 <a href="https://www.doordash.com" ' +
-            'target="_blank" rel="noopener noreferrer">Doordash</a>' +
+            'target="_blank" rel="noopener noreferrer">DoorDash</a>' +
             ' groceries',
           card: "CSR",
           time: "Monthly (2x $10)",
@@ -2835,16 +2896,18 @@
 	function renderRollingAnnualSummary() {
 	  const txs = loadTransactions();
 	  const state = computeRollingAnnualBenefits(txs);
+	  const merchantState = computeMerchantBenefitsYTDFromSavedTxs(txs);
 	  const el = document.getElementById("rollingAnnualSummary");
 	  if (!el) return;
 	
-	  const rows = Object.entries(state);
-	
-	  if (rows.length === 0) {
-		el.innerHTML = `<span class="muted">No rolling annual benefit data yet.</span>`;
-		return;
-	  }
-	
+		const rows = Object.entries(state);
+		const merchantRows = Object.entries(merchantState);
+		
+		if (rows.length === 0 && merchantRows.length === 0) {
+		  el.innerHTML = `<span class="muted">No annual benefit data yet.</span>`;
+		  return;
+		}	
+		
 	  function formatMoneyWhole(n) {
 		return Math.round(Number(n || 0)).toLocaleString();
 	  }
@@ -2867,6 +2930,7 @@
 	  let grandFees = 0;
 	
 	  let html = `
+		<h3 class="annual-summary-subhead">Credit Card Benefits</h3>
 		<table class="rolling-summary-table">
 		  <thead>
 			<tr>
@@ -2999,6 +3063,44 @@
 		  detailRow.style.display = details.open ? "table-row" : "none";
 		});
 	  });
+	  
+	  const merchantRowsSorted = cardOrder
+	  .filter(card => Number(merchantState[card] || 0) > 0)
+	  .map(card => [card, Number(merchantState[card] || 0)]);
+	
+	let merchantGrandTotal = 0;
+	
+	html += `
+	  <h3 class="annual-summary-subhead" style="margin-top:12px;">Merchant Benefits</h3>
+	  <table class="merchant-summary-table">
+		<thead>
+		  <tr>
+			<th>Card</th>
+			<th>Merchant Benefits Realized</th>
+		  </tr>
+		</thead>
+		<tbody>
+	`;
+	
+	for (const [card, amount] of merchantRowsSorted) {
+	  merchantGrandTotal += amount;
+	
+	  html += `
+		<tr>
+		  <td>${renderCardBadge(card)}</td>
+		  <td>$${formatMoneyWhole(amount)}</td>
+		</tr>
+	  `;
+	}
+	
+	html += `
+		  <tr class="rolling-total-row">
+			<td>Total</td>
+			<td>$${formatMoneyWhole(merchantGrandTotal)}</td>
+		  </tr>
+		</tbody>
+	  </table>
+	`;
 	}
 
     // ---------- Core category logic (no merchant override) ----------
@@ -3119,14 +3221,14 @@
             card: "CSR",
             channel: "doordash",
             reason:
-              "Use Chase Sapphire first to use the $5 monthly Doordash restaurant delivery credit.",
+              "Use Chase Sapphire first to use the $5 monthly DoorDash restaurant delivery credit.",
           };
         }
         return {
           card: "CSR",
           channel: "doordash",
           reason:
-            "Doordash monthly credit is used up; default back to Chase Sapphire for flexible points.",
+            "DoorDash monthly credit is used up; default back to Chase Sapphire for flexible points.",
         };
       }
 
@@ -3405,7 +3507,7 @@
             card: "CSR",
             channel: "doordash_groceries_platform",
             reason:
-              "Use Chase Sapphire Reserve on Doordash Groceries to tap your 2 × $10 monthly grocery credits (up to $20 total per month).",
+              "Use Chase Sapphire Reserve on DoorDash Groceries to tap your 2 × $10 monthly grocery credits (up to $20 total per month).",
           };
         }
       
@@ -3413,7 +3515,7 @@
           card: "CSR",
           channel: "doordash_groceries_platform",
           reason:
-            "You’ve already used your 2 × $10 Doordash Groceries credits this month; keep using CSR for points and protections, but there’s no remaining grocery credit to burn.",
+            "You’ve already used your 2 × $10 DoorDash Groceries credits this month; keep using CSR for points and protections, but there’s no remaining grocery credit to burn.",
         };
       }
 
@@ -3573,7 +3675,7 @@
         rec.totalCapAmount = totalCap;
       } else if (cat === "doordash") {
         const used = cardState.csrDoordashThisMonth || 0;
-        const totalCap = 5; // $5/month Doordash credit
+        const totalCap = 5; // $5/month DoorDash credit
         rec.remainingAmount = Math.max(0, totalCap - used);
         rec.totalCapAmount = totalCap;
       } else if (cat === "doordash_groceries") {
