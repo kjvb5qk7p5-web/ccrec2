@@ -3044,26 +3044,7 @@
 		</tbody>
 		</table>
 	  `;
-	
-	  el.innerHTML = html;
-	
-	  // Optional behavior tweak:
-	  // hide the detail row unless the <details> in the summary row is open
-	  // (keeps layout compact and gives breakdowns their own row only when expanded)
-	  const summaryRows = el.querySelectorAll(".rolling-summary-row");
-	  summaryRows.forEach((summaryRow) => {
-		const detailRow = summaryRow.nextElementSibling;
-		const details = summaryRow.querySelector("details");
-		if (!detailRow || !details) return;
-	
-		// start collapsed
-		detailRow.style.display = details.open ? "table-row" : "none";
-	
-		details.addEventListener("toggle", () => {
-		  detailRow.style.display = details.open ? "table-row" : "none";
-		});
-	  });
-	  
+		  
 	  const merchantRowsSorted = cardOrder
 	  .filter(card => Number(merchantState[card] || 0) > 0)
 	  .map(card => [card, Number(merchantState[card] || 0)]);
@@ -3101,6 +3082,25 @@
 		</tbody>
 	  </table>
 	`;
+
+	  el.innerHTML = html;
+	  // Optional behavior tweak:
+	  // hide the detail row unless the <details> in the summary row is open
+	  // (keeps layout compact and gives breakdowns their own row only when expanded)
+	  const summaryRows = el.querySelectorAll(".rolling-summary-row");
+	  summaryRows.forEach((summaryRow) => {
+		const detailRow = summaryRow.nextElementSibling;
+		const details = summaryRow.querySelector("details");
+		if (!detailRow || !details) return;
+	
+		// start collapsed
+		detailRow.style.display = details.open ? "table-row" : "none";
+	
+		details.addEventListener("toggle", () => {
+		  detailRow.style.display = details.open ? "table-row" : "none";
+		});
+	  });
+
 	}
 
     // ---------- Core category logic (no merchant override) ----------
