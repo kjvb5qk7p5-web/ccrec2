@@ -979,8 +979,8 @@
 			  <th>Date</th>
 			  <th>Amount</th>
 			  <th>Category</th>
-			  <th>Card Ben Amt</th>
-			  <th>Mrch Ben Amt</th>
+			  <th>Card Ben<br>Amt</th>
+			  <th>Mrch Ben<br>Amt</th>
 			  <th>Card Used</th>
 			</tr>
         </thead>
@@ -1871,7 +1871,7 @@
 	
 		tdDate.textContent = tx.date || "";
 		tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
-		tdCat.textContent = tx.category || "";
+		tdCat.textContent = getCategoryLabel(tx.category) || tx.category || "";
 	
 		const cardBenAmt = Number(tx.cardBenefitApplied || 0);
 		const mrchBenAmt = Number(tx.merchantBenefitApplied || 0);
