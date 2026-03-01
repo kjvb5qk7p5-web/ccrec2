@@ -772,7 +772,7 @@
 </head>
 <body>
   <div id="globalStatus"></div>
-  <h1>Which Credit Card?</h1>
+  <h2>Credit Card Rewards Maximizer</h2>
 <p class="blackmuted">
   Local optimizer for 5 credit cards: <br>
     &nbsp;&nbsp;&nbsp;- <span class="card-badge csr">CS</span> Chase Sapphire Reserve<br>
@@ -784,7 +784,15 @@
 
   <!-- New purchase input -->
   <div class="card new-purchase-card">
-    <h2>New Purchase</h2>
+    <h2>Get Card<br>Recommendation</h2>
+
+    <div style="margin-top: 12px;">
+    <label>
+      Purchase Category<br>
+      <!-- Options will be populated dynamically from BASE_CATEGORIES + merchant benefits -->
+      <select id="category" style="font-family: system-ui, emoji;"></select>
+    </label>
+    </div>
 
 	<div class="np-row" style="margin-top: 12px;">
 	  <label class="np-field">
@@ -797,14 +805,6 @@
 		<input type="date" id="date" required />
 	  </label>
 	</div>
-
-    <div style="margin-top: 12px;">
-    <label>
-      Category<br>
-      <!-- Options will be populated dynamically from BASE_CATEGORIES + merchant benefits -->
-      <select id="category" style="font-family: system-ui, emoji;"></select>
-    </label>
-    </div>
 
     <div style="margin-top: 12px;">
       <button class="primary" id="btnRecommend">Get Card Recommendation</button>
