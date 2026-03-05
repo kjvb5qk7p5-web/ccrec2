@@ -1031,7 +1031,7 @@
       <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
 
       <p class="muted">
-        Stored in your browser's localStorage. Export to backup your data before clearing browser data.
+        Stored in your browser's localStorage. Export to backup your data before clearing browser data. <br> v4.16.2
       </p>
     </div>
   </div>
@@ -1178,7 +1178,7 @@
 	}
 	
 	// -------- Calculate native card benefit for a single transaction -------
-	function calculateCardBenefitApplied(tx, txsBeforeSave, today = new Date()) {
+	function calculateCardBenefitApplied(tx, txsBeforeSave) {
 	  const card = tx.cardUsed;
 	  if (!card) {
 		return { cardBenefitId: null, cardBenefitApplied: 0 };
@@ -1194,7 +1194,9 @@
 		return { cardBenefitId: null, cardBenefitApplied: 0 };
 	  }
 	
-	  const win = getRollingBenefitYear(card, today);
+	  // IMPORTANT:
+	  // Anchor the benefit year to the transaction date, not "today"
+	  const win = getRollingBenefitYear(card, txDate);
 	  if (!win) {
 		return { cardBenefitId: null, cardBenefitApplied: 0 };
 	  }
@@ -1208,9 +1210,50 @@
 		return { cardBenefitId: null, cardBenefitApplied: 0 };
 	  }
 	
-	  for (const b of benefitList) {
-		if (!b.match(tx)) continue;
+	  // Find all matches first
+	  const matchingBenefits = benefitList.filter((b) => b.match(tx));
+	  if (!matchingBenefits.length) {
+		return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  }
 	
+	  // Priority:
+	  // lower number = checked first
+	  // broad fallback benefits should come last
+	  const benefitPriority = {
+		csr_doordash_dining: 10,
+		csr_doordash_groceries: 10,
+		csr_lyft: 10,
+		csr_peloton: 10,
+		csr_opentable: 10,
+		csr_theedit: 10,
+		csr_stubhub: 10,
+	
+		ag_uber: 10,
+		ag_dining_partners: 10,
+		ag_dunkin: 10,
+		ag_resy: 10,
+	
+		mb_dining: 10,
+	
+		dg_delta_stays: 10,
+	
+		uq_rideshare: 10,
+		uq_instacart: 10,
+		uq_renowned: 10,
+		uq_rentalcar: 10,
+	
+		// broad fallback: check last
+		csr_travel: 99,
+	  };
+	
+	  matchingBenefits.sort((a, b) => {
+		const pa = benefitPriority[a.id] != null ? benefitPriority[a.id] : 50;
+		const pb = benefitPriority[b.id] != null ? benefitPriority[b.id] : 50;
+		if (pa !== pb) return pa - pb;
+		return String(a.id).localeCompare(String(b.id));
+	  });
+	
+	  for (const b of matchingBenefits) {
 		let periodKey = "annual";
 		if (b.cadence === "monthly") {
 		  periodKey = "m" + getBenefitMonthIndex(win.start, txDate);
@@ -1241,13 +1284,17 @@
 	
 		  priorUsed += Number(priorTx.cardBenefitApplied) || 0;
 	
-		  if ((Number(priorTx.cardBenefitApplied) || 0) > 0 && b.maxTxPerPeriod != null) {
+		  if (
+			b.maxTxPerPeriod != null &&
+			(Number(priorTx.cardBenefitApplied) || 0) > 0
+		  ) {
 			priorTxCount += 1;
 		  }
 		}
 	
+		// If this matching benefit is exhausted, SKIP IT and try the next one
 		if (b.maxTxPerPeriod != null && priorTxCount >= b.maxTxPerPeriod) {
-		  return { cardBenefitId: b.id, cardBenefitApplied: 0 };
+		  continue;
 		}
 	
 		let applied = amount;
@@ -1258,7 +1305,7 @@
 		const cap = Number(b.cap) || 0;
 		const remaining = Math.max(0, cap - priorUsed);
 		if (remaining <= 0) {
-		  return { cardBenefitId: b.id, cardBenefitApplied: 0 };
+		  continue;
 		}
 	
 		const credit = Math.min(applied, remaining);
@@ -1269,6 +1316,7 @@
 		};
 	  }
 	
+	  // Matches may exist, but all may be exhausted
 	  return { cardBenefitId: null, cardBenefitApplied: 0 };
 	}
 
