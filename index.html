@@ -1180,45 +1180,17 @@
 	// -------- Calculate native card benefit for a single transaction -------
 	function calculateCardBenefitApplied(tx, txsBeforeSave) {
 	  const card = tx.cardUsed;
-	  if (!card) {
-		return { cardBenefitId: null, cardBenefitApplied: 0 };
-	  }
-	
-	  const benefitList = ROLLING_BENEFITS_BY_CARD[card] || [];
-	  if (!benefitList.length) {
-		return { cardBenefitId: null, cardBenefitApplied: 0 };
-	  }
+	  if (!card) return { cardBenefitId: null, cardBenefitApplied: 0 };
+		
+	  const benefitListRaw = ROLLING_BENEFITS_BY_CARD[card] || [];
+	  if (!benefitListRaw.length) return { cardBenefitId: null, cardBenefitApplied: 0 };
 	
 	  const txDate = parseISODateLocal(tx.date);
-	  if (!txDate) {
-		return { cardBenefitId: null, cardBenefitApplied: 0 };
-	  }
-	
-	  // IMPORTANT:
-	  // Anchor the benefit year to the transaction date, not "today"
-	  const win = getRollingBenefitYear(card, txDate);
-	  if (!win) {
-		return { cardBenefitId: null, cardBenefitApplied: 0 };
-	  }
-	
-	  if (txDate < win.start || txDate >= win.end) {
-		return { cardBenefitId: null, cardBenefitApplied: 0 };
-	  }
+	  if (!txDate) return { cardBenefitId: null, cardBenefitApplied: 0 };
 	
 	  const amount = Number(tx.amount) || 0;
-	  if (amount <= 0) {
-		return { cardBenefitId: null, cardBenefitApplied: 0 };
-	  }
+	  if (amount <= 0) return { cardBenefitId: null, cardBenefitApplied: 0 };
 	
-	  // Find all matches first
-	  const matchingBenefits = benefitList.filter((b) => b.match(tx));
-	  if (!matchingBenefits.length) {
-		return { cardBenefitId: null, cardBenefitApplied: 0 };
-	  }
-	
-	  // Priority:
-	  // lower number = checked first
-	  // broad fallback benefits should come last
 	  const benefitPriority = {
 		csr_doordash_dining: 10,
 		csr_doordash_groceries: 10,
@@ -1242,26 +1214,20 @@
 		uq_renowned: 10,
 		uq_rentalcar: 10,
 	
-		// broad fallback: check last
-		csr_travel: 99,
+		csr_travel: 99, // broad fallback
 	  };
 	
-	  matchingBenefits.sort((a, b) => {
-		const pa = benefitPriority[a.id] != null ? benefitPriority[a.id] : 50;
-		const pb = benefitPriority[b.id] != null ? benefitPriority[b.id] : 50;
-		if (pa !== pb) return pa - pb;
-		return String(a.id).localeCompare(String(b.id));
+	  const benefitList = benefitListRaw.slice().sort((a, b) => {
+		const pa = benefitPriority[a.id] ?? 50;
+		const pb = benefitPriority[b.id] ?? 50;
+		return pa - pb || String(a.id).localeCompare(String(b.id));
 	  });
 	
-	  for (const b of matchingBenefits) {
-		let periodKey = "annual";
-		if (b.cadence === "monthly") {
-		  periodKey = "m" + getBenefitMonthIndex(win.start, txDate);
-		} else if (b.cadence === "semiannual") {
-		  periodKey = "s" + getSemiannualIndex(win.start, txDate);
-		}
+	  for (const b of benefitList) {
+		if (!b.match(tx)) continue;
 	
-		// Prior usage for THIS SAME benefit + same period
+		const { start: periodStart, end: periodEnd } = getCadenceWindowForDate(b.cadence, txDate);
+	
 		let priorUsed = 0;
 		let priorTxCount = 0;
 	
@@ -1271,52 +1237,31 @@
 	
 		  const priorDate = parseISODateLocal(priorTx.date);
 		  if (!priorDate) continue;
-		  if (priorDate < win.start || priorDate >= win.end) continue;
+		  if (priorDate < periodStart || priorDate >= periodEnd) continue;
 	
-		  let priorPeriodKey = "annual";
-		  if (b.cadence === "monthly") {
-			priorPeriodKey = "m" + getBenefitMonthIndex(win.start, priorDate);
-		  } else if (b.cadence === "semiannual") {
-			priorPeriodKey = "s" + getSemiannualIndex(win.start, priorDate);
-		  }
+		  const applied = Number(priorTx.cardBenefitApplied) || 0;
+		  priorUsed += applied;
 	
-		  if (priorPeriodKey !== periodKey) continue;
-	
-		  priorUsed += Number(priorTx.cardBenefitApplied) || 0;
-	
-		  if (
-			b.maxTxPerPeriod != null &&
-			(Number(priorTx.cardBenefitApplied) || 0) > 0
-		  ) {
+		  if (b.maxTxPerPeriod != null && applied > 0) {
 			priorTxCount += 1;
 		  }
 		}
 	
-		// If this matching benefit is exhausted, SKIP IT and try the next one
 		if (b.maxTxPerPeriod != null && priorTxCount >= b.maxTxPerPeriod) {
-		  continue;
+		  return { cardBenefitId: b.id, cardBenefitApplied: 0 };
 		}
 	
-		let applied = amount;
-		if (b.perTxCap != null) {
-		  applied = Math.min(applied, b.perTxCap);
-		}
+		let appliedNow = amount;
+		if (b.perTxCap != null) appliedNow = Math.min(appliedNow, b.perTxCap);
 	
 		const cap = Number(b.cap) || 0;
 		const remaining = Math.max(0, cap - priorUsed);
-		if (remaining <= 0) {
-		  continue;
-		}
+		if (remaining <= 0) return { cardBenefitId: b.id, cardBenefitApplied: 0 };
 	
-		const credit = Math.min(applied, remaining);
-	
-		return {
-		  cardBenefitId: b.id,
-		  cardBenefitApplied: Math.max(0, credit),
-		};
+		const credit = Math.min(appliedNow, remaining);
+		return { cardBenefitId: b.id, cardBenefitApplied: Math.max(0, credit) };
 	  }
 	
-	  // Matches may exist, but all may be exhausted
 	  return { cardBenefitId: null, cardBenefitApplied: 0 };
 	}
 
@@ -1612,6 +1557,47 @@
     function startOfMonth(d) {
       return new Date(d.getFullYear(), d.getMonth(), 1);
     }
+    
+    function startOfCalendarMonth(d) {
+	  return new Date(d.getFullYear(), d.getMonth(), 1);
+	}
+	
+	function startOfCalendarYear(d) {
+	  return new Date(d.getFullYear(), 0, 1);
+	}
+	
+	function startOfSemiannualPeriod(d) {
+	  // Jan–Jun or Jul–Dec (same as computeState’s logic)
+	  return d.getMonth() < 6
+		? new Date(d.getFullYear(), 0, 1)
+		: new Date(d.getFullYear(), 6, 1);
+	}
+	
+	function addMonthsLocal(d, n) {
+	  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+	  x.setMonth(x.getMonth() + n);
+	  return x;
+	}
+	
+	function getCadenceWindowForDate(cadence, txDate) {
+	  // Returns [start, end) for the *txDate’s* applicable window
+	  if (cadence === "monthly") {
+		const start = startOfCalendarMonth(txDate);
+		const end = addMonthsLocal(start, 1);
+		return { start, end };
+	  }
+	
+	  if (cadence === "semiannual") {
+		const start = startOfSemiannualPeriod(txDate);
+		const end = addMonthsLocal(start, 6);
+		return { start, end };
+	  }
+	
+	  // "annual" (and default): calendar year
+	  const start = startOfCalendarYear(txDate);
+	  const end = new Date(start.getFullYear() + 1, 0, 1);
+	  return { start, end };
+	}
 
     // Render a card badge as HTML
     function renderCardBadge(code) {
@@ -4232,22 +4218,22 @@
 		cardBenefitApplied: 0,
 	  };
 	
-	  const txs = loadTransactions();
+	  const txsBeforeSave = loadTransactions();
 	  const benefits = loadMerchantBenefits();
 	
 	  // Calculate merchant benefit value for this transaction
-	  const merchantApplied = calculateMerchantBenefitApplied(tx, benefits, txs);
-	  tx.merchantBenefitId = merchantApplied.merchantBenefitId;
-	  tx.merchantBenefitApplied = merchantApplied.merchantBenefitApplied;
+	  const merchantApplied = calculateMerchantBenefitApplied(tx, benefits, txsBeforeSave);
+		tx.merchantBenefitId = merchantApplied.merchantBenefitId;
+		tx.merchantBenefitApplied = merchantApplied.merchantBenefitApplied;
 	
 	  // Calculate card benefit value for this transaction
-	  const cardApplied = calculateCardBenefitApplied(tx, txs);
-	  tx.cardBenefitId = cardApplied.cardBenefitId;
-	  tx.cardBenefitApplied = cardApplied.cardBenefitApplied;
+	  const cardApplied = calculateCardBenefitApplied(tx, txsBeforeSave);
+		tx.cardBenefitId = cardApplied.cardBenefitId;
+		tx.cardBenefitApplied = cardApplied.cardBenefitApplied;
 	
-	  txs.push(tx);
-	
-	  const ok = saveTransactions(txs);
+	  const nextTxs = txsBeforeSave.concat(tx);
+		
+	  const ok = saveTransactions(nextTxs);
 	  if (!ok) {
 		showToast("⚠️ Unable to save transactions — storage full or private mode.");
 		return;
