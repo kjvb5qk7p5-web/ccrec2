@@ -1250,7 +1250,7 @@
 		if (b.maxTxPerPeriod != null && priorTxCount >= b.maxTxPerPeriod) {
 			  continue;  // let lower-priority benefits try
 			}
-		}
+		
 	
 		let appliedNow = amount;
 		if (b.perTxCap != null) appliedNow = Math.min(appliedNow, b.perTxCap);
