@@ -1031,7 +1031,7 @@
       <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
 
       <p class="muted">
-        Stored in your browser's localStorage. Export to backup your data before clearing browser data. <br> v4.17 - Save tx fix for card ben calc
+        Stored in your browser's localStorage. Export to backup your data before clearing browser data. <br> v4.17.2
       </p>
     </div>
   </div>
@@ -1248,7 +1248,8 @@
 		}
 	
 		if (b.maxTxPerPeriod != null && priorTxCount >= b.maxTxPerPeriod) {
-		  return { cardBenefitId: b.id, cardBenefitApplied: 0 };
+			  continue;  // let lower-priority benefits try
+			}
 		}
 	
 		let appliedNow = amount;
@@ -1256,7 +1257,7 @@
 	
 		const cap = Number(b.cap) || 0;
 		const remaining = Math.max(0, cap - priorUsed);
-		if (remaining <= 0) return { cardBenefitId: b.id, cardBenefitApplied: 0 };
+		if (remaining <= 0) continue;  // let lower-priority benefits try
 	
 		const credit = Math.min(appliedNow, remaining);
 		return { cardBenefitId: b.id, cardBenefitApplied: Math.max(0, credit) };
