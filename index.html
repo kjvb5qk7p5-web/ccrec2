@@ -1031,7 +1031,7 @@
       <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
 
       <p class="muted">
-        Stored in your browser's localStorage. Export to backup your data before clearing browser data. <br> v4.17.2
+        Stored in your browser's localStorage. Export to backup your data before clearing browser data. <br> v4.17.3
       </p>
     </div>
   </div>
@@ -2180,12 +2180,20 @@
             ? Number(benefit.minSpend)
             : null;
 
-        for (const tx of txs) {
-          if (!tx.date) continue;
-          if (!tx.merchantBenefitId) continue;
-          if (tx.merchantBenefitId !== benefit.id) continue;
-
-          const d = parseISODateLocal(tx.date);
+        const relevantTxs = txs
+		  .filter(tx => tx.date && tx.merchantBenefitId === benefit.id)
+		  .sort((a, b) => {
+			const da = parseISODateLocal(a.date);
+			const db = parseISODateLocal(b.date);
+			if (!da && !db) return 0;
+			if (!da) return 1;
+			if (!db) return -1;
+			return da.getTime() - db.getTime();
+		  });
+		
+		for (const tx of relevantTxs) {
+		  const d = parseISODateLocal(tx.date);
+          
           if (!d) continue;
           
           // Normalize to date-only (midnight) for fair comparison
