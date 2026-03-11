@@ -1031,7 +1031,7 @@
       <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
 
       <p class="muted">
-        Stored in your browser's localStorage. Export to backup your data before clearing browser data. <br> v4.17.3
+        Stored in your browser's localStorage. Export to backup your data before clearing browser data. <br> v4.17.4
       </p>
     </div>
   </div>
@@ -1046,11 +1046,11 @@
     const STORAGE_KEY = "cardAdvisorTxsV1";
     const MERCHANT_BENEFITS_KEY = "cardAdvisorMerchantBenefitsV1";
 	const CARDS = {
-	  CSR: { code: "CSR", short: "CS", label: "Chase Sapphire Reserve",  badgeClass: "csr", annualFee: 795 },
-	  AG:  { code: "AG",  short: "AG", label: "American Express Gold",    badgeClass: "ag",  annualFee: 325 },
-	  UQ:  { code: "UQ",  short: "UQ", label: "United Quest",             badgeClass: "uq",  annualFee: 250 },
-	  MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",       badgeClass: "mb",  annualFee: 650 },
-	  DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg",  annualFee: 150 },
+	  CSR: { code: "CSR", short: "CS", label: "Chase Sapphire Reserve",  badgeClass: "csr", annualFee: 795, start: "2025-12-01" },
+	  AG:  { code: "AG",  short: "AG", label: "American Express Gold",    badgeClass: "ag",  annualFee: 325, start: "2025-12-21" },
+	  UQ:  { code: "UQ",  short: "UQ", label: "United Quest",             badgeClass: "uq",  annualFee: 250, start: "2025-02-01" },
+	  MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",       badgeClass: "mb",  annualFee: 650, start: "2025-04-11" },
+	  DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg",  annualFee: 150, start: "2026-01-13" },
 	};
     const ROLLING_BENEFITS = [
 		// ----- CSR -----
@@ -1209,10 +1209,10 @@
 	
 		dg_delta_stays: 10,
 	
-		uq_rideshare: 10,
 		uq_instacart: 10,
 		uq_renowned: 10,
 		uq_rentalcar: 10,
+		uq_rideshare: 50,
 	
 		csr_travel: 99, // broad fallback
 	  };
@@ -1391,7 +1391,7 @@
       { value: "other_hotel",         label: "🏨 Hotel- other hotel / lodging" },
       { value: "uq_rentalcar",        label: "🚙 Rental Car- Avis / Budget" },
       { value: "peloton",             label: "🚲 Peloton membership" },
-      { value: "streaming",           label: "📺 Streaming" },
+      // remove from select to turn off // { value: "streaming",           label: "📺 Streaming" },
       { value: "stubhub",             label: "🎫 StubHub / viagogo" },
       { value: "other",               label: "🛍️ other / general spending" }
     ];
