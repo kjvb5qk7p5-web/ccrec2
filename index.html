@@ -1224,28 +1224,45 @@
 	  });
 	
 	  for (const b of benefitList) {
-		if (!b.match(tx)) continue;
-	
-		const { start: periodStart, end: periodEnd } = getCadenceWindowForDate(b.cadence, txDate);
-	
-		let priorUsed = 0;
-		let priorTxCount = 0;
-	
-		for (const priorTx of txsBeforeSave) {
-		  if (priorTx.cardUsed !== card) continue;
-		  if (priorTx.cardBenefitId !== b.id) continue;
-	
-		  const priorDate = parseISODateLocal(priorTx.date);
-		  if (!priorDate) continue;
-		  if (priorDate < periodStart || priorDate >= periodEnd) continue;
-	
-		  const applied = Number(priorTx.cardBenefitApplied) || 0;
-		  priorUsed += applied;
-	
-		  if (b.maxTxPerPeriod != null && applied > 0) {
-			priorTxCount += 1;
+		  if (!b.match(tx)) continue;
+		
+		  let periodStart, periodEnd;
+		
+		  if (b.cadence === "annual") {
+			const rollingWin = getRollingBenefitYear(card, txDate);
+		
+			if (rollingWin) {
+			  periodStart = rollingWin.start;
+			  periodEnd = rollingWin.end;
+			} else {
+			  const fallbackWin = getCadenceWindowForDate(b.cadence, txDate);
+			  periodStart = fallbackWin.start;
+			  periodEnd = fallbackWin.end;
+			}
+		  } else {
+			const win = getCadenceWindowForDate(b.cadence, txDate);
+			periodStart = win.start;
+			periodEnd = win.end;
 		  }
-		}
+		
+		  let priorUsed = 0;
+		  let priorTxCount = 0;
+		
+		  for (const priorTx of txsBeforeSave) {
+			if (priorTx.cardUsed !== card) continue;
+			if (priorTx.cardBenefitId !== b.id) continue;
+		
+			const priorDate = parseISODateLocal(priorTx.date);
+			if (!priorDate) continue;
+			if (priorDate < periodStart || priorDate >= periodEnd) continue;
+		
+			const applied = Number(priorTx.cardBenefitApplied) || 0;
+			priorUsed += applied;
+		
+			if (b.maxTxPerPeriod != null && applied > 0) {
+			  priorTxCount += 1;
+			}
+		  }
 	
 		if (b.maxTxPerPeriod != null && priorTxCount >= b.maxTxPerPeriod) {
 			  continue;  // let lower-priority benefits try
@@ -2380,7 +2397,7 @@
         const limit = 300;
         const used = Math.min(cardState.csrTravelYTD || 0, limit);
         ccRows.push({
-          label: "✈🏨🚙 Travel credit",
+          label: "✈️🏨🚙 Travel credit",
           card: "CSR",
           time: "Annual (YTD)",
           usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
