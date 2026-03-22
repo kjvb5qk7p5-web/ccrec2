@@ -909,7 +909,7 @@
     </button>
 
     <div id="benefitsContent" style="display:none;">
-      <h3 style="margin-top:0.8rem;">Add / Edit Merchant Offer</h3>
+      <h3 style="margin-top:0.8rem;">Add Merchant Offer</h3>
 
       <label>
         Merchant<br>
@@ -1031,7 +1031,7 @@
       <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
 
       <p class="muted">
-        Stored in your browser's localStorage. Export to backup your data before clearing browser data. <br> v4.19
+        Stored in your browser's localStorage. Export to backup your data before clearing browser data. <br> v5.0.2
       </p>
     </div>
   </div>
@@ -1045,13 +1045,119 @@
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
     const MERCHANT_BENEFITS_KEY = "cardAdvisorMerchantBenefitsV1";
+
 	const CARDS = {
-	  CSR: { code: "CSR", short: "CS", label: "Chase Sapphire Reserve",  badgeClass: "csr", annualFee: 795, start: "2025-12-01" },
-	  AG:  { code: "AG",  short: "AG", label: "American Express Gold",    badgeClass: "ag",  annualFee: 325, start: "2025-12-21" },
-	  UQ:  { code: "UQ",  short: "UQ", label: "United Quest",             badgeClass: "uq",  annualFee: 250, start: "2025-02-01" },
-	  MB:  { code: "MB",  short: "MB", label: "Marriott Brilliant",       badgeClass: "mb",  annualFee: 650, start: "2025-04-11" },
-	  DG:  { code: "DG",  short: "DG", label: "Delta SkyMiles Amex Gold", badgeClass: "dg",  annualFee: 150, start: "2026-01-13" },
+	  CSR: {
+		code: "CSR",
+		short: "CS",
+		label: "Chase Sapphire Reserve",
+	
+		issuer: "Chase",
+		network: "Visa",
+	
+		badgeClass: "csr",
+		badgeBg: "#e0ecff",
+		badgeBorder: "#0047AB",
+		badgeText: "#0047AB",
+	
+		anniversary_start: "2025-12-01",
+		annualFee: 795,
+		sort_order: 1,
+	
+		points_currency: "UR",
+		transferable_points: true,
+		is_active: true
+	  },
+	
+	  AG: {
+		code: "AG",
+		short: "AG",
+		label: "American Express Gold",
+	
+		issuer: "American Express",
+		network: "Amex",
+	
+		badgeClass: "ag",
+		badgeBg: "#ffebe4",
+		badgeBorder: "#b8860b",
+		badgeText: "#b8860b",
+	
+		anniversary_start: "2025-12-21",
+		annualFee: 325,
+		sort_order: 2,
+	
+		points_currency: "MR",
+		transferable_points: true,
+		is_active: true
+	  },
+	
+	  UQ: {
+		code: "UQ",
+		short: "UQ",
+		label: "United Quest",
+	
+		issuer: "Chase",
+		network: "Visa",
+	
+		badgeClass: "uq",
+		badgeBg: "#f2e6ff",
+		badgeBorder: "#480080",
+		badgeText: "#480080",
+	
+		anniversary_start: "2025-02-01",
+		annualFee: 250,
+		sort_order: 3,
+	
+		points_currency: "UA",
+		transferable_points: false,
+		is_active: true
+	  },
+	
+	  MB: {
+		code: "MB",
+		short: "MB",
+		label: "Marriott Bonvoy Brilliant",
+	
+		issuer: "American Express",
+		network: "Amex",
+	
+		badgeClass: "mb",
+		badgeBg: "#f0f0f0",
+		badgeBorder: "#999999",
+		badgeText: "#555555",
+	
+		anniversary_start: "2025-04-11",
+		annualFee: 650,
+		sort_order: 4,
+	
+		points_currency: "Bonvoy",
+		transferable_points: false,
+		is_active: true
+	  },
+	
+	  DG: {
+		code: "DG",
+		short: "DG",
+		label: "Delta SkyMiles Amex Gold",
+	
+		issuer: "American Express",
+		network: "Amex",
+	
+		badgeClass: "dg",
+		badgeBg: "#ffe6ea",
+		badgeBorder: "#CE1126",
+		badgeText: "#CE1126",
+	
+		anniversary_start: "2026-01-13",
+		annualFee: 150,
+		sort_order: 5,
+	
+		points_currency: "SkyMiles",
+		transferable_points: false,
+		is_active: true
+	  }
 	};
+	
     const ROLLING_BENEFITS = [
 		// ----- CSR -----
 		{ id:"csr_travel", card:"CSR", label:"Travel credit", cadence:"annual", cap:300,
@@ -1137,36 +1243,1066 @@
 		},
 	];
 
-	const ROLLING_BENEFITS_BY_CARD = ROLLING_BENEFITS.reduce((acc, benefit) => {
-	  if (!acc[benefit.card]) {
-		acc[benefit.card] = [];
-	  }
-	  acc[benefit.card].push(benefit);
-	  return acc;
-	}, {});
+	const CARD_BENEFITS = [
+	
+	  /* =========================
+		 CHASE SAPPHIRE RESERVE
+		 ========================= */
+	
+	  {
+		id: "csr_travel",
+		card: "CSR",
+	
+		label: "Travel credit",
+		labelHtml: "Travel credit",
+		state_label: "✈️🏨🚗 Travel credit",
+		state_labelHtml: "✈️🏨🚗 Travel credit",
+	
+		categories: [
+		  "united_flight",
+		  "delta_flight_threshold",
+		  "other_flight",
+		  "theedit_hotel",
+		  "marriott_hotel",
+		  "renowned_hotel",
+		  "delta_stays",
+		  "other_hotel"
+		],
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-12-01",
+		cap_amount: 300,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 99,
+		display_order: 10,
+		channel: "direct",
+	
+		eligible_fn: (tx) => new Set([
+		  "united_flight",
+		  "delta_flight_threshold",
+		  "other_flight",
+		  "theedit_hotel",
+		  "marriott_hotel",
+		  "renowned_hotel",
+		  "delta_stays",
+		  "other_hotel"
+		]).has(tx.category),
+	
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire first to use the $300 annual travel credit.",
+        reason_no:
+            "Chase Sapphire annual travel credit is used up; ",
 
-	// Rolling annual benefit-year anchors (per card)
-	const ROLLING_BENEFIT_YEARS = {
-	  MB:  { start: "2025-04-11" },
-	  AG:  { start: "2025-12-21" },
-	  DG:  { start: "2026-01-13" },
-	  CSR: { start: "2025-12-01" },
-	  UQ:  { start: "2025-02-01" },
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_doordash_dining",
+		card: "CSR",
+	
+		label: "DoorDash dining",
+		labelHtml:
+		  '<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> dining',
+		state_label: "🥡 DoorDash dining",
+		state_labelHtml:
+		  '🥡 <a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> dining',
+	
+		categories: ["doordash"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 5,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 30,
+		channel: "doordash",
+	
+		eligible_fn: (tx) => tx.category === "doordash",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire first to use the $5 monthly DoorDash restaurant delivery credit.",
+        reason_no:
+            "DoorDash monthly credit is used up; ",
+
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_doordash_groceries",
+		card: "CSR",
+	
+		label: "DoorDash groceries",
+		labelHtml:
+		  '<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> groceries',
+		state_label: "🛒 DoorDash groceries",
+		state_labelHtml:
+		  '🛒 <a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> groceries',
+	
+		categories: ["doordash_groceries"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 20,
+		tx_cap: 2,
+		per_tx_cap: 10,
+	
+		priority: 10,
+		display_order: 40,
+		channel: "doordash_groceries_platform",
+	
+		eligible_fn: (tx) => tx.category === "doordash_groceries",
+		value_fn: (tx, remaining) =>
+		  Math.min(Number(tx.amount) || 0, 10, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire Reserve on DoorDash Groceries to tap your 2 × $10 monthly grocery credits (up to $20 total per month).",
+        reason_no:
+            "You’ve already used your 2 × $10 DoorDash Groceries credits this month; ",
+
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_lyft",
+		card: "CSR",
+	
+		label: "Lyft",
+		labelHtml:
+		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+		state_label: "🚗 Lyft",
+		state_labelHtml:
+		  '🚗 <a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+	
+		categories: ["lyft"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 10,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 50,
+		channel: "lyft_app",
+	
+		eligible_fn: (tx) => tx.category === "lyft",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire in the Lyft app to earn your $10 monthly Lyft credit and boosted points.",
+        reason_no:
+              "Lyft monthly credit on Sapphire Reserve is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_peloton",
+		card: "CSR",
+	
+		label: "Peloton",
+		labelHtml: "🚲 Peloton",
+		state_label: "🚲 Peloton",
+		state_labelHtml: "🚲 Peloton",
+	
+		categories: ["peloton"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 10,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 80,
+		channel: "peloton_platform",
+	
+		eligible_fn: (tx) => tx.category === "peloton",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire for your Peloton membership to earn the $10 monthly credit.",
+        reason_no:
+            "Peloton membership monthly credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_opentable",
+		card: "CSR",
+	
+		label: "OpenTable dining partners",
+		labelHtml:
+		  '<a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" target="_blank" rel="noopener noreferrer">OpenTable</a> dining partners',
+		state_label: "🍔 Dining partners on OpenTable",
+		state_labelHtml:
+		  '🍔 Dining partners on <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" target="_blank" rel="noopener noreferrer">OpenTable</a>',
+	
+		categories: ["csr_opentable"],
+	
+		cadence: "semiannual",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 150,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 20,
+		channel: "opentable_platform",
+	
+		eligible_fn: (tx) => tx.category === "csr_opentable",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+        reason_yes:
+                "Use Chase Sapphire Reserve with OpenTable dining partners to use your $150 semi-annual OpenTable dining credit.",
+        reason_no:
+                "Your OpenTable partner credit is used; ",
+	
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_theedit",
+		card: "CSR",
+	
+		label: "The Edit hotel partners",
+		labelHtml:
+		  '<a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" target="_blank" rel="noopener noreferrer">The Edit hotel partners</a>',
+		state_label: "🏨 The Edit hotel partners",
+		state_labelHtml:
+		  '🏨 The Edit hotel partners on <a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" target="_blank" rel="noopener noreferrer">Chase Travel</a>',
+	
+		categories: ["theedit_hotel"],
+	
+		cadence: "semiannual",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 250,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 60,
+		channel: "theedit_chase",
+	
+		eligible_fn: (tx) => tx.category === "theedit_hotel",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+		reason_yes:
+				"Book via the Chase Travel portal to earn the $250 semi-annual credit, $100 property credit per stay, daily breakfast for 2 and other benefits. Minimum of 2-night stay.",
+		reason_no:
+			  "Semi-annual credit is used up but still book via the Chase Travel portal to earn 8X points.",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_stubhub",
+		card: "CSR",
+	
+		label: "StubHub / viagogo / soccer.com",
+		labelHtml:
+		  '<a href="https://www.stubhub.com" target="_blank" rel="noopener noreferrer">StubHub</a> / <a href="https://www.viagogo.com" target="_blank" rel="noopener noreferrer">viagogo</a> / <a href="https://www.soccer.com" target="_blank" rel="noopener noreferrer">soccer.com</a>',
+		state_label: "🎫 StubHub / viagogo / soccer.com",
+		state_labelHtml:
+		  '🎫 <a href="https://www.stubhub.com" target="_blank" rel="noopener noreferrer">StubHub</a> / <a href="https://www.viagogo.com" target="_blank" rel="noopener noreferrer">viagogo</a> / <a href="https://www.soccer.com" target="_blank" rel="noopener noreferrer">soccer.com</a>',
+	
+		categories: ["stubhub"],
+	
+		cadence: "semiannual",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 150,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 70,
+		channel: "stubhub_platform",
+	
+		eligible_fn: (tx) => tx.category === "stubhub",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire on StubHub/viagogo/soccer.com to earn towards the $150 semi-annual credit.",
+        reason_no:
+            "StubHub semi-annual credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  /* =========================
+		 AMEX GOLD
+		 ========================= */
+	
+	  {
+		id: "ag_uber",
+		card: "AG",
+	
+		label: "Uber rides + Eats",
+		labelHtml:
+		  '<a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides + Eats',
+		state_label: "🚗🥡 Uber rides + Eats",
+		state_labelHtml:
+		  '🚗🥡 <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides + Eats',
+	
+		categories: ["rideshare_other", "uber_eats"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 10,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 100,
+		channel: "uber_app",
+	
+		eligible_fn: (tx) =>
+		  tx.category === "rideshare_other" || tx.category === "uber_eats",
+	
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+        reason_yes:
+              "Use Amex Gold on Uber / Uber Eats to use your $10 monthly Uber Cash.",
+        reason_no:
+            "Uber Cash for this month is used up; ",
+	
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "ag_dining_partners",
+		card: "AG",
+	
+		label: "Dining partners (GrubHub, Seamless, Cheesecake Factory, Goldbelly, Five Guys, wine.com)",
+		labelHtml:
+		  'Dining partners (<a href="https://www.grubhub.com" target="_blank" rel="noopener noreferrer">GrubHub</a>/<a href="https://www.seamless.com" target="_blank" rel="noopener noreferrer">Seamless</a>, Cheesecake Factory, Goldbelly, Five Guys, <a href="https://www.wine.com" target="_blank" rel="noopener noreferrer">Wine.com</a>)',
+		state_label: "🍔 Dining partners (GrubHub, Seamless, Cheesecake Factory, Goldbelly, Five Guys, wine.com)",
+		state_labelHtml:
+		  '🍔 Dining partners (<a href="https://www.grubhub.com" target="_blank" rel="noopener noreferrer">GrubHub</a>/<a href="https://www.seamless.com" target="_blank" rel="noopener noreferrer">Seamless</a>, Cheesecake Factory, Goldbelly, Five Guys, <a href="https://www.wine.com" target="_blank" rel="noopener noreferrer">Wine.com</a>)',
+	
+		categories: ["ag_dining"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 10,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 110,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "ag_dining",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+		reason_yesHtml:
+            'Use Amex Gold with eligible partners (' +
+            '<a href="https://www.grubhub.com" ' +
+            'target="_blank" rel="noopener noreferrer">GrubHub</a>' +
+            '/' +
+            '<a href="https://www.seamless.com" ' +
+            'target="_blank" rel="noopener noreferrer">Seamless</a>' +
+            ', Cheesecake Factory, Goldbelly, Five Guys, '+
+            '<a href="https://www.wine.com" ' +
+            'target="_blank" rel="noopener noreferrer">Wine&#46;com</a>'+
+            ') to use the $10 monthly dining-partner credit.',
+		reason_yes:
+            "Use Amex Gold with eligible partners (Grubhub/Seamless, Cheesecake Factory, Goldbelly, Wine.com, Five Guys) to use the $10 monthly dining-partner credit.",
+        reason_no:
+            "Your Amex Gold dining partner credit is used up; ",
+	
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "ag_dunkin",
+		card: "AG",
+	
+		label: "Dunkin",
+		labelHtml: "Dunkin",
+		state_label: "☕ Dunkin",
+		state_labelHtml: "☕ Dunkin",
+	
+		categories: ["dunkin"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 7,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 130,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "dunkin",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Amex Gold at Dunkin to use the $7 monthly Dunkin credit (on top of 4X points on dining).",
+        reason_no:
+            "Your Dunkin monthly credit is used; ",
+
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "ag_resy",
+		card: "AG",
+	
+		label: "Resy dining",
+		labelHtml:
+		  '<a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
+		state_label: "🍽️ Resy dining",
+		state_labelHtml:
+		  '🍽️ <a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
+	
+		categories: ["resy"],
+	
+		cadence: "semiannual",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 50,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 120,
+		channel: "resy",
+	
+		eligible_fn: (tx) => tx.category === "resy",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Amex Gold via Resy to burn your $50 semi-annual Resy dining credit.",
+        reason_no:
+              "Your Resy credit is used; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  /* =========================
+		 UNITED QUEST
+		 ========================= */
+	
+	  {
+		id: "uq_rideshare",
+		card: "UQ",
+	
+		label: "Lyft + Uber rides",
+		labelHtml:
+		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a> + <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides',
+		state_label: "🚗 Lyft + Uber rides",
+		state_labelHtml:
+		  '🚗 <a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a> + <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides',
+	
+		categories: ["rideshare_other", "lyft"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 8,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 50,
+		display_order: 200,
+		channel: "direct",
+	
+		eligible_fn: (tx) =>
+		  tx.category === "rideshare_other" || tx.category === "lyft",
+	
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use United Quest for rideshare rides to earn the $8 monthly credit.",
+        reason_no:
+            "United Quest monthly rideshare credit is used up; ",
+
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "uq_instacart",
+		card: "UQ",
+	
+		label: "Instacart",
+		labelHtml:
+		  '<a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
+		state_label: "🛒 Instacart",
+		state_labelHtml:
+		  '🛒 <a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
+	
+		categories: ["instacart"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 15,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 210,
+		channel: "instacart_platform",
+	
+		eligible_fn: (tx) => tx.category === "instacart",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use United Quest for Instacart to earn the $15 monthly credit before defaulting to Chase Sapphire.",
+        reason_no:
+            "Instacart monthly credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "uq_renowned",
+		card: "UQ",
+	
+		label: "Renowned Hotels",
+		labelHtml: "Renowned Hotels",
+		state_label: "🏨 Renowned Hotels",
+		state_labelHtml: "🏨 Renowned Hotels",
+	
+		categories: ["renowned_hotel"],
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-02-01",
+		cap_amount: 150,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 220,
+		channel: "renowned_chase",
+	
+		eligible_fn: (tx) => tx.category === "renowned_hotel",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+	    reason_yes:
+	            "Renowned Hotels booking – use United Quest on the Chase Travel platform to trigger the $150 Renowned credit and boosted United earn.",
+        reason_no:
+            "Renowned Hotel annual credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "uq_rentalcar",
+		card: "UQ",
+	
+		label: "Avis & Budget car rental",
+		labelHtml:
+		  'Avis &amp; Budget car rental',
+		state_label: "🚙 Avis & Budget car rental",
+		state_labelHtml:
+		  '🚙 Avis &amp; Budget car rental',
+	
+		categories: ["uq_rentalcar"],
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-02-01",
+		cap_amount: 80,
+		tx_cap: 2,
+		per_tx_cap: 40,
+	
+		priority: 10,
+		display_order: 230,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "uq_rentalcar",
+		value_fn: (tx, remaining) =>
+		  Math.min(Number(tx.amount) || 0, 40, remaining),
+	
+        reason_yes:
+              "Use United Quest at cars.united.com to tap your 2 × $40 annual United cash benefit (up to $80 total per year).",
+        reason_no:
+            "You’ve already used your 2 × $40 annual benefit this year; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  /* =========================
+		 DELTA GOLD
+		 ========================= */
+	
+	  {
+		id: "dg_delta_stays",
+		card: "DG",
+	
+		label: "Delta Stays",
+		labelHtml:
+		  '<a href="https://carsandstays.delta.com/Hotels#" target="_blank" rel="noopener noreferrer">Delta Stays</a>',
+		state_label: "🏨 Delta Stays",
+		state_labelHtml:
+		  '🏨 <a href="https://carsandstays.delta.com/Hotels#" target="_blank" rel="noopener noreferrer">Delta Stays</a>',
+	
+		categories: ["delta_stays"],
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2026-01-13",
+		cap_amount: 100,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 400,
+		channel: "delta_stays_platform",
+	
+		eligible_fn: (tx) => tx.category === "delta_stays",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Delta Gold at Delta Stays until you’ve used the $100 annual Delta Stays credit.",
+        reason_no:
+            "Delta Stays annual credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  /* =========================
+		 MARRIOTT BONVOY BRILLIANT
+		 ========================= */
+	
+	  {
+		id: "mb_dining",
+		card: "MB",
+	
+		label: "Dining credit",
+		labelHtml: "Dining credit",
+		state_label: "🍔 Dining credit",
+		state_labelHtml: "🍔 Dining credit",
+	
+		categories: ["dining"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 25,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 300,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "dining",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+        reason_yes:
+              "Use Bonvoy Brilliant first to use the $25 monthly dining.",
+        reason_no:
+            "Bonvoy Brilliant monthly dining credit is used up; ",
+	
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  }
+	
+	];
+	
+	const BASE_CATEGORY_FALLBACKS = {
+	  dining: {
+		card: "AG",
+		channel: "direct",
+		reason: "Use Amex Gold for 4X points on dining."
+	  },
+	
+	  resy: {
+		card: "AG",
+		channel: "resy",
+		reason: "Use Amex Gold for 4X points on dining."
+	  },
+	
+	  csr_opentable: {
+		card: "AG",
+		channel: "opentable_platform",
+		reason: "Use Amex Gold for dining when no CSR OpenTable credit is available."
+	  },
+	
+	  ag_dining: {
+		card: "AG",
+		channel: "direct",
+		reason: "Use Amex Gold for 4X points on dining."
+	  },
+	
+	  doordash: {
+		card: "CSR",
+		channel: "doordash",
+		reason: "Use Chase Sapphire Reserve for DoorDash discounts."
+	  },
+	
+	  uber_eats: {
+		card: "AG",
+		channel: "uber_app",
+		reason: "Use Amex Gold for Uber Eats."
+	  },
+	
+	  dunkin: {
+		card: "AG",
+		channel: "direct",
+		reason: "Use Amex Gold for 4X points on dining."
+	  },
+	
+	  groceries: {
+		card: "AG",
+		channel: "direct",
+		reason: "Use Amex Gold at grocery stores for 4X points."
+	  },
+	
+	  doordash_groceries: {
+		card: "CSR",
+		channel: "doordash_groceries_platform",
+		reason: "Use Chase Sapphire Reserve for DoorDash discounts."
+	  },
+	
+	  instacart: {
+		card: "CSR",
+		channel: "instacart_platform",
+		reason: "Default back to Chase Sapphire for flexible points."
+	  },
+	
+	  lyft: {
+		card: "CSR",
+		channel: "lyft_app",
+		reason: "Use Chase Sapphire Reserve for Lyft for discounts."
+	  },
+	
+	  rideshare_other: {
+		card: "AG",
+		channel: "uber_app",
+		reason: "Use Amex Gold for Uber rides."
+	  },
+	
+	  united_flight: {
+		card: "UQ",
+		channel: "united",
+		reason: "Use United Quest for United flights to earn miles and airline-specific perks."
+	  },
+	
+	  delta_flight_threshold: {
+		card: "DG",
+		channel: "delta",
+		reason: "Use Delta SkyMiles Amex Gold for Delta threshold-chasing spend."
+	  },
+	
+	  delta_flight: {
+		card: "DG",
+		channel: "delta",
+		reason: "Use Delta SkyMiles Amex Gold for miles and points on Delta flights."
+	  },
+	
+	  other_flight: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire for other airline flights for flexible points."
+	  },
+	
+	  marriott_hotel: {
+		card: "MB",
+		channel: "direct",
+		reason: "Use Marriott Brilliant for Marriott stays for 6X points."
+	  },
+	
+	  theedit_hotel: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire Reserve for flexible points."
+	  },
+	
+	  renowned_hotel: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire Reserve for flexible points."
+	  },
+	
+	  delta_stays: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire Reserve for flexible points."
+	  },
+	
+	  other_hotel: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire for non-Marriott hotel stays."
+	  },
+	
+	  peloton: {
+		card: "CSR",
+		channel: "peloton_platform",
+		reason: "Use Chase Sapphire Reserve for Peloton membership charges."
+	  },
+	
+	  streaming: {
+		card: "UQ",
+		channel: "direct",
+		reason: "Use United Quest for streaming."
+	  },
+	
+	  stubhub: {
+		card: "CSR",
+		channel: "stubhub_platform",
+		reason: "Use Chase Sapphire Reserve for StubHub / viagogo / soccer.com."
+	  },
+	
+	  uq_rentalcar: {
+		card: "CSR",
+		channel: "direct",
+		reason: "Use Chase Sapphire Reserve for flexible points."
+	  },
+	
+	  other: {
+		card: "CSR",
+		channel: "direct",
+		reason: "Default to Chase Sapphire for flexible points."
+	  }
 	};
 	
+	const CARD_BENEFITS_BY_ID = Object.fromEntries(
+	  CARD_BENEFITS.map(b => [b.id, b])
+	);
+	
+	const CARD_BENEFITS_BY_CARD = CARD_BENEFITS.reduce((acc, b) => {
+	  if (!acc[b.card]) acc[b.card] = [];
+	  acc[b.card].push(b);
+	  return acc;
+	}, {});
+	
+	// 5.0 Generic cadence window for a card benefit
+	function getBenefitWindowForDate(benefit, asOfDate) {
+	  if (!benefit || !asOfDate) return null;
+	
+	  if (benefit.cadence === "annual" && benefit.cadence_type === "card_anniversary") {
+		const anchorStr =
+		  benefit.start_date ||
+		  CARDS[benefit.card]?.anniversary_start ||
+		  null;
+	
+		if (!anchorStr) return null;
+	
+		const anchor = parseISODateLocal(anchorStr);
+		if (!anchor) return null;
+	
+		const start = new Date(anchor);
+		start.setFullYear(asOfDate.getFullYear());
+	
+		if (asOfDate < start) {
+		  start.setFullYear(asOfDate.getFullYear() - 1);
+		}
+	
+		const end = new Date(start);
+		end.setFullYear(end.getFullYear() + 1);
+	
+		return { start, end };
+	  }
+	
+	  return getCadenceWindowForDate(benefit.cadence, asOfDate);
+	}
+	
+	// 5.0 Compute prior usage for one benefit
+	function getBenefitUsageSoFar(benefit, tx, txsBeforeSave) {
+	  const txDate = parseISODateLocal(tx.date);
+	  if (!benefit || !txDate) {
+		return { priorUsed: 0, priorTxCount: 0, window: null };
+	  }
+	
+	  const window = getBenefitWindowForDate(benefit, txDate);
+	  if (!window) {
+		return { priorUsed: 0, priorTxCount: 0, window: null };
+	  }
+	
+	  let priorUsed = 0;
+	  let priorTxCount = 0;
+	
+	  for (const priorTx of txsBeforeSave || []) {
+		if (priorTx.cardUsed !== benefit.card) continue;
+		if (priorTx.cardBenefitId !== benefit.id) continue;
+	
+		const priorDate = parseISODateLocal(priorTx.date);
+		if (!priorDate) continue;
+		if (priorDate < window.start || priorDate >= window.end) continue;
+	
+		const applied = Number(priorTx.cardBenefitApplied) || 0;
+		priorUsed += applied;
+	
+		if (applied > 0) {
+		  priorTxCount += 1;
+		}
+	  }
+	
+	  return { priorUsed, priorTxCount, window };
+	}
+	
+	// 5.0 Evaluate one card benefit candidate
+	function evaluateCardBenefitCandidate(benefit, tx, txsBeforeSave) {
+	  if (!benefit || !tx) return null;
+	  if (tx.cardUsed && tx.cardUsed !== benefit.card) return null;
+	
+	  const amount = Number(tx.amount) || 0;
+	  if (amount <= 0) return null;
+	
+	  if (typeof benefit.eligible_fn === "function") {
+		if (!benefit.eligible_fn(tx)) return null;
+	  } else if (Array.isArray(benefit.categories)) {
+		if (!benefit.categories.includes(tx.category)) return null;
+	  } else {
+		return null;
+	  }
+	
+	  const { priorUsed, priorTxCount, window } = getBenefitUsageSoFar(benefit, tx, txsBeforeSave);
+	  if (!window) return null;
+	
+	  const capAmount = Number(benefit.cap_amount) || 0;
+	  const remainingAmount = Math.max(0, capAmount - priorUsed);
+	  if (remainingAmount <= 0) return null;
+	
+	  if (benefit.tx_cap != null && priorTxCount >= Number(benefit.tx_cap)) {
+		return null;
+	  }
+	
+	  let immediateValue;
+		if (typeof benefit.value_fn === "function") {
+		  immediateValue = Number(benefit.value_fn(tx, remainingAmount)) || 0;
+		} else {
+		  immediateValue = Math.min(amount, remainingAmount);
+		}
+		
+		if (benefit.per_tx_cap != null && !isNaN(benefit.per_tx_cap)) {
+		  immediateValue = Math.min(immediateValue, Number(benefit.per_tx_cap));
+		}
+		
+		immediateValue = Math.max(0, Math.min(immediateValue, remainingAmount));
+		
+	  if (immediateValue <= 0) return null;
+	
+	  return {
+		benefit,
+		immediateValue,
+		remainingAmount,
+		priorUsed,
+		priorTxCount,
+		window
+	  };
+	}
+	
+	// 5.0 small helper that totals usage by benefit id for the current window
+	function getSavedBenefitUsageForCurrentWindow(benefitId, today = new Date(), txs = null) {
+	  const benefit = CARD_BENEFITS_BY_ID[benefitId];
+	  if (!benefit) return { used: 0, txCount: 0, window: null };
+	
+	  const window = getBenefitWindowForDate(benefit, today);
+	  if (!window) return { used: 0, txCount: 0, window: null };
+	
+	  const transactions = txs ?? loadTransactions();
+	  let used = 0;
+	  let txCount = 0;
+	
+	  for (const tx of transactions) {
+		if (tx.cardBenefitId !== benefitId) continue;
+	
+		const d = parseISODateLocal(tx.date);
+		if (!d) continue;
+		if (d < window.start || d >= window.end) continue;
+	
+		const applied = Number(tx.cardBenefitApplied) || 0;
+		used += applied;
+		if (applied > 0) txCount += 1;
+	  }
+	
+	  return { used, txCount, window };
+	}
+	
+	function getBenefitStateTimeLabel(benefit, today = new Date()) {
+	  if (benefit.cadence === "monthly") return "Monthly";
+	  if (benefit.cadence === "semiannual") return getSemiannualLabel(today);
+	
+	  if (benefit.cadence === "annual") {
+		if (benefit.cadence_type === "card_anniversary") return "Annual";
+		return "Annual (YTD)";
+	  }
+	
+	  return "";
+	}
+	
+	// 5.0 Choose the best card-native benefit (replaces the old benefitPriority object inside calculateCardBenefitApplied)
+	function chooseBestCardBenefit(tx, txsBeforeSave) {
+	  const candidates = [];
+	
+	  for (const benefit of CARD_BENEFITS) {
+		const candidate = evaluateCardBenefitCandidate(benefit, tx, txsBeforeSave);
+		if (candidate) candidates.push(candidate);
+	  }
+	
+	  if (!candidates.length) return null;
+	
+	  candidates.sort((a, b) => {
+		const pa = Number(a.benefit.priority) || 50;
+		const pb = Number(b.benefit.priority) || 50;
+		if (pa !== pb) return pa - pb;
+	
+		if (b.immediateValue !== a.immediateValue) {
+		  return b.immediateValue - a.immediateValue;
+		}
+	
+		return (Number(a.benefit.display_order) || 999) - (Number(b.benefit.display_order) || 999);
+	  });
+	
+	  return candidates[0];
+	}
+
 	// Compute the current rolling benefit-year window for a card
 	function getRollingBenefitYear(cardCode, today = new Date()) {
-	  const cfg = ROLLING_BENEFIT_YEARS[cardCode];
-	  if (!cfg) return null;
+	  const cardMeta = CARDS[cardCode];
+	  const anchorStr = cardMeta?.anniversary_start;
+	  if (!anchorStr) return null;
 	
-	  const anchor = parseISODateLocal(cfg.start);
+	  const anchor = parseISODateLocal(anchorStr);
 	  if (!anchor) return null;
 	
-	  // Make "this year's anniversary" using the anchor month/day
 	  const thisYearStart = new Date(anchor);
 	  thisYearStart.setFullYear(today.getFullYear());
 	
-	  // If we haven't reached the anniversary yet, use last year's start
 	  if (today < thisYearStart) {
 		thisYearStart.setFullYear(today.getFullYear() - 1);
 	  }
@@ -1177,112 +2313,91 @@
 	  return { start: thisYearStart, end };
 	}
 	
-	// -------- Calculate native card benefit for a single transaction -------
+	// 5.0 Calculate native card benefit for a single transaction (new version now uses CARD_BENEFITS, not old ROLLING_BENEFITS)
 	function calculateCardBenefitApplied(tx, txsBeforeSave) {
-	  const card = tx.cardUsed;
-	  if (!card) return { cardBenefitId: null, cardBenefitApplied: 0 };
-		
-	  const benefitListRaw = ROLLING_BENEFITS_BY_CARD[card] || [];
-	  if (!benefitListRaw.length) return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  const winner = chooseBestCardBenefit(tx, txsBeforeSave);
 	
-	  const txDate = parseISODateLocal(tx.date);
-	  if (!txDate) return { cardBenefitId: null, cardBenefitApplied: 0 };
-	
-	  const amount = Number(tx.amount) || 0;
-	  if (amount <= 0) return { cardBenefitId: null, cardBenefitApplied: 0 };
-	
-	  const benefitPriority = {
-		csr_doordash_dining: 10,
-		csr_doordash_groceries: 10,
-		csr_lyft: 10,
-		csr_peloton: 10,
-		csr_opentable: 10,
-		csr_theedit: 10,
-		csr_stubhub: 10,
-	
-		ag_uber: 10,
-		ag_dining_partners: 10,
-		ag_dunkin: 10,
-		ag_resy: 10,
-	
-		mb_dining: 10,
-	
-		dg_delta_stays: 10,
-	
-		uq_instacart: 10,
-		uq_renowned: 10,
-		uq_rentalcar: 10,
-		uq_rideshare: 50,
-	
-		csr_travel: 99, // broad fallback
-	  };
-	
-	  const benefitList = benefitListRaw.slice().sort((a, b) => {
-		const pa = benefitPriority[a.id] ?? 50;
-		const pb = benefitPriority[b.id] ?? 50;
-		return pa - pb || String(a.id).localeCompare(String(b.id));
-	  });
-	
-	  for (const b of benefitList) {
-		  if (!b.match(tx)) continue;
-		
-		  let periodStart, periodEnd;
-		
-		  if (b.cadence === "annual") {
-			const rollingWin = getRollingBenefitYear(card, txDate);
-		
-			if (rollingWin) {
-			  periodStart = rollingWin.start;
-			  periodEnd = rollingWin.end;
-			} else {
-			  const fallbackWin = getCadenceWindowForDate(b.cadence, txDate);
-			  periodStart = fallbackWin.start;
-			  periodEnd = fallbackWin.end;
-			}
-		  } else {
-			const win = getCadenceWindowForDate(b.cadence, txDate);
-			periodStart = win.start;
-			periodEnd = win.end;
-		  }
-		
-		  let priorUsed = 0;
-		  let priorTxCount = 0;
-		
-		  for (const priorTx of txsBeforeSave) {
-			if (priorTx.cardUsed !== card) continue;
-			if (priorTx.cardBenefitId !== b.id) continue;
-		
-			const priorDate = parseISODateLocal(priorTx.date);
-			if (!priorDate) continue;
-			if (priorDate < periodStart || priorDate >= periodEnd) continue;
-		
-			const applied = Number(priorTx.cardBenefitApplied) || 0;
-			priorUsed += applied;
-		
-			if (b.maxTxPerPeriod != null && applied > 0) {
-			  priorTxCount += 1;
-			}
-		  }
-	
-		if (b.maxTxPerPeriod != null && priorTxCount >= b.maxTxPerPeriod) {
-			  continue;  // let lower-priority benefits try
-			}
-		
-	
-		let appliedNow = amount;
-		if (b.perTxCap != null) appliedNow = Math.min(appliedNow, b.perTxCap);
-	
-		const cap = Number(b.cap) || 0;
-		const remaining = Math.max(0, cap - priorUsed);
-		if (remaining <= 0) continue;  // let lower-priority benefits try
-	
-		const credit = Math.min(appliedNow, remaining);
-		return { cardBenefitId: b.id, cardBenefitApplied: Math.max(0, credit) };
+	  if (!winner) {
+		return { cardBenefitId: null, cardBenefitApplied: 0 };
 	  }
 	
-	  return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  return {
+		cardBenefitId: winner.benefit.id,
+		cardBenefitApplied: winner.immediateValue
+	  };
+	}
+	
+	// 5.0 helper that derives valid channels from the recommendation object
+	function getValidChannelsForRecommendation(rec, purchase) {
+	  if (!rec || !purchase) return ["direct"];
+	
+	  // Benefit-based recommendations: channel comes from the chosen CARD_BENEFITS entry
+	  if (rec.recommendationSource === "card_benefit") {
+		return rec.channel ? [rec.channel] : ["direct"];
+	  }
+	
+	  // Merchant offers: keep the recommendation's chosen channel
+	  if (rec.recommendationSource === "merchant_offer") {
+		return rec.channel ? [rec.channel] : ["direct"];
+	  }
+	
+	  // Base fallback: use the fallback registry for this category
+	  if (rec.recommendationSource === "base_fallback") {
+		const fallback = getBaseFallbackRecommendation(purchase.category);
+		return fallback?.channel ? [fallback.channel] : ["direct"];
+	  }
+	
+	  return rec.channel ? [rec.channel] : ["direct"];
 	}
 
+	// 5.0 helpers for when the user overrides the card in a rec, 
+	// do not pretending the original recommendation still governs channel validity
+	function getValidChannelsForSelectedCard(purchase, rec, selectedCard) {
+	  if (!purchase || !rec || !selectedCard) return ["direct"];
+	
+	  // If still using the recommended card, honor the original recommendation semantics
+	  if (selectedCard === rec.card) {
+		return getValidChannelsForRecommendation(rec, purchase);
+	  }
+	
+	  const channels = new Set();
+	
+	  // 1) Add any card-benefit channels for this selected card + purchase category
+	  CARD_BENEFITS.forEach((benefit) => {
+		const matchesCategory =
+		  Array.isArray(benefit.categories) &&
+		  benefit.categories.includes(purchase.category);
+	
+		if (benefit.card === selectedCard && matchesCategory && benefit.channel) {
+		  channels.add(benefit.channel);
+		}
+	  });
+	
+	  // 2) Add the fallback channel only if this selected card is the fallback card for the category
+	  const fallback = getBaseFallbackRecommendation(purchase.category);
+	  if (fallback && fallback.card === selectedCard && fallback.channel) {
+		channels.add(fallback.channel);
+	  }
+	
+	  // 3) Final fallback
+	  if (channels.size === 0) {
+		channels.add("direct");
+	  }
+	
+	  return Array.from(channels);
+	}
+	
+	function getDefaultChannelForSelectedCard(purchase, rec, selectedCard) {
+	  if (!purchase || !rec || !selectedCard) return "direct";
+	
+	  if (selectedCard === rec.card) {
+		return rec.channel || "direct";
+	  }
+	
+	  const validChannels = getValidChannelsForSelectedCard(purchase, rec, selectedCard);
+	  return validChannels[0] || "direct";
+	}
+	
     // --- Cross-browser safe date parser (no UTC shift) ---
 	function parseISODateLocal(dateStr) {
 	  if (!dateStr) return null;
@@ -1340,6 +2455,37 @@
 		  ? Number(tx.cardBenefitApplied)
 		  : 0,
 	  };
+	}
+	
+	function normalizeImportedMerchantBenefit(b) {
+	  const normalized = {
+		id: b?.id != null ? String(b.id) : ("mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000)),
+		merchant: b?.merchant != null ? String(b.merchant).trim() : "",
+		card: b?.card != null ? String(b.card).toUpperCase() : "",
+		discountType: b?.discountType === "percent" ? "percent" : "amount",
+		discountValue: Number(b?.discountValue || 0),
+		limitType: b?.limitType === "total" ? "total" : "per_tx",
+		limitValue:
+		  b?.limitValue != null && b.limitValue !== "" && !isNaN(Number(b.limitValue))
+			? Number(b.limitValue)
+			: null,
+		minSpend:
+		  b?.minSpend != null && b.minSpend !== "" && !isNaN(Number(b.minSpend))
+			? Number(b.minSpend)
+			: null,
+		endDate: b?.endDate != null ? String(b.endDate) : "",
+		category: b?.category != null ? String(b.category) : "",
+		maxTransactions:
+		  b?.maxTransactions != null && b.maxTransactions !== "" && !isNaN(Number(b.maxTransactions))
+			? Number(b.maxTransactions)
+			: null,
+	  };
+	
+	  if (normalized.maxTransactions != null && normalized.maxTransactions <= 0) normalized.maxTransactions = null;
+	  if (normalized.limitValue != null && normalized.limitValue <= 0) normalized.limitValue = null;
+	  if (normalized.minSpend != null && normalized.minSpend <= 0) normalized.minSpend = null;
+	
+	  return normalized;
 	}
 
     function showToast(message) {
@@ -1576,10 +2722,6 @@
       return new Date(d.getFullYear(), d.getMonth(), 1);
     }
     
-    function startOfCalendarMonth(d) {
-	  return new Date(d.getFullYear(), d.getMonth(), 1);
-	}
-	
 	function startOfCalendarYear(d) {
 	  return new Date(d.getFullYear(), 0, 1);
 	}
@@ -1591,7 +2733,7 @@
 		: new Date(d.getFullYear(), 6, 1);
 	}
 	
-	function addMonthsLocal(d, n) {
+	function addMonths(d, n) {
 	  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 	  x.setMonth(x.getMonth() + n);
 	  return x;
@@ -1600,14 +2742,14 @@
 	function getCadenceWindowForDate(cadence, txDate) {
 	  // Returns [start, end) for the *txDate’s* applicable window
 	  if (cadence === "monthly") {
-		const start = startOfCalendarMonth(txDate);
-		const end = addMonthsLocal(start, 1);
+		const start = startOfMonth(txDate);
+		const end = addMonths(start, 1);
 		return { start, end };
 	  }
 	
 	  if (cadence === "semiannual") {
 		const start = startOfSemiannualPeriod(txDate);
-		const end = addMonthsLocal(start, 6);
+		const end = addMonths(start, 6);
 		return { start, end };
 	  }
 	
@@ -1683,12 +2825,6 @@
       return month < 6 ? "Jan–Jun" : "Jul–Dec";
     }
 
-	function addMonths(date, n) {
-	  const d = new Date(date);
-	  d.setMonth(d.getMonth() + n);
-	  return d;
-	}
-	
 	function getBenefitMonthIndex(start, date) {
 	  let months =
 		(date.getFullYear() - start.getFullYear()) * 12 +
@@ -1705,8 +2841,8 @@
 	function computeRollingAnnualBenefits(txs, today = new Date()) {
 	  const out = {};
 	
-	  // Init per card with current rolling year window
-	  for (const card of Object.keys(ROLLING_BENEFIT_YEARS)) {
+	  // Init per card from CARDS registry
+	  for (const card of Object.keys(CARDS)) {
 		const win = getRollingBenefitYear(card, today);
 		if (!win) continue;
 	
@@ -1714,23 +2850,25 @@
 		  start: win.start,
 		  end: win.end,
 		  totalUsed: 0,
-		  benefits: {}, // benefitId -> { label, used, cap, cadence }
+		  benefits: {} // benefitId -> benefit summary row
 		};
 	  }
 	
-	  // Pre-seed all known rolling benefits so $0 rows still render
-	  for (const [card, benefitList] of Object.entries(ROLLING_BENEFITS_BY_CARD)) {
-		const cardBucket = out[card];
+	  // Pre-seed all known card-native benefits from CARD_BENEFITS
+	  for (const benefit of CARD_BENEFITS) {
+		const cardBucket = out[benefit.card];
 		if (!cardBucket) continue;
 	
-		for (const b of benefitList) {
-		  cardBucket.benefits[b.id] = {
-			label: b.label,
-			used: 0,
-			cap: b.cap,
-			cadence: b.cadence,
-		  };
-		}
+		cardBucket.benefits[benefit.id] = {
+		  id: benefit.id,
+		  label: benefit.label || benefit.id,
+		  labelHtml: benefit.labelHtml || null,
+		  used: 0,
+		  cap: benefit.cap_amount ?? null,
+		  cadence: benefit.cadence || null,
+		  display_order: benefit.display_order ?? 999,
+		  priority: benefit.priority ?? 50
+		};
 	  }
 	
 	  // Aggregate directly from saved transaction fields
@@ -1748,13 +2886,17 @@
 		const applied = Number(tx.cardBenefitApplied) || 0;
 		if (applied <= 0) continue;
 	
-		// If benefit no longer exists in config, create a fallback row
+		// Fallback row if benefit id is no longer in CARD_BENEFITS
 		if (!bucket.benefits[tx.cardBenefitId]) {
 		  bucket.benefits[tx.cardBenefitId] = {
+			id: tx.cardBenefitId,
 			label: tx.cardBenefitId,
+			labelHtml: null,
 			used: 0,
 			cap: null,
 			cadence: null,
+			display_order: 999,
+			priority: 999
 		  };
 		}
 	
@@ -1895,10 +3037,23 @@
 		  return;
 		}
 		
-		const benefitsOk = saveMerchantBenefits(data.merchantBenefits);
+		const normalizedBenefits = data.merchantBenefits
+		  .map(normalizeImportedMerchantBenefit)
+		  .filter(b =>
+			  b.merchant &&
+			  b.card &&
+			  b.endDate &&
+			  b.category &&
+			  b.discountValue > 0 &&
+			  (b.maxTransactions == null || b.maxTransactions > 0) &&
+			  (b.limitValue == null || b.limitValue > 0) &&
+			  (b.minSpend == null || b.minSpend > 0)
+			);
+  		const benefitsOk = saveMerchantBenefits(normalizedBenefits);
 		if (!benefitsOk) {
-		  // Roll back transactions so import is all-or-nothing
+		  // Roll back both transactions and merchant benefits so import is all-or-nothing
 		  saveTransactions(oldTxs);
+		  saveMerchantBenefits(oldBenefits);
 		  showToast("⚠️ Import failed — merchant benefits could not be saved. No changes were applied.");
 		  return;
 		}
@@ -1911,7 +3066,9 @@
 		renderStateSummary();
 		renderRollingAnnualSummary();
 		
-		alert(`Successfully imported ${txCount} transactions and ${benefitCount} merchant benefits!`);
+		const importedTxCount = normalizedTxs.length;
+		const importedBenefitCount = normalizedBenefits.length;
+		alert(`Successfully imported ${importedTxCount} transactions and ${importedBenefitCount} merchant benefits!`);
 
         } catch (error) {
           alert("Error reading backup file. Make sure it's a valid JSON file exported from this app.");
@@ -2033,9 +3190,6 @@
         "renowned_hotel",
         "delta_stays",
         "other_hotel",
-        "lyft",
-        "rideshare_other",
-        "uq_rentalcar",
       ]);
 
       for (const tx of txs) {
@@ -2383,347 +3537,53 @@
 
     // ---------- State summary ----------
     function renderStateSummary() {
-      const txs = loadTransactions();
-      const cardState = computeState(txs);
-      const benefits = loadMerchantBenefits();
-      const merchantState = computeMerchantState(txs, benefits);
-      const el = document.getElementById("stateSummary");
+		const txs = loadTransactions();
+		const benefits = loadMerchantBenefits();
+		const merchantState = computeMerchantState(txs, benefits);
+		const el = document.getElementById("stateSummary");
+		const today = new Date();
 
       // ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
       const ccRows = [];
     
-      // CSR Travel credit (calendar year, $300)
-      {
-        const limit = 300;
-        const used = Math.min(cardState.csrTravelYTD || 0, limit);
-        ccRows.push({
-          label: "✈️🏨🚙 Travel credit",
-          card: "CSR",
-          time: "Annual (YTD)",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
+		// Build all real card-native benefit rows from CARD_BENEFITS
+		const sortedBenefits = [...CARD_BENEFITS].sort(
+		  (a, b) => (Number(a.display_order ?? 999) - Number(b.display_order ?? 999))
+		);
+		
+		for (const benefit of sortedBenefits) {
+		  const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
+		
+		  const limit = Number(benefit.cap_amount || 0);
+		  const used = limit > 0 ? Math.min(usage.used, limit) : usage.used;
+		
+		  const txCap =
+			benefit.tx_cap != null && !isNaN(benefit.tx_cap)
+			  ? Number(benefit.tx_cap)
+			  : null;
+		
+		  const fullyUsed =
+			(limit > 0 && used >= limit) ||
+			(txCap != null && usage.txCount >= txCap);
+		
+		  ccRows.push({
+			label: benefit.label || benefit.id,
+			labelHtml: benefit.labelHtml || null,
+			card: benefit.card,
+			time: getBenefitStateTimeLabel(benefit, today),
+			usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+			fullyUsed,
+		  });
+		}
     
-      // CSR OpenTable dining partners semi-annual ($150 per 6 month period)
-      {
-        const limit = 150;
-        const used = Math.min(cardState.csrOpenTableThisPeriod || 0, limit);
-        ccRows.push({
-          label: "🍔 Dining partners on OpenTable",
-          labelHtml:
-            '🍔 Dining partners on ' +
-            '<a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" ' +
-            'target="_blank" rel="noopener noreferrer">OpenTable</a>',
-          card: "CSR",
-          time: getSemiannualLabel(),
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-      
-      // CSR DoorDash Dining $5/month
-      {
-        const limit = 5;
-        const used = Math.min(cardState.csrDoordashThisMonth || 0, limit);
-        ccRows.push({
-          label: "🥡 DoorDash Dining",
-          labelHtml:
-            '🥡 <a href="https://www.doordash.com" ' +
-            'target="_blank" rel="noopener noreferrer">DoorDash</a>' +
-            ' dining',
-          card: "CSR",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // CSR DoorDash Groceries – 2 × $10 per month (up to $20/mo)
-      {
-        const dollarCap = 20; // 2 × $10
-        const used = Math.min(cardState.csrDoordashGroceriesThisMonth || 0, dollarCap);
-        const txCount = cardState.csrDoordashGroceriesTxThisMonth || 0;
-      
-        ccRows.push({
-          label: "🛒 DoorDash Groceries",
-          labelHtml:
-            '🛒 <a href="https://www.doordash.com" ' +
-            'target="_blank" rel="noopener noreferrer">DoorDash</a>' +
-            ' groceries',
-          card: "CSR",
-          time: "Monthly (2x $10)",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(dollarCap)}`,
-          // Treat it as "fully used" if EITHER:
-          // - you’ve consumed $20 of credit, OR
-          // - you’ve used it on 2 qualifying transactions
-          fullyUsed: used >= dollarCap || txCount >= 2,
-        });
-      }
-
-      // CSR Lyft $10/month
-      {
-        const limit = 10;
-        const used = Math.min(cardState.csrLyftThisMonth || 0, limit);
-        ccRows.push({
-          label: "🚗 Lyft",
-          labelHtml:
-            '🚗 <a href="https://www.lyft.com" ' +
-            'target="_blank" rel="noopener noreferrer">Lyft</a>',
-          card: "CSR",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // CSR The Edit hotel partners semi-annual ($250 per 6 month period)
-      {
-        const limit = 250;
-        const used = Math.min(cardState.csrTheEditThisPeriod || 0, limit);
-        ccRows.push({
-          label: "🏨 The Edit hotel partners",
-          labelHtml:
-            '🏨 The Edit hotel partners on ' +
-	        '<a href="https://www.chase.com/travel/the-edit" ' +
-	        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
-          card: "CSR",
-          time: getSemiannualLabel(),
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-      
-      // CSR StubHub semi-annual ($150 per 6-month period)
-      {
-        const limit = 150;
-        const used = Math.min(cardState.csrStubhubThisPeriod || 0, limit);
-        ccRows.push({
-          label: "🎫 StubHub / viagogo / soccer.com",
-          labelHtml:
-            '🎫 <a href="https://www.StubHub.com" ' +
-            'target="_blank" rel="noopener noreferrer">StubHub</a>' +
-            ' / ' +
-            '<a href="https://www.viagogo.com" ' +
-            'target="_blank" rel="noopener noreferrer">viagogo</a>' +
-            ' / ' +
-            '<a href="https://www.soccer.com" ' +
-            'target="_blank" rel="noopener noreferrer">soccer&#46;com</a>',
-          card: "CSR",
-          time: getSemiannualLabel(),
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // CSR Peloton $10/month
-      {
-        const limit = 10;
-        const used = Math.min(cardState.csrPelotonThisMonth || 0, limit);
-        ccRows.push({
-          label: "🚲 Peloton membership",
-          card: "CSR",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // AG Resy $50 per semi-annual period
-      {
-        const limit = 50;
-        const used = Math.min(cardState.agResyThisPeriod || 0, limit);
-        ccRows.push({
-          label: "🍔 Resy dining",
-          labelHtml:
-            '🍔 <a href="https://www.resy.com" ' +
-            'target="_blank" rel="noopener noreferrer">Resy</a>' +
-            ' dining',
-          card: "AG",
-          time: getSemiannualLabel(),
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-
-      // AG Dining partners $10/month
-      {
-        const limit = 10;
-        const used = Math.min(cardState.agDiningPartnersThisMonth || 0, limit);
-        ccRows.push({
-          label: "🥡 Dining partners (GrubHub/Seamless, Cheesecake Factory, Goldbelly, Five Guys, Wine.com)",
-          labelHtml:
-            '🥡 Dining partners (' +
-            '<a href="https://www.grubhub.com" ' +
-            'target="_blank" rel="noopener noreferrer">GrubHub</a>' +
-            '/' +
-            '<a href="https://www.seamless.com" ' +
-            'target="_blank" rel="noopener noreferrer">Seamless</a>' +
-            ', Cheesecake Factory, Goldbelly, Five Guys, '+
-            '<a href="https://www.wine.com" ' +
-            'target="_blank" rel="noopener noreferrer">Wine&#46;com</a>'+
-            ')',
-          card: "AG",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-
-      // AG Dunkin $7/month
-      {
-        const limit = 7;
-        const used = Math.min(cardState.agDunkinThisMonth || 0, limit);
-        ccRows.push({
-          label: "🍩 Dunkin",
-          card: "AG",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // AG Uber Cash $10/month (rides + Uber Eats)
-      {
-        const limit = 10;
-        const used = Math.min(cardState.agUberThisMonth || 0, limit);
-        ccRows.push({
-          label: "🚗🥡 Uber rides + Eats",
-          labelHtml:
-            '🚗🥡 <a href="https://www.uber.com" ' +
-            'target="_blank" rel="noopener noreferrer">Uber</a>' +
-            ' rides + Eats',
-          card: "AG",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-
-      // UQ Rideshare $8/month
-      {
-        const limit = 8;
-        const used = Math.min(cardState.uqRideshareThisMonth || 0, limit);
-        ccRows.push({
-          label: "🚗 Lyft and Uber rides",
-          labelHtml:
-            '🚗 <a href="https://www.lyft.com" ' +
-            'target="_blank" rel="noopener noreferrer">Lyft</a>'+
-            ' and '+
-            '<a href="https://www.uber.com" ' +
-            'target="_blank" rel="noopener noreferrer">Uber</a>' +
-            ' rides',
-          card: "UQ",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // UQ Instacart $15/month
-      {
-        const limit = 15;
-        const used = Math.min(cardState.uqInstacartThisMonth || 0, limit);
-        ccRows.push({
-          label: "🛒 Instacart",
-          labelHtml:
-            '🛒 <a href="https://www.instacart.com" ' +
-            'target="_blank" rel="noopener noreferrer">Instacart</a>',
-          card: "UQ",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // UQ Renowned Hotel $150/year
-      {
-        const limit = 150;
-        const used = Math.min(cardState.uqRenownedYTD || 0, limit);
-        ccRows.push({
-          label: "🏨 Renowned Hotel",
-          labelHtml:
-            '🏨 Renowned hotel partners on ' +
-	        '<a href="https://www.chase.com/travel/renowned-hotels" ' +
-	        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
-          card: "UQ",
-          time: "Annual (YTD)",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // UQ Avis and Budget car rentals – 2 × $40 per year (up to $80/year)
-      {
-        const dollarCap = 80; // 2 × $10
-        const used = Math.min(cardState.uqRentalCarYTD || 0, dollarCap);
-        const txCount = cardState.uqRentalCarTxYTD || 0;
-      
-        ccRows.push({
-          label: "🚙 Avis & Budget car rental",
-          labelHtml:
-            '🚙 Avis &amp; Budget car rental on <a href="https://cars.united.com" ' +
-            'target="_blank" rel="noopener noreferrer">cars&#46;united&#46;com</a>' ,
-          card: "UQ",
-          time: "Annual (2x $40)",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(dollarCap)}`,
-          // Treat it as "fully used" if EITHER:
-          // - you’ve consumed $80 of credit, OR
-          // - you’ve used it on 2 qualifying transactions
-          fullyUsed: used >= dollarCap || txCount >= 2,
-        });
-      }
-
-      // MB Dining $25/month
-      {
-        const limit = 25;
-        const used = Math.min(cardState.mbDiningThisMonth || 0, limit);
-        ccRows.push({
-          label: "🍔 Dining credit",
-          card: "MB",
-          time: "Monthly",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-
-      // DG Delta Stays $100/year
-      {
-        const limit = 100;
-        const used = Math.min(cardState.dgDeltaStaysYTD || 0, limit);
-        ccRows.push({
-          label: "🏨 Delta Stays",
-          labelHtml:
-            '🏨 <a href="https://carsandstays.delta.com/Hotels#" ' +
-            'target="_blank" rel="noopener noreferrer">Delta Stays</a>',
-          card: "DG",
-          time: "Annual (YTD)",
-          usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-          fullyUsed: used >= limit,
-        });
-      }
-    
-      // DG $10k threshold - REMOVE
-      // {
-      //  const used = cardState.dg10kSpendYTD || 0;
-      //  const limit = 10000;
-      //  ccRows.push({
-      //    label: "$10k Delta spend threshold",
-      //    card: "DG",
-      //    time: "Annual (YTD)",
-      //    usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-      //    fullyUsed: used >= limit,
-      //  });
-      // }
-    
-      // ---------- MERCHANT BENEFITS TABLE ROWS ----------
-      const merchantRows = [];
-      const today = parseISODateLocal(formatTodayISO());
-      let soonCutoff = null;
-      if (today) {
-        soonCutoff = new Date(today);
-        soonCutoff.setDate(soonCutoff.getDate() + 7);
-      }
+		// ---------- MERCHANT BENEFITS TABLE ROWS ----------
+		const merchantRows = [];
+		const todayDate = parseISODateLocal(formatTodayISO());
+		let soonCutoff = null;
+		if (todayDate) {
+		  soonCutoff = new Date(todayDate);
+		  soonCutoff.setDate(soonCutoff.getDate() + 7);
+		}
     
       // Sort benefits by merchant, then end date
       const benefitsSorted = [...benefits].sort((a, b) => {
@@ -2744,7 +3604,7 @@
         const txCount = ms.txCount || 0;
         
         // Date-based classification (inclusive end date, shared logic)
-        let { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, today);
+        let { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
         
         // Respect max transaction cap as an additional expiry source
         if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
@@ -2776,7 +3636,7 @@
         }
     
         // Time text: just the date, optional "(expired)" – no "thru"
-        let timeText = formatBenefitEndDateDisplay(benefit.endDate, today);
+        let timeText = formatBenefitEndDateDisplay(benefit.endDate, todayDate);
         if (expired) {
           timeText = timeText ? `${timeText} Expired` : "Expired";
         }
@@ -2960,7 +3820,7 @@
 			  <th>Bens Used</th>
 			  <th>Ann. Fee</th>
 			  <th>Fee Recouped</th>
-			  <th>De-tails</th>
+			  <th>Dtls</th>
 			</tr>
 		  </thead>
 		  <tbody>
@@ -2985,17 +3845,24 @@
 		const pctLabel = `${Math.round(pct)}%`;
 		const startLabel = d.start ? formatMonthDay(d.start) : "";
 	
-		// Sort breakdown benefits: used desc, then alpha
+		// Sort breakdown benefits: display_order first, then used desc, then alpha
 		const benefitList = Object.values(d.benefits || {})
-		  .sort((a, b) => (Number(b.used || 0) - Number(a.used || 0)) || String(a.label || "").localeCompare(String(b.label || "")));
-	
-		// Include all benefits; if you later want to hide zero rows, easy tweak here
-		const breakdownRows = benefitList.map((b) => `
-		  <tr>
-			<td>${escapeHtml(b.label)}</td>
-			<td>$${formatMoneyWhole(b.used)}</td>
-		  </tr>
-		`).join("");
+		  .sort((a, b) =>
+			(Number(a.display_order ?? 999) - Number(b.display_order ?? 999)) ||
+			(Number(b.used || 0) - Number(a.used || 0)) ||
+			String(a.label || "").localeCompare(String(b.label || ""))
+		  );
+			
+		// Include all benefits; use labelHtml when available
+		const breakdownRows = benefitList.map((b) => {
+		  const benefitLabelHtml = b.labelHtml || escapeHtml(b.label || "");
+		  return `
+			<tr>
+			  <td>${benefitLabelHtml}</td>
+			  <td>$${formatMoneyWhole(b.used)}</td>
+			</tr>
+		  `;
+		}).join("");
 	
 		const detailsId = `rolling-details-${card}`;
 	
@@ -3124,672 +3991,142 @@
 
 	}
 
-    // ---------- Core category logic (no merchant override) ----------
-    function recommendCardBase(purchase, state) {
-      const { category } = purchase;
+	// 5.0 Build base fallback from registry (replaces recommendCardBase)
+	function getBaseFallbackRecommendation(category) {
+	  const fallback =
+		BASE_CATEGORY_FALLBACKS[category] ||
+		BASE_CATEGORY_FALLBACKS.other;
+	
+	  if (!fallback) {
+		return {
+		  card: "CSR",
+		  channel: "direct",
+		  reason: "Default to Chase Sapphire for flexible points."
+		};
+	  }
+	
+	  return {
+		card: fallback.card,
+		channel: fallback.channel,
+		reason: fallback.reason
+	  };
+	}
     
-      // DINING – general restaurants
-      if (category === "dining") {
-        if (state.mbDiningThisMonth < 25) {
-          return {
-            card: "MB",
-            channel: "direct",
-            reason:
-              "Use Bonvoy Brilliant first to use the $25 monthly dining credit before defaulting back to Chase Sapphire.",
-          };
-        }
-        return {
-          card: "AG",
-          channel: "direct",
-          reason:
-            "Bonvoy Brilliant monthly dining credit is used up; default back to Amex Gold for 4X points.",
-        };
-      }
-
-      // AMEX GOLD DINING PARTNERS (Grubhub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com)
-      if (category === "ag_dining") {
-        if (state.agDiningPartnersThisMonth < 10) {
-          return {
-            card: "AG",
-            channel: "direct",
-            // HTML version with links
-		    reasonMainHtml:
-            'Use Amex Gold with eligible partners (' +
-            '<a href="https://www.grubhub.com" ' +
-            'target="_blank" rel="noopener noreferrer">GrubHub</a>' +
-            '/' +
-            '<a href="https://www.seamless.com" ' +
-            'target="_blank" rel="noopener noreferrer">Seamless</a>' +
-            ', Cheesecake Factory, Goldbelly, Five Guys, '+
-            '<a href="https://www.wine.com" ' +
-            'target="_blank" rel="noopener noreferrer">Wine&#46;com</a>'+
-            ') to use the $10 monthly dining-partner credit.',
-		    // Plain-text fallback (for safety / consistency)
-			reason:
-            "Use Amex Gold with eligible partners (Grubhub/Seamless, Cheesecake Factory, Goldbelly, Wine.com, Five Guys) to use the $10 monthly dining-partner credit.",
-          };
-        }
-        return {
-          card: "AG",
-          channel: "direct",
-          reason:
-            "Your Amex Gold dining partner credit is used up, but Amex Gold still wins here for 4X points on dining.",
-        };
-      }
-
-        // CSR OpenTable dining partners (semi-annual $150)
-        if (category === "csr_opentable") {
-        // 1) Use CSR while the OpenTable credit is still available
-          if (state.csrOpenTableThisPeriod < 150) {
-            return {
-              card: "CSR",
-              channel: "opentable_platform",
-              reason:
-                "Use Chase Sapphire Reserve with OpenTable dining partners to use your $150 semi-annual OpenTable dining credit.",
-            };
-          }
-          // 2) OpenTable credit used up: check MB dining credit
-          if (state.mbDiningThisMonth < 25) { // MB's $25 dining credit
-            return {
-              card: "MB",
-              channel: "direct",
-              reason:
-                "Your OpenTable partner credit is used; switch to Bonvoy Brilliant to use the $25 monthly dining credit before going back to Amex Gold.",
-            };
-          }
-          // 3) OpenTable + MB credits both used → AG for 4x dining
-          return {
-            card: "AG",
-            channel: "opentable_platform",
-            reason:
-              "OpenTable and Bonvoy Brilliant dining credits are used up; use Amex Gold for 4X points on dining.",
-          };
-        }
+    // 5.0 Build recommendation from a winning benefit (one formatter for benefit-based recs)
+    function buildBenefitRecommendation(candidate, purchase) {
+	  const b = candidate.benefit;
+	
+	  return {
+		card: b.card,
+		channel: b.channel,
+		reasonMainHtml: b.reason_yesHtml || null,
+		reasonMain: b.reason_yes || "",
+		reason: b.reason_yes || "",
+		remainingAmount: candidate.remainingAmount,
+		totalCapAmount: Number(b.cap_amount) || 0,
+		categoryLabel: null,
+		recommendationSource: "card_benefit",
+		cardBenefitId: b.id
+	  };
+	}
     
-      // RESY DINING (semi-annual $50 credit)
-      if (category === "resy") {
-        // 1) Use AG while the Resy credit is still available
-        if (state.agResyThisPeriod < 50) {
-          return {
-            card: "AG",
-            channel: "resy",
-            reason:
-              "Use Amex Gold via Resy to burn your $50 semi-annual Resy dining credit.",
-          };
-        }
-        // 2) Resy credit used up: check MB dining credit
-        if (state.mbDiningThisMonth < 25) { // MB's $25 dining credit
-          return {
-            card: "MB",
-            channel: "direct",
-            reason:
-              "Your Resy credit is used; switch to Bonvoy Brilliant to use the $25 monthly dining credit before going back to Amex Gold.",
-          };
-        }
-        // 3) Resy + MB credits both used → AG for 4x dining
-        return {
-          card: "AG",
-          channel: "resy",
-          reason:
-            "Resy and Bonvoy Brilliant dining credits are used up; use Amex Gold for 4X points on dining.",
-        };
-      }
-
-      // DOORDASH
-      if (category === "doordash") {
-        if (state.csrDoordashThisMonth < 5) {
-          return {
-            card: "CSR",
-            channel: "doordash",
-            reason:
-              "Use Chase Sapphire first to use the $5 monthly DoorDash restaurant delivery credit.",
-          };
-        }
-        return {
-          card: "CSR",
-          channel: "doordash",
-          reason:
-            "DoorDash monthly credit is used up; default back to Chase Sapphire for flexible points.",
-        };
-      }
-
-      // UBER EATS (treated as part of Amex Gold Uber Cash)
-      if (category === "uber_eats") {
-        if (state.agUberThisMonth < 10) {
-          return {
-            card: "AG",
-            channel: "uber_app",
-            reason:
-              "Use Amex Gold on Uber Eats to use your $10 monthly Uber Cash.",
-          };
-        }
-        return {
-          card: "CSR",
-          channel: "uber_app",
-          reason:
-            "Uber Cash for this month is used up; default back to Chase Sapphire for flexible points.",
-        };
-      }
-
-      // DUNKIN (AG Gold: $7 monthly credit, then 4x points)
-      if (category === "dunkin") {
-        if (state.agDunkinThisMonth < 7) {
-          return {
-            card: "AG",
-            channel: "direct",
-            reason:
-              "Use Amex Gold at Dunkin to use the $7 monthly Dunkin credit (on top of 4X points on dining).",
-          };
-        }
-        return {
-          card: "AG",
-          channel: "direct",
-          reason:
-            "Your Dunkin monthly credit is used, but Amex Gold still wins for 4x points at Dunkin.",
-        };
-      }
-    
-      // LYFT
-      if (category === "lyft") {
-        if (state.csrLyftThisMonth < 10) {
-          return {
-            card: "CSR",
-            channel: "lyft_app",
-            reason:
-              "Use Chase Sapphire in the Lyft app to earn your $10 monthly Lyft credit and boosted points.",
-          };
-        }
-        if (state.uqRideshareThisMonth < 8) {
-          return {
-            card: "UQ",
-            channel: "lyft_app",
-            reason:
-              "Lyft monthly credit on Sapphire Reserve is used up; next use United Quest to earn the $8 monthly rideshare credit.",
-          };
-        }
-       return {
-          card: "CSR",
-          channel: "lyft_app",
-          reason:
-            "Sapphire Reserve Lyft monthly credit and United Quest rideshare credit are used up, but Chase Sapphire still wins thanks to Lyft boosts and flexibility.",
-        };
-      }
-    
-      // RIDESHARE - UBER
-      if (category === "rideshare_other") {
-        if (state.agUberThisMonth < 10) {
-          return {
-            card: "AG",
-            channel: "uber_app",
-            reason:
-              "Use Amex Gold first for Uber rides to use your $10 monthly Uber Cash.",
-          };
-        }
-        if (state.uqRideshareThisMonth < 8) {
-          return {
-            card: "UQ",
-            channel: "uber_app",
-            reason:
-              "Amex Gold's Uber Cash is used up; next use United Quest to earn the $8 monthly rideshare credit.",
-          };
-        }
-        return {
-          card: "CSR",
-          channel: "uber_app",
-          reason:
-            "Both Amex Gold's Uber Cash and United Quest's rideshare credit are used up; default back to Chase Sapphire for flexible points.",
-        };
-      }
-    
-      // UNITED FLIGHTS
-      if (category === "united_flight") {
-        return {
-          card: "UQ",
-          channel: "united",
-          reason:
-            "For United flights, use United Quest to get miles, free bags/priority boarding, TravelBank benefits, and PQPs.",
-        };
-      }
-    
-      // DELTA FLIGHTS – threshold chasing
-      if (category === "delta_flight_threshold") {
-        if (state.dg10kSpendYTD < 10000) {
-          return {
-            card: "DG",
-            channel: "delta",
-            reason:
-              "Use Delta Gold here to work toward the $10,000 YTD spend for the $200 Delta Flight Credit.",
-          };
-        }
-        return {
-          card: "CSR",
-          channel: "delta",
-          reason:
-            "You’ve hit the $10k Delta Gold spend threshold this year; treat this like a normal Delta flight and default to Chase Sapphire for flexibility.",
-        };
-      }
-    
-      // OTHER FLIGHTS
-      if (category === "other_flight") {
-        return {
-          card: "CSR",
-          channel: "chase_travel",
-          reason:
-            "Other airline – book via Chase Travel with Chase Sapphire to earn flexible points (no special airline perks to earn).",
-        };
-      }
-    
-		// THE EDIT HOTELS
-		if (category === "theedit_hotel") {
-		  if (state.csrTheEditThisPeriod < 250) {
-			return {
-			  card: "CSR",
-			  channel: "theedit_chase",
-			  reason:
-				"Book via the Chase Travel portal to earn the $250 semi-annual credit, $100 property credit per stay, daily breakfast for 2 and other benefits. Minimum of 2-night stay.",
-			};
-		  }
-		  return {
-			card: "CSR",
-			channel: "theedit_chase",
-			reason:
-			  "Semi-annual credit is used up but still book via the Chase Travel portal to earn 8X points.",
-		  };
+    // 5.0 Merchant offer helper
+    function getMerchantOfferRecommendation(purchase, merchantState, benefits) {
+	  if (!purchase.merchantBenefitId) return null;
+	
+	  const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
+	  if (!benefit) return null;
+	
+	  const purchaseDate = parseISODateLocal(purchase.date);
+	  const { expired } = classifyBenefitEnd(benefit.endDate, purchaseDate);
+	
+	  const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+	
+	  const hasTotalCap =
+		benefit.limitType === "total" &&
+		benefit.limitValue != null &&
+		!isNaN(benefit.limitValue);
+	
+	  const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
+	  const exhaustedByTotal =
+		hasTotalCap && totalLimit != null && ms.used >= totalLimit;
+	
+	  let exhaustedByTx = false;
+	  if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+		const maxTx = Number(benefit.maxTransactions);
+		if (maxTx >= 0 && ms.txCount >= maxTx) {
+		  exhaustedByTx = true;
 		}
-		
-	  // MARRIOTT HOTELS
-      if (category === "marriott_hotel") {
-        return {
-          card: "MB",
-          channel: "direct",
-          reason:
-            "Direct Marriott stay – use Brilliant for 6x Bonvoy points plus status progress and Marriott-specific perks.",
-        };
-      }
-    
-      // RENOWNED HOTELS
-      if (category === "renowned_hotel") {
-		  if (state.uqRenownedYTD <150) {
-	        return {
-	          card: "UQ",
-	          channel: "renowned_chase",
-	          reason:
-	            "Renowned Hotels booking – use United Quest on the Chase Travel platform to trigger the $150 Renowned credit and boosted United earn.",
-	        };
-		  }
-		  return {
-          card: "CSR",
-          channel: "renowned_chase",
-          reason:
-            "Renowned Hotel annual credit is used up; default back to Chase Sapphire for flexible travel points.",
-        };
-      }
-    
-      // DELTA STAYS
-      if (category === "delta_stays") {
-        if (state.dgDeltaStaysYTD < 100) {
-          return {
-            card: "DG",
-            channel: "delta_stays_platform",
-            reason:
-              "Use Delta Gold at Delta Stays until you’ve used the $100 annual Delta Stays credit.",
-          };
-        }
-        return {
-          card: "CSR",
-          channel: "delta_stays_platform",
-          reason:
-            "Delta Stays annual credit is used up; default back to Chase Sapphire for flexible travel points.",
-        };
-      }
-    
-      // OTHER HOTELS / LODGING
-      if (category === "other_hotel") {
-        return {
-          card: "CSR",
-          channel: "chase_travel",
-          reason:
-            "Non-Marriott hotel – book via Chase Travel with Chase Sapphire to earn flexible points.",
-        };
-      }
-    
-      // STUBHUB / VIAGOGO / SOCCER.COM
-      if (category === "stubhub") {
-        if (state.csrStubhubThisPeriod < 150) {
-          return {
-            card: "CSR",
-            channel: "stubhub_platform",
-            reason:
-              "Use Chase Sapphire on StubHub/viagogo/soccer.com to earn towards the $150 semi-annual credit.",
-          };
-        }
-        return {
-          card: "CSR",
-          channel: "stubhub_platform",
-          reason:
-            "StubHub semi-annual credit is used up; default back to Chase Sapphire for flexible points.",
-        };
-      }
-    
-      // INSTACART
-      if (category === "instacart") {
-        if (state.uqInstacartThisMonth < 15) {
-          return {
-            card: "UQ",
-            channel: "instacart_platform",
-            reason:
-              "Use United Quest for Instacart to earn the $15 monthly credit before defaulting to Chase Sapphire.",
-          };
-        }
-        return {
-          card: "CSR",
-          channel: "instacart_platform",
-          reason:
-            "Instacart monthly credit is used up; default back to Chase Sapphire for flexible points.",
-        };
-      }
-    
-      // STREAMING
-      if (category === "streaming") {
-        return {
-          card: "UQ",
-          channel: "direct",
-          reason:
-            "Streaming earns bonus miles on United Quest; after that Chase Sapphire stays your default.",
-        };
-      }
-    
-      // PELOTON MEMBERSHIP
-      if (category === "peloton") {
-        if (state.csrPelotonThisMonth < 10) {
-          return {
-            card: "CSR",
-            channel: "peloton_platform",
-            reason:
-              "Use Chase Sapphire for your Peloton membership to earn the $10 monthly credit.",
-          };
-        }
-        return {
-          card: "CSR",
-          channel: "peloton_platform",
-          reason:
-            "Peloton membership monthly credit is used up; default back to Chase Sapphire for flexible points.",
-        };
-      }
+	  }
+	
+	  const amount = Number(purchase.amount) || 0;
+	  const minSpend =
+		benefit.minSpend != null && !isNaN(benefit.minSpend)
+		  ? Number(benefit.minSpend)
+		  : null;
+	
+	  const belowMinSpend = minSpend != null && amount < minSpend;
+	
+	  if (expired || exhaustedByTotal || exhaustedByTx || belowMinSpend) {
+		return null;
+	  }
+	
+	  const discountLabel =
+		benefit.discountType === "percent"
+		  ? `${Number(benefit.discountValue || 0)}%`
+		  : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
+	
+	  let remaining = null;
+	  if (hasTotalCap && totalLimit != null) {
+		remaining = Math.max(0, totalLimit - ms.used);
+	  }
+	
+	  return {
+		card: benefit.card,
+		channel: getBaseFallbackRecommendation(purchase.category).channel,
+		reasonMain: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
+		reason: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
+		remainingAmount: remaining,
+		totalCapAmount: totalLimit,
+		expiresOn: benefit.endDate || null,
+		priorityCash: true,
+		categoryLabel: getCategoryLabel(purchase.category),
+		recommendationSource: "merchant_offer"
+	  };
+	}
 
-      // DOORDASH GROCERIES (CSR: 2 × $10/mo)
-      if (category === "doordash_groceries") {
-        const used = state.csrDoordashGroceriesThisMonth || 0;
-        const txCount = state.csrDoordashGroceriesTxThisMonth || 0;
-        const dollarCap = 20; // 2 × $10
-      
-        if (used < dollarCap && txCount < 2) {
-          return {
-            card: "CSR",
-            channel: "doordash_groceries_platform",
-            reason:
-              "Use Chase Sapphire Reserve on DoorDash Groceries to tap your 2 × $10 monthly grocery credits (up to $20 total per month).",
-          };
-        }
-      
-        return {
-          card: "CSR",
-          channel: "doordash_groceries_platform",
-          reason:
-            "You’ve already used your 2 × $10 DoorDash Groceries credits this month; keep using CSR for points and protections, but there’s no remaining grocery credit to burn.",
-        };
-      }
-
-      // Avis & Budget rental car (UQ: 2 × $40/year)
-      if (category === "uq_rentalcar") {
-        const used = state.uqRentalCarYTD || 0;
-        const txCount = state.uqRentalCarTxYTD  || 0;
-        const dollarCap = 80; // 2 × $40
-      
-        if (used < dollarCap && txCount < 2) {
-          return {
-            card: "UQ",
-            channel: "united_rentalcar",
-            reason:
-              "Use United Quest at cars.united.com to tap your 2 × $40 annual United cash benefit (up to $80 total per year).",
-          };
-        }
-      
-        return {
-          card: "CSR",
-          channel: "united_rentalcar",
-          reason:
-            "You’ve already used your 2 × $40 annual benefit this year; default back to CSR for flexible points.",
-        };
-      }
-
-      // GROCERIES (U.S. supermarkets)
-      if (category === "groceries") {
-        return {
-          card: "AG",
-          channel: "direct",
-          reason:
-            "Use Amex Gold at U.S. grocery stores to earn 4X Membership Rewards on supermarket spend.",
-        };
-      }
-    
-      // GENERAL / FALLBACK
-      return {
-        card: "CSR",
-        channel: "direct",
-        reason:
-          "No special time-bound credit or category perk dominates here; default to Chase Sapphire for flexible points.",
-      };
-    }
-    
-    // ---------- Merchant-first wrapper ----------
-    function recommendCard(purchase, cardState, merchantState, benefits) {
-      const baseRec = recommendCardBase(purchase, cardState);
-      let belowMinForMerchant = false;   // track that we skipped due to min spend
-      let belowMinAmount = null;         // store the min spend amount
-    
-      // 1) If there is a valid merchant benefit, that still takes over
-      if (purchase.merchantBenefitId) {
-        const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
-        if (benefit) {
-          const purchaseDate = parseISODateLocal(purchase.date);
-          const end = parseISODateLocal(benefit.endDate);
-          const { expired } = classifyBenefitEnd(benefit.endDate, purchaseDate);
-    
-          const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
-      
-          const hasTotalCap =
-            benefit.limitType === "total" &&
-            benefit.limitValue != null &&
-            !isNaN(benefit.limitValue);
-      
-          const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
-          const exhaustedByTotal =
-            hasTotalCap && totalLimit != null && ms.used >= totalLimit;
-      
-          let exhaustedByTx = false;
-          if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
-            const maxTx = Number(benefit.maxTransactions);
-            if (maxTx >= 0 && ms.txCount >= maxTx) {
-              exhaustedByTx = true;
-            }
-          }
-      
-          const exhausted = exhaustedByTotal || exhaustedByTx;
-    
-          const amount = Number(purchase.amount) || 0;
-          const minSpend =
-            benefit.minSpend != null && !isNaN(benefit.minSpend)
-              ? Number(benefit.minSpend)
-              : null;
-          const belowMinSpend = minSpend != null && amount < minSpend;
-    
-          if (!expired && !exhausted && !belowMinSpend) {
-            const discountLabel =
-              benefit.discountType === "percent"
-                ? `${Number(benefit.discountValue || 0)}%`
-                : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
-    
-            // For total-cap benefits, compute remaining for the bullet
-            let remaining = null;
-            if (hasTotalCap && totalLimit != null) {
-              remaining = Math.max(0, totalLimit - ms.used);
-            }
-    
-            return {
-              card: benefit.card,
-              channel: baseRec.channel, // keep same channel logic as category
-              // Main sentence (shown right under "Reason:")
-              reasonMain: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
-              // Plain-text backup
-              reason: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
-              // Metadata for bullets:
-              remainingAmount: remaining,          // e.g. 12.34
-              totalCapAmount: totalLimit,          // e.g. 50.00
-              expiresOn: benefit.endDate || null,  // "yyyy-mm-dd"
-              priorityCash: true,                  // to show the final sentence
-              categoryLabel: getCategoryLabel(purchase.category),  // to show the category label consistent with other cases
-            };
-          }
-    
-          // Only flag this if the *reason* we didn't use the benefit is min spend
-          if (!expired && !exhausted && belowMinSpend && minSpend != null) {
-            belowMinForMerchant = true;
-            belowMinAmount = minSpend;
-          }
-        }
-      }
-    
-      // 2) No usable merchant offer -> enrich the base card-native recommendation
-      const rec = { ...baseRec };
-    
-		// Do NOT set categoryLabel here.  rec.categoryLabel = getCategoryLabel(purchase.category);
-		// We only want Category: ... shown when a merchant offer is actually used.
-    
-      // Default main reason to existing reason text if not present
-      if (!rec.reasonMain && rec.reason) {
-        rec.reasonMain = rec.reason;
-      }
-    
-      // Attach bullet data where we track a clear cap / threshold
-      const cat = purchase.category;
-    
-      if (cat === "dining") {
-        const used = cardState.mbDiningThisMonth || 0;
-        const totalCap = 25; // $25 monthly dining credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "ag_dining") {
-        const used = cardState.agDiningPartnersThisMonth || 0;
-        const totalCap = 10; // $10 monthly AG dining partners
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "theedit_hotel") {
-        const used = cardState.csrTheEditThisPeriod || 0;
-        const totalCap = 250; // $250 semi-annual credit for stays at The Edit hotel collection
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "csr_opentable") {
-        const used = cardState.csrOpenTableThisPeriod || 0;
-        const totalCap = 150; // $150 semi-annual OpenTable dining credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "doordash") {
-        const used = cardState.csrDoordashThisMonth || 0;
-        const totalCap = 5; // $5/month DoorDash credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "doordash_groceries") {
-        const used = cardState.csrDoordashGroceriesThisMonth || 0;
-        const totalCap = 20; // 2 × $10
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "uq_rentalcar") {
-        const used = cardState.uqRentalCarYTD  || 0;
-        const totalCap = 80; // 2 × $40
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "uber_eats" || cat === "rideshare_other") {
-        // Shared Uber credit + UQ rideshare credit depending on recommended card
-        if (rec.card === "AG") {
-          const used = cardState.agUberThisMonth || 0;
-          const totalCap = 10; // $10/month Uber Cash via Amex Gold
-          rec.remainingAmount = Math.max(0, totalCap - used);
-          rec.totalCapAmount = totalCap;
-        } else if (rec.card === "UQ") {
-          const used = cardState.uqRideshareThisMonth || 0;
-          const totalCap = 8; // $8/month UQ rideshare credit
-          rec.remainingAmount = Math.max(0, totalCap - used);
-          rec.totalCapAmount = totalCap;
-        }
-      } else if (cat === "lyft") {
-		if (rec.card === "UQ") {
-          const used = cardState.uqRideshareThisMonth || 0;
-          const totalCap = 8; // $8/month UQ rideshare credit
-          rec.remainingAmount = Math.max(0, totalCap - used);
-          rec.totalCapAmount = totalCap;
-        } else {
-        const used = cardState.csrLyftThisMonth || 0;
-        const totalCap = 10; // $10/month Lyft credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-        }
-      } else if (cat === "instacart") {
-        const used = cardState.uqInstacartThisMonth || 0;
-        const totalCap = 15; // $15/month Instacart credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "peloton") {
-        const used = cardState.csrPelotonThisMonth || 0;
-        const totalCap = 10; // $10/month Peloton credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "stubhub") {
-        const used = cardState.csrStubhubThisPeriod || 0;
-        const totalCap = 150; // $150 semi-annual StubHub/viagogo/soccer.com
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "delta_stays") {
-        const used = cardState.dgDeltaStaysYTD || 0;
-        const totalCap = 100; // $100/year Delta Stays credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "renowned_hotel") {
-        const used = cardState.uqRenownedYTD || 0;
-        const totalCap = 150; // $150/year Renowned hotel credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "delta_flight_threshold") {
-        const used = cardState.dg10kSpendYTD || 0;
-        const totalCap = 10000; // $10k annual threshold for DG
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "resy") {
-        const used = cardState.agResyThisPeriod || 0;
-        const totalCap = 50; // $50 semi-annual Resy credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      } else if (cat === "dunkin") {
-        const used = cardState.agDunkinThisMonth || 0;
-        const totalCap = 7; // $7/month Dunkin credit
-        rec.remainingAmount = Math.max(0, totalCap - used);
-        rec.totalCapAmount = totalCap;
-      }
-
-      // 3) If we skipped the merchant benefit because of min spend, prepend note
-      if (belowMinForMerchant && belowMinAmount != null) {
-        const prefix =
-          `Minimum spend of $${belowMinAmount.toFixed(2)} ` +
-          `for this merchant benefit is not met. `;
-        if (rec.reasonMain) {
-          rec.reasonMain = prefix + rec.reasonMain;
-        } else if (rec.reason) {
-          rec.reason = prefix + rec.reason;
-        }
-      }
-    
-      return rec;
-    }
+    // 5.0 Main recommendation function
+    function recommendFromRegistries(purchase, txs, merchantState, benefits) {
+	  // 1) Merchant offer wins first
+	  const merchantRec = getMerchantOfferRecommendation(purchase, merchantState, benefits);
+	  if (merchantRec) return merchantRec;
+	
+	  // 2) Try card-native benefits
+	  const benefitCandidate = chooseBestCardBenefit(
+		{
+		  amount: purchase.amount,
+		  date: purchase.date,
+		  category: purchase.category
+		},
+		txs || []
+	  );
+	
+	  if (benefitCandidate) {
+		return buildBenefitRecommendation(benefitCandidate, purchase);
+	  }
+	
+	  // 3) Fall back to base category map
+	  const fallback = getBaseFallbackRecommendation(purchase.category);
+	
+	  return {
+		card: fallback.card,
+		channel: fallback.channel,
+		reasonMain: fallback.reason,
+		reason: fallback.reason,
+		categoryLabel: null,
+		recommendationSource: "base_fallback"
+	  };
+	}
 
     // ---------- New Purchase Category select population ----------
     function populateCategorySelect() {
@@ -4039,6 +4376,23 @@
       });
     }
 
+	//	helper to be able to remove floating save bar if user changes inputs
+	function invalidateRecommendationIfFormChanged() {
+	  if (!lastRecommendation) return;
+	
+	  hideFloatingSaveBar();
+	  document.getElementById("recommendationSection").style.display = "none";
+	  document.getElementById("recommendationBox").textContent = "";
+	  document.getElementById("reasonBox").textContent = "";
+	
+	  const cardSel = document.getElementById("cardUsedSelect");
+	  const chanSelect = document.getElementById("channelUsedSelect");
+	  if (cardSel) cardSel.value = "";
+	  if (chanSelect) chanSelect.innerHTML = "";
+	
+	  lastRecommendation = null;
+	}
+
 	// ---------- Floating Save Bar ----------
 	
 	let floatingSaveTimer = null;
@@ -4161,7 +4515,6 @@
       }
     
       const txs = loadTransactions();
-      const cardState = computeState(txs);
       const benefits = loadMerchantBenefits();
       const merchantState = computeMerchantState(txs, benefits);
     
@@ -4191,7 +4544,11 @@
         };
       }
     
-      const rec = recommendCard(purchase, cardState, merchantState, benefits);
+      const rec = recommendFromRegistries(purchase, txs, merchantState, benefits);
+      if (!rec) {
+		  alert("Could not generate a recommendation.");
+		  return;
+		}
       lastRecommendation = { purchase, rec };
     
       // New centralized renderer
@@ -4206,19 +4563,84 @@
       const chanSelect = document.getElementById("channelUsedSelect");
       chanSelect.innerHTML = "";
     
-      const effectiveCategory = purchase.category;
-      const relevantChannels = CHANNELS_BY_CATEGORY[effectiveCategory] || ["direct"];
-      relevantChannels.forEach((code) => {
-        const opt = document.createElement("option");
-        opt.value = code;
-        opt.textContent = CHANNEL_LABELS[code] || code;
-        chanSelect.appendChild(opt);
-      });
-    
-      if (relevantChannels.includes(rec.channel)) {
-        chanSelect.value = rec.channel;
-      }
+      const relevantChannels = getValidChannelsForRecommendation(rec, purchase);
+		relevantChannels.forEach((code) => {
+		  const opt = document.createElement("option");
+		  opt.value = code;
+		  opt.textContent = CHANNEL_LABELS[code] || code;
+		  chanSelect.appendChild(opt);
+		});
+		
+		if (relevantChannels.includes(rec.channel)) {
+		  chanSelect.value = rec.channel;
+		}
     });
+
+	function getCurrentPurchaseFromForm() {
+	  const amount = document.getElementById("amount").value;
+	  const date = document.getElementById("date").value;
+	  const categoryValue = document.getElementById("category").value;
+	
+	  if (!amount || !date) return null;
+	
+	  const benefits = loadMerchantBenefits();
+	
+	  if (categoryValue.startsWith("mb:")) {
+		const id = categoryValue.slice(3);
+		const benefit = findBenefitById(id, benefits);
+		if (!benefit) return null;
+	
+		return {
+		  amount: String(amount),
+		  date,
+		  category: benefit.category,
+		  merchantBenefitId: id,
+		};
+	  }
+	
+	  return {
+		amount: String(amount),
+		date,
+		category: categoryValue,
+		merchantBenefitId: null,
+	  };
+	}
+	
+	function purchaseMatchesLastRecommendation(currentPurchase, lastPurchase) {
+	  if (!currentPurchase || !lastPurchase) return false;
+	
+	  return (
+		Number(currentPurchase.amount) === Number(lastPurchase.amount) &&
+		String(currentPurchase.date) === String(lastPurchase.date) &&
+		String(currentPurchase.category) === String(lastPurchase.category) &&
+		String(currentPurchase.merchantBenefitId || "") === String(lastPurchase.merchantBenefitId || "")
+	  );
+	}
+
+	// 5.0 helper to reset default category for purchase window
+	function setDefaultPurchaseCategory() {
+	  const categorySelect = document.getElementById("category");
+	  if (!categorySelect) return;
+	
+	  // Prefer dining if available; otherwise first non-merchant-offer option; otherwise first option
+	  const diningOption = categorySelect.querySelector('option[value="dining"]');
+	  if (diningOption) {
+		categorySelect.value = "dining";
+		return;
+	  }
+	
+	  const firstCardBenefitOption = Array.from(categorySelect.options).find(
+		opt => opt.value && !String(opt.value).startsWith("mb:")
+	  );
+	  if (firstCardBenefitOption) {
+		categorySelect.value = firstCardBenefitOption.value;
+		return;
+	  }
+	
+	  if (categorySelect.options.length > 0) {
+		categorySelect.value = categorySelect.options[0].value;
+	  }
+	}
 
 	// Save transaction
 	function savePurchase() {
@@ -4226,62 +4648,91 @@
 		alert("Get a recommendation first.");
 		return;
 	  }
+	  
+	  const currentPurchase = getCurrentPurchaseFromForm();
+		if (!purchaseMatchesLastRecommendation(currentPurchase, lastRecommendation.purchase)) {
+		  alert("The form has changed since the last recommendation. Please get a new recommendation before saving.");
+		  return;
+		}
 	
 	  const overrideCard = document.getElementById("cardUsedSelect").value;
-	  const overrideChannel = document.getElementById("channelUsedSelect").value;
-	  const cardUsed = overrideCard || lastRecommendation.rec.card;
-	  const channelUsed = overrideChannel || lastRecommendation.rec.channel;
+		const overrideChannel = document.getElementById("channelUsedSelect").value;
+		const cardUsed = overrideCard || lastRecommendation.rec.card;
+		
+		const validChannels = getValidChannelsForSelectedCard(
+		  lastRecommendation.purchase,
+		  lastRecommendation.rec,
+		  cardUsed
+		);
+		
+		const defaultChannel = getDefaultChannelForSelectedCard(
+		  lastRecommendation.purchase,
+		  lastRecommendation.rec,
+		  cardUsed
+		);
+		
+		const channelUsed = overrideChannel || defaultChannel;
+		
+		if (!validChannels.includes(channelUsed)) {
+		  alert("The selected channel is not valid for the chosen card/category combination. Please choose a matching channel.");
+		  return;
+		}
 	
 	  const tx = {
-		date: lastRecommendation.purchase.date,
-		amount: Number(lastRecommendation.purchase.amount),
-		category: lastRecommendation.purchase.category,
-		channel: channelUsed,
-		cardUsed,
-		merchantBenefitId: lastRecommendation.purchase.merchantBenefitId || null,
-		merchantBenefitApplied: 0,
-		cardBenefitId: null,
-		cardBenefitApplied: 0,
-	  };
+		  date: currentPurchase.date,
+		  amount: Number(currentPurchase.amount),
+		  category: currentPurchase.category,
+		  channel: channelUsed,
+		  cardUsed,
+		  merchantBenefitId: currentPurchase.merchantBenefitId || null,
+		  merchantBenefitApplied: 0,
+		  cardBenefitId: null,
+		  cardBenefitApplied: 0,
+		};
 	
 	  const txsBeforeSave = loadTransactions();
 	  const benefits = loadMerchantBenefits();
 	
 	  // Calculate merchant benefit value for this transaction
 	  const merchantApplied = calculateMerchantBenefitApplied(tx, benefits, txsBeforeSave);
-		tx.merchantBenefitId = merchantApplied.merchantBenefitId;
-		tx.merchantBenefitApplied = merchantApplied.merchantBenefitApplied;
+	  tx.merchantBenefitId = merchantApplied.merchantBenefitId;
+	  tx.merchantBenefitApplied = merchantApplied.merchantBenefitApplied;
 	
 	  // Calculate card benefit value for this transaction
 	  const cardApplied = calculateCardBenefitApplied(tx, txsBeforeSave);
-		tx.cardBenefitId = cardApplied.cardBenefitId;
-		tx.cardBenefitApplied = cardApplied.cardBenefitApplied;
+	  tx.cardBenefitId = cardApplied.cardBenefitId;
+	  tx.cardBenefitApplied = cardApplied.cardBenefitApplied;
 	
 	  const nextTxs = txsBeforeSave.concat(tx);
-		
+	
 	  const ok = saveTransactions(nextTxs);
 	  if (!ok) {
 		showToast("⚠️ Unable to save transactions — storage full or private mode.");
 		return;
 	  }
 	
-	  renderTransactions();
-	  renderStateSummary();
-	  renderRollingAnnualSummary();
-	  populateCategorySelect();
-	  populateMerchantBenefitCategorySelect();
-	  renderMerchantBenefits();
+	  try {
+		renderTransactions();
+		renderStateSummary();
+		renderRollingAnnualSummary();
+		populateCategorySelect();
+		populateMerchantBenefitCategorySelect();
+		renderMerchantBenefits();
 	
-	  hideFloatingSaveBar();
-	  document.getElementById("recommendationSection").style.display = "none";
-	  document.getElementById("recommendationBox").textContent = "";
-	  document.getElementById("reasonBox").textContent = "";
+		hideFloatingSaveBar();
+		document.getElementById("recommendationSection").style.display = "none";
+		document.getElementById("recommendationBox").textContent = "";
+		document.getElementById("reasonBox").textContent = "";
 	
-	  document.getElementById("amount").value = "";
-	  document.getElementById("category").value = "dining";
+		document.getElementById("amount").value = "";
+		setDefaultPurchaseCategory();
 	
-	  lastRecommendation = null;
-	  showToast("✓ Purchase saved");
+		lastRecommendation = null;
+		showToast("✓ Purchase saved");
+	  } catch (err) {
+		console.error("Error after saving purchase during rerender/reset:", err);
+		alert("Purchase was saved, but part of the screen failed to refresh. Check the console for details.");
+	  }
 	}
 	
 	document.getElementById("btnSaveTx").addEventListener("click", savePurchase);
@@ -4293,13 +4744,7 @@
       initFormDefaults();
       populateCategorySelect();
       
-      const categorySelect = document.getElementById("category");
-      // Try to select dining, or first option if dining doesn't exist
-      if (categorySelect.querySelector('option[value="dining"]')) {
-        categorySelect.value = "dining";
-      } else if (categorySelect.options.length > 0) {
-        categorySelect.value = categorySelect.options[0].value;
-      }
+      setDefaultPurchaseCategory();
 
       hideFloatingSaveBar();
       document.getElementById("recommendationSection").style.display = "none";
@@ -4312,6 +4757,37 @@
 
       lastRecommendation = null;
     });
+    
+    // 5.0 cardUsedSelect change handler
+    document.getElementById("cardUsedSelect").addEventListener("change", () => {
+	  if (!lastRecommendation) return;
+	
+	  const chanSelect = document.getElementById("channelUsedSelect");
+	  if (!chanSelect) return;
+	
+	  const overrideCard = document.getElementById("cardUsedSelect").value;
+	  const chosenCard = overrideCard || lastRecommendation.rec.card;
+	  const purchase = lastRecommendation.purchase;
+	
+	  let relevantChannels = [];
+	  relevantChannels = getValidChannelsForSelectedCard(
+		  purchase,
+		  lastRecommendation.rec,
+		  chosenCard
+		);
+	
+	  chanSelect.innerHTML = "";
+	  relevantChannels.forEach((code) => {
+		const opt = document.createElement("option");
+		opt.value = code;
+		opt.textContent = CHANNEL_LABELS[code] || code;
+		chanSelect.appendChild(opt);
+	  });
+	
+	  if (relevantChannels.length > 0) {
+		chanSelect.value = relevantChannels[0];
+	  }
+	});
 
     // Clear all tx
 	document.getElementById("btnClear").addEventListener("click", () => {
@@ -4405,6 +4881,8 @@
 		  return;
 		}
 	  }
+	  if (limitValue != null && limitValue <= 0) limitValue = null;
+
 	
 	  let minSpend = null;
 	  if (minSpendRaw !== "") {
@@ -4414,6 +4892,7 @@
 		  return;
 		}
 	  }
+	  if (minSpend != null && minSpend <= 0) minSpend = null;
 	
 	  let maxTransactions = null;
 	  if (maxTxRaw !== "") {
@@ -4427,6 +4906,7 @@
 		  return;
 		}
 	  }
+	  if (maxTransactions != null && maxTransactions <= 0) maxTransactions = null;
 	
 	  const id = "mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
 	
@@ -4471,6 +4951,14 @@
 	
 	  showToast("✓ Merchant Benefit saved");
 	});
+
+	// 5.0 make floating save bar disappear when the form changes after a recommendation
+	document.getElementById("category").addEventListener("change", invalidateRecommendationIfFormChanged);
+	document.getElementById("amount").addEventListener("input", invalidateRecommendationIfFormChanged);
+	document.getElementById("date").addEventListener("change", invalidateRecommendationIfFormChanged);
+	document.getElementById("channelUsedSelect").addEventListener("change", hideFloatingSaveBar);
+	document.getElementById("cardUsedSelect").addEventListener("change", hideFloatingSaveBar);
+
 
     // Event delegation for transaction delete (set up once)
     document.getElementById("txTableBody").addEventListener("click", (e) => {
