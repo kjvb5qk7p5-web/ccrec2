@@ -1041,7 +1041,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.0.2</p>
+<p class="blackmuted"><br>v5.0.3</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1418,7 +1418,7 @@
 	
 		label: "Peloton",
 		labelHtml: "🚲 Peloton",
-		state_label: "🚲 Peloton",
+		state_label: "Peloton",
 		state_labelHtml: "🚲 Peloton",
 	
 		categories: ["peloton"],
@@ -2863,7 +2863,7 @@
 		cardBucket.benefits[benefit.id] = {
 		  id: benefit.id,
 		  label: benefit.label || benefit.id,
-		  labelHtml: benefit.labelHtml || null,
+		  labelHtml: null,
 		  used: 0,
 		  cap: benefit.cap_amount ?? null,
 		  cadence: benefit.cadence || null,
@@ -3568,8 +3568,8 @@
 			(txCap != null && usage.txCount >= txCap);
 		
 		  ccRows.push({
-			label: benefit.label || benefit.id,
-			labelHtml: benefit.labelHtml || null,
+			label: benefit.state_label || benefit.label || benefit.id,
+		    labelHtml: benefit.state_labelHtml || null,
 			card: benefit.card,
 			time: getBenefitStateTimeLabel(benefit, today),
 			usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
@@ -4514,6 +4514,12 @@
         alert("Please enter amount and date.");
         return;
       }
+      
+      const parsedAmount = Number(amount);
+	  if (!parsedAmount || parsedAmount <= 0 || isNaN(parsedAmount)) {
+	    alert("Please enter a valid positive amount.");
+	    return;
+	  }
     
       const txs = loadTransactions();
       const benefits = loadMerchantBenefits();
