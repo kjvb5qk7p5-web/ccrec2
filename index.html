@@ -1276,6 +1276,5695 @@
 		purchaseCategories: ["flights", "hotel", "travel", "rental_car", "rideshare"],
 		intentTags: ["travel", "flight", "hotel", "lodging", "trip"],
 		merchantKeywords: ["united", "delta", "marriott", "the edit", "renowned", "delta stays"],
+		searchAliases: ["airfare", "air travel", "vacation", "travel credit"],
+	
+		label: "Travel credit",
+		labelHtml: "Travel credit",
+		state_label: "✈️🏨🚗 Travel credit",
+		state_labelHtml: "✈️🏨🚗 Travel credit",
+	
+		categories: [
+		  "united_flight",
+		  "delta_flight_threshold",
+		  "other_flight",
+		  "theedit_hotel",
+		  "marriott_hotel",
+		  "renowned_hotel",
+		  "delta_stays",
+		  "other_hotel"
+		],
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-12-01",
+		cap_amount: 300,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 99,
+		display_order: 10,
+		channel: "direct",
+	
+		eligible_fn: (tx) => new Set([
+		  "united_flight",
+		  "delta_flight_threshold",
+		  "other_flight",
+		  "theedit_hotel",
+		  "marriott_hotel",
+		  "renowned_hotel",
+		  "delta_stays",
+		  "other_hotel"
+		]).has(tx.category),
+	
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire first to use the $300 annual travel credit.",
+        reason_no:
+            "Chase Sapphire annual travel credit is used up; ",
+
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_doordash_dining",
+		card: "CSR",
+		purchaseCategories: ["dining"],
+ 	    intentTags: ["takeout", "delivery", "food"],
+	    merchantKeywords: ["doordash"],
+	    searchAliases: ["restaurant delivery"],
+	
+		label: "DoorDash dining",
+		labelHtml:
+		  '<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> dining',
+		state_label: "🥡 DoorDash dining",
+		state_labelHtml:
+		  '🥡 <a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> dining',
+	
+		categories: ["doordash"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 5,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 30,
+		channel: "doordash",
+	
+		eligible_fn: (tx) => tx.category === "doordash",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire first to use the $5 monthly DoorDash restaurant delivery credit.",
+        reason_no:
+            "DoorDash monthly credit is used up; ",
+
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_doordash_groceries",
+		card: "CSR",
+		purchaseCategories: ["groceries"],
+		  intentTags: ["groceries", "delivery", "food"],
+		  merchantKeywords: ["doordash"],
+		  searchAliases: ["grocery delivery"],
+	
+		label: "DoorDash groceries",
+		labelHtml:
+		  '<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> groceries',
+		state_label: "🛒 DoorDash groceries",
+		state_labelHtml:
+		  '🛒 <a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> groceries',
+	
+		categories: ["doordash_groceries"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 20,
+		tx_cap: 2,
+		per_tx_cap: 10,
+	
+		priority: 10,
+		display_order: 40,
+		channel: "doordash_groceries_platform",
+	
+		eligible_fn: (tx) => tx.category === "doordash_groceries",
+		value_fn: (tx, remaining) =>
+		  Math.min(Number(tx.amount) || 0, 10, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire Reserve on DoorDash Groceries to tap your 2 × $10 monthly grocery credits (up to $20 total per month).",
+        reason_no:
+            "You’ve already used your 2 × $10 DoorDash Groceries credits this month; ",
+
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_lyft",
+		card: "CSR",
+		purchaseCategories: ["rideshare"],
+		  intentTags: ["rideshare", "car service", "ride"],
+		  merchantKeywords: ["lyft"],
+		  searchAliases: ["ride share"],
+	
+		label: "Lyft",
+		labelHtml:
+		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+		state_label: "🚗 Lyft",
+		state_labelHtml:
+		  '🚗 <a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+	
+		categories: ["lyft"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 10,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 50,
+		channel: "lyft_app",
+	
+		eligible_fn: (tx) => tx.category === "lyft",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire in the Lyft app to earn your $10 monthly Lyft credit and boosted points.",
+        reason_no:
+              "Lyft monthly credit on Sapphire Reserve is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_peloton",
+		card: "CSR",
+		purchaseCategories: ["retail"],
+		  intentTags: ["fitness", "subscription", "exercise"],
+		  merchantKeywords: ["peloton"],
+		  searchAliases: ["bike subscription", "fitness membership"],
+	
+		label: "Peloton",
+		labelHtml: "🚲 Peloton",
+		state_label: "Peloton",
+		state_labelHtml: "🚲 Peloton",
+	
+		categories: ["peloton"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 10,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 80,
+		channel: "peloton_platform",
+	
+		eligible_fn: (tx) => tx.category === "peloton",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire for your Peloton membership to earn the $10 monthly credit.",
+        reason_no:
+            "Peloton membership monthly credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_opentable",
+		card: "CSR",
+		purchaseCategories: ["dining"],
+		  intentTags: ["restaurant", "dining", "reservation"],
+		  merchantKeywords: ["opentable"],
+		  searchAliases: ["restaurant booking"],
+	
+		label: "OpenTable dining partners",
+		labelHtml:
+		  '<a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" target="_blank" rel="noopener noreferrer">OpenTable</a> dining partners',
+		state_label: "🍔 Dining partners on OpenTable",
+		state_labelHtml:
+		  '🍔 Dining partners on <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" target="_blank" rel="noopener noreferrer">OpenTable</a>',
+	
+		categories: ["csr_opentable"],
+	
+		cadence: "semiannual",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 150,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 20,
+		channel: "opentable_platform",
+	
+		eligible_fn: (tx) => tx.category === "csr_opentable",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+        reason_yes:
+                "Use Chase Sapphire Reserve with OpenTable dining partners to use your $150 semi-annual OpenTable dining credit.",
+        reason_no:
+                "Your OpenTable partner credit is used; ",
+	
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_theedit",
+		card: "CSR",
+		purchaseCategories: ["hotel", "lodging", "travel"],
+		  intentTags: ["hotel", "luxury hotel", "lodging", "trip"],
+		  merchantKeywords: ["the edit", "chase travel"],
+		  searchAliases: ["hotel collection"],
+	
+		label: "The Edit hotel partners",
+		labelHtml:
+		  '<a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" target="_blank" rel="noopener noreferrer">The Edit hotel partners</a>',
+		state_label: "🏨 The Edit hotel partners",
+		state_labelHtml:
+		  '🏨 The Edit hotel partners on <a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" target="_blank" rel="noopener noreferrer">Chase Travel</a>',
+	
+		categories: ["theedit_hotel"],
+	
+		cadence: "semiannual",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 250,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 60,
+		channel: "theedit_chase",
+	
+		eligible_fn: (tx) => tx.category === "theedit_hotel",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+		reason_yes:
+				"Book via the Chase Travel portal to earn the $250 semi-annual credit, $100 property credit per stay, daily breakfast for 2 and other benefits. Minimum of 2-night stay.",
+		reason_no:
+			  "Semi-annual credit is used up but still book via the Chase Travel portal to earn 8X points.",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "csr_stubhub",
+		card: "CSR",
+		purchaseCategories: ["entertainment", "tickets"],
+		  intentTags: ["concert", "sports", "tickets", "show"],
+		  merchantKeywords: ["stubhub", "viagogo", "soccer.com"],
+		  searchAliases: ["event tickets"],
+	
+		label: "StubHub / viagogo / soccer.com",
+		labelHtml:
+		  '<a href="https://www.stubhub.com" target="_blank" rel="noopener noreferrer">StubHub</a> / <a href="https://www.viagogo.com" target="_blank" rel="noopener noreferrer">viagogo</a> / <a href="https://www.soccer.com" target="_blank" rel="noopener noreferrer">soccer.com</a>',
+		state_label: "🎫 StubHub / viagogo / soccer.com",
+		state_labelHtml:
+		  '🎫 <a href="https://www.stubhub.com" target="_blank" rel="noopener noreferrer">StubHub</a> / <a href="https://www.viagogo.com" target="_blank" rel="noopener noreferrer">viagogo</a> / <a href="https://www.soccer.com" target="_blank" rel="noopener noreferrer">soccer.com</a>',
+	
+		categories: ["stubhub"],
+	
+		cadence: "semiannual",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 150,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 70,
+		channel: "stubhub_platform",
+	
+		eligible_fn: (tx) => tx.category === "stubhub",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Chase Sapphire on StubHub/viagogo/soccer.com to earn towards the $150 semi-annual credit.",
+        reason_no:
+            "StubHub semi-annual credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  /* =========================
+		 AMEX GOLD
+		 ========================= */
+	
+	  {
+		id: "ag_uber",
+		card: "AG",
+		purchaseCategories: ["rideshare", "dining"],
+		  intentTags: ["uber", "rideshare", "takeout", "delivery"],
+		  merchantKeywords: ["uber", "uber eats"],
+		  searchAliases: ["ride share", "food delivery"],
+
+	
+		label: "Uber rides + Eats",
+		labelHtml:
+		  '<a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides + Eats',
+		state_label: "🚗🥡 Uber rides + Eats",
+		state_labelHtml:
+		  '🚗🥡 <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides + Eats',
+	
+		categories: ["rideshare_other", "uber_eats"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 10,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 100,
+		channel: "uber_app",
+	
+		eligible_fn: (tx) =>
+		  tx.category === "rideshare_other" || tx.category === "uber_eats",
+	
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+        reason_yes:
+              "Use Amex Gold on Uber / Uber Eats to use your $10 monthly Uber Cash.",
+        reason_no:
+            "Uber Cash for this month is used up; ",
+	
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "ag_dining_partners",
+		card: "AG",
+		purchaseCategories: ["dining"],
+		  intentTags: ["takeout", "delivery", "restaurant", "food"],
+		  merchantKeywords: ["grubhub", "seamless", "cheesecake factory", "goldbelly", "five guys", "wine.com"],
+		  searchAliases: ["food delivery", "dining partners"],
+	
+		label: "Dining partners (GrubHub, Seamless, Cheesecake Factory, Goldbelly, Five Guys, wine.com)",
+		labelHtml:
+		  'Dining partners (<a href="https://www.grubhub.com" target="_blank" rel="noopener noreferrer">GrubHub</a>/<a href="https://www.seamless.com" target="_blank" rel="noopener noreferrer">Seamless</a>, Cheesecake Factory, Goldbelly, Five Guys, <a href="https://www.wine.com" target="_blank" rel="noopener noreferrer">Wine.com</a>)',
+		state_label: "🍔 Dining partners (GrubHub, Seamless, Cheesecake Factory, Goldbelly, Five Guys, wine.com)",
+		state_labelHtml:
+		  '🍔 Dining partners (<a href="https://www.grubhub.com" target="_blank" rel="noopener noreferrer">GrubHub</a>/<a href="https://www.seamless.com" target="_blank" rel="noopener noreferrer">Seamless</a>, Cheesecake Factory, Goldbelly, Five Guys, <a href="https://www.wine.com" target="_blank" rel="noopener noreferrer">Wine.com</a>)',
+	
+		categories: ["ag_dining"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 10,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 110,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "ag_dining",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+		reason_yesHtml:
+            'Use Amex Gold with eligible partners (' +
+            '<a href="https://www.grubhub.com" ' +
+            'target="_blank" rel="noopener noreferrer">GrubHub</a>' +
+            '/' +
+            '<a href="https://www.seamless.com" ' +
+            'target="_blank" rel="noopener noreferrer">Seamless</a>' +
+            ', Cheesecake Factory, Goldbelly, Five Guys, '+
+            '<a href="https://www.wine.com" ' +
+            'target="_blank" rel="noopener noreferrer">Wine&#46;com</a>'+
+            ') to use the $10 monthly dining-partner credit.',
+		reason_yes:
+            "Use Amex Gold with eligible partners (Grubhub/Seamless, Cheesecake Factory, Goldbelly, Wine.com, Five Guys) to use the $10 monthly dining-partner credit.",
+        reason_no:
+            "Your Amex Gold dining partner credit is used up; ",
+	
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "ag_dunkin",
+		card: "AG",
+		purchaseCategories: ["coffee", "dining"],
+		  intentTags: ["coffee", "breakfast", "takeout", "fast_food", "donut", "donuts", "bagel", "bagels", "cappuccino"],
+		  merchantKeywords: ["dunkin", "dd", "dunkin donuts"],
+		  searchAliases: ["donuts", "coffee shop"],
+	
+		label: "Dunkin",
+		labelHtml: "Dunkin",
+		state_label: "☕ Dunkin",
+		state_labelHtml: "☕ Dunkin",
+	
+		categories: ["dunkin"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 7,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 130,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "dunkin",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Amex Gold at Dunkin to use the $7 monthly Dunkin credit (on top of 4X points on dining).",
+        reason_no:
+            "Your Dunkin monthly credit is used; ",
+
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "ag_resy",
+		card: "AG",
+		purchaseCategories: ["dining"],
+		  intentTags: ["restaurant", "reservation", "dining", "rez"],
+		  merchantKeywords: ["resy"],
+		  searchAliases: ["restaurant booking"],
+	
+		label: "Resy dining",
+		labelHtml:
+		  '<a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
+		state_label: "🍽️ Resy dining",
+		state_labelHtml:
+		  '🍽️ <a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
+	
+		categories: ["resy"],
+	
+		cadence: "semiannual",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 50,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 120,
+		channel: "resy",
+	
+		eligible_fn: (tx) => tx.category === "resy",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Amex Gold via Resy to burn your $50 semi-annual Resy dining credit.",
+        reason_no:
+              "Your Resy credit is used; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  /* =========================
+		 UNITED QUEST
+		 ========================= */
+	
+	  {
+		id: "uq_rideshare",
+		card: "UQ",
+		purchaseCategories: ["rideshare"],
+		  intentTags: ["rideshare", "ride", "car service"],
+		  merchantKeywords: ["uber", "lyft"],
+		  searchAliases: ["ride share"],
+	
+		label: "Lyft + Uber rides",
+		labelHtml:
+		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a> + <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides',
+		state_label: "🚗 Lyft + Uber rides",
+		state_labelHtml:
+		  '🚗 <a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a> + <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides',
+	
+		categories: ["rideshare_other", "lyft"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 8,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 50,
+		display_order: 200,
+		channel: "direct",
+	
+		eligible_fn: (tx) =>
+		  tx.category === "rideshare_other" || tx.category === "lyft",
+	
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use United Quest for rideshare rides to earn the $8 monthly credit.",
+        reason_no:
+            "United Quest monthly rideshare credit is used up; ",
+
+		allow_fallback: false,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "uq_instacart",
+		card: "UQ",
+		purchaseCategories: ["groceries"],
+		  intentTags: ["groceries", "delivery", "food"],
+		  merchantKeywords: ["instacart"],
+		  searchAliases: ["grocery delivery"],
+	
+		label: "Instacart",
+		labelHtml:
+		  '<a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
+		state_label: "🛒 Instacart",
+		state_labelHtml:
+		  '🛒 <a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
+	
+		categories: ["instacart"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 15,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 210,
+		channel: "instacart_platform",
+	
+		eligible_fn: (tx) => tx.category === "instacart",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use United Quest for Instacart to earn the $15 monthly credit before defaulting to Chase Sapphire.",
+        reason_no:
+            "Instacart monthly credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "uq_renowned",
+		card: "UQ",
+		purchaseCategories: ["hotel", "lodging", "travel"],
+		  intentTags: ["hotel", "lodging", "trip"],
+		  merchantKeywords: ["renowned", "chase travel"],
+		  searchAliases: ["hotel program"],
+	
+		label: "Renowned Hotels",
+		labelHtml: "Renowned Hotels",
+		state_label: "🏨 Renowned Hotels",
+		state_labelHtml: "🏨 Renowned Hotels",
+	
+		categories: ["renowned_hotel"],
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-02-01",
+		cap_amount: 150,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 220,
+		channel: "renowned_chase",
+	
+		eligible_fn: (tx) => tx.category === "renowned_hotel",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+	    reason_yes:
+	            "Renowned Hotels booking – use United Quest on the Chase Travel platform to trigger the $150 Renowned credit and boosted United earn.",
+        reason_no:
+            "Renowned Hotel annual credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
+		id: "uq_rentalcar",
+		card: "UQ",
+		purchaseCategories: ["rental_car", "travel"],
+		  intentTags: ["rental car", "car rental", "trip"],
+		  merchantKeywords: ["avis", "budget"],
+		  searchAliases: ["rent a car"],
+	
+		label: "Avis & Budget car rental",
+		labelHtml:
+		  'Avis &amp; Budget car rental',
+		state_label: "🚙 Avis & Budget car rental",
+		state_labelHtml:
+		  '🚙 Avis &amp; Budget car rental',
+	
+		categories: ["uq_rentalcar"],
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-02-01",
+		cap_amount: 80,
+		tx_cap: 2,
+		per_tx_cap: 40,
+	
+		priority: 10,
+		display_order: 230,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "uq_rentalcar",
+		value_fn: (tx, remaining) =>
+		  Math.min(Number(tx.amount) || 0, 40, remaining),
+	
+        reason_yes:
+              "Use United Quest at cars.united.com to tap your 2 × $40 annual United cash benefit (up to $80 total per year).",
+        reason_no:
+            "You’ve already used your 2 × $40 annual benefit this year; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  /* =========================
+		 DELTA GOLD
+		 ========================= */
+	
+	  {
+		id: "dg_delta_stays",
+		card: "DG",
+		purchaseCategories: ["hotel", "lodging", "travel"],
+		  intentTags: ["hotel", "lodging", "trip"],
+		  merchantKeywords: ["delta stays", "delta"],
+		  searchAliases: ["hotel booking"],
+	
+		label: "Delta Stays",
+		labelHtml:
+		  '<a href="https://carsandstays.delta.com/Hotels#" target="_blank" rel="noopener noreferrer">Delta Stays</a>',
+		state_label: "🏨 Delta Stays",
+		state_labelHtml:
+		  '🏨 <a href="https://carsandstays.delta.com/Hotels#" target="_blank" rel="noopener noreferrer">Delta Stays</a>',
+	
+		categories: ["delta_stays"],
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2026-01-13",
+		cap_amount: 100,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 400,
+		channel: "delta_stays_platform",
+	
+		eligible_fn: (tx) => tx.category === "delta_stays",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+        reason_yes:
+              "Use Delta Gold at Delta Stays until you’ve used the $100 annual Delta Stays credit.",
+        reason_no:
+            "Delta Stays annual credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  /* =========================
+		 MARRIOTT BONVOY BRILLIANT
+		 ========================= */
+	
+	  {
+		id: "mb_dining",
+		card: "MB",
+		purchaseCategories: ["dining"],
+		  intentTags: ["restaurant", "food", "takeout"],
+		  merchantKeywords: [],
+		  searchAliases: ["dining credit"],
+	
+		label: "Dining credit",
+		labelHtml: "Dining credit",
+		state_label: "🍔 Dining credit",
+		state_labelHtml: "🍔 Dining credit",
+	
+		categories: ["dining"],
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 25,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 300,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "dining",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+        reason_yes:
+              "Use Bonvoy Brilliant first to use the $25 monthly dining.",
+        reason_no:
+            "Bonvoy Brilliant monthly dining credit is used up; ",
+	
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  }
+	
+	];
+	
+	const BASE_CATEGORY_FALLBACKS = {
+	  dining: {
+		card: "AG",
+		channel: "direct",
+		reason: "Use Amex Gold for 4X points on dining."
+	  },
+	
+	  resy: {
+		card: "AG",
+		channel: "resy",
+		reason: "Use Amex Gold for 4X points on dining."
+	  },
+	
+	  csr_opentable: {
+		card: "AG",
+		channel: "opentable_platform",
+		reason: "Use Amex Gold for dining when no CSR OpenTable credit is available."
+	  },
+	
+	  ag_dining: {
+		card: "AG",
+		channel: "direct",
+		reason: "Use Amex Gold for 4X points on dining."
+	  },
+	
+	  doordash: {
+		card: "CSR",
+		channel: "doordash",
+		reason: "Use Chase Sapphire Reserve for DoorDash discounts."
+	  },
+	
+	  uber_eats: {
+		card: "AG",
+		channel: "uber_app",
+		reason: "Use Amex Gold for Uber Eats."
+	  },
+	
+	  dunkin: {
+		card: "AG",
+		channel: "direct",
+		reason: "Use Amex Gold for 4X points on dining."
+	  },
+	
+	  groceries: {
+		card: "AG",
+		channel: "direct",
+		reason: "Use Amex Gold at grocery stores for 4X points."
+	  },
+	
+	  doordash_groceries: {
+		card: "CSR",
+		channel: "doordash_groceries_platform",
+		reason: "Use Chase Sapphire Reserve for DoorDash discounts."
+	  },
+	
+	  instacart: {
+		card: "CSR",
+		channel: "instacart_platform",
+		reason: "Default back to Chase Sapphire for flexible points."
+	  },
+	
+	  lyft: {
+		card: "CSR",
+		channel: "lyft_app",
+		reason: "Use Chase Sapphire Reserve for Lyft for discounts."
+	  },
+	
+	  rideshare_other: {
+		card: "AG",
+		channel: "uber_app",
+		reason: "Use Amex Gold for Uber rides."
+	  },
+	
+	  united_flight: {
+		card: "UQ",
+		channel: "united",
+		reason: "Use United Quest for United flights to earn miles and airline-specific perks."
+	  },
+	
+	  delta_flight_threshold: {
+		card: "DG",
+		channel: "delta",
+		reason: "Use Delta SkyMiles Amex Gold for Delta threshold-chasing spend."
+	  },
+	
+	  delta_flight: {
+		card: "DG",
+		channel: "delta",
+		reason: "Use Delta SkyMiles Amex Gold for miles and points on Delta flights."
+	  },
+	
+	  other_flight: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire for other airline flights for flexible points."
+	  },
+	
+	  marriott_hotel: {
+		card: "MB",
+		channel: "direct",
+		reason: "Use Marriott Brilliant for Marriott stays for 6X points."
+	  },
+	
+	  theedit_hotel: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire Reserve for flexible points."
+	  },
+	
+	  renowned_hotel: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire Reserve for flexible points."
+	  },
+	
+	  delta_stays: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire Reserve for flexible points."
+	  },
+	
+	  other_hotel: {
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire for non-Marriott hotel stays."
+	  },
+	
+	  peloton: {
+		card: "CSR",
+		channel: "peloton_platform",
+		reason: "Use Chase Sapphire Reserve for Peloton membership charges."
+	  },
+	
+	  streaming: {
+		card: "UQ",
+		channel: "direct",
+		reason: "Use United Quest for streaming."
+	  },
+	
+	  stubhub: {
+		card: "CSR",
+		channel: "stubhub_platform",
+		reason: "Use Chase Sapphire Reserve for StubHub / viagogo / soccer.com."
+	  },
+	
+	  uq_rentalcar: {
+		card: "CSR",
+		channel: "direct",
+		reason: "Use Chase Sapphire Reserve for flexible points."
+	  },
+	
+	  other: {
+		card: "CSR",
+		channel: "direct",
+		reason: "Default to Chase Sapphire for flexible points."
+	  }
+	};
+	
+	const CARD_BENEFITS_BY_ID = Object.fromEntries(
+	  CARD_BENEFITS.map(b => [b.id, b])
+	);
+	
+	const CARD_BENEFITS_BY_CARD = CARD_BENEFITS.reduce((acc, b) => {
+	  if (!acc[b.card]) acc[b.card] = [];
+	  acc[b.card].push(b);
+	  return acc;
+	}, {});
+		
+	const SEARCH_TAGS = [
+	  "dining",
+	  "takeout",
+	  "delivery",
+	  "coffee",
+	  "groceries",
+	  "gas",
+	  "convenience_store",
+	  "hotel",
+	  "lodging",
+	  "flights",
+	  "airfare",
+	  "rideshare",
+	  "rental_car",
+	  "entertainment",
+	  "tickets",
+	  "eyewear",
+	  "pharmacy",
+	  "retail",
+	  "travel"
+	];
+	
+	const SYNONYM_MAP = {
+	  dining: ["dining", "restaurant", "restaurants", "meal", "eat out", "fast food"],
+	  takeout: ["takeout", "take out", "pickup", "carryout", "to go"],
+	  delivery: ["delivery", "delivered", "food delivery"],
+	  coffee: ["coffee", "cafe", "espresso", "latte", "cappuccino"],
+	  groceries: ["groceries", "grocery", "supermarket"],
+	  gas: ["gas", "gas station", "petrol", "fuel"],
+	  convenience_store: ["convenience store", "bodega", "mini mart"],
+	  hotel: ["hotel", "hotels", "resort", "motel"],
+	  lodging: ["lodging", "accommodation", "stay"],
+	  flights: ["flight", "flights", "plane ticket", "air travel", "plane"],
+	  airfare: ["airfare", "air fare"],
+	  rideshare: ["rideshare", "ride share", "car service"],
+	  rental_car: ["rental car", "car rental", "rent a car"],
+	  entertainment: ["entertainment", "show", "movie", "theater", "broadway", "concert"],
+	  tickets: ["tickets", "concert tickets", "event tickets"],
+	  eyewear: ["eyewear", "glasses", "frames", "contacts", "vision", "optical"],
+	  pharmacy: ["pharmacy", "drugstore", "rx", "prescription"],
+	  retail: ["retail", "shopping", "store", "gift", "gifts", "clothing", "shoes", "electronics"],
+	  travel: ["travel", "trip", "vacation"]
+	};
+	
+	const MERCHANT_HINTS = {
+	  "uber eats": ["takeout", "delivery", "dining"],
+	  "doordash": ["takeout", "delivery", "dining"],
+	  "grubhub": ["takeout", "delivery", "dining"],
+	  "seamless": ["takeout", "delivery", "dining"],
+	  "starbucks": ["coffee", "dining"],
+	  "dunkin": ["coffee", "fast_food", "takeout", "donut", "donuts", "munchkins"],
+	  "mobil": ["gas", "fuel", "convenience_store"],
+	  "exxon": ["gas", "fuel", "convenience_store"],
+	  "cumberland farms": ["gas", "fuel", "convenience_store"],
+	  "shell": ["gas", "fuel"],
+	  "chevron": ["gas", "fuel"],
+	  "sunoco": ["gas", "fuel"],
+	  "marriott": ["hotel", "lodging", "travel"],
+	  "hyatt": ["hotel", "lodging", "travel"],
+	  "delta": ["flights", "airfare", "travel"],
+	  "lyft": ["rideshare"],
+	  "uber": ["rideshare"],
+	  "instacart": ["groceries", "delivery"],
+	  "lenscrafters": ["eyewear"],
+	  "telecharge": ["entertainment", "tickets"]
+	  "turo": ["car rental"]
+
+	};
+	
+	let categorySelectionWasAuto = false;
+	
+	// 5.0 Generic cadence window for a card benefit
+	function getBenefitWindowForDate(benefit, asOfDate) {
+	  if (!benefit || !asOfDate) return null;
+	
+	  if (benefit.cadence === "annual" && benefit.cadence_type === "card_anniversary") {
+		const anchorStr =
+		  benefit.start_date ||
+		  CARDS[benefit.card]?.anniversary_start ||
+		  null;
+	
+		if (!anchorStr) return null;
+	
+		const anchor = parseISODateLocal(anchorStr);
+		if (!anchor) return null;
+	
+		const start = new Date(anchor);
+		start.setFullYear(asOfDate.getFullYear());
+	
+		if (asOfDate < start) {
+		  start.setFullYear(asOfDate.getFullYear() - 1);
+		}
+	
+		const end = new Date(start);
+		end.setFullYear(end.getFullYear() + 1);
+	
+		return { start, end };
+	  }
+	
+	  return getCadenceWindowForDate(benefit.cadence, asOfDate);
+	}
+	
+	// 5.0 Compute prior usage for one benefit
+	function getBenefitUsageSoFar(benefit, tx, txsBeforeSave) {
+	  const txDate = parseISODateLocal(tx.date);
+	  if (!benefit || !txDate) {
+		return { priorUsed: 0, priorTxCount: 0, window: null };
+	  }
+	
+	  const window = getBenefitWindowForDate(benefit, txDate);
+	  if (!window) {
+		return { priorUsed: 0, priorTxCount: 0, window: null };
+	  }
+	
+	  let priorUsed = 0;
+	  let priorTxCount = 0;
+	
+	  for (const priorTx of txsBeforeSave || []) {
+		if (priorTx.cardUsed !== benefit.card) continue;
+		if (priorTx.cardBenefitId !== benefit.id) continue;
+	
+		const priorDate = parseISODateLocal(priorTx.date);
+		if (!priorDate) continue;
+		if (priorDate < window.start || priorDate >= window.end) continue;
+	
+		const applied = Number(priorTx.cardBenefitApplied) || 0;
+		priorUsed += applied;
+	
+		if (applied > 0) {
+		  priorTxCount += 1;
+		}
+	  }
+	
+	  return { priorUsed, priorTxCount, window };
+	}
+	
+	// 5.0 Evaluate one card benefit candidate
+	function evaluateCardBenefitCandidate(benefit, tx, txsBeforeSave) {
+	  if (!benefit || !tx) return null;
+	  if (tx.cardUsed && tx.cardUsed !== benefit.card) return null;
+	
+	  const amount = Number(tx.amount) || 0;
+	  if (amount <= 0) return null;
+	
+	  if (typeof benefit.eligible_fn === "function") {
+		if (!benefit.eligible_fn(tx)) return null;
+	  } else if (Array.isArray(benefit.categories)) {
+		if (!benefit.categories.includes(tx.category)) return null;
+	  } else {
+		return null;
+	  }
+	
+	  const { priorUsed, priorTxCount, window } = getBenefitUsageSoFar(benefit, tx, txsBeforeSave);
+	  if (!window) return null;
+	
+	  const capAmount = Number(benefit.cap_amount) || 0;
+	  const remainingAmount = Math.max(0, capAmount - priorUsed);
+	  if (remainingAmount <= 0) return null;
+	
+	  if (benefit.tx_cap != null && priorTxCount >= Number(benefit.tx_cap)) {
+		return null;
+	  }
+	
+	  let immediateValue;
+		if (typeof benefit.value_fn === "function") {
+		  immediateValue = Number(benefit.value_fn(tx, remainingAmount)) || 0;
+		} else {
+		  immediateValue = Math.min(amount, remainingAmount);
+		}
+		
+		if (benefit.per_tx_cap != null && !isNaN(benefit.per_tx_cap)) {
+		  immediateValue = Math.min(immediateValue, Number(benefit.per_tx_cap));
+		}
+		
+		immediateValue = Math.max(0, Math.min(immediateValue, remainingAmount));
+		
+	  if (immediateValue <= 0) return null;
+	
+	  return {
+		benefit,
+		immediateValue,
+		remainingAmount,
+		priorUsed,
+		priorTxCount,
+		window
+	  };
+	}
+	
+	// 5.0 small helper that totals usage by benefit id for the current window
+	function getSavedBenefitUsageForCurrentWindow(benefitId, today = new Date(), txs = null) {
+	  const benefit = CARD_BENEFITS_BY_ID[benefitId];
+	  if (!benefit) return { used: 0, txCount: 0, window: null };
+	
+	  const window = getBenefitWindowForDate(benefit, today);
+	  if (!window) return { used: 0, txCount: 0, window: null };
+	
+	  const transactions = txs ?? loadTransactions();
+	  let used = 0;
+	  let txCount = 0;
+	
+	  for (const tx of transactions) {
+		if (tx.cardBenefitId !== benefitId) continue;
+	
+		const d = parseISODateLocal(tx.date);
+		if (!d) continue;
+		if (d < window.start || d >= window.end) continue;
+	
+		const applied = Number(tx.cardBenefitApplied) || 0;
+		used += applied;
+		if (applied > 0) txCount += 1;
+	  }
+	
+	  return { used, txCount, window };
+	}
+	
+	function getBenefitStateTimeLabel(benefit, today = new Date()) {
+	  if (benefit.cadence === "monthly") return "Monthly";
+	  if (benefit.cadence === "semiannual") return getSemiannualLabel(today);
+	
+	  if (benefit.cadence === "annual") {
+		if (benefit.cadence_type === "card_anniversary") return "Annual";
+		return "Annual (YTD)";
+	  }
+	
+	  return "";
+	}
+	
+	// 5.0 Choose the best card-native benefit (replaces the old benefitPriority object inside calculateCardBenefitApplied)
+	function chooseBestCardBenefit(tx, txsBeforeSave) {
+	  const candidates = [];
+	
+	  for (const benefit of CARD_BENEFITS) {
+		const candidate = evaluateCardBenefitCandidate(benefit, tx, txsBeforeSave);
+		if (candidate) candidates.push(candidate);
+	  }
+	
+	  if (!candidates.length) return null;
+	
+	  candidates.sort((a, b) => {
+		const pa = Number(a.benefit.priority) || 50;
+		const pb = Number(b.benefit.priority) || 50;
+		if (pa !== pb) return pa - pb;
+	
+		if (b.immediateValue !== a.immediateValue) {
+		  return b.immediateValue - a.immediateValue;
+		}
+	
+		return (Number(a.benefit.display_order) || 999) - (Number(b.benefit.display_order) || 999);
+	  });
+	
+	  return candidates[0];
+	}
+
+	// Compute the current rolling benefit-year window for a card
+	function getRollingBenefitYear(cardCode, today = new Date()) {
+	  const cardMeta = CARDS[cardCode];
+	  const anchorStr = cardMeta?.anniversary_start;
+	  if (!anchorStr) return null;
+	
+	  const anchor = parseISODateLocal(anchorStr);
+	  if (!anchor) return null;
+	
+	  const thisYearStart = new Date(anchor);
+	  thisYearStart.setFullYear(today.getFullYear());
+	
+	  if (today < thisYearStart) {
+		thisYearStart.setFullYear(today.getFullYear() - 1);
+	  }
+	
+	  const end = new Date(thisYearStart);
+	  end.setFullYear(end.getFullYear() + 1);
+	
+	  return { start: thisYearStart, end };
+	}
+	
+	// 5.0 Calculate native card benefit for a single transaction (new version now uses CARD_BENEFITS, not old ROLLING_BENEFITS)
+	function calculateCardBenefitApplied(tx, txsBeforeSave) {
+	  const winner = chooseBestCardBenefit(tx, txsBeforeSave);
+	
+	  if (!winner) {
+		return { cardBenefitId: null, cardBenefitApplied: 0 };
+	  }
+	
+	  return {
+		cardBenefitId: winner.benefit.id,
+		cardBenefitApplied: winner.immediateValue
+	  };
+	}
+	
+	// 5.0 helper that derives valid channels from the recommendation object
+	function getValidChannelsForRecommendation(rec, purchase) {
+	  if (!rec || !purchase) return ["direct"];
+	
+	  // Benefit-based recommendations: channel comes from the chosen CARD_BENEFITS entry
+	  if (rec.recommendationSource === "card_benefit") {
+		return rec.channel ? [rec.channel] : ["direct"];
+	  }
+	
+	  // Merchant offers: keep the recommendation's chosen channel
+	  if (rec.recommendationSource === "merchant_offer") {
+		return rec.channel ? [rec.channel] : ["direct"];
+	  }
+	
+	  // Base fallback: use the fallback registry for this category
+	  if (rec.recommendationSource === "base_fallback") {
+		const fallback = getBaseFallbackRecommendation(purchase.category);
+		return fallback?.channel ? [fallback.channel] : ["direct"];
+	  }
+	
+	  return rec.channel ? [rec.channel] : ["direct"];
+	}
+
+	// 5.0 helpers for when the user overrides the card in a rec, 
+	// do not pretending the original recommendation still governs channel validity
+	function getValidChannelsForSelectedCard(purchase, rec, selectedCard) {
+	  if (!purchase || !rec || !selectedCard) return ["direct"];
+	
+	  // If still using the recommended card, honor the original recommendation semantics
+	  if (selectedCard === rec.card) {
+		return getValidChannelsForRecommendation(rec, purchase);
+	  }
+	
+	  const channels = new Set();
+	
+	  // 1) Add any card-benefit channels for this selected card + purchase category
+	  CARD_BENEFITS.forEach((benefit) => {
+		const matchesCategory =
+		  Array.isArray(benefit.categories) &&
+		  benefit.categories.includes(purchase.category);
+	
+		if (benefit.card === selectedCard && matchesCategory && benefit.channel) {
+		  channels.add(benefit.channel);
+		}
+	  });
+	
+	  // 2) Add the fallback channel only if this selected card is the fallback card for the category
+	  const fallback = getBaseFallbackRecommendation(purchase.category);
+	  if (fallback && fallback.card === selectedCard && fallback.channel) {
+		channels.add(fallback.channel);
+	  }
+	
+	  // 3) Final fallback
+	  if (channels.size === 0) {
+		channels.add("direct");
+	  }
+	
+	  return Array.from(channels);
+	}
+	
+	function getDefaultChannelForSelectedCard(purchase, rec, selectedCard) {
+	  if (!purchase || !rec || !selectedCard) return "direct";
+	
+	  if (selectedCard === rec.card) {
+		return rec.channel || "direct";
+	  }
+	
+	  const validChannels = getValidChannelsForSelectedCard(purchase, rec, selectedCard);
+	  return validChannels[0] || "direct";
+	}
+	
+
+
+    // --- Cross-browser safe date parser (no UTC shift) ---
+	function parseISODateLocal(dateStr) {
+	  if (!dateStr) return null;
+	  const parts = String(dateStr).split("-");
+	  if (parts.length !== 3) return null;
+	
+	  const [y, m, d] = parts.map(Number);
+	  if (!y || !m || !d) return null;
+	
+	  return new Date(y, m - 1, d);
+	}
+
+	function formatDateISO_Local(d) {
+	  const yyyy = d.getFullYear();
+	  const mm = String(d.getMonth() + 1).padStart(2, "0");
+	  const dd = String(d.getDate()).padStart(2, "0");
+	  return `${yyyy}-${mm}-${dd}`;
+	}
+
+	function formatBenefitEndDateDisplay(endDateStr, todayDate) {
+	  if (!endDateStr) return "";
+	
+	  const d = parseISODateLocal(endDateStr);
+	  if (!d) return endDateStr; // fallback if malformed
+	
+	  const today = todayDate || parseISODateLocal(formatTodayISO());
+	  const currentYear = today ? today.getFullYear() : new Date().getFullYear();
+	
+	  const mm = String(d.getMonth() + 1).padStart(2, "0");
+	  const dd = String(d.getDate()).padStart(2, "0");
+	  const yyyy = d.getFullYear();
+	
+	  // Current year: MM/DD
+	  if (yyyy === currentYear) {
+		return `${mm}/${dd}`;
+	  }
+	
+	  // Prior or future year: MM/DD/YYYY
+	  return `${mm}/${dd}/${yyyy}`;
+	}
+
+	function normalizeImportedTransaction(tx) {
+	  return {
+		date: tx.date || "",
+		amount: Number(tx.amount) || 0,
+		category: tx.category || "",
+		channel: tx.channel || "direct",
+		cardUsed: tx.cardUsed || "",
+		merchantBenefitId: tx.merchantBenefitId || null,
+		merchantBenefitApplied: Number.isFinite(Number(tx.merchantBenefitApplied))
+		  ? Number(tx.merchantBenefitApplied)
+		  : 0,
+		cardBenefitId: tx.cardBenefitId || null,
+		cardBenefitApplied: Number.isFinite(Number(tx.cardBenefitApplied))
+		  ? Number(tx.cardBenefitApplied)
+		  : 0,
+	  };
+	}
+	
+	function normalizeImportedMerchantBenefit(b) {
+	  const normalized = {
+		id: b?.id != null ? String(b.id) : ("mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000)),
+		merchant: b?.merchant != null ? String(b.merchant).trim() : "",
+		card: b?.card != null ? String(b.card).toUpperCase() : "",
+		discountType: b?.discountType === "percent" ? "percent" : "amount",
+		discountValue: Number(b?.discountValue || 0),
+		limitType: b?.limitType === "total" ? "total" : "per_tx",
+		limitValue:
+		  b?.limitValue != null && b.limitValue !== "" && !isNaN(Number(b.limitValue))
+			? Number(b.limitValue)
+			: null,
+		minSpend:
+		  b?.minSpend != null && b.minSpend !== "" && !isNaN(Number(b.minSpend))
+			? Number(b.minSpend)
+			: null,
+		endDate: b?.endDate != null ? String(b.endDate) : "",
+		category: b?.category != null ? String(b.category) : "",
+		maxTransactions:
+		  b?.maxTransactions != null && b.maxTransactions !== "" && !isNaN(Number(b.maxTransactions))
+			? Number(b.maxTransactions)
+			: null,
+		userTagInput: b?.userTagInput != null ? String(b.userTagInput) : "",
+		searchTags: Array.isArray(b?.searchTags) ? b.searchTags : [],
+		schemaVersion: b?.schemaVersion || SEARCH_SCHEMA_VERSION
+	  };
+	
+	  if (normalized.maxTransactions != null && normalized.maxTransactions <= 0) normalized.maxTransactions = null;
+	  if (normalized.limitValue != null && normalized.limitValue <= 0) normalized.limitValue = null;
+	  if (normalized.minSpend != null && normalized.minSpend <= 0) normalized.minSpend = null;
+	
+	  return normalized;
+	}
+	
+	// 5.1 Helper functions for Search
+	
+	function normalizeSearchText(text) {
+	  return String(text || "")
+		.toLowerCase()
+		.replace(/&/g, " and ")
+		.replace(/[^a-z0-9\s]/g, " ")
+		.replace(/\s+/g, " ")
+		.trim();
+	}
+	
+	function buildReverseSynonymMap(synonymMap) {
+	  const reverse = {};
+	  for (const [canonical, variants] of Object.entries(synonymMap)) {
+		reverse[normalizeSearchText(canonical)] = canonical;
+		variants.forEach((variant) => {
+		  reverse[normalizeSearchText(variant)] = canonical;
+		});
+	  }
+	  return reverse;
+	}
+	
+	const REVERSE_SYNONYMS = buildReverseSynonymMap(SYNONYM_MAP);
+	
+	function canonicalizeTag(raw) {
+	  const norm = normalizeSearchText(raw);
+	  return REVERSE_SYNONYMS[norm] || norm.replace(/\s+/g, "_");
+	}
+	
+	function parseSearchTagsInput(rawInput) {
+	  if (!rawInput) return [];
+	  const parts = String(rawInput)
+		.split(/[,\n]/)
+		.map(s => s.trim())
+		.filter(Boolean);
+	
+	  return [...new Set(parts.map(canonicalizeTag).filter(Boolean))];
+	}
+	
+	function getSuggestedTagsForMerchant(merchantName, limit = 8) {
+	  const norm = normalizeSearchText(merchantName);
+	  if (!norm) return [];
+	
+	  const scores = new Map();
+	
+	  function bump(tag, points) {
+		const canonical = canonicalizeTag(tag);
+		scores.set(canonical, (scores.get(canonical) || 0) + points);
+	  }
+	
+	  // Strongest signal: exact merchant-key match
+	  for (const [merchantKey, tags] of Object.entries(MERCHANT_HINTS)) {
+		const mk = normalizeSearchText(merchantKey);
+	
+		if (norm === mk) {
+		  tags.forEach(tag => bump(tag, 100));
+		  continue;
+		}
+	
+		if (norm.includes(mk) || mk.includes(norm)) {
+		  tags.forEach(tag => bump(tag, 60));
+		}
+	  }
+	
+	  // Weaker signal: synonym/phrase hits inside merchant text
+	  for (const [variant, canonical] of Object.entries(REVERSE_SYNONYMS)) {
+		if (variant && norm.includes(variant)) {
+		  bump(canonical, 20);
+		}
+	  }
+	
+	  // Optional: slight preference for canonical tags you care about most
+	  const PRIORITY_ORDER = [
+		"dining",
+		"takeout",
+		"delivery",
+		"coffee",
+		"groceries",
+		"gas",
+		"fuel",
+		"hotel",
+		"flights",
+		"rideshare",
+		"entertainment",
+		"eyewear"
+	  ];
+	  const priorityIndex = new Map(PRIORITY_ORDER.map((tag, i) => [tag, i]));
+	
+	  return [...scores.entries()]
+		.sort((a, b) => {
+		  // higher score first
+		  if (b[1] !== a[1]) return b[1] - a[1];
+		  // then preferred tags
+		  const ai = priorityIndex.has(a[0]) ? priorityIndex.get(a[0]) : 999;
+		  const bi = priorityIndex.has(b[0]) ? priorityIndex.get(b[0]) : 999;
+		  if (ai !== bi) return ai - bi;
+		  // then stable alphabetical
+		  return a[0].localeCompare(b[0]);
+		})
+		.slice(0, limit)
+		.map(([tag]) => tag);
+	}
+	
+	function buildMerchantOfferSearchTags({ merchant, userTagInput }) {
+	  const suggested = getSuggestedTagsForMerchant(merchant);
+	  const manual = parseSearchTagsInput(userTagInput);
+	  return [...new Set([...suggested, ...manual])];
+	}
+	
+	function enrichMerchantBenefitSearchFields(b) {
+	  const merchant = b?.merchant != null ? String(b.merchant).trim() : "";
+	  const userTagInput = b?.userTagInput != null ? String(b.userTagInput) : "";
+	  const searchTags = Array.isArray(b?.searchTags)
+		? b.searchTags.map(canonicalizeTag).filter(Boolean)
+		: buildMerchantOfferSearchTags({ merchant, userTagInput });
+	
+	  return {
+		...b,
+		userTagInput,
+		searchTags: [...new Set(searchTags)],
+		schemaVersion: SEARCH_SCHEMA_VERSION
+	  };
+	}
+	
+	function buildMerchantOfferSearchBlob(benefit) {
+	  return normalizeSearchText([
+		benefit.merchant,
+		benefit.category,
+		...(benefit.searchTags || [])
+	  ].join(" "));
+	}
+	
+	function buildCardBenefitSearchBlob(benefit) {
+	  return normalizeSearchText([
+		benefit.label,
+		...(benefit.categories || []),
+		...(benefit.purchaseCategories || []),
+		...(benefit.intentTags || []),
+		...(benefit.merchantKeywords || []),
+		...(benefit.searchAliases || [])
+	  ].join(" "));
+	}
+	
+	function expandSearchQuery(rawQuery) {
+	  const norm = normalizeSearchText(rawQuery);
+	  if (!norm) return [];
+	
+	  const expanded = new Set([norm]);
+	
+	  for (const [variant, canonical] of Object.entries(REVERSE_SYNONYMS)) {
+		if (norm.includes(variant) || variant.includes(norm)) {
+		  expanded.add(canonical);
+		  (SYNONYM_MAP[canonical] || []).forEach(v => expanded.add(normalizeSearchText(v)));
+		}
+	  }
+	
+	  return [...expanded];
+	}
+	
+	function scoreBlobAgainstQuery(blob, expandedTerms) {
+	  let score = 0;
+	  for (const term of expandedTerms) {
+		if (!term) continue;
+		if (blob === term) score += 100;
+		else if (blob.includes(term)) score += 20;
+	  }
+	  return score;
+	}
+	
+	function findRelevantMerchantOffers(query, benefits) {
+	  const expandedTerms = expandSearchQuery(query);
+	
+	  return benefits
+		.map(benefit => {
+		  const blob = buildMerchantOfferSearchBlob(benefit);
+		  const score = scoreBlobAgainstQuery(blob, expandedTerms);
+		  return { benefit, score };
+		})
+		.filter(x => x.score > 0)
+		.sort((a, b) => b.score - a.score);
+	}
+	
+	function findRelevantCardBenefits(query, cardBenefits) {
+	  const expandedTerms = expandSearchQuery(query);
+	
+	  return cardBenefits
+		.map(benefit => {
+		  const blob = buildCardBenefitSearchBlob(benefit);
+		  const score = scoreBlobAgainstQuery(blob, expandedTerms);
+		  return { benefit, score };
+		})
+		.filter(x => x.score > 0)
+		.sort((a, b) => b.score - a.score);
+	}
+	
+	function findRelevantCardBenefitCategorySuggestions(query, cardBenefits) {
+	  const expandedTerms = expandSearchQuery(query);
+	  const suggestions = [];
+	
+	  cardBenefits.forEach((benefit) => {
+		// Overall relevance of this benefit to the query
+		const baseScore = scoreBlobAgainstQuery(
+		  buildCardBenefitSearchBlob(benefit),
+		  expandedTerms
+		);
+	
+		if (baseScore <= 0) return;
+	
+		const categories = Array.isArray(benefit.categories) ? benefit.categories : [];
+		if (!categories.length) return;
+	
+		// EXPAND: one suggestion per category
+		categories.forEach((category, idx) => {
+		  const categoryLabel = getCategoryLabel(category) || category;
+	
+		  const categoryBlob = normalizeSearchText([
+			category,
+			categoryLabel
+		  ].join(" "));
+	
+		  // Let the specific category add extra score if it matches well
+		  const categoryScore = scoreBlobAgainstQuery(categoryBlob, expandedTerms);
+	
+		  suggestions.push({
+			kind: "card_benefit_category",
+			benefitId: benefit.id,
+			value: category,
+			label:
+			  categories.length > 1
+				? `💳 ${benefit.label} → ${categoryLabel}`
+				: `💳 ${benefit.label}`,
+			score: baseScore + categoryScore - idx
+		  });
+		});
+	  });
+	
+	  suggestions.sort((a, b) => b.score - a.score);
+	  return suggestions;
+	}
+
+	// Storage and UI helper functions
+	
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => document.body.removeChild(toast), 2000);
+    }
+
+    let storageErrorShown = false;
+
+    function safeSetItem(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (err) {
+        console.error("localStorage setItem failed:", err);
+        if (!storageErrorShown) {
+          alert(
+            "Could not save data to this browser's storage.\n" +
+            "Your entries will work for now but will not persist if you close the page."
+          );
+          storageErrorShown = true;
+        }
+        return false;
+      }
+    }
+
+    function setStatus(message) {
+      const el = document.getElementById("globalStatus");
+      if (!el) return;
+      el.textContent = message || "";
+    }
+
+	function refreshAllViews() {
+	  renderTransactions();
+	  renderMerchantBenefits();
+	  populateCategorySelect();
+	  populateMerchantBenefitCategorySelect();
+	  renderStateSummary();
+	  renderRollingAnnualSummary();
+	}
+
+    // Base categories (what used to be hard-coded in the HTML select)
+    const BASE_CATEGORIES = [
+      { value: "dining",              label: "🍔 Dining- Restaurants" },
+      { value: "resy",                label: "🍔 Dining- Resy" },
+      { value: "csr_opentable",       label: "🍔 Dining- OpenTable CSR partners" },
+      { value: "ag_dining",           label: "🥡 Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com" },
+      { value: "doordash",            label: "🥡 Dining- DoorDash" },
+      { value: "uber_eats",           label: "🥡 Dining- Uber Eats" },
+      { value: "dunkin",              label: "🍩 Dunkin" },
+      { value: "groceries",           label: "🛒 Groceries- grocery store" },
+      { value: "doordash_groceries",  label: "🛒 Groceries- DoorDash" },
+      { value: "instacart",           label: "🛒 Groceries- Instacart" },
+      { value: "lyft",                label: "🚗 Rideshare- Lyft" },
+      { value: "rideshare_other",     label: "🚗 Rideshare- Uber" },
+      { value: "united_flight",       label: "✈️ Flight- United" },
+      { value: "delta_flight_threshold", label: "✈️ Flight– Delta" },
+      { value: "other_flight",        label: "✈️ Flight- other airline" },
+      { value: "marriott_hotel",      label: "🏨 Hotel- Marriott" },
+      { value: "theedit_hotel",       label: "🏨 Hotel- The Edit (Chase Travel collection)" },
+      { value: "renowned_hotel",      label: "🏨 Hotel- Renowned (United program)" },
+      { value: "delta_stays",         label: "🏨 Hotel- Delta Stays" },
+      { value: "other_hotel",         label: "🏨 Hotel- other hotel / lodging" },
+      { value: "uq_rentalcar",        label: "🚙 Rental Car- Avis / Budget" },
+      { value: "peloton",             label: "🚲 Peloton membership" },
+      // remove from select to turn off // { value: "streaming",           label: "📺 Streaming" },
+      { value: "stubhub",             label: "🎫 StubHub / viagogo" },
+      { value: "other",               label: "🛍️ other / general spending" }
+    ];
+      
+    function getCategoryLabel(catValue) {
+      if (!catValue) return "";
+      const found = BASE_CATEGORIES.find(c => c.value === catValue);
+      return found ? found.label : catValue; // fall back to raw value if unknown
+    }
+
+    // Channel label mapping for human-readable text
+    const CHANNEL_LABELS = {
+      direct: "direct with the merchant",
+      chase_travel: "via the Chase Travel portal",
+      lyft_app: "in the Lyft app",
+      uber_app: "in the Uber app",
+      united: "on United.com / app",
+      united_rentalcar: "on cars.united.com",
+      delta: "on Delta.com / app",
+      renowned_chase: "via the Chase Travel portal",
+      theedit_chase: "via the Chase Travel portal",
+	  delta_stays_platform: "on the Delta Stays platform",
+      stubhub_platform: "on StubHub / viagogo",
+      instacart_platform: "on Instacart",
+      peloton_platform: "on the Peloton site / app",
+      resy: "via Resy (book on Resy)",
+      doordash: "in the DoorDash app",
+      doordash_groceries_platform: "in the DoorDash app",
+      opentable_platform: "via OpenTable",
+    };
+
+    const CHANNEL_LABELS_HTML = {
+      // default: nothing special for most channels,
+      // we only override where we want links
+    
+      chase_travel:
+        'via the <a href="https://www.chase.com/travel" ' +
+        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+      
+      united_rentalcar:
+        'via <a href="https://cars.united.com" ' +
+        'target="_blank" rel="noopener noreferrer">cars&#46;united&#46;com</a>',
+      
+      lyft_app:
+        'in the <a href="https://www.lyft.com/" ' +
+        'target="_blank" rel="noopener noreferrer">Lyft</a> app',
+      
+      uber_app:
+        'in the <a href="https://www.uber.com/" ' +
+        'target="_blank" rel="noopener noreferrer">Uber</a> app',
+      
+      united:
+        'on <a href="https://www.united.com/" ' +
+        'target="_blank" rel="noopener noreferrer">United&#46;com</a> / app',
+      
+      delta:
+        'on <a href="https://www.delta.com/" ' +
+        'target="_blank" rel="noopener noreferrer">Delta&#46;com</a> / app',
+      
+      renowned_chase:
+        'via Renowned Hotels at the ' +
+        '<a href="https://www.chase.com/travel/renowned-hotels" ' +
+        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+      
+      theedit_chase:
+        'via the <a href="https://www.chase.com/travel/the-edit" ' +
+        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+      
+      delta_stays_platform:
+        'via the <a href="https://carsandstays.delta.com/Hotels#" ' +
+        'target="_blank" rel="noopener noreferrer">Delta Stays platform</a>',
+        
+	  stubhub_platform:
+            'via <a href="https://www.StubHub.com" ' +
+            'target="_blank" rel="noopener noreferrer">StubHub</a>' +
+            ' / ' +
+            '<a href="https://www.viagogo.com" ' +
+            'target="_blank" rel="noopener noreferrer">viagogo</a>' +
+            ' / ' +
+            '<a href="https://www.soccer.com" ' +
+            'target="_blank" rel="noopener noreferrer">soccer&#46;com</a>',
+ 
+      instacart_platform:
+            'via the <a href="https://www.instacart.com" ' +
+            'target="_blank" rel="noopener noreferrer">Instacart app</a>',
+
+      resy:
+            'via the <a href="https://www.resy.com" ' +
+            'target="_blank" rel="noopener noreferrer">Resy app</a>',
+
+      doordash:
+            'via the <a href="https://www.doordash.com" ' +
+            'target="_blank" rel="noopener noreferrer">DoorDash app</a>',
+
+      doordash_groceries_platform:
+            'via the <a href="https://www.doordash.com" ' +
+            'target="_blank" rel="noopener noreferrer">DoorDash app</a>',
+
+      opentable_platform:
+        'via <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" ' +
+        'target="_blank" rel="noopener noreferrer">OpenTable exclusive CSR partners</a>',
+    };
+
+    // Allowed channels per category (for override dropdown)
+    const CHANNELS_BY_CATEGORY = {
+      dining: ["direct"],
+      uber_eats: ["uber_app"],
+      ag_dining: ["direct"],
+      doordash: ["doordash"],
+      resy: ["resy"],
+      dunkin: ["direct"],
+      lyft: ["lyft_app"],
+      rideshare_other: ["uber_app"],
+      united_flight: ["united"],
+      delta_flight_threshold: ["delta"],
+      other_flight: ["chase_travel", "direct"],
+      uq_rentalcar: ["united_rentalcar"],
+	  theedit_hotel: ["theedit_chase", "direct"],
+      marriott_hotel: ["direct", "chase_travel"],
+      renowned_hotel: ["renowned_chase", "direct"],
+      delta_stays: ["delta_stays_platform"],
+      other_hotel: ["direct", "chase_travel"],
+      stubhub: ["stubhub_platform"],
+      instacart: ["instacart_platform"],
+      groceries: ["direct"],
+      streaming: ["direct"],
+      peloton: ["peloton_platform"],
+      doordash_groceries: ["doordash_groceries_platform"],
+      csr_opentable: ["opentable_platform"],
+      other: ["direct"],
+    };
+
+    function classifyBenefitEnd(endDateStr, todayDate) {
+      const today = todayDate || parseISODateLocal(formatTodayISO());
+      const end = parseISODateLocal(endDateStr);
+    
+      if (!today || !end) {
+        return { expired: false, expiringSoon: false };
+      }
+    
+      // Inclusive rule:
+      // - Active if end >= today
+      // - Expired if end < today
+      const expired = end < today;
+    
+      let expiringSoon = false;
+      if (!expired) {
+        const soonCutoff = new Date(today);
+        soonCutoff.setDate(soonCutoff.getDate() + 7); // 7-day window
+        expiringSoon = end >= today && end <= soonCutoff;
+      }
+    
+      return { expired, expiringSoon };
+    }
+
+    function formatTodayISO() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function startOfMonth(d) {
+      return new Date(d.getFullYear(), d.getMonth(), 1);
+    }
+    
+	function startOfCalendarYear(d) {
+	  return new Date(d.getFullYear(), 0, 1);
+	}
+	
+	function startOfSemiannualPeriod(d) {
+	  // Jan–Jun or Jul–Dec (same as computeState’s logic)
+	  return d.getMonth() < 6
+		? new Date(d.getFullYear(), 0, 1)
+		: new Date(d.getFullYear(), 6, 1);
+	}
+	
+	function addMonths(d, n) {
+	  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+	  x.setMonth(x.getMonth() + n);
+	  return x;
+	}
+	
+	function getCadenceWindowForDate(cadence, txDate) {
+	  // Returns [start, end) for the *txDate’s* applicable window
+	  if (cadence === "monthly") {
+		const start = startOfMonth(txDate);
+		const end = addMonths(start, 1);
+		return { start, end };
+	  }
+	
+	  if (cadence === "semiannual") {
+		const start = startOfSemiannualPeriod(txDate);
+		const end = addMonths(start, 6);
+		return { start, end };
+	  }
+	
+	  // "annual" (and default): calendar year
+	  const start = startOfCalendarYear(txDate);
+	  const end = new Date(start.getFullYear() + 1, 0, 1);
+	  return { start, end };
+	}
+
+    // Render a card badge as HTML
+    function renderCardBadge(code) {
+      if (!code) return "";
+      const c = String(code).toUpperCase();
+      const meta = CARDS[c];
+    
+      if (!meta) {
+        // Fallback for anything unknown
+        return `<span class="card-badge">${c}</span>`;
+      }
+    
+      const label = meta.short || c;
+      const cls = meta.badgeClass || c.toLowerCase();
+    
+      return `<span class="card-badge ${cls}">${escapeHtml(label)}</span>`;
+    }
+
+    function populateCardSelect(selectEl, options = {}) {
+      if (!selectEl) return;
+    
+      const { includeEmpty, emptyLabel } = options;
+      selectEl.innerHTML = "";
+    
+      if (includeEmpty) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = emptyLabel || "";
+        selectEl.appendChild(opt);
+      }
+    
+      Object.values(CARDS).forEach(card => {
+        const opt = document.createElement("option");
+        opt.value = card.code; // e.g., "CSR", "UQ", "MB", "DG", "AG"
+        opt.textContent = card.label;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    function escapeHtml(str) {
+      if (str == null) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatUsageAmount(value) {
+      const parsed = Number(value);
+      const num = Number.isFinite(parsed) ? parsed : 0;
+    
+      // For 0 or large values, show whole dollars.
+      if (num === 0 || Math.abs(num) > 9.99) {
+        return num.toFixed(0);
+      }
+    
+      // For small non-zero values, keep cents.
+      return num.toFixed(2);
+    }
+
+    function getSemiannualLabel(now = new Date()) {
+      const month = now.getMonth(); // 0 = Jan, ... 11 = Dec
+      return month < 6 ? "Jan–Jun" : "Jul–Dec";
+    }
+
+	function getBenefitMonthIndex(start, date) {
+	  let months =
+		(date.getFullYear() - start.getFullYear()) * 12 +
+		(date.getMonth() - start.getMonth());
+	  if (date.getDate() < start.getDate()) months -= 1;
+	  return Math.max(0, months);
+	}
+	
+	function getSemiannualIndex(start, date) {
+	  const m = getBenefitMonthIndex(start, date);
+	  return Math.floor(m / 6); // 0 or 1 within a 12-mo benefit year
+	}
+
+	function computeRollingAnnualBenefits(txs, today = new Date()) {
+	  const out = {};
+	
+	  // Init per card from CARDS registry
+	  for (const card of Object.keys(CARDS)) {
+		const win = getRollingBenefitYear(card, today);
+		if (!win) continue;
+	
+		out[card] = {
+		  start: win.start,
+		  end: win.end,
+		  totalUsed: 0,
+		  benefits: {} // benefitId -> benefit summary row
+		};
+	  }
+	
+	  // Pre-seed all known card-native benefits from CARD_BENEFITS
+	  for (const benefit of CARD_BENEFITS) {
+		const cardBucket = out[benefit.card];
+		if (!cardBucket) continue;
+	
+		cardBucket.benefits[benefit.id] = {
+		  id: benefit.id,
+		  label: benefit.label || benefit.id,
+		  labelHtml: null,
+		  used: 0,
+		  cap: benefit.cap_amount ?? null,
+		  cadence: benefit.cadence || null,
+		  display_order: benefit.display_order ?? 999,
+		  priority: benefit.priority ?? 50
+		};
+	  }
+	
+	  // Aggregate directly from saved transaction fields
+	  for (const tx of txs) {
+		if (!tx || !tx.cardUsed || !tx.cardBenefitId) continue;
+	
+		const card = tx.cardUsed;
+		const bucket = out[card];
+		if (!bucket) continue;
+	
+		const d = parseISODateLocal(tx.date);
+		if (!d) continue;
+		if (d < bucket.start || d >= bucket.end) continue;
+	
+		const applied = Number(tx.cardBenefitApplied) || 0;
+		if (applied <= 0) continue;
+	
+		// Fallback row if benefit id is no longer in CARD_BENEFITS
+		if (!bucket.benefits[tx.cardBenefitId]) {
+		  bucket.benefits[tx.cardBenefitId] = {
+			id: tx.cardBenefitId,
+			label: tx.cardBenefitId,
+			labelHtml: null,
+			used: 0,
+			cap: null,
+			cadence: null,
+			display_order: 999,
+			priority: 999
+		  };
+		}
+	
+		bucket.benefits[tx.cardBenefitId].used += applied;
+		bucket.totalUsed += applied;
+	  }
+	
+	  return out;
+	}
+	
+	function computeMerchantBenefitsYTDFromSavedTxs(txs, today = new Date()) {
+	  const out = {};
+	  const yearStart = new Date(today.getFullYear(), 0, 1);
+	
+	  for (const tx of txs) {
+		if (!tx.date || !tx.cardUsed) continue;
+	
+		const d = parseISODateLocal(tx.date);
+		if (!d) continue;
+		if (d < yearStart || d > today) continue;
+	
+		const amount = Number(tx.merchantBenefitApplied) || 0;
+		if (amount <= 0) continue;
+	
+		if (!out[tx.cardUsed]) {
+		  out[tx.cardUsed] = 0;
+		}
+	
+		out[tx.cardUsed] += amount;
+	  }
+	
+	  return out;
+	}
+
+    // ---------- Transactions storage ----------
+    function loadTransactions() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed;
+      } catch {
+        return [];
+      }
+    }
+
+    function saveTransactions(txs) {
+	  return safeSetItem(STORAGE_KEY, JSON.stringify(txs));
+	}
+
+    // ---------- Merchant benefits storage ----------
+    function loadMerchantBenefits() {
+	  try {
+		const raw = localStorage.getItem(MERCHANT_BENEFITS_KEY);
+		if (!raw) return [];
+		const parsed = JSON.parse(raw);
+		if (!Array.isArray(parsed)) return [];
+		return parsed.map(normalizeImportedMerchantBenefit);
+	  } catch {
+		return [];
+	  }
+	}
+
+    function saveMerchantBenefits(benefits) {
+	  return safeSetItem(MERCHANT_BENEFITS_KEY, JSON.stringify(benefits));
+	}
+
+    function findBenefitById(id, benefits) {
+      return benefits.find((b) => b.id === id) || null;
+    }
+
+    // Export all data to JSON file
+    function exportAllData() {
+	  const merchantBenefits = loadMerchantBenefits().map(normalizeImportedMerchantBenefit);
+	
+	  const data = {
+		version: "2.0",
+		exportDate: new Date().toISOString(),
+		transactions: loadTransactions(),
+		merchantBenefits
+	  };
+	
+	  const dataStr = JSON.stringify(data, null, 2);
+	  const blob = new Blob([dataStr], { type: 'application/json' });
+	  const url = URL.createObjectURL(blob);
+	
+	  const link = document.createElement('a');
+	  link.href = url;
+	  link.download = `card-advisor-backup-${formatTodayISO()}.json`;
+	  document.body.appendChild(link);
+	  link.click();
+	  document.body.removeChild(link);
+	  URL.revokeObjectURL(url);
+	}
+
+    // Import data from JSON file
+    function importDataFromFile(file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          
+          // Validate the data structure
+          if (!data.version || !["1.0", "2.0"].includes(String(data.version))) {
+			  alert("Invalid backup file format.");
+			  return;
+			}
+
+          // Validate transactions array
+          if (!Array.isArray(data.transactions)) {
+            alert("Invalid transactions data in backup file.");
+            return;
+          }
+
+          // Validate merchant benefits array
+          if (!Array.isArray(data.merchantBenefits)) {
+            alert("Invalid merchant benefits data in backup file.");
+            return;
+          }
+
+          // Ask for confirmation
+          const txCount = data.transactions.length;
+          const benefitCount = data.merchantBenefits.length;
+          const msg = `Import ${txCount} transactions and ${benefitCount} merchant benefits?\n\nThis will REPLACE all current data.`;
+          
+          if (!confirm(msg)) {
+            return;
+          }
+
+		// Import the data (save first, verify both succeeded)
+		const oldTxs = loadTransactions();
+		const oldBenefits = loadMerchantBenefits();
+		
+		const normalizedTxs = data.transactions.map(normalizeImportedTransaction);
+		const txOk = saveTransactions(normalizedTxs);
+		if (!txOk) {
+		  showToast("⚠️ Unable to import transactions — storage full or private mode.");
+		  return;
+		}
+		
+		const normalizedBenefits = data.merchantBenefits
+		  .map(normalizeImportedMerchantBenefit)
+		  .filter(b =>
+			  b.merchant &&
+			  b.card &&
+			  b.endDate &&
+			  b.category &&
+			  b.discountValue > 0 &&
+			  (b.maxTransactions == null || b.maxTransactions > 0) &&
+			  (b.limitValue == null || b.limitValue > 0) &&
+			  (b.minSpend == null || b.minSpend > 0)
+			);
+  		const benefitsOk = saveMerchantBenefits(normalizedBenefits);
+		if (!benefitsOk) {
+		  // Roll back both transactions and merchant benefits so import is all-or-nothing
+		  saveTransactions(oldTxs);
+		  saveMerchantBenefits(oldBenefits);
+		  showToast("⚠️ Import failed — merchant benefits could not be saved. No changes were applied.");
+		  return;
+		}
+		
+		// Re-render everything
+		renderTransactions();
+		renderMerchantBenefits();
+		populateCategorySelect();
+		populateMerchantBenefitCategorySelect();
+		renderStateSummary();
+		renderRollingAnnualSummary();
+		
+		const importedTxCount = normalizedTxs.length;
+		const importedBenefitCount = normalizedBenefits.length;
+		alert(`Successfully imported ${importedTxCount} transactions and ${importedBenefitCount} merchant benefits!`);
+
+        } catch (error) {
+          alert("Error reading backup file. Make sure it's a valid JSON file exported from this app.");
+          console.error("Import error:", error);
+        }
+      };
+
+      reader.onerror = function() {
+        alert("Error reading file. Please try again.");
+      };
+
+      reader.readAsText(file);
+    }
+
+    // ---------- Render transactions ----------
+    function renderTransactions() {
+	  const txs = loadTransactions();
+	  const tbody = document.getElementById("txTableBody");
+	  tbody.innerHTML = "";
+	
+	  txs.forEach((tx, idx) => {
+		const tr = document.createElement("tr");
+		const tdDate = document.createElement("td");
+		const tdAmt = document.createElement("td");
+		const tdCat = document.createElement("td");
+		const tdCardBen = document.createElement("td");
+		const tdMrchBen = document.createElement("td");
+		const tdCard = document.createElement("td");
+	
+		tdDate.textContent = tx.date || "";
+		tdAmt.textContent = `$${Number(tx.amount || 0).toFixed(2)}`;
+		tdCat.textContent = getCategoryLabel(tx.category) || tx.category || "";
+	
+		const cardBenAmt = Number(tx.cardBenefitApplied || 0);
+		const mrchBenAmt = Number(tx.merchantBenefitApplied || 0);
+	
+		tdCardBen.textContent = cardBenAmt > 0 ? `$${cardBenAmt.toFixed(2)}` : "";
+		tdMrchBen.textContent = mrchBenAmt > 0 ? `$${mrchBenAmt.toFixed(2)}` : "";
+    
+        if (tx.cardUsed) {
+          // Build a special badge just for the log, with a data index
+          const code = String(tx.cardUsed).toUpperCase();
+          const cls = code.toLowerCase();              // csr, uq, mb, dg, ag
+          const label = code === "CSR" ? "CS" : code;  // match your global style
+    
+          tdCard.innerHTML = `
+            <span
+              class="card-badge ${cls} tx-delete-badge"
+              data-tx-index="${idx}"
+            >
+              ${escapeHtml(label)}
+            </span>
+          `;
+        } else {
+          tdCard.textContent = "";
+        }
+    
+		tr.appendChild(tdDate);
+		tr.appendChild(tdAmt);
+		tr.appendChild(tdCat);
+		tr.appendChild(tdCardBen);
+		tr.appendChild(tdMrchBen);
+		tr.appendChild(tdCard);
+	
+		tbody.appendChild(tr);
+      });
+    }
+
+    // ---------- Card-native benefits state ----------
+    function computeState(txs, now) {
+      const nowDate = now || new Date();
+
+      // Month and year boundaries
+      const monthStart = startOfMonth(nowDate);
+      const yearStart = new Date(nowDate.getFullYear(), 0, 1);
+
+      // Semi-annual periods (Jan–Jun / Jul–Dec)
+      const stubhubPeriodStart =
+        nowDate.getMonth() < 6
+          ? new Date(nowDate.getFullYear(), 0, 1)
+          : new Date(nowDate.getFullYear(), 6, 1);
+      const resyPeriodStart = stubhubPeriodStart;
+
+      // Monthly
+      let mbDiningThisMonth = 0;
+      let csrDoordashThisMonth = 0;
+      let csrLyftThisMonth = 0;
+      let uqRideshareThisMonth = 0;
+      let uqInstacartThisMonth = 0;
+      let csrPelotonThisMonth = 0;
+      let agUberThisMonth = 0;
+      let agDiningPartnersThisMonth = 0;
+      let agDunkinThisMonth = 0;
+      let csrDoordashGroceriesThisMonth = 0;
+      let csrDoordashGroceriesTxThisMonth = 0;
+
+      // Semi-annual
+      let csrStubhubThisPeriod = 0;
+      let agResyThisPeriod = 0;
+      let csrOpenTableThisPeriod = 0;
+	  let csrTheEditThisPeriod = 0;
+      
+      // Annual / calendar-year
+      let csrTravelYTD = 0;
+      let dgDeltaStaysYTD = 0;
+      let dg10kSpendYTD = 0;
+	  let uqRenownedYTD = 0;
+      let uqRentalCarYTD = 0;
+      let uqRentalCarTxYTD = 0;
+
+
+      // Which categories we treat as "travel" for CSR travel credit tracking
+      const CSR_TRAVEL_CATEGORIES = new Set([
+        "united_flight",
+        "delta_flight_threshold",
+        "other_flight",
+		"theedit_hotel",
+        "marriott_hotel",
+        "renowned_hotel",
+        "delta_stays",
+        "other_hotel",
+      ]);
+
+      for (const tx of txs) {
+        if (!tx.date) continue;
+        const d = parseISODateLocal(tx.date);
+        if (!d) continue;
+
+        const amt = Number(tx.amount) || 0;
+
+        // Normalize to date-only for fair comparison
+        const dDateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const nowDateOnly = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
+
+        const inMonth = dDateOnly >= monthStart && dDateOnly <= nowDateOnly;
+        const inYear = dDateOnly >= yearStart && dDateOnly <= nowDateOnly;
+        const inStubhubPeriod = dDateOnly >= stubhubPeriodStart && dDateOnly <= nowDateOnly;
+        const inResyPeriod = dDateOnly >= resyPeriodStart && dDateOnly <= nowDateOnly;
+
+        // Monthly-limited benefits
+        if (inMonth) {
+          if (tx.cardUsed === "MB" && tx.category === "dining") {
+            mbDiningThisMonth += amt;
+          }
+          if (tx.cardUsed === "CSR" && tx.category === "doordash") {
+            csrDoordashThisMonth += amt;
+          }
+          if (tx.cardUsed === "CSR" && tx.category === "doordash_groceries" && amt > 0) {
+            csrDoordashGroceriesThisMonth += Math.min(10, amt);
+            csrDoordashGroceriesTxThisMonth += 1;
+          }
+          if (tx.cardUsed === "CSR" && tx.category === "lyft") {
+            csrLyftThisMonth += amt;
+          }
+          if (tx.cardUsed === "UQ" && tx.category === "rideshare_other") {
+            uqRideshareThisMonth += amt;
+          }
+          if (tx.cardUsed === "UQ" && tx.category === "lyft") {
+            uqRideshareThisMonth += amt;
+          }
+          if (tx.cardUsed === "UQ" && tx.category === "instacart") {
+            uqInstacartThisMonth += amt;
+          }
+          if (tx.cardUsed === "CSR" && tx.category === "peloton") {
+            csrPelotonThisMonth += amt;
+          }
+           if (tx.cardUsed === "AG" && tx.category === "dunkin") {
+            agDunkinThisMonth += amt;
+          }
+          // AG Uber Cash – count Uber rides + Uber Eats on AG
+          if (
+            tx.cardUsed === "AG" &&
+            (tx.category === "rideshare_other" || tx.category === "uber_eats")
+          ) {
+            agUberThisMonth += amt;
+          }
+          // AG Dining partners $10/mo
+          if (tx.cardUsed === "AG" && tx.category === "ag_dining") {
+            agDiningPartnersThisMonth += amt;
+          }
+        }
+
+        // Semi-annual StubHub credit (CSR only)
+        if (
+          inStubhubPeriod &&
+          tx.cardUsed === "CSR" &&
+          tx.category === "stubhub"
+        ) {
+          csrStubhubThisPeriod += amt;
+        }
+
+        // Semi-annual Resy credit (AG only)
+        if (
+          inResyPeriod &&
+          tx.cardUsed === "AG" &&
+          tx.category === "resy"
+        ) {
+          agResyThisPeriod += amt;
+        }
+
+        // Semi-annual OpenTable dining partners (CSR only)
+        if (
+          inResyPeriod &&           // same Jan–Jun / Jul–Dec periods
+          tx.cardUsed === "CSR" &&
+          tx.category === "csr_opentable"
+        ) {
+          csrOpenTableThisPeriod += amt;
+        }
+
+        // Semi-annual The Edit hotel partners (CSR only)
+        if (
+          inResyPeriod &&           // same Jan–Jun / Jul–Dec periods
+          tx.cardUsed === "CSR" &&
+          tx.category === "theedit_hotel"
+        ) {
+          csrTheEditThisPeriod += amt;
+        }
+
+        // Annual / calendar-year benefits
+        if (inYear) {
+          if (tx.cardUsed === "CSR" && CSR_TRAVEL_CATEGORIES.has(tx.category)) {
+            csrTravelYTD += amt;
+          }
+
+          if (tx.cardUsed === "DG" && tx.category === "delta_stays") {
+            dgDeltaStaysYTD += amt;
+          }
+
+		  if (tx.cardUsed === "UQ" && tx.category === "renowned_hotel") {
+            uqRenownedYTD += amt;
+          }
+
+          if (tx.cardUsed === "DG") {
+            dg10kSpendYTD += amt;
+          }
+          if (tx.cardUsed === "UQ" && tx.category === "uq_rentalcar" && amt > 0) {
+            uqRentalCarYTD += Math.min(40, amt);
+            uqRentalCarTxYTD += 1;
+          }
+        }
+      }
+
+      return {
+        mbDiningThisMonth,
+        csrDoordashThisMonth,
+        csrLyftThisMonth,
+        uqRideshareThisMonth,
+        uqInstacartThisMonth,
+        csrPelotonThisMonth,
+        agUberThisMonth,
+        agDiningPartnersThisMonth,
+        agDunkinThisMonth,
+        csrStubhubThisPeriod,
+        agResyThisPeriod,
+        csrOpenTableThisPeriod,
+        csrTravelYTD,
+        dgDeltaStaysYTD,
+        dg10kSpendYTD,
+		uqRenownedYTD,
+        csrDoordashGroceriesThisMonth,
+        csrDoordashGroceriesTxThisMonth,
+		csrTheEditThisPeriod,
+		uqRentalCarYTD,
+		uqRentalCarTxYTD,
+      };
+    }
+
+    // ---------- Merchant benefits usage state ----------
+    function computeMerchantState(txs, benefits, now) {
+      const nowDate = now || new Date();
+      const state = {};
+
+      for (const benefit of benefits) {
+        let used = 0;
+        let txCount = 0; 
+        const end = parseISODateLocal(benefit.endDate);
+
+        const minSpend =
+          benefit.minSpend != null && !isNaN(benefit.minSpend)
+            ? Number(benefit.minSpend)
+            : null;
+
+        const relevantTxs = txs
+		  .filter(tx => tx.date && tx.merchantBenefitId === benefit.id)
+		  .sort((a, b) => {
+			const da = parseISODateLocal(a.date);
+			const db = parseISODateLocal(b.date);
+			if (!da && !db) return 0;
+			if (!da) return 1;
+			if (!db) return -1;
+			return da.getTime() - db.getTime();
+		  });
+		
+		for (const tx of relevantTxs) {
+		  const d = parseISODateLocal(tx.date);
+          
+          if (!d) continue;
+          
+          // Normalize to date-only (midnight) for fair comparison
+          const dDateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+          const nowDateOnly = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
+          const endDateOnly = end ? new Date(end.getFullYear(), end.getMonth(), end.getDate()) : null;
+          
+          if (dDateOnly > nowDateOnly) continue;
+          if (endDateOnly && dDateOnly > endDateOnly) continue;
+
+          if (tx.cardUsed && tx.cardUsed !== benefit.card) {
+            // Logged with a different card than this benefit is on -> ignore
+            continue;
+          }
+
+          const amount = Number(tx.amount) || 0;
+          if (!amount) continue;
+
+          // Enforce minimum spend per transaction if set
+          if (minSpend != null && amount < minSpend) {
+            continue;
+          }
+
+          let discount = 0;
+
+          if (benefit.discountType === "percent") {
+            discount = (amount * Number(benefit.discountValue || 0)) / 100;
+          } else {
+            discount = Number(benefit.discountValue || 0);
+          }
+
+          // Per-transaction cap, if specified
+          if (
+            benefit.limitType === "per_tx" &&
+            benefit.limitValue != null &&
+            !isNaN(benefit.limitValue)
+          ) {
+            discount = Math.min(discount, Number(benefit.limitValue));
+          }
+
+          // Total cap across all tx
+          if (
+            benefit.limitType === "total" &&
+            benefit.limitValue != null &&
+            !isNaN(benefit.limitValue)
+          ) {
+            const limit = Number(benefit.limitValue);
+            const remaining = Math.max(0, limit - used);
+            if (remaining <= 0) {
+              discount = 0;
+            } else {
+              discount = Math.min(discount, remaining);
+            }
+          }
+
+          used += discount;
+          
+          if (discount > 0) {
+            txCount += 1;
+          }
+
+        }
+
+        state[benefit.id] = {
+          used,
+          limit: benefit.limitValue != null && !isNaN(benefit.limitValue)
+            ? Number(benefit.limitValue)
+            : null,
+          txCount,
+        };
+      }
+
+      return state;
+    }
+    
+    // ---------- Calculate merchant benefit for a single transaction -----------
+    function calculateMerchantBenefitApplied(tx, benefits, txsBeforeSave) {
+	  if (!tx.merchantBenefitId) {
+		return { merchantBenefitId: null, merchantBenefitApplied: 0 };
+	  }
+	
+	  const benefit = findBenefitById(tx.merchantBenefitId, benefits);
+	  if (!benefit) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  const amount = Number(tx.amount) || 0;
+	  if (amount <= 0) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  const txDate = parseISODateLocal(tx.date);
+	  if (!txDate) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  const end = parseISODateLocal(benefit.endDate);
+	  if (end && txDate > end) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  if (tx.cardUsed && tx.cardUsed !== benefit.card) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  const minSpend =
+		benefit.minSpend != null && !isNaN(benefit.minSpend)
+		  ? Number(benefit.minSpend)
+		  : null;
+	
+	  if (minSpend != null && amount < minSpend) {
+		return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+	  }
+	
+	  // Compute prior usage from already-saved txs only
+	  let used = 0;
+	  let txCount = 0;
+	
+	  for (const priorTx of txsBeforeSave) {
+		if (!priorTx.merchantBenefitId) continue;
+		if (priorTx.merchantBenefitId !== benefit.id) continue;
+	
+		used += Number(priorTx.merchantBenefitApplied) || 0;
+	
+		if ((Number(priorTx.merchantBenefitApplied) || 0) > 0) {
+		  txCount += 1;
+		}
+	  }
+	
+	  if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+		const maxTx = Number(benefit.maxTransactions);
+		if (txCount >= maxTx) {
+		  return { merchantBenefitId: tx.merchantBenefitId, merchantBenefitApplied: 0 };
+		}
+	  }
+	
+	  let discount = 0;
+	
+	  if (benefit.discountType === "percent") {
+		discount = (amount * Number(benefit.discountValue || 0)) / 100;
+	  } else {
+		discount = Number(benefit.discountValue || 0);
+	  }
+	
+	  if (
+		benefit.limitType === "per_tx" &&
+		benefit.limitValue != null &&
+		!isNaN(benefit.limitValue)
+	  ) {
+		discount = Math.min(discount, Number(benefit.limitValue));
+	  }
+	
+	  if (
+		benefit.limitType === "total" &&
+		benefit.limitValue != null &&
+		!isNaN(benefit.limitValue)
+	  ) {
+		const totalLimit = Number(benefit.limitValue);
+		const remaining = Math.max(0, totalLimit - used);
+		discount = Math.min(discount, remaining);
+	  }
+	
+	  discount = Math.max(0, discount);
+	
+	  return {
+		merchantBenefitId: tx.merchantBenefitId,
+		merchantBenefitApplied: discount,
+	  };
+	}
+
+    // ---------- State summary ----------
+    function renderStateSummary() {
+		const txs = loadTransactions();
+		const benefits = loadMerchantBenefits();
+		const merchantState = computeMerchantState(txs, benefits);
+		const el = document.getElementById("stateSummary");
+		const today = new Date();
+
+      // ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
+      const ccRows = [];
+    
+		// Build all real card-native benefit rows from CARD_BENEFITS
+		const sortedBenefits = [...CARD_BENEFITS].sort(
+		  (a, b) => (Number(a.display_order ?? 999) - Number(b.display_order ?? 999))
+		);
+		
+		for (const benefit of sortedBenefits) {
+		  const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
+		
+		  const limit = Number(benefit.cap_amount || 0);
+		  const used = limit > 0 ? Math.min(usage.used, limit) : usage.used;
+		
+		  const txCap =
+			benefit.tx_cap != null && !isNaN(benefit.tx_cap)
+			  ? Number(benefit.tx_cap)
+			  : null;
+		
+		  const fullyUsed =
+			(limit > 0 && used >= limit) ||
+			(txCap != null && usage.txCount >= txCap);
+		
+		  ccRows.push({
+			label: benefit.state_label || benefit.label || benefit.id,
+		    labelHtml: benefit.state_labelHtml || null,
+			card: benefit.card,
+			time: getBenefitStateTimeLabel(benefit, today),
+			usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+			fullyUsed,
+		  });
+		}
+    
+		// ---------- MERCHANT BENEFITS TABLE ROWS ----------
+		const merchantRows = [];
+		const todayDate = parseISODateLocal(formatTodayISO());
+		let soonCutoff = null;
+		if (todayDate) {
+		  soonCutoff = new Date(todayDate);
+		  soonCutoff.setDate(soonCutoff.getDate() + 7);
+		}
+    
+      // Sort benefits by merchant, then end date
+      const benefitsSorted = [...benefits].sort((a, b) => {
+        const nameA = (a.merchant || "").toLowerCase();
+        const nameB = (b.merchant || "").toLowerCase();
+        if (nameA !== nameB) return nameA.localeCompare(nameB);
+    
+        const endA = parseISODateLocal(a.endDate);
+        const endB = parseISODateLocal(b.endDate);
+        const timeA = endA ? endA.getTime() : Infinity;
+        const timeB = endB ? endB.getTime() : Infinity;
+        return timeA - timeB;
+      });
+    
+      for (const benefit of benefitsSorted) {
+        const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+        const used = ms.used || 0;
+        const txCount = ms.txCount || 0;
+        
+        // Date-based classification (inclusive end date, shared logic)
+        let { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
+        
+        // Respect max transaction cap as an additional expiry source
+        if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+          const maxTx = Number(benefit.maxTransactions);
+          if (maxTx >= 0 && txCount >= maxTx) {
+            expired = true;
+            expiringSoon = false; // can't be "expiring soon" if already expired
+          }
+        }
+    
+        const hasTotalCap =
+          benefit.limitType === "total" &&
+          benefit.limitValue != null &&
+          !isNaN(benefit.limitValue);
+    
+        const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
+        const fullyUsed =
+          hasTotalCap && totalLimit != null && used >= totalLimit;
+    
+        // Usage text
+        let usageText;
+        const usedStr = formatUsageAmount(used);
+        
+        if (hasTotalCap && totalLimit != null) {
+          const limitStr = formatUsageAmount(totalLimit);
+          usageText = `$${usedStr} of $${limitStr}`;
+        } else {
+          usageText = `$${usedStr} used`;
+        }
+    
+        // Time text: just the date, optional "(expired)" – no "thru"
+        let timeText = formatBenefitEndDateDisplay(benefit.endDate, todayDate);
+        if (expired) {
+          timeText = timeText ? `${timeText} Expired` : "Expired";
+        }
+
+		// Discount Label text
+		let discountLabel = "";		
+		if (benefit.discountType === "percent") {
+		  discountLabel = `${Number(benefit.discountValue || 0)}%`;
+		} else {
+		  discountLabel = `$${Number(benefit.discountValue || 0).toFixed(0)}`;
+		}
+    
+        merchantRows.push({
+		  label: `${benefit.merchant || ""} (${discountLabel})`,
+          card: benefit.card || "",
+          time: timeText,
+          usage: usageText,
+          fullyUsed,
+          expiringSoon: expiringSoon && !expired,
+          expired,  
+          usedAmount: used,
+        });
+      }
+    
+      // ---------- BUILD HTML ----------
+      let html = "";
+    
+      // Helper: build a table from row objects
+      function buildTable(title, rows, isMerchantTable) {
+        if (!rows || rows.length === 0) return "";
+      
+        const headerLabel = isMerchantTable
+          ? "Merchant<br>Offer"
+          : "Credit Card<br>Benefit";
+          
+        const timingLabel = isMerchantTable
+          ? "Expiry"
+          : "Timing";
+      
+        const tableHtml = `
+          <div${isMerchantTable ? ' style="margin-top:8px;"' : ""}>
+            <h3 style="margin-top:0.8rem;">${title}</h3>
+            <div class="state-table-wrapper">
+              <table class="state-table">
+                <thead>
+                  <tr>
+                    <th>${headerLabel}</th>
+                    <th>Card</th>
+                    <th>${timingLabel}</th>
+                    <th>Usage</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows
+                    .map((row) => {
+                      const classes = [];
+      
+                      if (isMerchantTable) {
+                        // MERCHANT PRECEDENCE:
+                        // 1) fully used by total $ cap -> green row (credit-met)
+                        // 2) expired by date or max-tx -> red row
+                        // 3) expiring soon by date    -> yellow row
+                        if (row.fullyUsed) {
+                          classes.push("credit-met");
+                        } else if (row.expired) {
+                          classes.push("expired");
+                        } else if (row.expiringSoon) {
+                          classes.push("expiring-soon");
+                        }
+                      } else {
+                        // CARD BENEFITS: keep original behavior
+                        if (row.fullyUsed) {
+                          classes.push("credit-met");
+                        }
+                      }
+      
+                      const classAttr =
+                        classes.length > 0 ? ` class="${classes.join(" ")}"` : "";
+      
+                      // ----- Usage cell formatting -----
+                      let usageCellHtml;
+      
+                      if (row.fullyUsed) {
+                        // For fully used (merchant or card), keep old behavior:
+                        // bold + green via credit-met span.
+                        usageCellHtml = `<span class="credit-met">${escapeHtml(
+                          row.usage
+                        )}</span>`;
+                      } else if (
+                        isMerchantTable &&
+                        row.usedAmount != null &&
+                        !isNaN(row.usedAmount) &&
+                        Number(row.usedAmount) > 0
+                      ) {
+                        // For all *other* merchant situations:
+                        // if used > 0, make the usage cell text green, normal weight.
+                        usageCellHtml = `<span class="usage-positive">${escapeHtml(
+                          row.usage
+                        )}</span>`;
+                      } else {
+                        // Default unstyled usage text
+                        usageCellHtml = escapeHtml(row.usage);
+                      }
+
+                      // Allow an optional HTML label
+                      const labelCellHtml = row.labelHtml
+                        ? row.labelHtml
+                        : escapeHtml(row.label);
+      
+                      return `
+                        <tr${classAttr}>
+                          <td>${labelCellHtml}</td>
+                          <td>${renderCardBadge(row.card)}</td>
+                          <td>${escapeHtml(row.time)}</td>
+                          <td class="usage-cell">${usageCellHtml}</td>
+                        </tr>
+                      `;
+                    })
+                    .join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        return tableHtml;
+      }
+    
+      html += buildTable("Credit Card Benefits", ccRows, false);
+      html += buildTable("Merchant Offers", merchantRows, true);
+    
+      if (!html) {
+        html = `<span class="muted">No credits or offers logged yet.</span>`;
+      }
+    
+      el.innerHTML = html;
+    }
+
+	function renderRollingAnnualSummary() {
+	  const txs = loadTransactions();
+	  const state = computeRollingAnnualBenefits(txs);
+	  const merchantState = computeMerchantBenefitsYTDFromSavedTxs(txs);
+	  const el = document.getElementById("rollingAnnualSummary");
+	  if (!el) return;
+	
+		const rows = Object.entries(state);
+		const merchantRows = Object.entries(merchantState);
+		
+		if (rows.length === 0 && merchantRows.length === 0) {
+		  el.innerHTML = `<span class="muted">No annual benefit data yet.</span>`;
+		  return;
+		}	
+		
+	  function formatMoneyWhole(n) {
+		return Math.round(Number(n || 0)).toLocaleString();
+	  }
+	
+	  function formatMonthDay(d) {
+		const mm = String(d.getMonth() + 1).padStart(2, "0");
+		const dd = String(d.getDate()).padStart(2, "0");
+		return `${mm}/${dd}`;
+	  }
+	
+	  // Keep cards in your preferred display order
+	  const cardOrder = ["CSR", "AG", "UQ", "MB", "DG"];
+	  rows.sort((a, b) => {
+		const ia = cardOrder.indexOf(a[0]);
+		const ib = cardOrder.indexOf(b[0]);
+		return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+	  });
+	
+	  let grandUsed = 0;
+	  let grandFees = 0;
+	
+	  let html = `
+		<h3 class="annual-summary-subhead">Credit Card Benefits - annual</h3>
+		<table class="rolling-summary-table">
+		  <thead>
+			<tr>
+			  <th>Card</th>
+			  <th>Start Date</th>
+			  <th>Bens Used</th>
+			  <th>Ann. Fee</th>
+			  <th>Fee Recouped</th>
+			  <th>Dtls</th>
+			</tr>
+		  </thead>
+		  <tbody>
+	  `;
+	
+	  for (const [card, d] of rows) {
+		const cardMeta = CARDS[card] || {};
+		const annualFee = Number(cardMeta.annualFee || 0);
+		const totalUsed = Number(d.totalUsed || 0);
+	
+		grandUsed += totalUsed;
+		grandFees += annualFee;
+	
+		// % recouped (cap 0..100). If fee is 0, show 100 if used>0 else 0 (or change if you prefer)
+		let pct = 0;
+		if (annualFee > 0) {
+		  pct = Math.min(100, Math.max(0, (totalUsed / annualFee) * 100));
+		} else {
+		  pct = totalUsed > 0 ? 100 : 0;
+		}
+	
+		const pctLabel = `${Math.round(pct)}%`;
+		const startLabel = d.start ? formatMonthDay(d.start) : "";
+	
+		// Sort breakdown benefits: display_order first, then used desc, then alpha
+		const benefitList = Object.values(d.benefits || {})
+		  .sort((a, b) =>
+			(Number(a.display_order ?? 999) - Number(b.display_order ?? 999)) ||
+			(Number(b.used || 0) - Number(a.used || 0)) ||
+			String(a.label || "").localeCompare(String(b.label || ""))
+		  );
+			
+		// Include all benefits; use labelHtml when available
+		const breakdownRows = benefitList.map((b) => {
+		  const benefitLabelHtml = b.labelHtml || escapeHtml(b.label || "");
+		  return `
+			<tr>
+			  <td>${benefitLabelHtml}</td>
+			  <td>$${formatMoneyWhole(b.used)}</td>
+			</tr>
+		  `;
+		}).join("");
+	
+		const detailsId = `rolling-details-${card}`;
+	
+		html += `
+		  <tr class="rolling-summary-row">
+			<td>${renderCardBadge(card)}</td>
+			<td>${escapeHtml(startLabel)}</td>
+			<td>$${formatMoneyWhole(totalUsed)}</td>
+			<td>$${formatMoneyWhole(annualFee)}</td>
+			<td>
+			  <div class="fee-progress-wrap">
+				<div class="fee-progress" aria-label="${escapeHtml(card)} annual fee recoup progress">
+				  <div class="fee-progress-fill" style="width:${pct.toFixed(1)}%;"></div>
+				</div>
+				<span class="fee-progress-label">${escapeHtml(pctLabel)}</span>
+			  </div>
+			</td>
+			<td>
+			  <details id="${detailsId}">
+				<summary>View</summary>
+			  </details>
+			</td>
+		  </tr>
+	
+		  <tr class="rolling-detail-row">
+			<td colspan="6">
+			  <table class="rolling-breakdown">
+				<thead>
+				  <tr>
+					<th>Benefit</th>
+					<th>Used</th>
+				  </tr>
+				</thead>
+				<tbody>
+				  ${breakdownRows}
+				</tbody>
+			  </table>
+			</td>
+		  </tr>
+		`;
+	  }
+	
+	  // Grand total progress (portfolio-level)
+	  let grandPct = 0;
+	  if (grandFees > 0) {
+		grandPct = Math.min(100, Math.max(0, (grandUsed / grandFees) * 100));
+	  } else {
+		grandPct = grandUsed > 0 ? 100 : 0;
+	  }
+	
+	  html += `
+		  <tr class="rolling-total-row">
+			<td>Total</td>
+			<td>&nbsp;</td>
+			<td>$${formatMoneyWhole(grandUsed)}</td>
+			<td>$${formatMoneyWhole(grandFees)}</td>
+			<td>
+			  <div class="fee-progress-wrap">
+				<div class="fee-progress" aria-label="All cards annual fee recoup progress">
+				  <div class="fee-progress-fill" style="width:${grandPct.toFixed(1)}%;"></div>
+				</div>
+				<span class="fee-progress-label">${Math.round(grandPct)}%</span>
+			  </div>
+			</td>
+			<td></td>
+		  </tr>
+		</tbody>
+		</table>
+	  `;
+		  
+	  const merchantRowsSorted = cardOrder
+	  .filter(card => Number(merchantState[card] || 0) > 0)
+	  .map(card => [card, Number(merchantState[card] || 0)]);
+	
+	let merchantGrandTotal = 0;
+	
+	html += `
+	  <h3 class="annual-summary-subhead" style="margin-top:12px;">Merchant Benefits - current year</h3>
+	  <table class="merchant-summary-table">
+		<thead>
+		  <tr>
+			<th>Card</th>
+			<th>Merchant Benefits Realized</th>
+		  </tr>
+		</thead>
+		<tbody>
+	`;
+	
+	for (const [card, amount] of merchantRowsSorted) {
+	  merchantGrandTotal += amount;
+	
+	  html += `
+		<tr>
+		  <td>${renderCardBadge(card)}</td>
+		  <td>$${formatMoneyWhole(amount)}</td>
+		</tr>
+	  `;
+	}
+	
+	html += `
+		  <tr class="rolling-total-row">
+			<td>Total</td>
+			<td>$${formatMoneyWhole(merchantGrandTotal)}</td>
+		  </tr>
+		</tbody>
+	  </table>
+	`;
+
+	  el.innerHTML = html;
+	  // Optional behavior tweak:
+	  // hide the detail row unless the <details> in the summary row is open
+	  // (keeps layout compact and gives breakdowns their own row only when expanded)
+	  const summaryRows = el.querySelectorAll(".rolling-summary-row");
+	  summaryRows.forEach((summaryRow) => {
+		const detailRow = summaryRow.nextElementSibling;
+		const details = summaryRow.querySelector("details");
+		if (!detailRow || !details) return;
+	
+		// start collapsed
+		detailRow.style.display = details.open ? "table-row" : "none";
+	
+		details.addEventListener("toggle", () => {
+		  detailRow.style.display = details.open ? "table-row" : "none";
+		});
+	  });
+
+	}
+
+	// 5.0 Build base fallback from registry (replaces recommendCardBase)
+	function getBaseFallbackRecommendation(category) {
+	  const fallback =
+		BASE_CATEGORY_FALLBACKS[category] ||
+		BASE_CATEGORY_FALLBACKS.other;
+	
+	  if (!fallback) {
+		return {
+		  card: "CSR",
+		  channel: "direct",
+		  reason: "Default to Chase Sapphire for flexible points."
+		};
+	  }
+	
+	  return {
+		card: fallback.card,
+		channel: fallback.channel,
+		reason: fallback.reason
+	  };
+	}
+    
+    // 5.0 Build recommendation from a winning benefit (one formatter for benefit-based recs)
+    function buildBenefitRecommendation(candidate, purchase) {
+	  const b = candidate.benefit;
+	
+	  return {
+		card: b.card,
+		channel: b.channel,
+		reasonMainHtml: b.reason_yesHtml || null,
+		reasonMain: b.reason_yes || "",
+		reason: b.reason_yes || "",
+		remainingAmount: candidate.remainingAmount,
+		totalCapAmount: Number(b.cap_amount) || 0,
+		categoryLabel: null,
+		recommendationSource: "card_benefit",
+		cardBenefitId: b.id
+	  };
+	}
+    
+    // 5.0 Merchant offer helper
+    function getMerchantOfferRecommendation(purchase, merchantState, benefits) {
+	  if (!purchase.merchantBenefitId) return null;
+	
+	  const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
+	  if (!benefit) return null;
+	
+	  const purchaseDate = parseISODateLocal(purchase.date);
+	  const { expired } = classifyBenefitEnd(benefit.endDate, purchaseDate);
+	
+	  const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+	
+	  const hasTotalCap =
+		benefit.limitType === "total" &&
+		benefit.limitValue != null &&
+		!isNaN(benefit.limitValue);
+	
+	  const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
+	  const exhaustedByTotal =
+		hasTotalCap && totalLimit != null && ms.used >= totalLimit;
+	
+	  let exhaustedByTx = false;
+	  if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+		const maxTx = Number(benefit.maxTransactions);
+		if (maxTx >= 0 && ms.txCount >= maxTx) {
+		  exhaustedByTx = true;
+		}
+	  }
+	
+	  const amount = Number(purchase.amount) || 0;
+	  const minSpend =
+		benefit.minSpend != null && !isNaN(benefit.minSpend)
+		  ? Number(benefit.minSpend)
+		  : null;
+	
+	  const belowMinSpend = minSpend != null && amount < minSpend;
+	
+	  if (expired || exhaustedByTotal || exhaustedByTx || belowMinSpend) {
+		return null;
+	  }
+	
+	  const discountLabel =
+		benefit.discountType === "percent"
+		  ? `${Number(benefit.discountValue || 0)}%`
+		  : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
+	
+	  let remaining = null;
+	  if (hasTotalCap && totalLimit != null) {
+		remaining = Math.max(0, totalLimit - ms.used);
+	  }
+	
+	  return {
+		card: benefit.card,
+		channel: getBaseFallbackRecommendation(purchase.category).channel,
+		reasonMain: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
+		reason: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
+		remainingAmount: remaining,
+		totalCapAmount: totalLimit,
+		expiresOn: benefit.endDate || null,
+		priorityCash: true,
+		categoryLabel: getCategoryLabel(purchase.category),
+		recommendationSource: "merchant_offer"
+	  };
+	}
+
+    // 5.0 Main recommendation function
+    function recommendFromRegistries(purchase, txs, merchantState, benefits) {
+	  // 1) Merchant offer wins first
+	  const merchantRec = getMerchantOfferRecommendation(purchase, merchantState, benefits);
+	  if (merchantRec) return merchantRec;
+	
+	  // 2) Try card-native benefits
+	  const benefitCandidate = chooseBestCardBenefit(
+		{
+		  amount: purchase.amount,
+		  date: purchase.date,
+		  category: purchase.category
+		},
+		txs || []
+	  );
+	
+	  if (benefitCandidate) {
+		return buildBenefitRecommendation(benefitCandidate, purchase);
+	  }
+	
+	  // 3) Fall back to base category map
+	  const fallback = getBaseFallbackRecommendation(purchase.category);
+	
+	  return {
+		card: fallback.card,
+		channel: fallback.channel,
+		reasonMain: fallback.reason,
+		reason: fallback.reason,
+		categoryLabel: null,
+		recommendationSource: "base_fallback"
+	  };
+	}
+
+    // ---------- New Purchase Category select population ----------
+    function populateCategorySelectBase() {
+      const select = document.getElementById("category");
+      if (!select) return;
+    
+      // Clear existing options
+      select.innerHTML = "";
+    
+      // Load benefits + txs so we can see what's actually used
+      const benefits = loadMerchantBenefits();
+      const txs = loadTransactions();
+      const merchantState = computeMerchantState(txs, benefits);
+    
+      const today = parseISODateLocal(formatTodayISO());
+      
+      // Active merchant offers:
+      // - not expired (inclusive end date)
+      // - AND, if they have a total cap, not fully used
+      // - AND, if they have a max tx cap, not exhausted
+      const active = benefits.filter((b) => {
+        if (!b.endDate) return false;
+      
+        const { expired } = classifyBenefitEnd(b.endDate, today);
+        if (expired) return false;
+      
+        // Check if fully used for total-cap benefits
+        if (
+          b.limitType === "total" &&
+          b.limitValue != null &&
+          !isNaN(b.limitValue)
+        ) {
+          const ms = merchantState[b.id] || { used: 0, limit: null };
+          const limitNum = Number(b.limitValue);
+          if (ms.used >= limitNum) {
+            // fully used, hide from dropdown
+            return false;
+          }
+        }
+      
+        // Check if fully used by max transaction count
+        if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
+          const ms = merchantState[b.id] || { txCount: 0 };
+          const maxTx = Number(b.maxTransactions);
+          if (maxTx >= 0 && ms.txCount >= maxTx) {
+            // hit max transaction count; hide from dropdown
+            return false;
+          }
+        }
+      
+        return true;
+      });
+    
+      // Sort active benefits alphabetically by merchant name
+      active.sort((a, b) => {
+        const nameA = (a.merchant || "").toLowerCase();
+        const nameB = (b.merchant || "").toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    
+      // ----- Merchant Offers group (on top) -----
+      if (active.length > 0) {
+        const offersGroup = document.createElement("optgroup");
+        offersGroup.label = "🏪 Merchant Offers";
+    
+        active.forEach((benefit) => {
+          const opt = document.createElement("option");
+          opt.value = "mb:" + benefit.id;
+    
+          // Show ONLY merchant name
+          opt.textContent = benefit.merchant || "";
+    
+          offersGroup.appendChild(opt);
+        });
+    
+        select.appendChild(offersGroup);
+      }
+    
+      // ----- Card Benefits group (base categories) -----
+      const cardGroup = document.createElement("optgroup");
+      cardGroup.label = "💳 Card Benefits";
+    
+      BASE_CATEGORIES.forEach((cat) => {
+        const opt = document.createElement("option");
+        opt.value = cat.value;
+        opt.textContent = cat.label;
+        cardGroup.appendChild(opt);
+      });
+    
+      select.appendChild(cardGroup);
+    
+      // Default back to Dining / Restaurants if present
+      const hasDining = !!select.querySelector('option[value="dining"]');
+      if (hasDining) {
+        select.value = "dining";
+      }
+    }
+    
+    // 5.1 wrapper function to enable shortening of category select based on search inputs
+    function populateCategorySelectBase() {
+      const select = document.getElementById("category");
+      if (!select) return;
+    
+      // Clear existing options
+      select.innerHTML = "";
+    
+      // Load benefits + txs so we can see what's actually used
+      const benefits = loadMerchantBenefits();
+      const txs = loadTransactions();
+      const merchantState = computeMerchantState(txs, benefits);
+    
+      const today = parseISODateLocal(formatTodayISO());
+      
+      // Active merchant offers:
+      // - not expired (inclusive end date)
+      // - AND, if they have a total cap, not fully used
+      // - AND, if they have a max tx cap, not exhausted
+      const active = benefits.filter((b) => {
+        if (!b.endDate) return false;
+      
+        const { expired } = classifyBenefitEnd(b.endDate, today);
+        if (expired) return false;
+      
+        // Check if fully used for total-cap benefits
+        if (
+          b.limitType === "total" &&
+          b.limitValue != null &&
+          !isNaN(b.limitValue)
+        ) {
+          const ms = merchantState[b.id] || { used: 0, limit: null };
+          const limitNum = Number(b.limitValue);
+          if (ms.used >= limitNum) {
+            // fully used, hide from dropdown
+            return false;
+          }
+        }
+      
+        // Check if fully used by max transaction count
+        if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
+          const ms = merchantState[b.id] || { txCount: 0 };
+          const maxTx = Number(b.maxTransactions);
+          if (maxTx >= 0 && ms.txCount >= maxTx) {
+            // hit max transaction count; hide from dropdown
+            return false;
+          }
+        }
+      
+        return true;
+      });
+    
+      // Sort active benefits alphabetically by merchant name
+      active.sort((a, b) => {
+        const nameA = (a.merchant || "").toLowerCase();
+        const nameB = (b.merchant || "").toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    
+      // ----- Merchant Offers group (on top) -----
+      if (active.length > 0) {
+        const offersGroup = document.createElement("optgroup");
+        offersGroup.label = "🏪 Merchant Offers";
+    
+        active.forEach((benefit) => {
+          const opt = document.createElement("option");
+          opt.value = "mb:" + benefit.id;
+    
+          // Show ONLY merchant name
+          opt.textContent = benefit.merchant || "";
+    
+          offersGroup.appendChild(opt);
+        });
+    
+        select.appendChild(offersGroup);
+      }
+    
+      // ----- Card Benefits group (base categories) -----
+      const cardGroup = document.createElement("optgroup");
+      cardGroup.label = "💳 Card Benefits";
+    
+      BASE_CATEGORIES.forEach((cat) => {
+        const opt = document.createElement("option");
+        opt.value = cat.value;
+        opt.textContent = cat.label;
+        cardGroup.appendChild(opt);
+      });
+    
+      select.appendChild(cardGroup);
+    
+      // Default back to Dining / Restaurants if present
+      const hasDining = !!select.querySelector('option[value="dining"]');
+      if (hasDining) {
+        select.value = "dining";
+      }
+    }
+	
+	function getSuggestedCategoryOptions(query) {
+	  const merchantBenefits = loadMerchantBenefits();
+	  const txs = loadTransactions();
+	  const merchantState = computeMerchantState(txs, merchantBenefits);
+	  const today = parseISODateLocal(formatTodayISO());
+	
+	  const activeMerchantBenefits = merchantBenefits.filter((b) => {
+		if (!b.endDate) return false;
+	
+		const { expired } = classifyBenefitEnd(b.endDate, today);
+		if (expired) return false;
+	
+		if (b.limitType === "total" && b.limitValue != null && !isNaN(b.limitValue)) {
+		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
+		  if (ms.used >= Number(b.limitValue)) return false;
+		}
+	
+		if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
+		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
+		  if (ms.txCount >= Number(b.maxTransactions)) return false;
+		}
+	
+		return true;
+	  });
+	
+	  const merchantMatches = findRelevantMerchantOffers(query, activeMerchantBenefits);
+	  const cardCategoryMatches = findRelevantCardBenefitCategorySuggestions(query, CARD_BENEFITS);
+	
+	  const suggestions = [];
+	
+	  merchantMatches.forEach(({ benefit, score }) => {
+		suggestions.push({
+		  kind: "merchant_offer",
+		  value: "mb:" + benefit.id,
+		  label: `🏪 ${benefit.merchant}`,
+		  score
+		});
+	  });
+	
+	  cardCategoryMatches.forEach((item) => {
+		suggestions.push(item);
+	  });
+	
+	  suggestions.sort((a, b) => b.score - a.score);
+	  return suggestions;
+	}
+	
+	function populateCategorySelect() {
+	  populateCategorySelectBase();
+	
+	  const select = document.getElementById("category");
+	  const searchInput = document.getElementById("purchaseSearch");
+	  if (!select || !searchInput) return;
+	
+	  const query = normalizeSearchText(searchInput.value || "");
+	  if (!query) return;
+	
+	  const suggestions = getSuggestedCategoryOptions(query);
+	  if (!suggestions.length) return;
+	
+	  const suggested = document.createElement("optgroup");
+	  suggested.label = "🔎 Suggested";
+	
+	  const seenValues = new Set();
+	
+	  suggestions.slice(0, 8).forEach((item) => {
+		if (seenValues.has(item.value)) return;
+		seenValues.add(item.value);
+	
+		const opt = document.createElement("option");
+		opt.value = item.value;
+		opt.textContent = item.label;
+		suggested.appendChild(opt);
+	  });
+	
+	  if (suggested.children.length > 0) {
+		select.insertBefore(suggested, select.firstChild);
+	  }
+	}
+    
+        // ---------- Merchant Benefit Category select population ----------
+		function populateMerchantBenefitCategorySelect() {
+		  const select = document.getElementById("benefitCategorySelect");
+		  if (!select) return;
+		
+		  // Clear any existing options
+		  select.innerHTML = "";
+		
+		  // Add default placeholder
+		  const defaultOption = document.createElement("option");
+		  defaultOption.value = "";
+		  defaultOption.textContent = "-- Select category --";
+		  select.appendChild(defaultOption);
+		
+		  // Use the same BASE_CATEGORIES array (with emojis if you’ve added them)
+		  BASE_CATEGORIES.forEach(cat => {
+			const option = document.createElement("option");
+			option.value = cat.value;
+			option.textContent = cat.label; // or `${cat.emoji || ""} ${cat.label}` if you separated emojis
+			select.appendChild(option);
+		  });
+		}
+
+    // ---------- Merchant benefits UI ----------
+    function renderMerchantBenefits() {
+      const benefits = loadMerchantBenefits();
+      const txs = loadTransactions();
+      const merchantState = computeMerchantState(txs, benefits);
+      const tbody = document.getElementById("benefitsTbody");
+      if (!tbody) return;
+    
+      tbody.innerHTML = "";
+    
+      const today = parseISODateLocal(formatTodayISO());
+    
+      // Keep track of original index so delete still works correctly
+      const benefitsWithIndex = benefits.map((b, idx) => ({ b, idx }));
+    
+      // Sort by Merchant Name (case insensitive), then End Date
+      benefitsWithIndex.sort((a, b) => {
+        const nameA = (a.b.merchant || "").toLowerCase();
+        const nameB = (b.b.merchant || "").toLowerCase();
+        if (nameA !== nameB) {
+          return nameA.localeCompare(nameB);
+        }
+    
+        const endA = parseISODateLocal(a.b.endDate);
+        const endB = parseISODateLocal(b.b.endDate);
+        const timeA = endA ? endA.getTime() : Infinity;
+        const timeB = endB ? endB.getTime() : Infinity;
+        return timeA - timeB;
+      });
+    
+      benefitsWithIndex.forEach(({ b, idx }) => {
+        const tr = document.createElement("tr");
+    
+        const discountText =
+          b.discountType === "percent"
+            ? `${b.discountValue}% off`
+            : `$${Number(b.discountValue || 0).toFixed(2)} off`;
+    
+        const parts = [];
+        if (b.minSpend != null && !isNaN(b.minSpend) && Number(b.minSpend) > 0) {
+          parts.push(`Min $${formatUsageAmount(b.minSpend)}`);
+        }
+        if (b.limitValue != null && !isNaN(b.limitValue)) {
+          const val = formatUsageAmount(b.limitValue);
+          parts.push(
+            b.limitType === "per_tx"
+              ? `Up to $${val} / txn`
+              : `Up to $${val} total`
+          );
+        }
+        if (
+          b.maxTransactions != null &&
+          !isNaN(b.maxTransactions) &&
+          Number(b.maxTransactions) > 0
+        ) {
+          parts.push(`up to ${Number(b.maxTransactions)} tx`);
+        }
+    
+        const limitText = parts.join("; ");
+    
+        const categoryText = b.category || "";
+        const endDateText = formatBenefitEndDateDisplay(b.endDate, today);
+    
+        // usage / tx-count state
+        const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
+        const used = ms.used || 0;
+        const txCount = ms.txCount || 0;
+        
+        // normalize maxTransactions
+        const maxTx =
+          b.maxTransactions != null && !isNaN(b.maxTransactions)
+            ? Number(b.maxTransactions)
+            : null;
+        
+        // Date-based expiry (inclusive end date, shared logic)
+        let { expired: expiredByDate, expiringSoon } = classifyBenefitEnd(b.endDate, today);
+        
+        // Transaction-count based expiry
+        const expiredByTx = maxTx != null && txCount >= maxTx;
+        
+        // Total-cap-based expiry (only for limitType === "total")
+        let expiredByCap = false;
+        if (
+          b.limitType === "total" &&
+          b.limitValue != null &&
+          !isNaN(b.limitValue)
+        ) {
+          const totalCap = Number(b.limitValue);
+          if (totalCap > 0 && used >= totalCap) {
+            expiredByCap = true;
+          }
+        }
+        
+        // Final flags
+        const expired = expiredByDate || expiredByTx || expiredByCap;
+        if (expiredByTx || expiredByCap) {
+          // If we hit tx cap or total cap, don't also show "expiring soon"
+          expiringSoon = false;
+        }
+          
+        tr.innerHTML = `
+          <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : "<em>(unnamed)</em>"}</td>
+          <td>${b.card ? renderCardBadge(b.card) : ""}</td>
+          <td>${discountText}</td>
+          <td>${limitText}</td>
+          <td>${escapeHtml(categoryText)}</td>
+          <td>${endDateText}</td>
+          <td>
+            <button
+              type="button"
+              class="deleteBenefitBtn"
+              data-benefit-index="${idx}"
+            >
+              Del
+            </button>
+          </td>
+        `;
+    
+        if (expired) {
+          tr.classList.add("expired-benefit");
+        } else if (expiringSoon) {
+          tr.classList.add("expiring-soon");
+        }
+    
+        tbody.appendChild(tr);
+      });
+    }
+    
+    // 5.1 helper for suggested tags in merchant benefits
+    function renderBenefitSuggestedTags() {
+	  const merchant = document.getElementById("benefitMerchant")?.value || "";
+	  const container = document.getElementById("benefitSuggestedTags");
+	  if (!container) return;
+	
+	  const tags = getSuggestedTagsForMerchant(merchant, 8);
+	  if (!tags.length) {
+		container.innerHTML = "";
+		return;
+	  }
+	
+	  container.innerHTML = `Suggested tags: ${tags.map(tag => `[${tag}]`).join(" ")}`;
+	}
+
+	//	helper to be able to remove floating save bar if user changes inputs
+	function invalidateRecommendationIfFormChanged() {
+	  if (!lastRecommendation) return;
+	
+	  hideFloatingSaveBar();
+	  document.getElementById("recommendationSection").style.display = "none";
+	  document.getElementById("recommendationBox").textContent = "";
+	  document.getElementById("reasonBox").textContent = "";
+	
+	  const cardSel = document.getElementById("cardUsedSelect");
+	  const chanSelect = document.getElementById("channelUsedSelect");
+	  if (cardSel) cardSel.value = "";
+	  if (chanSelect) chanSelect.innerHTML = "";
+	
+	  lastRecommendation = null;
+	}
+
+	// ---------- Floating Save Bar ----------
+	
+	let floatingSaveTimer = null;
+	
+	function showFloatingSaveBar(rec) {
+	  const bar = document.getElementById("floatingSaveBar");
+	  const btn = document.getElementById("btnFloatingSave");
+	  if (!bar || !btn) return;
+	  const channelPlain = CHANNEL_LABELS[rec.channel] || rec.channel || "";
+	  btn.innerHTML = `Save &nbsp; ${renderCardBadge(rec.card)} &nbsp; ${escapeHtml(channelPlain)}`;
+	  clearTimeout(floatingSaveTimer);
+	  floatingSaveTimer = setTimeout(() => {
+		bar.classList.add("visible");
+		document.body.classList.add("float-bar-visible");
+	  }, 400);
+	}
+	
+	function hideFloatingSaveBar() {
+	  clearTimeout(floatingSaveTimer);
+	  const bar = document.getElementById("floatingSaveBar");
+	  if (bar) bar.classList.remove("visible");
+	  document.body.classList.remove("float-bar-visible");
+	}
+	
+    // ---------- UI wiring ----------
+
+    let lastRecommendation = null;
+
+    function initFormDefaults() {
+      const dateInput = document.getElementById("date");
+      dateInput.value = formatTodayISO();
+    }
+
+    function renderRecommendationSection(rec) {
+      const recommendationBox = document.getElementById("recommendationBox");
+      const reasonBox = document.getElementById("reasonBox");
+    
+      if (!rec) {
+        recommendationBox.innerHTML = "";
+        reasonBox.innerHTML = "";
+        return;
+      }
+    
+      const cardBadgeHtml = renderCardBadge(rec.card);
+      
+      const channelLabelPlain = CHANNEL_LABELS[rec.channel] || rec.channel;
+      const channelLabelHtml =
+        CHANNEL_LABELS_HTML[rec.channel] ||
+        escapeHtml(channelLabelPlain);
+      
+      // "Recommendation:" (bold) on first line, then card badge + channel on next line
+      recommendationBox.innerHTML =
+        `<strong>Recommendation:</strong><br>` +
+        `${cardBadgeHtml} – ${channelLabelHtml}`;
+    
+      // Reason:
+      // First line: "Reason:" (bold)
+      // Next line: main reason text (no badge)
+      let mainReasonHtml;
+      if (rec.reasonMainHtml) {
+        // Use trusted HTML if provided
+        mainReasonHtml = rec.reasonMainHtml;
+      } else {
+        const mainReason = rec.reasonMain || rec.reason || "";
+        mainReasonHtml = escapeHtml(mainReason);
+      }
+      
+      let html = `<strong>Reason:</strong><br>${mainReasonHtml}`;
+    
+      const bullets = [];
+    
+      // Bullet 1 (if applicable): "$x.00 remaining of $y.00 available"
+      if (
+        rec.remainingAmount != null &&
+        !isNaN(rec.remainingAmount) &&
+        rec.totalCapAmount != null &&
+        !isNaN(rec.totalCapAmount)
+      ) {
+        bullets.push(
+          `$${rec.remainingAmount.toFixed(2)} remaining of $${rec.totalCapAmount.toFixed(
+            2
+          )} available`
+        );
+      }
+    
+      // Bullet 2 (if applicable): "Expires yyyy-mm-dd"
+      if (rec.expiresOn) {
+        bullets.push(`Expires ${rec.expiresOn}`);
+      }
+    
+      if (bullets.length > 0) {
+        html +=
+          "<ul>" +
+          bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("") +
+          "</ul>";
+      }
+    
+      // Final non-bulleted sentence (if applicable)
+      if (rec.priorityCash) {
+        html += `<p>This cash discount takes priority over the usual points optimization.</p>`;
+      }
+    
+      // Optional category label (mainly for card-native benefits)
+      if (rec.categoryLabel) {
+        html += `<p><em>Category: ${escapeHtml(rec.categoryLabel)}</em></p>`;
+      }
+    
+      reasonBox.innerHTML = html;
+    }
+
+    // Recommend button
+    document.getElementById("btnRecommend").addEventListener("click", () => {
+      const amount = document.getElementById("amount").value;
+      const date = document.getElementById("date").value;
+      const categoryValue = document.getElementById("category").value;
+    
+      if (!amount || !date) {
+        alert("Please enter amount and date.");
+        return;
+      }
+      
+      const parsedAmount = Number(amount);
+	  if (!parsedAmount || parsedAmount <= 0 || isNaN(parsedAmount)) {
+	    alert("Please enter a valid positive amount.");
+	    return;
+	  }
+    
+      const txs = loadTransactions();
+      const benefits = loadMerchantBenefits();
+      const merchantState = computeMerchantState(txs, benefits);
+    
+      let purchase;
+      let merchantBenefitId = null;
+    
+      // If category is a merchant benefit (mb:<id>), map to underlying category
+      if (categoryValue.startsWith("mb:")) {
+        const id = categoryValue.slice(3);
+        const benefit = findBenefitById(id, benefits);
+        if (!benefit) {
+          alert("Selected merchant benefit not found. Try refreshing.");
+          return;
+        }
+        merchantBenefitId = id;
+        purchase = {
+          amount,
+          date,
+          category: benefit.category,
+          merchantBenefitId: id,
+        };
+      } else {
+        purchase = {
+          amount,
+          date,
+          category: categoryValue,
+        };
+      }
+    
+      const rec = recommendFromRegistries(purchase, txs, merchantState, benefits);
+      if (!rec) {
+		  alert("Could not generate a recommendation.");
+		  return;
+		}
+      lastRecommendation = { purchase, rec };
+    
+      // New centralized renderer
+      renderRecommendationSection(rec);
+      document.getElementById("recommendationSection").style.display = "block";
+      showFloatingSaveBar(rec);
+    
+      // Reset override dropdowns
+      const cardSel = document.getElementById("cardUsedSelect");
+      cardSel.value = "";
+    
+      const chanSelect = document.getElementById("channelUsedSelect");
+      chanSelect.innerHTML = "";
+    
+      const relevantChannels = getValidChannelsForRecommendation(rec, purchase);
+		relevantChannels.forEach((code) => {
+		  const opt = document.createElement("option");
+		  opt.value = code;
+		  opt.textContent = CHANNEL_LABELS[code] || code;
+		  chanSelect.appendChild(opt);
+		});
+		
+		if (relevantChannels.includes(rec.channel)) {
+		  chanSelect.value = rec.channel;
+		}
+    });
+
+	function getCurrentPurchaseFromForm() {
+	  const amount = document.getElementById("amount").value;
+	  const date = document.getElementById("date").value;
+	  const categoryValue = document.getElementById("category").value;
+	
+	  if (!amount || !date) return null;
+	
+	  const benefits = loadMerchantBenefits();
+	
+	  if (categoryValue.startsWith("mb:")) {
+		const id = categoryValue.slice(3);
+		const benefit = findBenefitById(id, benefits);
+		if (!benefit) return null;
+	
+		return {
+		  amount: String(amount),
+		  date,
+		  category: benefit.category,
+		  merchantBenefitId: id,
+		};
+	  }
+	
+	  return {
+		amount: String(amount),
+		date,
+		category: categoryValue,
+		merchantBenefitId: null,
+	  };
+	}
+	
+	function purchaseMatchesLastRecommendation(currentPurchase, lastPurchase) {
+	  if (!currentPurchase || !lastPurchase) return false;
+	
+	  return (
+		Number(currentPurchase.amount) === Number(lastPurchase.amount) &&
+		String(currentPurchase.date) === String(lastPurchase.date) &&
+		String(currentPurchase.category) === String(lastPurchase.category) &&
+		String(currentPurchase.merchantBenefitId || "") === String(lastPurchase.merchantBenefitId || "")
+	  );
+	}
+
+	// 5.0 helper to reset default category for purchase window
+	function setDefaultPurchaseCategory() {
+	  const categorySelect = document.getElementById("category");
+	  if (!categorySelect) return;
+	
+	  // Prefer dining if available; otherwise first non-merchant-offer option; otherwise first option
+	  const diningOption = categorySelect.querySelector('option[value="dining"]');
+	  if (diningOption) {
+		categorySelect.value = "dining";
+		return;
+	  }
+	
+	  const firstCardBenefitOption = Array.from(categorySelect.options).find(
+		opt => opt.value && !String(opt.value).startsWith("mb:")
+	  );
+	  if (firstCardBenefitOption) {
+		categorySelect.value = firstCardBenefitOption.value;
+		return;
+	  }
+	
+	  if (categorySelect.options.length > 0) {
+		categorySelect.value = categorySelect.options[0].value;
+	  }
+	}
+
+	// Save transaction
+	function savePurchase() {
+	  if (!lastRecommendation) {
+		alert("Get a recommendation first.");
+		return;
+	  }
+	  
+	  const currentPurchase = getCurrentPurchaseFromForm();
+		if (!purchaseMatchesLastRecommendation(currentPurchase, lastRecommendation.purchase)) {
+		  alert("The form has changed since the last recommendation. Please get a new recommendation before saving.");
+		  return;
+		}
+	
+	  const overrideCard = document.getElementById("cardUsedSelect").value;
+		const overrideChannel = document.getElementById("channelUsedSelect").value;
+		const cardUsed = overrideCard || lastRecommendation.rec.card;
+		
+		const validChannels = getValidChannelsForSelectedCard(
+		  lastRecommendation.purchase,
+		  lastRecommendation.rec,
+		  cardUsed
+		);
+		
+		const defaultChannel = getDefaultChannelForSelectedCard(
+		  lastRecommendation.purchase,
+		  lastRecommendation.rec,
+		  cardUsed
+		);
+		
+		const channelUsed = overrideChannel || defaultChannel;
+		
+		if (!validChannels.includes(channelUsed)) {
+		  alert("The selected channel is not valid for the chosen card/category combination. Please choose a matching channel.");
+		  return;
+		}
+	
+	  const tx = {
+		  date: currentPurchase.date,
+		  amount: Number(currentPurchase.amount),
+		  category: currentPurchase.category,
+		  channel: channelUsed,
+		  cardUsed,
+		  merchantBenefitId: currentPurchase.merchantBenefitId || null,
+		  merchantBenefitApplied: 0,
+		  cardBenefitId: null,
+		  cardBenefitApplied: 0,
+		};
+	
+	  const txsBeforeSave = loadTransactions();
+	  const benefits = loadMerchantBenefits();
+	
+	  // Calculate merchant benefit value for this transaction
+	  const merchantApplied = calculateMerchantBenefitApplied(tx, benefits, txsBeforeSave);
+	  tx.merchantBenefitId = merchantApplied.merchantBenefitId;
+	  tx.merchantBenefitApplied = merchantApplied.merchantBenefitApplied;
+	
+	  // Calculate card benefit value for this transaction
+	  const cardApplied = calculateCardBenefitApplied(tx, txsBeforeSave);
+	  tx.cardBenefitId = cardApplied.cardBenefitId;
+	  tx.cardBenefitApplied = cardApplied.cardBenefitApplied;
+	
+	  const nextTxs = txsBeforeSave.concat(tx);
+	
+	  const ok = saveTransactions(nextTxs);
+	  if (!ok) {
+		showToast("⚠️ Unable to save transactions — storage full or private mode.");
+		return;
+	  }
+	
+	  try {
+		renderTransactions();
+		renderStateSummary();
+		renderRollingAnnualSummary();
+		populateCategorySelect();
+		populateMerchantBenefitCategorySelect();
+		renderMerchantBenefits();
+	
+		hideFloatingSaveBar();
+		document.getElementById("recommendationSection").style.display = "none";
+		document.getElementById("recommendationBox").textContent = "";
+		document.getElementById("reasonBox").textContent = "";
+	
+		document.getElementById("amount").value = "";
+		setDefaultPurchaseCategory();
+	
+		lastRecommendation = null;
+		showToast("✓ Purchase saved");
+	  } catch (err) {
+		console.error("Error after saving purchase during rerender/reset:", err);
+		alert("Purchase was saved, but part of the screen failed to refresh. Check the console for details.");
+	  }
+	}
+	
+	document.getElementById("btnSaveTx").addEventListener("click", savePurchase);
+	document.getElementById("btnFloatingSave").addEventListener("click", savePurchase);
+
+    // Reset New Purchase section
+    document.getElementById("btnReset").addEventListener("click", () => {
+      document.getElementById("amount").value = "";
+      initFormDefaults();
+      populateCategorySelect();
+      
+      setDefaultPurchaseCategory();
+
+      hideFloatingSaveBar();
+      document.getElementById("recommendationSection").style.display = "none";
+      document.getElementById("recommendationBox").textContent = "";
+      document.getElementById("reasonBox").textContent = "";
+
+      document.getElementById("cardUsedSelect").value = "";
+      const chanSelect = document.getElementById("channelUsedSelect");
+      chanSelect.innerHTML = "";
+
+      lastRecommendation = null;
+    });
+    
+    // 5.0 cardUsedSelect change handler
+    document.getElementById("cardUsedSelect").addEventListener("change", () => {
+	  if (!lastRecommendation) return;
+	
+	  const chanSelect = document.getElementById("channelUsedSelect");
+	  if (!chanSelect) return;
+	
+	  const overrideCard = document.getElementById("cardUsedSelect").value;
+	  const chosenCard = overrideCard || lastRecommendation.rec.card;
+	  const purchase = lastRecommendation.purchase;
+	
+	  let relevantChannels = [];
+	  relevantChannels = getValidChannelsForSelectedCard(
+		  purchase,
+		  lastRecommendation.rec,
+		  chosenCard
+		);
+	
+	  chanSelect.innerHTML = "";
+	  relevantChannels.forEach((code) => {
+		const opt = document.createElement("option");
+		opt.value = code;
+		opt.textContent = CHANNEL_LABELS[code] || code;
+		chanSelect.appendChild(opt);
+	  });
+	
+	  if (relevantChannels.length > 0) {
+		chanSelect.value = relevantChannels[0];
+	  }
+	});
+
+    // Clear all tx
+	document.getElementById("btnClear").addEventListener("click", () => {
+	  if (!confirm("Clear all logged purchases?")) return;
+	
+	  const ok = saveTransactions([]);
+	  if (!ok) {
+		showToast("⚠️ Unable to clear transactions — storage full or private mode.");
+		return;
+	  }
+	
+	  renderTransactions();
+	  renderStateSummary();
+	  renderRollingAnnualSummary();
+	  populateCategorySelect();
+	  populateMerchantBenefitCategorySelect();
+	  renderMerchantBenefits();
+	});
+
+    // Show/Hide Logged Purchases
+    const logContent = document.getElementById("logContent");
+    const toggleLogBtn = document.getElementById("toggleLogBtn");
+
+    toggleLogBtn.addEventListener("click", () => {
+      const isHidden =
+        logContent.style.display === "none" || logContent.style.display === "";
+
+      if (isHidden) {
+        logContent.style.display = "block";
+        toggleLogBtn.textContent = "Hide";
+      } else {
+        logContent.style.display = "none";
+        toggleLogBtn.textContent = "Show";
+      }
+    });
+
+    // Show/Hide Merchant Benefits
+    const benefitsContent = document.getElementById("benefitsContent");
+    const toggleBenefitsBtn = document.getElementById("toggleBenefitsBtn");
+
+    toggleBenefitsBtn.addEventListener("click", () => {
+      const isHidden =
+        benefitsContent.style.display === "none" ||
+        benefitsContent.style.display === "";
+
+      if (isHidden) {
+        benefitsContent.style.display = "block";
+        toggleBenefitsBtn.textContent = "Hide";
+      } else {
+        benefitsContent.style.display = "none";
+        toggleBenefitsBtn.textContent = "Show";
+      }
+    });
+
+	// Add merchant benefit
+	document.getElementById("btnAddBenefit").addEventListener("click", () => {
+	  const merchant = document.getElementById("benefitMerchant").value.trim();
+	  const card = document.getElementById("benefitCard").value;
+	  const discountType = document.getElementById("benefitDiscountType").value;
+	  const discountValueRaw = document.getElementById("benefitDiscountValue").value;
+	  const limitType = document.getElementById("benefitLimitType").value;
+	  const limitValueRaw = document.getElementById("benefitLimitValue").value;
+	  const maxTxRaw = document.getElementById("benefitMaxTx").value;
+	  const minSpendRaw = document.getElementById("benefitMinSpend").value;
+	  const endDate = document.getElementById("benefitEndDate").value;
+	  const category = document.getElementById("benefitCategorySelect").value;
+	  const searchTagsRaw = document.getElementById("benefitSearchTags").value.trim();
+	
+	  if (!merchant || !card || !discountType || !discountValueRaw || !endDate || !category) {
+		alert("Please fill at least Merchant, Card, Discount type/value, End date, and Category.");
+		return;
+	  }
+	
+	  // Validate that category is actually valid
+	  const validCategories = BASE_CATEGORIES.map(c => c.value);
+	  if (!validCategories.includes(category)) {
+		alert("Invalid category selected. Please choose a valid category.");
+		return;
+	  }
+	
+	  const discountValue = Number(discountValueRaw);
+	  if (isNaN(discountValue) || discountValue <= 0) {
+		alert("Discount value must be a positive number.");
+		return;
+	  }
+	
+	  let limitValue = null;
+	  if (limitValueRaw !== "") {
+		limitValue = Number(limitValueRaw);
+		if (isNaN(limitValue) || limitValue < 0) {
+		  alert("Discount limit value must be a non-negative number.");
+		  return;
+		}
+	  }
+	  if (limitValue != null && limitValue <= 0) limitValue = null;
+
+	
+	  let minSpend = null;
+	  if (minSpendRaw !== "") {
+		minSpend = Number(minSpendRaw);
+		if (isNaN(minSpend) || minSpend < 0) {
+		  alert("Minimum spend must be a non-negative number.");
+		  return;
+		}
+	  }
+	  if (minSpend != null && minSpend <= 0) minSpend = null;
+	
+	  let maxTransactions = null;
+	  if (maxTxRaw !== "") {
+		maxTransactions = Number(maxTxRaw);
+		if (
+		  isNaN(maxTransactions) ||
+		  maxTransactions < 0 ||
+		  !Number.isInteger(maxTransactions)
+		) {
+		  alert("Maximum transactions must be a non-negative whole number.");
+		  return;
+		}
+	  }
+	  if (maxTransactions != null && maxTransactions <= 0) maxTransactions = null;
+	
+	  const id = "mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+	
+	  const newBenefit = enrichMerchantBenefitSearchFields({
+		  id,
+		  merchant,
+		  card,
+		  discountType,
+		  discountValue,
+		  limitType,
+		  limitValue,
+		  minSpend,
+		  endDate,
+		  category,
+		  maxTransactions,
+		
+		  userTagInput: searchTagsRaw
+		});
+	
+	  const benefits = loadMerchantBenefits();
+	  benefits.push(newBenefit);
+	
+	  // Save first and check success explicitly
+	  const ok = saveMerchantBenefits(benefits);
+	  if (!ok) {
+		showToast("⚠️ Unable to save merchant benefit — storage full or private mode.");
+		return;
+	  }
+	
+	  // Clear inputs (only after successful save)
+	  document.getElementById("benefitMerchant").value = "";
+	  document.getElementById("benefitDiscountValue").value = "";
+	  document.getElementById("benefitLimitValue").value = "";
+	  document.getElementById("benefitMinSpend").value = "";
+	  document.getElementById("benefitEndDate").value = "";
+	  document.getElementById("benefitMaxTx").value = "";
+	  document.getElementById("benefitSearchTags").value = "";
+	  document.getElementById("benefitSuggestedTags").innerHTML = "";
+	
+	  // Re-render everything that depends on merchant benefits
+	  renderMerchantBenefits();
+	  populateCategorySelect();
+	  populateMerchantBenefitCategorySelect();
+	  renderStateSummary();
+	  renderRollingAnnualSummary();
+	
+	  showToast("✓ Merchant Benefit saved");
+	});
+
+	// 5.0 make floating save bar disappear when the form changes after a recommendation
+	document.getElementById("category").addEventListener("change", invalidateRecommendationIfFormChanged);
+	document.getElementById("amount").addEventListener("input", invalidateRecommendationIfFormChanged);
+	document.getElementById("date").addEventListener("change", invalidateRecommendationIfFormChanged);
+	document.getElementById("channelUsedSelect").addEventListener("change", hideFloatingSaveBar);
+	document.getElementById("cardUsedSelect").addEventListener("change", hideFloatingSaveBar);
+
+
+    // Event delegation for transaction delete (set up once)
+    document.getElementById("txTableBody").addEventListener("click", (e) => {
+      const badge = e.target.closest(".tx-delete-badge");
+      if (!badge) return;
+
+      const idx = Number(badge.getAttribute("data-tx-index"));
+      const txs = loadTransactions();
+      const tx = txs[idx];
+
+      const desc = tx
+        ? `${tx.date || ""}  $${Number(tx.amount || 0).toFixed(2)}  ${tx.category || ""}`.trim()
+        : "this transaction";
+
+		const confirmed = confirm(`Delete ${desc}?`);
+		if (!confirmed) return;
+		
+		const nextTxs = txs.slice();
+		nextTxs.splice(idx, 1);
+		
+		const savedOk = saveTransactions(nextTxs);
+		if (!savedOk) {
+		  showToast("⚠️ Unable to delete transaction — storage full or private mode.");
+		  return;
+		}
+		
+		// Re-render everything that depends on txs
+		renderTransactions();
+		renderStateSummary();
+		renderRollingAnnualSummary();
+		populateCategorySelect(); // merchant offers might re-open if usage drops
+		renderMerchantBenefits();
+    });
+      
+    // Event delegation for benefit delete (set up once)
+    document.getElementById("benefitsTbody").addEventListener("click", (e) => {
+      const btn = e.target.closest(".deleteBenefitBtn");
+      if (!btn) return;
+
+      const idx = Number(btn.getAttribute("data-benefit-index"));
+      const benefits = loadMerchantBenefits();
+      const benefit = benefits[idx];
+      const name = benefit && benefit.merchant ? benefit.merchant : "this benefit";
+
+		const confirmed = confirm(`Delete merchant benefit for ${name}?`);
+		if (!confirmed) return;
+		
+		const nextBenefits = benefits.slice();
+		nextBenefits.splice(idx, 1);
+		
+		const savedOk = saveMerchantBenefits(nextBenefits);
+		if (!savedOk) {
+		  showToast("⚠️ Unable to delete merchant benefit — storage full or private mode.");
+		  return;
+		}
+		
+		renderMerchantBenefits();
+		populateCategorySelect(); // keep the New Purchase categories in sync
+		renderStateSummary();     // and the top usage summary
+		renderRollingAnnualSummary();
+    });
+      
+    // Event delegation for export/import buttons (they're inside hidden section)
+    document.body.addEventListener("click", (e) => {
+      // Export button
+      if (e.target.id === "btnExportData") {
+        exportAllData();
+      }
+      
+      // Import button
+      if (e.target.id === "btnImportData") {
+        const fileInput = document.getElementById("fileImportInput");
+        if (fileInput) {
+          fileInput.click();
+        }
+      }
+    });
+  
+    // File input change handler (also needs delegation since it's hidden)
+    document.body.addEventListener("change", (e) => {
+      if (e.target.id === "fileImportInput") {
+        const file = e.target.files[0];
+        if (file) {
+          importDataFromFile(file);
+          // Clear the input so the same file can be selected again
+          e.target.value = '';
+        }
+      }
+    });
+
+	// Dismiss floating Save button if needed
+	document.getElementById("floatingSaveCloseBtn").addEventListener("click", () => {
+	  hideFloatingSaveBar();
+	});
+
+    // Init on load
+    initFormDefaults();               // sets date to today
+    renderTransactions();
+    renderMerchantBenefits();
+    populateCategorySelect();         // build Merchant Offers + Card Benefits
+    populateMerchantBenefitCategorySelect();
+	document.getElementById("benefitMerchant")
+	  ?.addEventListener("input", renderBenefitSuggestedTags);
+
+	document.getElementById("purchaseSearch")?.addEventListener("input", () => {
+	  const select = document.getElementById("category");
+	  if (select) {
+		select.dataset.userLockedSelection = "";
+	  }
+	  categorySelectionWasAuto = true;
+	  if (lastRecommendation) {
+		invalidateRecommendationIfFormChanged();
+	  }
+	  populateCategorySelect();
+	});
+	
+	document.getElementById("category")?.addEventListener("change", () => {
+	  const searchVal = document.getElementById("purchaseSearch")?.value || "";
+	  if (searchVal.trim()) {
+		document.getElementById("category").dataset.userLockedSelection = "1";
+	  }
+	  categorySelectionWasAuto = false;
+	});    
+	  
+    // Default category to Dining / Restaurants on first load
+    const categorySelect = document.getElementById("category");
+    if (categorySelect && categorySelect.querySelector('option[value="dining"]')) {
+      categorySelect.value = "dining";
+    } else if (categorySelect && categorySelect.options.length > 0) {
+      categorySelect.value = categorySelect.options[0].value;
+    }
+
+    // Populate card dropdowns from CARDS registry
+    populateCardSelect(
+      document.getElementById("cardUsedSelect"),
+      { includeEmpty: true, emptyLabel: "Use recommended card" }
+    );
+    
+    populateCardSelect(
+      document.getElementById("benefitCard"),
+      { includeEmpty: false }
+    );
+
+    renderStateSummary();
+    renderRollingAnnualSummary();
+  </script>
+  </body>
+</html>  
+    .new-purchase-card label {
+      font-weight: bold;
+    }
+  
+    input,
+    select,
+    button,
+    textarea {
+      margin-top: 4px;
+      padding: 6px 8px;
+      font-size: 0.9rem;
+    }
+  
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    textarea {
+      background-color: #f4f4f4;
+      border: 1px solid #ccc;
+    }
+  
+    input[type="number"] {
+      width: 120px;
+    }
+  
+    input[type="date"] {
+      width: 150px;
+    }
+
+    /* Make Amount and Date inputs same width in New Purchase section */
+    .new-purchase-card input[type="number"],
+    .new-purchase-card input[type="date"] {
+      width: 120px;
+    }
+
+    select {
+      min-width: 220px;
+      border: 1px solid #ccc;
+      background-color: #f4f4f4; /* keep dropdowns visually consistent */
+    }
+  
+    /* if messed up replace from here */
+    .new-purchase-card #category {
+      width: 100%;
+      min-width: 0;    /* override the 220px */
+      box-sizing: border-box;
+      max-height: 300px;    /* scrollable box */
+	  overflow-y: auto;     /* allows scrolling */
+	  display: block;
+	  appearance: none;     /* removes native OS bevel */
+	  border-radius: 4px;
+    }
+    
+    .new-purchase-card select optgroup {
+	  font-weight: 700;
+	  background-color: #f2f2f2;
+	  color: #333;
+	  padding-top: 4px;
+	  padding-bottom: 4px;
+	  border-top: 1px solid #ddd;
+	}
+	
+	.new-purchase-card select option {
+	  padding-left: 12px;
+	}
+	
+	.new-purchase-card select:focus {
+	  outline: 2px solid #0b6efd;
+	  box-shadow: 0 0 4px rgba(11,110,253,0.4);
+	  transition: box-shadow 0.2s ease;
+	}
+
+	select optgroup[label^="💳 Card Benefits"] {
+	  background-color: #f6f9ff;
+	}
+	select optgroup[label^="🏪 Merchant Offers"] {
+	  background-color: #fffdf6;
+	}
+
+    .merch-input #benefitCategorySelect {
+      width: 100%;
+      min-width: 0;      /* override the global 220px min-width */
+      box-sizing: border-box;
+    }
+  
+    button {
+      cursor: pointer;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background: #f4f4f4;
+    }
+  
+    button.primary {
+      background: #0b6efd;
+      color: white;
+      border-color: #0b6efd;
+    }
+  
+    /* Bigger inputs & buttons only in the New Purchase section */
+    .new-purchase-card input,
+    .new-purchase-card select {
+      font-size: 1.1rem;
+    }
+  
+    .new-purchase-card button {
+      font-size: 1.1rem;
+    }
+
+	/* New Purchase: Amount + Date side-by-side, right-justified */
+	.new-purchase-card .np-row {
+	  display: flex;
+	  gap: 16px;
+	  margin-top: 8px;
+	}
+	
+	.new-purchase-card .np-field {
+	  flex: 1;
+	  display: flex;
+	  flex-direction: column;
+	  align-items: flex-start;   /* left-justify label + input */
+	  margin-top: 0;           /* override global label margin-top */
+	}
+	
+	.new-purchase-card .np-label {
+	  font-weight: bold;       /* matches your New Purchase label style */
+	  font-size: 1.1rem;
+	  line-height: 1.2;
+	  margin-bottom: 4px;      /* same spacing label->input for both */
+	  text-align: left;
+	  width: 100%;
+	}
+	
+	.new-purchase-card .np-field input[type="number"],
+	.new-purchase-card .np-field input[type="date"] {
+	  width: 140px;            /* same width for both */
+	  height: 38px;            /* same height for both */
+	  box-sizing: border-box;
+	}
+
+    /* Bigger recommendation text */
+    .new-purchase-card #recommendationBox {
+      font-size: 1.2rem;
+    }
+
+    #recommendationBox a:link,
+    #recommendationBox a:visited {
+      color: inherit;          /* same color as surrounding text */
+      text-decoration: underline; /* or change to 'none' if you want zero visual hint */
+    }
+  
+    .new-purchase-card #reasonBox {
+      font-size: 1.1rem;
+      margin-top: 0.9rem;  /* roughly “one extra line” of space */
+    }
+
+    /* Recommendation text links: look like normal text but clickable */
+    #reasonBox a:link,
+    #reasonBox a:visited {
+      color: inherit;
+      text-decoration: underline;  /* or remove if you want truly stealth links */
+    }
+  
+    /* TABLE STYLING – base */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.85rem;
+      table-layout: fixed;
+    }
+  
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 4px 6px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+  
+    th {
+      background: #f7f7f7;
+    }
+  
+    /* Logged purchases table: extra small font */
+    #loggedTable {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.5rem;
+    }
+  
+    #loggedTable th,
+    #loggedTable td {
+      padding: 2px 4px;
+    }
+
+    #loggedTable thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;         /* above table rows */
+      background: #f7f7f7; /* so it doesn't go transparent over content */
+    }
+  
+    /* Column widths so Logged Purchases fits nicely on mobile */
+	#loggedTable th:nth-child(1),
+	#loggedTable td:nth-child(1) { width: 18%; } /* Date */
+	
+	#loggedTable th:nth-child(2),
+	#loggedTable td:nth-child(2) { 
+		width: 14%;
+		text-align: right;
+	  	white-space: nowrap;
+	   } /* Amount */
+	
+	#loggedTable th:nth-child(3),
+	#loggedTable td:nth-child(3) { width: 30%; } /* Category */
+	
+	#loggedTable th:nth-child(4),
+	#loggedTable td:nth-child(4) { 
+		width: 14%; 
+		text-align: right;
+		} /* Card Ben Amt */
+	
+	#loggedTable th:nth-child(5),
+	#loggedTable td:nth-child(5) { 
+		width: 14%; 
+		text-align: right;
+		} /* Mrch Ben Amt */
+	
+	#loggedTable th:nth-child(6),
+	#loggedTable td:nth-child(6) { width: 10%; } /* Card Used */
+  
+    /* Saved Merchant Benefits table */
+    #benefitsTable {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;       /* so widths are respected */
+      font-size: 0.5rem;         /* smaller to fit on phone */
+      margin-top: 6px;
+    }
+  
+    #benefitsTable th,
+    #benefitsTable td {
+      border: 1px solid #ddd;
+      padding: 3px 4px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+  
+    #benefitsTable th {
+      background: #f7f7f7;
+    }
+
+    #benefitsTable thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;      /* slightly above row contents */
+      background: #f7f7f7;  /* ensure it covers rows while stuck */
+    }
+  
+    /* Column widths (sum ≈ 100%) */
+    #benefitsTable th:nth-child(1),
+    #benefitsTable td:nth-child(1) { width: 17%; } /* Merchant */
+    #benefitsTable th:nth-child(2),
+    #benefitsTable td:nth-child(2) { width: 10%; } /* Card */
+    #benefitsTable th:nth-child(3),
+    #benefitsTable td:nth-child(3) { width: 15%; } /* Discount */
+    #benefitsTable th:nth-child(4),
+    #benefitsTable td:nth-child(4) { width: 15%; } /* Limit */
+    #benefitsTable th:nth-child(5),
+    #benefitsTable td:nth-child(5) { width: 16%; } /* Category */
+    #benefitsTable th:nth-child(6),
+    #benefitsTable td:nth-child(6) { width: 12%; } /* End date */
+    #benefitsTable th:nth-child(7),
+    #benefitsTable td:nth-child(7) { width: 15%; } /* Delete button */
+  
+    /* Expired / expiring merchant benefits in Saved Benefits table */
+    #benefitsTable tr.expiring-soon td {
+      color: #DAA520; /* yellow/gold for expiring soon */
+    }
+  
+    #benefitsTable tr.expired-benefit td {
+      color: red;
+    }
+
+    #recommendationSection {
+      background: #f0f8ff;        /* Light blue background */
+      border-left: 4px solid #0b6efd;  /* Accent bar */
+      padding: 12px;
+      border-radius: 4px;
+      margin-top: 12px;
+    }
+  
+    .muted {
+      color: #777;
+      font-size: 0.8rem;
+    }
+
+    .blackmuted {
+      color: #000;
+      font-size: 0.8rem;
+    }
+
+    .credit-met {
+      color: green;
+      font-weight: 600;
+    }
+  
+    .inline {
+      display: inline-block;
+      margin-right: 12px;
+    }
+  
+    /* Make state summary text black instead of muted grey */
+    #stateSummary {
+      color: #000;
+      font-size: 0.8rem;
+    }
+  
+    /* State summary tables (Current Credits & Offers Usage) */
+    .state-table-wrapper {
+      margin-top: 6px;
+    }
+  
+    .state-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.8rem;
+    }
+  
+    .state-table th,
+    .state-table td {
+      border: 1px solid #ddd;
+      padding: 3px 4px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    /* Make the first column in the usage summary tables bold */
+    .state-table th:first-child,
+    .state-table td:first-child {
+      font-weight: 600;
+    }
+
+    .state-table thead th {
+      background: #f7f7f7;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+  
+    /* Usage cell – wrap text nicely in state tables */
+    .state-table td.usage-cell {
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+    }
+  
+    /* Green for fully used benefits */
+    .state-table tr.credit-met td,
+    .state-table tr.credit-met-row td {
+      color: green;
+      font-weight: 600;
+    }
+    
+    /* Yellow for expiring-soon merchant benefits (≤7 days) */
+    .state-table tr.expiring-soon td,
+    .state-table tr.expiring-soon-row td {
+      color: #DAA520;
+      font-weight: 600;
+    }
+    
+    /* Red for expired merchant benefits */
+    .state-table tr.expired td,
+    .state-table tr.expired-row td {
+      color: red;
+      font-weight: 600;
+    }
+
+    .usage-positive {
+      color: green;
+      font-weight: normal;
+    }
+
+    /* Column widths for Current Credits & Offers state tables */
+    .state-table th:nth-child(1),
+    .state-table td:nth-child(1) {
+      width: 45%;  /* CC benefit / Merchant */
+    }
+    
+    .state-table th:nth-child(2),
+    .state-table td:nth-child(2) {
+      width: 15%;  /* Card badge */
+    }
+    
+    .state-table th:nth-child(3),
+    .state-table td:nth-child(3) {
+      width: 20%;  /* Time (Monthly / YTD / Semi-annual / etc.) */
+    }
+    
+    .state-table th:nth-child(4),
+    .state-table td:nth-child(4) {
+      width: 20%;  /* Usage text */
+    }
+
+	/* ===========================
+	   Rolling Annual Summary UI
+	   =========================== */
+	
+	/* Main summary table */
+	#rollingAnnualSummary .rolling-summary-table {
+	  width: 100%;
+	  border-collapse: collapse;
+	  table-layout: fixed;
+	  font-size: 0.8rem;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table th,
+	#rollingAnnualSummary .rolling-summary-table td {
+	  border: 1px solid #ddd;
+	  padding: 3px 4px;
+	  vertical-align: middle;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table thead th {
+	  background: #f7f7f7;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table details {
+	  display: inline-block;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table summary {
+	  cursor: pointer;
+	  list-style: none;
+	  white-space: nowrap;
+	  font-size: 0.75rem;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table summary::-webkit-details-marker {
+	  display: none;
+	}
+	
+	/* Column widths: compact summary row */
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(1),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(1) {
+	  width: 15%;            /* Card */
+	  text-align: center;
+	  white-space: nowrap;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(2),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(2) {
+	  width: 14%;           /* Start */
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(3),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(3) {
+	  width: 15%;           /* Used */
+	  text-align: right;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(4),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(4) {
+	  width: 17%;           /* Fee */
+	  text-align: right;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(5),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(5) {
+	  width: 26%;           /* Progress */
+	  text-align: left;
+	}
+	
+	#rollingAnnualSummary .rolling-summary-table th:nth-child(6),
+	#rollingAnnualSummary .rolling-summary-table td:nth-child(6) {
+	  width: 13%;           /* Details toggle */
+	  text-align: center;
+	}
+	
+	/* Detail row under each summary row */
+	#rollingAnnualSummary .rolling-detail-row td {
+	  background: #fafafa;
+	  padding: 6px 8px;
+	}
+	
+	/* Strip table borders, keep subtle row separators in nested breakdown for a cleaner look */
+	#rollingAnnualSummary table.rolling-breakdown,
+	#rollingAnnualSummary table.rolling-breakdown th,
+	#rollingAnnualSummary table.rolling-breakdown td {
+	  border: none !important;
+	}
+	
+	#rollingAnnualSummary table.rolling-breakdown {
+	  width: 100%;
+	  border-collapse: collapse;
+	  table-layout: fixed;
+	  margin-top: 4px;
+	}
+	
+	#rollingAnnualSummary table.rolling-breakdown th,
+	#rollingAnnualSummary table.rolling-breakdown td {
+	  padding: 2px 4px;
+	  font-size: 0.78rem;
+	}
+	
+	#rollingAnnualSummary table.rolling-breakdown thead th {
+	  background: transparent;
+	  color: #555;
+	  font-weight: 600;
+	}
+	
+	/* Breakdown columns: Benefit wraps, Used fixed */
+	#rollingAnnualSummary table.rolling-breakdown th:nth-child(1),
+	#rollingAnnualSummary table.rolling-breakdown td:nth-child(1) {
+	  width: auto;
+	  text-align: left;
+	  white-space: normal;
+	  overflow-wrap: anywhere;
+	  word-break: break-word;
+	}
+	
+	#rollingAnnualSummary table.rolling-breakdown th:nth-child(2),
+	#rollingAnnualSummary table.rolling-breakdown td:nth-child(2) {
+	  width: 78px;
+	  text-align: right;
+	  white-space: nowrap;
+	}
+	
+	/* Optional subtle separators in breakdown rows */
+	#rollingAnnualSummary table.rolling-breakdown tbody td {
+	  border-bottom: 1px solid #eee !important;
+	}
+	#rollingAnnualSummary table.rolling-breakdown tbody tr:last-child td {
+	  border-bottom: none !important;
+	}
+	
+	/* Added for merchant benefits summary table */
+	#rollingAnnualSummary .annual-summary-subhead {
+	  margin: 0.4rem 0 0.35rem 0;
+	  font-size: 1rem;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table {
+	  width: 100%;
+	  border-collapse: collapse;
+	  table-layout: fixed;
+	  font-size: 0.8rem;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table th,
+	#rollingAnnualSummary .merchant-summary-table td {
+	  border: 1px solid #ddd;
+	  padding: 3px 4px;
+	  vertical-align: middle;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table thead th {
+	  background: #f7f7f7;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table th:nth-child(1),
+	#rollingAnnualSummary .merchant-summary-table td:nth-child(1) {
+	  width: 15%;
+	  text-align: center;
+	  white-space: nowrap;
+	}
+	
+	#rollingAnnualSummary .merchant-summary-table th:nth-child(2),
+	#rollingAnnualSummary .merchant-summary-table td:nth-child(2) {
+	  width: 85%;
+	  text-align: right;
+	}
+	
+	/* Progress bar */
+	#rollingAnnualSummary .fee-progress-wrap {
+	  display: inline-flex;      
+	  align-items: center;
+	  gap: 3px;                  
+	  white-space: nowrap;
+	}
+	
+	#rollingAnnualSummary .fee-progress {
+	  width: 48px;              /* fixed width for every row */
+	  flex: 0 0 48px;           /* do not grow/shrink */
+	  height: 10px;
+	  border-radius: 999px;
+	  background: #e9ecef;
+	  overflow: hidden;
+	  border: 1px solid #dcdcdc;
+	}
+	
+	#rollingAnnualSummary .fee-progress-fill {
+	  height: 100%;
+	  background: #28a745;
+	  width: 0%;
+	}
+	
+	#rollingAnnualSummary .fee-progress-label {
+	  width: 20px;              /* fixed label width (e.g., 100%) */
+	  flex: 0 0 20px;
+	  text-align: right;
+	  white-space: nowrap;
+	  font-size: 0.68rem;
+	  line-height: 1;
+	  font-variant-numeric: tabular-nums;
+	  font-family: "Arial Narrow", "Roboto Condensed", "Helvetica Neue", Arial, sans-serif;
+	  letter-spacing: -0.2px;
+	}
+	
+	/* Totals row */
+	#rollingAnnualSummary .rolling-total-row td {
+	  font-weight: 700;
+	  background: #f7f7f7;
+	}
+	
+	#rollingAnnualSummary .rolling-total-row td:nth-child(3),
+	#rollingAnnualSummary .rolling-total-row td:nth-child(4) {
+	  text-align: right;
+	}
+	
+    /* Card badges */
+    .card-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      vertical-align: baseline;
+      white-space: nowrap;
+      line-height: 1.4;
+      background: #f2f2f2;
+      color: #333;
+      border-color: #ccc;
+    }
+  
+    .card-badge.csr {
+      background: #e0ecff;
+      border-color: #0047AB;
+      color: #0047AB; /* CSR: #0047AB */
+    }
+  
+    .card-badge.uq {
+      background: #f2e6ff;
+      border-color: #480080;
+      color: #480080; /* UQ: #480080 */
+    }
+  
+    .card-badge.mb {
+      background: #f0f0f0;
+      border-color: #999999;
+      color: #555555; /* MB: #999999 as accent */
+    }
+  
+    .card-badge.dg {
+      background: #ffe6ea;
+      border-color: #CE1126;
+      color: #CE1126; /* DG: #CE1126 */
+    }
+
+    .card-badge.ag {
+      background: #ffebe4;  /* some gold-ish background fff3cd */
+      border-color: #b8860b;
+      color: #b8860b;
+    }
+
+    /* Make badges match tiny table font in these tables */
+    #loggedTable .card-badge,
+    #benefitsTable .card-badge {
+      font-size: 0.5rem;
+      padding: 1px 4px;
+    }
+
+    .tx-delete-badge {
+      cursor: pointer;
+    }
+
+    #stateSummary a:link,
+    #stateSummary a:visited {
+      color: inherit;
+      text-decoration: underline; /* or remove this if you truly want stealth links */
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #28a745;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      z-index: 1000;
+      animation: fadeInOut 2s ease-in-out;
+    }
+    
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; }
+      10%, 90% { opacity: 1; }
+    }
+    
+	/* =============================================
+	   FLOATING SAVE BUTTON
+	   ============================================= */
+	
+	#floatingSaveBar {
+	  position: fixed;
+	  bottom: 0;
+	  left: 0;
+	  right: 0;
+	  z-index: 200;
+	  display: flex;
+	  justify-content: center;
+	  border-top: 1px solid #ddd;
+	  background: #fff;
+	  opacity: 0;
+	  pointer-events: none;
+	  transition: opacity 0.2s ease;
+	}
+	
+	#floatingSaveBar.visible {
+	  opacity: 1;
+	  pointer-events: auto;
+	}
+	
+	#floatingSaveBar .float-inner {
+	  position: relative;
+	  width: 100%;
+	  max-width: 900px;
+	  padding: 8px 20px;
+	  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+	  box-sizing: border-box;
+	}
+	
+	#btnFloatingSave {
+	  width: 100%;
+	  padding: 10px 16px;
+	  font-size: 1.1rem;
+	  font-family: inherit;
+	  background: #0b6efd;
+	  color: white;
+	  border: 1px solid #0b6efd;
+	  border-radius: 4px;
+	  cursor: pointer;
+	  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  gap: 8px;
+	  white-space: nowrap;
+	  overflow: hidden;
+	  text-overflow: ellipsis;
+	}
+	
+	#btnFloatingSave:active {
+	  background: #0958d9;
+	  border-color: #0958d9;
+	}
+	
+	.floating-save-close {
+	  position: absolute;
+	  top: 4px;
+	  right: 6px;
+	  border: none;
+	  background: transparent;
+	  padding: 0;
+	  margin: 0;
+	  font-size: 0.85rem;
+	  line-height: 1;
+	  cursor: pointer;
+	  color: #666;
+	  width: 18px;
+	  height: 18px;
+	}
+	
+	.floating-save-close:hover {
+	  color: #000;
+	}
+	
+	body.float-bar-visible {
+	  padding-bottom: 72px;
+	}
+
+  </style>
+</head>
+<body>
+  <div id="globalStatus"></div>
+  <h2>Card Rewards Maximizer</h2>
+<p class="blackmuted">
+  Local optimizer for 5 credit cards: <br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge csr">CS</span> Chase Sapphire Reserve<br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge ag">AG</span> American Express Gold<br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge uq">UQ</span> United Quest<br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge mb">MB</span> Marriott Bonvoy Brilliant<br>
+    &nbsp;&nbsp;&nbsp;- <span class="card-badge dg">DG</span> Delta SkyMiles Amex Gold<br>
+</p>
+
+  <!-- New purchase input -->
+  <div class="card new-purchase-card">
+    <h2>Card Recommendation</h2>
+
+    <div style="margin-top: 12px;">
+    <label>
+	  Purchase type (optional)<br>
+	  <input
+		type="text"
+		id="purchaseSearch"
+		placeholder="e.g. Mobil, takeout, coffee, Marriott"
+	  />
+	</label>
+    <label>
+      Purchase Category<br>
+      <!-- Options will be populated dynamically from BASE_CATEGORIES + merchant benefits -->
+      <select id="category" style="font-family: system-ui, emoji;"></select>
+    </label>
+    </div>
+
+	<div class="np-row" style="margin-top: 12px;">
+	  <label class="np-field">
+		<span class="np-label">Amount ($)</span>
+		<input type="number" id="amount" min="0" step="0.01" required />
+	  </label>
+	
+	  <label class="np-field">
+		<span class="np-label">Date</span>
+		<input type="date" id="date" required />
+	  </label>
+	</div>
+
+    <div style="margin-top: 12px;">
+      <button class="primary" id="btnRecommend">Get Card Recommendation</button>
+      <button id="btnReset" type="button" style="margin-left:8px;">Reset</button>
+    </div>
+
+    <div id="recommendationSection" style="margin-top: 12px; display:none;">
+      <div id="recommendationBox"></div>
+      <div id="reasonBox"></div>
+
+      <div style="margin-top: 10px;">
+        <label>
+          Card used (optional override)
+          <select id="cardUsedSelect"></select>
+        </label>
+
+        <label>
+          Channel used (optional override)
+          <select id="channelUsedSelect">
+            <!-- options populated dynamically based on category -->
+          </select>
+        </label>
+
+        <div style="margin-top: 8px;">
+          <button class="primary" id="btnSaveTx">Confirm &amp; Save Purchase</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current month / year credit usage summary -->
+  <div class="card">
+    <h2>Credit Card Benefits & <br>Merchant Offers</h2>
+    <div id="stateSummary" class="muted"></div>
+  </div>
+
+  <div class="card">
+    <h2>Annual Summaries</h2>
+    <div id="rollingAnnualSummary"></div>
+  </div>
+
+  <!-- Merchant Offers Management -->
+  <div class="card merch-input">
+    <h2>Merchant Offers</h2>
+
+    <button id="toggleBenefitsBtn" style="margin-bottom:8px;">
+      Show
+    </button>
+
+    <div id="benefitsContent" style="display:none;">
+      <h3 style="margin-top:0.8rem;">Add Merchant Offer</h3>
+
+      <label>
+        Merchant<br>
+        <input type="text" id="benefitMerchant" placeholder="e.g., Starbucks" />
+      </label>
+
+      <label>
+        Card<br>
+        <select id="benefitCard"></select>
+      </label>
+
+      <label>
+        Discount type<br>
+        <select id="benefitDiscountType">
+          <option value="percent">Percent (e.g. 10% back)</option>
+          <option value="amount">Fixed amount ($ back)</option>
+        </select>
+      </label>
+
+      <label>
+        Discount value<br>
+        <input type="number" id="benefitDiscountValue" min="0" step="0.01" placeholder="e.g. 10 for 10% or $10" />
+      </label>
+
+      <label>
+        Minimum spend per transaction (optional, in $)<br>
+        <input type="number" id="benefitMinSpend" min="0" step="0.01" placeholder="e.g. 50 means $50+ to trigger" />
+      </label>
+
+      <label>
+        Max total benefit type<br>
+        <select id="benefitLimitType">
+          <option value="per_tx">Per transaction</option>
+          <option value="total">Total benefit cap</option>
+        </select>
+      </label>
+
+      <label>
+        Max total benefit value (optional, in $)<br>
+        <input type="number" id="benefitLimitValue" min="0" step="0.01" placeholder="e.g. 50 means up to $50 total" />
+      </label>
+
+      <label>
+        Max number of transactions (optional)<br>
+        <input
+          type="number"
+          id="benefitMaxTx"
+          min="0"
+          step="1"
+          placeholder="e.g. 3 means up to 3 uses"
+        />
+      </label>
+
+      <label>
+        Benefit end date<br>
+        <input type="date" id="benefitEndDate" />
+      </label>
+
+      <label>
+        Category (for card recommendation logic)<br>
+        <select id="benefitCategorySelect" style="font-family: system-ui, emoji;"></select>
+      </label>
+      
+      <label>
+		  Search tags (optional)<br>
+		  <input
+			type="text"
+			id="benefitSearchTags"
+			placeholder="e.g. gas, fuel, takeout, coffee"
+		  />
+		</label>
+		
+		<div id="benefitSuggestedTags" class="muted" style="margin-top:6px;"></div>
+
+      <button id="btnAddBenefit" class="primary" style="margin-top:8px;">
+        Add Benefit
+      </button>
+
+      <h3 style="margin-top:0.8rem;">Saved Merchant Offers</h3>
+      <table id="benefitsTable">
+        <thead>
+          <tr>
+            <th>Merchant</th>
+            <th>Card</th>
+            <th>Discount</th>
+            <th>Limit</th>
+            <th>Category</th>
+            <th>End Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="benefitsTbody"></tbody>
+      </table>
+
+      <p class="muted">
+        Merchant benefits are stored locally in your browser (separate from purchases).
+      </p>
+    </div>
+  </div>
+
+  <!-- Logged transactions -->
+  <div class="card">
+    <h2>Logged Purchases</h2>
+
+    <button id="toggleLogBtn" style="margin-bottom:8px;">
+      Show
+    </button>
+
+    <div id="logContent" style="display:none;">
+      <table id="loggedTable">
+        <thead>
+			<tr>
+			  <th>Date</th>
+			  <th>Amount</th>
+			  <th>Category</th>
+			  <th>Card Ben Amt</th>
+			  <th>Mrch Ben Amt</th>
+			  <th>Card Used</th>
+			</tr>
+        </thead>
+        <tbody id="txTableBody"></tbody>
+      </table>
+
+      <div style="margin-top:10px;">
+        <button id="btnExportData">Export All Data</button>
+        <button id="btnImportData" style="margin-left:8px;">Import Data</button>
+        <button id="btnClear" style="margin-left:8px;">Clear All Purchases</button>
+      </div>
+      
+      <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
+
+      <p class="muted">
+        Stored in your browser's localStorage. Export to backup your data before clearing browser data. 
+      </p>
+    </div>
+  </div>
+	<div id="floatingSaveBar">
+	  <div class="float-inner">
+		<button id="floatingSaveCloseBtn" class="floating-save-close" type="button" aria-label="Dismiss save bar">×</button>
+		<button id="btnFloatingSave" type="button"></button>
+	  </div>
+	</div>
+<p class="blackmuted"><br>v5.0.4</p>
+
+  <script>
+    const STORAGE_KEY = "cardAdvisorTxsV1";
+    const MERCHANT_BENEFITS_KEY = "cardAdvisorMerchantBenefitsV1";
+	const SEARCH_SCHEMA_VERSION = "2.0";
+	
+	const CARDS = {
+	  CSR: {
+		code: "CSR",
+		short: "CS",
+		label: "Chase Sapphire Reserve",
+	
+		issuer: "Chase",
+		network: "Visa",
+	
+		badgeClass: "csr",
+		badgeBg: "#e0ecff",
+		badgeBorder: "#0047AB",
+		badgeText: "#0047AB",
+	
+		anniversary_start: "2025-12-01",
+		annualFee: 795,
+		sort_order: 1,
+	
+		points_currency: "UR",
+		transferable_points: true,
+		is_active: true
+	  },
+	
+	  AG: {
+		code: "AG",
+		short: "AG",
+		label: "American Express Gold",
+	
+		issuer: "American Express",
+		network: "Amex",
+	
+		badgeClass: "ag",
+		badgeBg: "#ffebe4",
+		badgeBorder: "#b8860b",
+		badgeText: "#b8860b",
+	
+		anniversary_start: "2025-12-21",
+		annualFee: 325,
+		sort_order: 2,
+	
+		points_currency: "MR",
+		transferable_points: true,
+		is_active: true
+	  },
+	
+	  UQ: {
+		code: "UQ",
+		short: "UQ",
+		label: "United Quest",
+	
+		issuer: "Chase",
+		network: "Visa",
+	
+		badgeClass: "uq",
+		badgeBg: "#f2e6ff",
+		badgeBorder: "#480080",
+		badgeText: "#480080",
+	
+		anniversary_start: "2025-02-01",
+		annualFee: 250,
+		sort_order: 3,
+	
+		points_currency: "UA",
+		transferable_points: false,
+		is_active: true
+	  },
+	
+	  MB: {
+		code: "MB",
+		short: "MB",
+		label: "Marriott Bonvoy Brilliant",
+	
+		issuer: "American Express",
+		network: "Amex",
+	
+		badgeClass: "mb",
+		badgeBg: "#f0f0f0",
+		badgeBorder: "#999999",
+		badgeText: "#555555",
+	
+		anniversary_start: "2025-04-11",
+		annualFee: 650,
+		sort_order: 4,
+	
+		points_currency: "Bonvoy",
+		transferable_points: false,
+		is_active: true
+	  },
+	
+	  DG: {
+		code: "DG",
+		short: "DG",
+		label: "Delta SkyMiles Amex Gold",
+	
+		issuer: "American Express",
+		network: "Amex",
+	
+		badgeClass: "dg",
+		badgeBg: "#ffe6ea",
+		badgeBorder: "#CE1126",
+		badgeText: "#CE1126",
+	
+		anniversary_start: "2026-01-13",
+		annualFee: 150,
+		sort_order: 5,
+	
+		points_currency: "SkyMiles",
+		transferable_points: false,
+		is_active: true
+	  }
+	};
+	
+    const ROLLING_BENEFITS = [
+		// ----- CSR -----
+		{ id:"csr_travel", card:"CSR", label:"Travel credit", cadence:"annual", cap:300,
+		match:(tx)=> new Set([
+		  "united_flight","delta_flight_threshold","other_flight","theedit_hotel",
+		  "marriott_hotel","renowned_hotel","delta_stays","other_hotel",
+		  "lyft","rideshare_other","uq_rentalcar"
+		]).has(tx.category)
+		},
+		
+		{ id:"csr_doordash_dining", card:"CSR", label:"DoorDash dining", cadence:"monthly", cap:5,
+		match:(tx)=> tx.category==="doordash"
+		},
+		
+		{ id:"csr_doordash_groceries", card:"CSR", label:"DoorDash groceries", cadence:"monthly", cap:20,
+		perTxCap:10, maxTxPerPeriod:2,
+		match:(tx)=> tx.category==="doordash_groceries"
+		},
+		
+		{ id:"csr_lyft", card:"CSR", label:"Lyft", cadence:"monthly", cap:10,
+		match:(tx)=> tx.category==="lyft"
+		},
+		
+		{ id:"csr_peloton", card:"CSR", label:"Peloton", cadence:"monthly", cap:10,
+		match:(tx)=> tx.category==="peloton"
+		},
+		
+		{ id:"csr_opentable", card:"CSR", label:"OpenTable dining partners", cadence:"semiannual", cap:150,
+		match:(tx)=> tx.category==="csr_opentable"
+		},
+		
+		{ id:"csr_theedit", card:"CSR", label:"The Edit hotel partners", cadence:"semiannual", cap:250,
+		match:(tx)=> tx.category==="theedit_hotel"
+		},
+		
+		{ id:"csr_stubhub", card:"CSR", label:"StubHub / viagogo / soccer.com", cadence:"semiannual", cap:150,
+		match:(tx)=> tx.category==="stubhub"
+		},
+		
+		// ----- AG -----
+		{ id:"ag_uber", card:"AG", label:"Uber rides + Eats", cadence:"monthly", cap:10,
+		match:(tx)=> tx.category==="rideshare_other" || tx.category==="uber_eats"
+		},
+		
+		{ id:"ag_dining_partners", card:"AG", label:"Dining partners", cadence:"monthly", cap:10,
+		match:(tx)=> tx.category==="ag_dining"
+		},
+		
+		{ id:"ag_dunkin", card:"AG", label:"Dunkin", cadence:"monthly", cap:7,
+		match:(tx)=> tx.category==="dunkin"
+		},
+		
+		{ id:"ag_resy", card:"AG", label:"Resy dining", cadence:"semiannual", cap:50,
+		match:(tx)=> tx.category==="resy"
+		},
+		
+		// ----- MB -----
+		{ id:"mb_dining", card:"MB", label:"Dining credit", cadence:"monthly", cap:25,
+		match:(tx)=> tx.category==="dining"
+		},
+		
+		// ----- DG -----
+		{ id:"dg_delta_stays", card:"DG", label:"Delta Stays", cadence:"annual", cap:100,
+		match:(tx)=> tx.category==="delta_stays"
+		},
+		
+		// ----- UQ -----
+		{ id:"uq_rideshare", card:"UQ", label:"Lyft + Uber rides", cadence:"monthly", cap:8,
+		match:(tx)=> tx.category==="rideshare_other" || tx.category==="lyft"
+		},
+		
+		{ id:"uq_instacart", card:"UQ", label:"Instacart", cadence:"monthly", cap:15,
+		match:(tx)=> tx.category==="instacart"
+		},
+		
+		{ id:"uq_renowned", card:"UQ", label:"Renowned Hotels", cadence:"annual", cap:150,
+		match:(tx)=> tx.category==="renowned_hotel"
+		},
+		
+		{ id:"uq_rentalcar", card:"UQ", label:"Avis & Budget car rental", cadence:"annual", cap:80,
+		perTxCap:40, maxTxPerPeriod:2,
+		match:(tx)=> tx.category==="uq_rentalcar"
+		},
+	];
+
+	const CARD_BENEFITS = [
+	
+	  /* =========================
+		 CHASE SAPPHIRE RESERVE
+		 ========================= */
+	
+	  {
+		id: "csr_travel",
+		card: "CSR",
+		purchaseCategories: ["flights", "hotel", "travel", "rental_car", "rideshare"],
+		intentTags: ["travel", "flight", "hotel", "lodging", "trip"],
+		merchantKeywords: ["united", "delta", "marriott", "the edit", "renowned", "delta stays"],
 		searchAliases: ["airfare", "air travel", "vacation", "travel credit"]
 	
 		label: "Travel credit",
