@@ -1063,7 +1063,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.2</p>
+<p class="blackmuted"><br>v5.2.1</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2419,6 +2419,30 @@
 	  }
 	
 	  return { used, txCount, window };
+	}
+	
+	function isCardBenefitAvailableToday(benefit, today = new Date(), txs = null) {
+	  if (!benefit) return false;
+	
+	  const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
+	
+	  const limit =
+		benefit.cap_amount != null && !isNaN(benefit.cap_amount)
+		  ? Number(benefit.cap_amount)
+		  : null;
+	
+	  const txCap =
+		benefit.tx_cap != null && !isNaN(benefit.tx_cap)
+		  ? Number(benefit.tx_cap)
+		  : null;
+	
+	  const fullyUsedByAmount =
+		limit != null && limit > 0 && usage.used >= limit;
+	
+	  const fullyUsedByTx =
+		txCap != null && txCap >= 0 && usage.txCount >= txCap;
+	
+	  return !fullyUsedByAmount && !fullyUsedByTx;
 	}
 	
 	function getBenefitStateTimeLabel(benefit, today = new Date()) {
@@ -4862,7 +4886,17 @@
 	  });
 	
 	  const merchantMatches = findRelevantMerchantOffers(query, activeMerchantBenefits);
-	  const cardCategoryMatches = findRelevantCardBenefitCategorySuggestions(query, CARD_BENEFITS);
+	  
+	  const currentDate = new Date();
+		
+		const availableCardBenefits = CARD_BENEFITS.filter((benefit) =>
+		  isCardBenefitAvailableToday(benefit, currentDate, txs)
+		);
+		
+	  const cardCategoryMatches = findRelevantCardBenefitCategorySuggestions(
+		  query,
+		  availableCardBenefits
+		);
 	
 	  const suggestions = [];
 	
