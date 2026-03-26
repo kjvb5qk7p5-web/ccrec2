@@ -846,7 +846,7 @@
 	  <input
 		type="text"
 		id="purchaseSearch"
-		placeholder="e.g. Mobil, takeout, coffee, Marriott"
+		placeholder="e.g. Sunoco, takeout, coffee, Marriott"
 	  />
 	</label>
     <label>
@@ -5269,6 +5269,8 @@
     // Reset New Purchase section
     document.getElementById("btnReset").addEventListener("click", () => {
       document.getElementById("amount").value = "";
+      document.getElementById("purchaseSearch").value = "";
+
       initFormDefaults();
       populateCategorySelect();
       
