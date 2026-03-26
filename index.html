@@ -841,10 +841,10 @@
     <h2>Card Recommendation</h2>
 
     <div style="margin-top: 12px;">
-	  <label for="purchaseSearch" style="display:block; margin-bottom: 2px;">
+	  <label for="purchaseSearch" style="display:block; margin-bottom: 1px;">
 		Purchase type (optional)
 	  </label>
-	  <div class="blackmuted" style="font-size: 0.95em; margin-bottom: 8px;">
+	  <div class="blackmuted" style="font-size: 0.95em; margin-bottom: 2px;">
 		Filters Purchase Category
 	  </div>
 	  <input
@@ -4694,17 +4694,20 @@
 	
 	  const query = normalizeSearchText(searchInput.value || "");
 	
-	  // No search: default to Dining if present
-	  if (!query) {
+	  const setDiningDefault = () => {
 		const hasDining = !!select.querySelector('option[value="dining"]');
 		if (hasDining) {
 		  select.value = "dining";
 		}
+	  };
+	
+	  // No search text at all -> Dining
+	  if (!query) {
+		setDiningDefault();
 		return;
 	  }
 	
 	  const suggestions = getSuggestedCategoryOptions(query);
-	  if (!suggestions.length) return;
 	
 	  const suggested = document.createElement("optgroup");
 	  suggested.label = "🔎 Suggested";
@@ -4723,15 +4726,19 @@
 		suggested.appendChild(opt);
 	  });
 	
-	  if (suggested.children.length > 0) {
-		select.insertBefore(suggested, select.firstChild);
+	  // Search text but no actual matches -> still Dining
+	  if (orderedValues.length === 0) {
+		setDiningDefault();
+		return;
+	  }
 	
-		if (
-		  !userLockedCategorySelection ||
-		  !select.querySelector(`option[value="${CSS.escape(select.value)}"]`)
-		) {
-		  select.value = orderedValues[0];
-		}
+	  select.insertBefore(suggested, select.firstChild);
+	
+	  if (
+		!userLockedCategorySelection ||
+		!select.querySelector(`option[value="${CSS.escape(select.value)}"]`)
+	  ) {
+		select.value = orderedValues[0];
 	  }
 	}
     
