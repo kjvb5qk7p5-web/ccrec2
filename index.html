@@ -1063,7 +1063,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.1.2</p>
+<p class="blackmuted"><br>v5.2</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2785,23 +2785,10 @@
 	  };
 	}
 	
-	function buildMerchantOfferSearchBlob(benefit) {
-	  return normalizeSearchText([
-		benefit.merchant,
-		benefit.category,
-		...(benefit.searchTags || [])
-	  ].join(" "));
-	}
-	
-	function buildCardBenefitSearchBlob(benefit) {
-	  return normalizeSearchText([
-		benefit.label,
-		...(benefit.categories || []),
-		...(benefit.purchaseCategories || []),
-		...(benefit.intentTags || []),
-		...(benefit.merchantKeywords || []),
-		...(benefit.searchAliases || [])
-	  ].join(" "));
+	function containsWholePhrase(text, phrase) {
+	  if (!text || !phrase) return false;
+	  const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	  return new RegExp(`(^|\\s)${escaped}(\\s|$)`).test(text);
 	}
 	
 	function expandSearchQuery(rawQuery) {
@@ -2811,23 +2798,207 @@
 	  const expanded = new Set([norm]);
 	
 	  for (const [variant, canonical] of Object.entries(REVERSE_SYNONYMS)) {
-		if (norm.includes(variant) || variant.includes(norm)) {
+		const v = normalizeSearchText(variant);
+		if (!v) continue;
+	
+		const exact = norm === v;
+		const wholePhrase = containsWholePhrase(norm, v);
+	
+		// Only allow prefix-based expansion for longer queries
+		const prefix =
+		  norm.length >= 4 &&
+		  tokenizeSearchText(v).some(token => token.startsWith(norm));
+	
+		if (exact || wholePhrase || prefix) {
 		  expanded.add(canonical);
-		  (SYNONYM_MAP[canonical] || []).forEach(v => expanded.add(normalizeSearchText(v)));
+		  (SYNONYM_MAP[canonical] || []).forEach(x => {
+			const nx = normalizeSearchText(x);
+			if (nx) expanded.add(nx);
+		  });
 		}
 	  }
 	
 	  return [...expanded];
 	}
 	
-	function scoreBlobAgainstQuery(blob, expandedTerms) {
-	  let score = 0;
+	function countMatchedTerms(fields, expandedTerms) {
+	  let matched = 0;
 	  for (const term of expandedTerms) {
-		if (!term) continue;
-		if (blob === term) score += 100;
-		else if (blob.includes(term)) score += 20;
+		if (fields.some(f => f && hasWholeWord(f, term))) matched++;
 	  }
-	  return score;
+	  return matched;
+	}
+	
+	function tokenizeSearchText(text) {
+	  return normalizeSearchText(text)
+		.split(" ")
+		.map(s => s.trim())
+		.filter(Boolean);
+	}
+	
+	function hasWholeWord(text, term) {
+	  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	  return new RegExp(`(^|\\s)${escaped}(\\s|$)`).test(text);
+	}
+	
+	function hasTokenPrefix(text, term) {
+	  if (!text || !term) return false;
+	  return tokenizeSearchText(text).some(token => token.startsWith(term));
+	}
+	
+	function scoreField(text, term, weights = {}) {
+	  if (!text || !term) return 0;
+	
+	  const exact = weights.exact ?? 0;
+	  const word = weights.word ?? 0;
+	  const prefix = weights.prefix ?? 0;
+	  const substring = weights.substring ?? 0;
+	
+	  if (text === term) return exact;
+	  if (hasWholeWord(text, term)) return word;
+	
+	  // allow prefix matching for 3+ chars
+	  if (term.length >= 3 && hasTokenPrefix(text, term)) return prefix;
+	
+	  // only allow loose substring matching for 4+ chars
+	  if (term.length >= 4 && text.includes(term)) return substring;
+	
+	  return 0;
+	}
+	
+	function scoreMerchantOfferAgainstQuery(benefit, expandedTerms) {
+	  const merchant = normalizeSearchText(benefit.merchant || "");
+	  const category = normalizeSearchText(benefit.category || "");
+	  const card = normalizeSearchText(benefit.card || "");
+	  const userTagInput = normalizeSearchText(benefit.userTagInput || "");
+	  const searchTags = (benefit.searchTags || []).map(normalizeSearchText);
+	
+	  let score = 0;
+	  let matchedTerms = 0;
+	
+	  for (const term of expandedTerms) {
+		let termScore = 0;
+	
+		// Merchant name should dominate
+		termScore += scoreField(merchant, term, {
+		  exact: 160,
+		  word: 110,
+		  prefix: 60,
+		  substring: 20
+		});
+	
+		// Explicit saved tags should matter a lot
+		for (const tag of searchTags) {
+		  termScore += scoreField(tag, term, {
+			exact: 120,
+			word: 80,
+			prefix: 40,
+			substring: 12
+		  });
+		}
+	
+		// Freeform tag input also matters
+		termScore += scoreField(userTagInput, term, {
+		  exact: 100,
+		  word: 65,
+		  prefix: 35,
+		  substring: 10
+		});
+	
+		// Category/card are weaker relevance signals
+		termScore += scoreField(category, term, {
+		  exact: 55,
+		  word: 35,
+		  prefix: 18,
+		  substring: 8
+		});
+	
+		termScore += scoreField(card, term, {
+		  exact: 35,
+		  word: 22,
+		  prefix: 12,
+		  substring: 5
+		});
+	
+		if (termScore > 0) matchedTerms += 1;
+		score += termScore;
+	  }
+	
+	  return { score, matchedTerms };
+	}
+	
+	function scoreCardBenefitAgainstQuery(benefit, expandedTerms) {
+	  const label = normalizeSearchText(benefit.label || "");
+	  const categories = (benefit.categories || []).map(normalizeSearchText);
+	  const purchaseCategories = (benefit.purchaseCategories || []).map(normalizeSearchText);
+	  const intentTags = (benefit.intentTags || []).map(normalizeSearchText);
+	  const merchantKeywords = (benefit.merchantKeywords || []).map(normalizeSearchText);
+	  const searchAliases = (benefit.searchAliases || []).map(normalizeSearchText);
+	
+	  let score = 0;
+	  let matchedTerms = 0;
+	
+	  for (const term of expandedTerms) {
+		let termScore = 0;
+	
+		// Benefit label should carry the most weight
+		termScore += scoreField(label, term, {
+		  exact: 150,
+		  word: 100,
+		  prefix: 50,
+		  substring: 18
+		});
+	
+		for (const x of intentTags) {
+		  termScore += scoreField(x, term, {
+			exact: 95,
+			word: 65,
+			prefix: 35,
+			substring: 10
+		  });
+		}
+	
+		for (const x of merchantKeywords) {
+		  termScore += scoreField(x, term, {
+			exact: 90,
+			word: 60,
+			prefix: 32,
+			substring: 10
+		  });
+		}
+	
+		for (const x of searchAliases) {
+		  termScore += scoreField(x, term, {
+			exact: 85,
+			word: 55,
+			prefix: 28,
+			substring: 9
+		  });
+		}
+	
+		for (const x of categories) {
+		  termScore += scoreField(x, term, {
+			exact: 65,
+			word: 40,
+			prefix: 20,
+			substring: 8
+		  });
+		}
+	
+		for (const x of purchaseCategories) {
+		  termScore += scoreField(x, term, {
+			exact: 50,
+			word: 30,
+			prefix: 16,
+			substring: 6
+		  });
+		}
+	
+		if (termScore > 0) matchedTerms += 1;
+		score += termScore;
+	  }
+	
+	  return { score, matchedTerms };
 	}
 	
 	function findRelevantMerchantOffers(query, benefits) {
@@ -2835,12 +3006,15 @@
 	
 	  return benefits
 		.map(benefit => {
-		  const blob = buildMerchantOfferSearchBlob(benefit);
-		  const score = scoreBlobAgainstQuery(blob, expandedTerms);
-		  return { benefit, score };
+		  const { score, matchedTerms } = scoreMerchantOfferAgainstQuery(benefit, expandedTerms);
+		  return { benefit, score, matchedTerms };
 		})
 		.filter(x => x.score > 0)
-		.sort((a, b) => b.score - a.score);
+		.sort((a, b) => {
+		  if (b.score !== a.score) return b.score - a.score;
+		  if (b.matchedTerms !== a.matchedTerms) return b.matchedTerms - a.matchedTerms;
+		  return (a.benefit.merchant || "").localeCompare(b.benefit.merchant || "");
+		});
 	}
 	
 	function findRelevantCardBenefits(query, cardBenefits) {
@@ -2848,12 +3022,15 @@
 	
 	  return cardBenefits
 		.map(benefit => {
-		  const blob = buildCardBenefitSearchBlob(benefit);
-		  const score = scoreBlobAgainstQuery(blob, expandedTerms);
-		  return { benefit, score };
+		  const { score, matchedTerms } = scoreCardBenefitAgainstQuery(benefit, expandedTerms);
+		  return { benefit, score, matchedTerms };
 		})
 		.filter(x => x.score > 0)
-		.sort((a, b) => b.score - a.score);
+		.sort((a, b) => {
+		  if (b.score !== a.score) return b.score - a.score;
+		  if (b.matchedTerms !== a.matchedTerms) return b.matchedTerms - a.matchedTerms;
+		  return (a.benefit.label || "").localeCompare(b.benefit.label || "");
+		});
 	}
 	
 	function findRelevantCardBenefitCategorySuggestions(query, cardBenefits) {
@@ -2861,28 +3038,42 @@
 	  const suggestions = [];
 	
 	  cardBenefits.forEach((benefit) => {
-		// Overall relevance of this benefit to the query
-		const baseScore = scoreBlobAgainstQuery(
-		  buildCardBenefitSearchBlob(benefit),
-		  expandedTerms
-		);
+		const { score: baseScore, matchedTerms: baseMatchedTerms } =
+		  scoreCardBenefitAgainstQuery(benefit, expandedTerms);
 	
 		if (baseScore <= 0) return;
 	
 		const categories = Array.isArray(benefit.categories) ? benefit.categories : [];
 		if (!categories.length) return;
 	
-		// EXPAND: one suggestion per category
 		categories.forEach((category, idx) => {
 		  const categoryLabel = getCategoryLabel(category) || category;
+		  const normCategory = normalizeSearchText(category);
+		  const normCategoryLabel = normalizeSearchText(categoryLabel);
 	
-		  const categoryBlob = normalizeSearchText([
-			category,
-			categoryLabel
-		  ].join(" "));
+		  let categoryScore = 0;
+		  let categoryMatchedTerms = 0;
 	
-		  // Let the specific category add extra score if it matches well
-		  const categoryScore = scoreBlobAgainstQuery(categoryBlob, expandedTerms);
+		  for (const term of expandedTerms) {
+			const termScore =
+			  scoreField(normCategory, term, {
+				exact: 80,
+				word: 50,
+				prefix: 24,
+				substring: 10
+			  }) +
+			  scoreField(normCategoryLabel, term, {
+				exact: 70,
+				word: 45,
+				prefix: 22,
+				substring: 8
+			  });
+	
+			if (termScore > 0) categoryMatchedTerms += 1;
+			categoryScore += termScore;
+		  }
+	
+		  const totalScore = baseScore + categoryScore - idx;
 	
 		  suggestions.push({
 			kind: "card_benefit_category",
@@ -2892,12 +3083,20 @@
 			  categories.length > 1
 				? `💳 ${benefit.label} → ${categoryLabel}`
 				: `💳 ${benefit.label}`,
-			score: baseScore + categoryScore - idx
+			score: totalScore,
+			matchedTerms: baseMatchedTerms + categoryMatchedTerms
 		  });
 		});
 	  });
 	
-	  suggestions.sort((a, b) => b.score - a.score);
+	  suggestions.sort((a, b) => {
+		if (b.score !== a.score) return b.score - a.score;
+		if ((b.matchedTerms || 0) !== (a.matchedTerms || 0)) {
+		  return (b.matchedTerms || 0) - (a.matchedTerms || 0);
+		}
+		return a.label.localeCompare(b.label);
+	  });
+	
 	  return suggestions;
 	}
 
