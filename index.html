@@ -1063,7 +1063,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.2.1</p>
+<p class="blackmuted"><br>v5.3</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1182,91 +1182,6 @@
 	  }
 	};
 	
-    const ROLLING_BENEFITS = [
-		// ----- CSR -----
-		{ id:"csr_travel", card:"CSR", label:"Travel credit", cadence:"annual", cap:300,
-		match:(tx)=> new Set([
-		  "united_flight","delta_flight_threshold","other_flight","theedit_hotel",
-		  "marriott_hotel","renowned_hotel","delta_stays","other_hotel",
-		  "lyft","rideshare_other","uq_rentalcar"
-		]).has(tx.category)
-		},
-		
-		{ id:"csr_doordash_dining", card:"CSR", label:"DoorDash dining", cadence:"monthly", cap:5,
-		match:(tx)=> tx.category==="doordash"
-		},
-		
-		{ id:"csr_doordash_groceries", card:"CSR", label:"DoorDash groceries", cadence:"monthly", cap:20,
-		perTxCap:10, maxTxPerPeriod:2,
-		match:(tx)=> tx.category==="doordash_groceries"
-		},
-		
-		{ id:"csr_lyft", card:"CSR", label:"Lyft", cadence:"monthly", cap:10,
-		match:(tx)=> tx.category==="lyft"
-		},
-		
-		{ id:"csr_peloton", card:"CSR", label:"Peloton", cadence:"monthly", cap:10,
-		match:(tx)=> tx.category==="peloton"
-		},
-		
-		{ id:"csr_opentable", card:"CSR", label:"OpenTable dining partners", cadence:"semiannual", cap:150,
-		match:(tx)=> tx.category==="csr_opentable"
-		},
-		
-		{ id:"csr_theedit", card:"CSR", label:"The Edit hotel partners", cadence:"semiannual", cap:250,
-		match:(tx)=> tx.category==="theedit_hotel"
-		},
-		
-		{ id:"csr_stubhub", card:"CSR", label:"StubHub / viagogo / soccer.com", cadence:"semiannual", cap:150,
-		match:(tx)=> tx.category==="stubhub"
-		},
-		
-		// ----- AG -----
-		{ id:"ag_uber", card:"AG", label:"Uber rides + Eats", cadence:"monthly", cap:10,
-		match:(tx)=> tx.category==="rideshare_other" || tx.category==="uber_eats"
-		},
-		
-		{ id:"ag_dining_partners", card:"AG", label:"Dining partners", cadence:"monthly", cap:10,
-		match:(tx)=> tx.category==="ag_dining"
-		},
-		
-		{ id:"ag_dunkin", card:"AG", label:"Dunkin", cadence:"monthly", cap:7,
-		match:(tx)=> tx.category==="dunkin"
-		},
-		
-		{ id:"ag_resy", card:"AG", label:"Resy dining", cadence:"semiannual", cap:50,
-		match:(tx)=> tx.category==="resy"
-		},
-		
-		// ----- MB -----
-		{ id:"mb_dining", card:"MB", label:"Dining credit", cadence:"monthly", cap:25,
-		match:(tx)=> tx.category==="dining"
-		},
-		
-		// ----- DG -----
-		{ id:"dg_delta_stays", card:"DG", label:"Delta Stays", cadence:"annual", cap:100,
-		match:(tx)=> tx.category==="delta_stays"
-		},
-		
-		// ----- UQ -----
-		{ id:"uq_rideshare", card:"UQ", label:"Lyft + Uber rides", cadence:"monthly", cap:8,
-		match:(tx)=> tx.category==="rideshare_other" || tx.category==="lyft"
-		},
-		
-		{ id:"uq_instacart", card:"UQ", label:"Instacart", cadence:"monthly", cap:15,
-		match:(tx)=> tx.category==="instacart"
-		},
-		
-		{ id:"uq_renowned", card:"UQ", label:"Renowned Hotels", cadence:"annual", cap:150,
-		match:(tx)=> tx.category==="renowned_hotel"
-		},
-		
-		{ id:"uq_rentalcar", card:"UQ", label:"Avis & Budget car rental", cadence:"annual", cap:80,
-		perTxCap:40, maxTxPerPeriod:2,
-		match:(tx)=> tx.category==="uq_rentalcar"
-		},
-	];
-
 	const CARD_BENEFITS = [
 	
 	  /* =========================
@@ -3463,19 +3378,6 @@
       return month < 6 ? "Jan–Jun" : "Jul–Dec";
     }
 
-	function getBenefitMonthIndex(start, date) {
-	  let months =
-		(date.getFullYear() - start.getFullYear()) * 12 +
-		(date.getMonth() - start.getMonth());
-	  if (date.getDate() < start.getDate()) months -= 1;
-	  return Math.max(0, months);
-	}
-	
-	function getSemiannualIndex(start, date) {
-	  const m = getBenefitMonthIndex(start, date);
-	  return Math.floor(m / 6); // 0 or 1 within a 12-mo benefit year
-	}
-
 	function computeRollingAnnualBenefits(txs, today = new Date()) {
 	  const out = {};
 	
@@ -3694,7 +3596,12 @@
 		  // Roll back both transactions and merchant benefits so import is all-or-nothing
 		  saveTransactions(oldTxs);
 		  saveMerchantBenefits(oldBenefits);
-		  showToast("⚠️ Import failed — merchant benefits could not be saved. No changes were applied.");
+		  const rollbackOk = saveTransactions(oldTxs);
+			if (!rollbackOk) {
+			  alert("⚠️ Critical: import failed AND rollback failed. Your transaction data may be corrupted. Export immediately and reload the page.");
+			} else {
+			  showToast("⚠️ Import failed — merchant benefits could not be saved. No changes were applied.");
+			}
 		  return;
 		}
 		
@@ -3775,205 +3682,6 @@
 	
 		tbody.appendChild(tr);
       });
-    }
-
-    // ---------- Card-native benefits state ----------
-    function computeState(txs, now) {
-      const nowDate = now || new Date();
-
-      // Month and year boundaries
-      const monthStart = startOfMonth(nowDate);
-      const yearStart = new Date(nowDate.getFullYear(), 0, 1);
-
-      // Semi-annual periods (Jan–Jun / Jul–Dec)
-      const stubhubPeriodStart =
-        nowDate.getMonth() < 6
-          ? new Date(nowDate.getFullYear(), 0, 1)
-          : new Date(nowDate.getFullYear(), 6, 1);
-      const resyPeriodStart = stubhubPeriodStart;
-
-      // Monthly
-      let mbDiningThisMonth = 0;
-      let csrDoordashThisMonth = 0;
-      let csrLyftThisMonth = 0;
-      let uqRideshareThisMonth = 0;
-      let uqInstacartThisMonth = 0;
-      let csrPelotonThisMonth = 0;
-      let agUberThisMonth = 0;
-      let agDiningPartnersThisMonth = 0;
-      let agDunkinThisMonth = 0;
-      let csrDoordashGroceriesThisMonth = 0;
-      let csrDoordashGroceriesTxThisMonth = 0;
-
-      // Semi-annual
-      let csrStubhubThisPeriod = 0;
-      let agResyThisPeriod = 0;
-      let csrOpenTableThisPeriod = 0;
-	  let csrTheEditThisPeriod = 0;
-      
-      // Annual / calendar-year
-      let csrTravelYTD = 0;
-      let dgDeltaStaysYTD = 0;
-      let dg10kSpendYTD = 0;
-	  let uqRenownedYTD = 0;
-      let uqRentalCarYTD = 0;
-      let uqRentalCarTxYTD = 0;
-
-
-      // Which categories we treat as "travel" for CSR travel credit tracking
-      const CSR_TRAVEL_CATEGORIES = new Set([
-        "united_flight",
-        "delta_flight_threshold",
-        "other_flight",
-		"theedit_hotel",
-        "marriott_hotel",
-        "renowned_hotel",
-        "delta_stays",
-        "other_hotel",
-      ]);
-
-      for (const tx of txs) {
-        if (!tx.date) continue;
-        const d = parseISODateLocal(tx.date);
-        if (!d) continue;
-
-        const amt = Number(tx.amount) || 0;
-
-        // Normalize to date-only for fair comparison
-        const dDateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-        const nowDateOnly = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
-
-        const inMonth = dDateOnly >= monthStart && dDateOnly <= nowDateOnly;
-        const inYear = dDateOnly >= yearStart && dDateOnly <= nowDateOnly;
-        const inStubhubPeriod = dDateOnly >= stubhubPeriodStart && dDateOnly <= nowDateOnly;
-        const inResyPeriod = dDateOnly >= resyPeriodStart && dDateOnly <= nowDateOnly;
-
-        // Monthly-limited benefits
-        if (inMonth) {
-          if (tx.cardUsed === "MB" && tx.category === "dining") {
-            mbDiningThisMonth += amt;
-          }
-          if (tx.cardUsed === "CSR" && tx.category === "doordash") {
-            csrDoordashThisMonth += amt;
-          }
-          if (tx.cardUsed === "CSR" && tx.category === "doordash_groceries" && amt > 0) {
-            csrDoordashGroceriesThisMonth += Math.min(10, amt);
-            csrDoordashGroceriesTxThisMonth += 1;
-          }
-          if (tx.cardUsed === "CSR" && tx.category === "lyft") {
-            csrLyftThisMonth += amt;
-          }
-          if (tx.cardUsed === "UQ" && tx.category === "rideshare_other") {
-            uqRideshareThisMonth += amt;
-          }
-          if (tx.cardUsed === "UQ" && tx.category === "lyft") {
-            uqRideshareThisMonth += amt;
-          }
-          if (tx.cardUsed === "UQ" && tx.category === "instacart") {
-            uqInstacartThisMonth += amt;
-          }
-          if (tx.cardUsed === "CSR" && tx.category === "peloton") {
-            csrPelotonThisMonth += amt;
-          }
-           if (tx.cardUsed === "AG" && tx.category === "dunkin") {
-            agDunkinThisMonth += amt;
-          }
-          // AG Uber Cash – count Uber rides + Uber Eats on AG
-          if (
-            tx.cardUsed === "AG" &&
-            (tx.category === "rideshare_other" || tx.category === "uber_eats")
-          ) {
-            agUberThisMonth += amt;
-          }
-          // AG Dining partners $10/mo
-          if (tx.cardUsed === "AG" && tx.category === "ag_dining") {
-            agDiningPartnersThisMonth += amt;
-          }
-        }
-
-        // Semi-annual StubHub credit (CSR only)
-        if (
-          inStubhubPeriod &&
-          tx.cardUsed === "CSR" &&
-          tx.category === "stubhub"
-        ) {
-          csrStubhubThisPeriod += amt;
-        }
-
-        // Semi-annual Resy credit (AG only)
-        if (
-          inResyPeriod &&
-          tx.cardUsed === "AG" &&
-          tx.category === "resy"
-        ) {
-          agResyThisPeriod += amt;
-        }
-
-        // Semi-annual OpenTable dining partners (CSR only)
-        if (
-          inResyPeriod &&           // same Jan–Jun / Jul–Dec periods
-          tx.cardUsed === "CSR" &&
-          tx.category === "csr_opentable"
-        ) {
-          csrOpenTableThisPeriod += amt;
-        }
-
-        // Semi-annual The Edit hotel partners (CSR only)
-        if (
-          inResyPeriod &&           // same Jan–Jun / Jul–Dec periods
-          tx.cardUsed === "CSR" &&
-          tx.category === "theedit_hotel"
-        ) {
-          csrTheEditThisPeriod += amt;
-        }
-
-        // Annual / calendar-year benefits
-        if (inYear) {
-          if (tx.cardUsed === "CSR" && CSR_TRAVEL_CATEGORIES.has(tx.category)) {
-            csrTravelYTD += amt;
-          }
-
-          if (tx.cardUsed === "DG" && tx.category === "delta_stays") {
-            dgDeltaStaysYTD += amt;
-          }
-
-		  if (tx.cardUsed === "UQ" && tx.category === "renowned_hotel") {
-            uqRenownedYTD += amt;
-          }
-
-          if (tx.cardUsed === "DG") {
-            dg10kSpendYTD += amt;
-          }
-          if (tx.cardUsed === "UQ" && tx.category === "uq_rentalcar" && amt > 0) {
-            uqRentalCarYTD += Math.min(40, amt);
-            uqRentalCarTxYTD += 1;
-          }
-        }
-      }
-
-      return {
-        mbDiningThisMonth,
-        csrDoordashThisMonth,
-        csrLyftThisMonth,
-        uqRideshareThisMonth,
-        uqInstacartThisMonth,
-        csrPelotonThisMonth,
-        agUberThisMonth,
-        agDiningPartnersThisMonth,
-        agDunkinThisMonth,
-        csrStubhubThisPeriod,
-        agResyThisPeriod,
-        csrOpenTableThisPeriod,
-        csrTravelYTD,
-        dgDeltaStaysYTD,
-        dg10kSpendYTD,
-		uqRenownedYTD,
-        csrDoordashGroceriesThisMonth,
-        csrDoordashGroceriesTxThisMonth,
-		csrTheEditThisPeriod,
-		uqRentalCarYTD,
-		uqRentalCarTxYTD,
-      };
     }
 
     // ---------- Merchant benefits usage state ----------
@@ -4967,6 +4675,7 @@
 	
 	  select.insertBefore(suggested, select.firstChild);
 	
+	  const userLockedCategorySelection = select.dataset.userLockedSelection === "1";
 	  if (
 		!userLockedCategorySelection ||
 		!select.querySelector(`option[value="${CSS.escape(select.value)}"]`)
@@ -5496,6 +5205,7 @@
 		document.getElementById("reasonBox").textContent = "";
 	
 		document.getElementById("amount").value = "";
+		document.getElementById("date").value = formatTodayISO();
 		setDefaultPurchaseCategory();
 	
 		lastRecommendation = null;
