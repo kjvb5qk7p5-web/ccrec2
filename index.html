@@ -837,14 +837,7 @@
 <body>
   <div id="globalStatus"></div>
   <h2>Card Rewards Maximizer</h2>
-<p class="blackmuted">
-  Local optimizer for 5 credit cards: <br>
-    &nbsp;&nbsp;&nbsp;- <span class="card-badge csr">CS</span> Chase Sapphire Reserve<br>
-    &nbsp;&nbsp;&nbsp;- <span class="card-badge ag">AG</span> American Express Gold<br>
-    &nbsp;&nbsp;&nbsp;- <span class="card-badge uq">UQ</span> United Quest<br>
-    &nbsp;&nbsp;&nbsp;- <span class="card-badge mb">MB</span> Marriott Bonvoy Brilliant<br>
-    &nbsp;&nbsp;&nbsp;- <span class="card-badge dg">DG</span> Delta SkyMiles Amex Gold<br>
-</p>
+<p class="blackmuted" id="activeCardsSummary"></p>
 
   <!-- New purchase input -->
   <div class="card new-purchase-card">
@@ -1073,7 +1066,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.3.2</p>
+<p class="blackmuted"><br>v5.3.3</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2201,6 +2194,23 @@
 	};
 	
 	let categorySelectionWasAuto = false;
+	
+	function renderActiveCardsSummary() {
+	  const el = document.getElementById("activeCardsSummary");
+	  if (!el) return;
+	
+	  const activeCards = Object.values(CARDS)
+		.filter(card => card.is_active !== false)
+		.sort((a, b) => Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999));
+	
+	  const count = activeCards.length;
+	
+	  const cardLines = activeCards.map(card =>
+		`&nbsp;&nbsp;&nbsp;- ${renderCardBadge(card.code)} ${escapeHtml(card.label)}`
+	  ).join("<br>");
+	
+	  el.innerHTML = `Local optimizer for ${count} credit card${count === 1 ? "" : "s"}:<br>${cardLines}`;
+	}
 	
 	// 5.0 Generic cadence window for a card benefit
 	function getBenefitWindowForDate(benefit, asOfDate) {
@@ -4296,9 +4306,11 @@
 	  .map(card => [card, Number(merchantState[card] || 0)]);
 	
 	let merchantGrandTotal = 0;
+
+	const currentYearLabel = new Date().getFullYear();
 	
 	html += `
-	  <h3 class="annual-summary-subhead" style="margin-top:12px;">Merchant Benefits - current year</h3>
+	  <h3 class="annual-summary-subhead" style="margin-top:12px;">Merchant Benefits - ${currentYearLabel}</h3>
 	  <table class="merchant-summary-table">
 		<thead>
 		  <tr>
@@ -5554,6 +5566,7 @@
 
     // Init on load
     initFormDefaults();               // sets date to today
+    renderActiveCardsSummary();
     renderTransactions();
     renderMerchantBenefits();
     populateCategorySelect();         // build Merchant Offers + Card Benefits
