@@ -1066,7 +1066,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.3.3</p>
+<p class="blackmuted"><br>v5.4</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2193,6 +2193,19 @@
 
 	};
 	
+	const CATEGORY_MERCHANTS = {
+	  gas: ["exxon", "mobil", "sunoco", "shell", "chevron", "bp"],
+	  coffee: ["starbucks", "dunkin"],
+	  groceries: ["instacart", "whole foods", "trader joe s", "kroger", "safeway"],
+	  hotel: ["marriott", "hyatt", "hilton"],
+	  flights: ["delta", "united", "american airlines", "jetblue"],
+	  rideshare: ["uber", "lyft"],
+	  rental_car: ["avis", "budget", "hertz", "enterprise", "national", "alamo"],
+	  entertainment: ["telecharge", "ticketmaster", "stubhub", "viagogo"],
+	  eyewear: ["lenscrafters", "warby parker"],
+	  pharmacy: ["cvs", "walgreens", "rite aid"]
+	};
+	
 	let categorySelectionWasAuto = false;
 	
 	function renderActiveCardsSummary() {
@@ -2644,6 +2657,24 @@
 	
 	const REVERSE_SYNONYMS = buildReverseSynonymMap(SYNONYM_MAP);
 	
+	// 5.4 reverse merchant lookup helper
+	function buildMerchantCategoryMap(categoryMerchants) {
+	  const reverse = {};
+	
+	  for (const [category, merchants] of Object.entries(categoryMerchants || {})) {
+		merchants.forEach((merchant) => {
+		  const normMerchant = normalizeSearchText(merchant);
+		  if (!normMerchant) return;
+		  if (!reverse[normMerchant]) reverse[normMerchant] = new Set();
+		  reverse[normMerchant].add(category);
+		});
+	  }
+	
+	  return reverse;
+	}
+	
+	const MERCHANT_CATEGORY_MAP = buildMerchantCategoryMap(CATEGORY_MERCHANTS);
+	
 	function canonicalizeTag(raw) {
 	  const norm = normalizeSearchText(raw);
 	  return REVERSE_SYNONYMS[norm] || norm.replace(/\s+/g, "_");
@@ -2657,6 +2688,33 @@
 		.filter(Boolean);
 	
 	  return [...new Set(parts.map(canonicalizeTag).filter(Boolean))];
+	}
+	
+	function getCategoryTagsForMerchantName(merchantName) {
+	  const norm = normalizeSearchText(merchantName);
+	  if (!norm) return [];
+	
+	  const scores = new Map();
+	
+	  function bump(tag, points) {
+		const canonical = canonicalizeTag(tag);
+		scores.set(canonical, (scores.get(canonical) || 0) + points);
+	  }
+	
+	  for (const [merchantKey, categories] of Object.entries(MERCHANT_CATEGORY_MAP)) {
+		if (norm === merchantKey) {
+		  categories.forEach(cat => bump(cat, 100));
+		  continue;
+		}
+	
+		if (norm.includes(merchantKey) || merchantKey.includes(norm)) {
+		  categories.forEach(cat => bump(cat, 60));
+		}
+	  }
+	
+	  return [...scores.entries()]
+		.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+		.map(([tag]) => tag);
 	}
 	
 	function getSuggestedTagsForMerchant(merchantName, limit = 8) {
@@ -2683,6 +2741,10 @@
 		  tags.forEach(tag => bump(tag, 60));
 		}
 	  }
+	  
+	  // Strong merchant->category signal from CATEGORY_MERCHANTS
+	  const categoryTags = getCategoryTagsForMerchantName(merchantName);
+	  categoryTags.forEach(tag => bump(tag, 80));
 	
 	  // Weaker signal: synonym/phrase hits inside merchant text
 	  for (const [variant, canonical] of Object.entries(REVERSE_SYNONYMS)) {
@@ -2755,6 +2817,16 @@
 	  if (!norm) return [];
 	
 	  const expanded = new Set([norm]);
+	  
+	    // Merchant-category expansion
+	  const merchantCategoryTags = getCategoryTagsForMerchantName(rawQuery);
+	  merchantCategoryTags.forEach(tag => {
+		expanded.add(normalizeSearchText(tag));
+	
+		// Also add synonyms for the inferred category tag
+		const variants = SYNONYM_MAP[tag] || [];
+		variants.forEach(variant => expanded.add(normalizeSearchText(variant)));
+	  });
 	
 	  for (const [variant, canonical] of Object.entries(REVERSE_SYNONYMS)) {
 		const v = normalizeSearchText(variant);
