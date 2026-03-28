@@ -1066,7 +1066,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.4</p>
+<p class="blackmuted"><br>v5.4.2</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -3685,15 +3685,14 @@
 			);
   		const benefitsOk = saveMerchantBenefits(normalizedBenefits);
 		if (!benefitsOk) {
-		  // Roll back both transactions and merchant benefits so import is all-or-nothing
-		  saveTransactions(oldTxs);
-		  saveMerchantBenefits(oldBenefits);
-		  const rollbackOk = saveTransactions(oldTxs);
-			if (!rollbackOk) {
-			  alert("⚠️ Critical: import failed AND rollback failed. Your transaction data may be corrupted. Export immediately and reload the page.");
-			} else {
-			  showToast("⚠️ Import failed — merchant benefits could not be saved. No changes were applied.");
-			}
+		  // Roll back both — check each independently
+		  const txRollbackOk = saveTransactions(oldTxs);
+		  const benefitRollbackOk = saveMerchantBenefits(oldBenefits);
+		  if (!txRollbackOk || !benefitRollbackOk) {
+			alert("⚠️ Critical: import failed AND rollback failed. Your data may be corrupted. Export immediately and reload the page.");
+		  } else {
+			showToast("⚠️ Import failed — merchant benefits could not be saved. No changes were applied.");
+		  }
 		  return;
 		}
 		
@@ -3750,8 +3749,9 @@
         if (tx.cardUsed) {
           // Build a special badge just for the log, with a data index
           const code = String(tx.cardUsed).toUpperCase();
-          const cls = code.toLowerCase();              // csr, uq, mb, dg, ag
-          const label = code === "CSR" ? "CS" : code;  // match your global style
+		  const meta = CARDS[code] || {};
+		  const cls = (meta.badgeClass || code).toLowerCase();
+		  const label = meta.short || code;
     
           tdCard.innerHTML = `
             <span
