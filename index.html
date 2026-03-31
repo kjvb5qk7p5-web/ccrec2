@@ -1066,7 +1066,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.4.3</p>
+<p class="blackmuted"><br>v5.4.4 - Enable card inactivation</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1078,6 +1078,7 @@
 		code: "CSR",
 		short: "CS",
 		label: "Chase Sapphire Reserve",
+		label_long: "Chase Sapphire Reserve Visa",
 	
 		issuer: "Chase",
 		network: "Visa",
@@ -1100,6 +1101,7 @@
 		code: "AG",
 		short: "AG",
 		label: "American Express Gold",
+		label_long: "American Express Gold",
 	
 		issuer: "American Express",
 		network: "Amex",
@@ -1122,6 +1124,7 @@
 		code: "UQ",
 		short: "UQ",
 		label: "United Quest",
+		label_long: "United Quest Visa",
 	
 		issuer: "Chase",
 		network: "Visa",
@@ -1144,6 +1147,7 @@
 		code: "MB",
 		short: "MB",
 		label: "Marriott Bonvoy Brilliant",
+		label_long: "Marriott Bonvoy Brilliant AmEx",
 	
 		issuer: "American Express",
 		network: "Amex",
@@ -1166,6 +1170,7 @@
 		code: "DG",
 		short: "DG",
 		label: "Delta SkyMiles Amex Gold",
+		label_long: "Delta SkyMiles Amex Gold",
 	
 		issuer: "American Express",
 		network: "Amex",
@@ -2048,9 +2053,9 @@
 	  },
 	
 	  marriott_hotel: {
-		card: "MB",
-		channel: "direct",
-		reason: "Use Marriott Brilliant for Marriott stays for 6X points."
+		card: "CSR",
+		channel: "chase_travel",
+		reason: "Use Chase Sapphire Reserve for flexible points."
 	  },
 	
 	  theedit_hotel: {
@@ -2213,7 +2218,7 @@
 	  const count = activeCards.length;
 	
 	  const cardLines = activeCards.map(card =>
-		`&nbsp;&nbsp;&nbsp;- ${renderCardBadge(card.code)} ${escapeHtml(card.label)}`
+		`&nbsp;&nbsp;&nbsp;- ${renderCardBadge(card.code)} ${escapeHtml(card.label_long)}`
 	  ).join("<br>");
 	
 	  el.innerHTML = `Local optimizer for ${count} credit card${count === 1 ? "" : "s"}:<br>${cardLines}`;
@@ -2404,9 +2409,10 @@
 	  const candidates = [];
 	
 	  for (const benefit of CARD_BENEFITS) {
-		const candidate = evaluateCardBenefitCandidate(benefit, tx, txsBeforeSave);
-		if (candidate) candidates.push(candidate);
-	  }
+		  if (CARDS[benefit.card]?.is_active === false) continue;
+		  const candidate = evaluateCardBenefitCandidate(benefit, tx, txsBeforeSave);
+		  if (candidate) candidates.push(candidate);
+		}
 	
 	  if (!candidates.length) return null;
 	
@@ -3428,12 +3434,14 @@
         selectEl.appendChild(opt);
       }
     
-      Object.values(CARDS).forEach(card => {
-        const opt = document.createElement("option");
-        opt.value = card.code; // e.g., "CSR", "UQ", "MB", "DG", "AG"
-        opt.textContent = card.label;
-        selectEl.appendChild(opt);
-      });
+      Object.values(CARDS)
+	  .filter(card => card.is_active !== false)
+	  .forEach(card => {
+		const opt = document.createElement("option");
+		opt.value = card.code;
+		opt.textContent = card.label;
+		selectEl.appendChild(opt);
+	  });
     }
 
     function escapeHtml(str) {
@@ -3469,8 +3477,9 @@
 	
 	  // Init per card from CARDS registry
 	  for (const card of Object.keys(CARDS)) {
-		const win = getRollingBenefitYear(card, today);
-		if (!win) continue;
+		  if (CARDS[card]?.is_active === false) continue;
+		  const win = getRollingBenefitYear(card, today);
+		  if (!win) continue;
 	
 		out[card] = {
 		  start: win.start,
@@ -3980,10 +3989,12 @@
       // ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
       const ccRows = [];
     
-		// Build all real card-native benefit rows from CARD_BENEFITS
-		const sortedBenefits = [...CARD_BENEFITS].sort(
-		  (a, b) => (Number(a.display_order ?? 999) - Number(b.display_order ?? 999))
-		);
+		// Build all real card-native benefit rows from CARD_BENEFITS for active cards
+		const sortedBenefits = [...CARD_BENEFITS]
+		  .filter(b => CARDS[b.card]?.is_active !== false)
+		  .sort(
+			(a, b) => (Number(a.display_order ?? 999) - Number(b.display_order ?? 999))
+		  );
 		
 		for (const benefit of sortedBenefits) {
 		  const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
