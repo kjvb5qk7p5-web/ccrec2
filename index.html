@@ -1066,7 +1066,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.4.2</p>
+<p class="blackmuted"><br>v5.4.3</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1853,7 +1853,7 @@
 	
 		priority: 10,
 		display_order: 230,
-		channel: "direct",
+		channel: "united_rentalcar",
 	
 		eligible_fn: (tx) => tx.category === "uq_rentalcar",
 		value_fn: (tx, remaining) =>
@@ -1971,8 +1971,8 @@
 	
 	  csr_opentable: {
 		card: "AG",
-		channel: "opentable_platform",
-		reason: "Use Amex Gold for dining when no CSR OpenTable credit is available."
+		channel: "direct",
+		reason: "Use Amex Gold for dining at restaurants on OpenTable when no CSR OpenTable credit is available."
 	  },
 	
 	  ag_dining: {
@@ -2039,12 +2039,6 @@
 		card: "DG",
 		channel: "delta",
 		reason: "Use Delta SkyMiles Amex Gold for Delta threshold-chasing spend."
-	  },
-	
-	  delta_flight: {
-		card: "DG",
-		channel: "delta",
-		reason: "Use Delta SkyMiles Amex Gold for miles and points on Delta flights."
 	  },
 	
 	  other_flight: {
@@ -4240,7 +4234,9 @@
 	  }
 	
 	  // Keep cards in your preferred display order
-	  const cardOrder = ["CSR", "AG", "UQ", "MB", "DG"];
+	  const cardOrder = Object.values(CARDS)
+		  .sort((a, b) => Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999))
+		  .map(c => c.code);
 	  rows.sort((a, b) => {
 		const ia = cardOrder.indexOf(a[0]);
 		const ib = cardOrder.indexOf(b[0]);
@@ -4522,10 +4518,28 @@
 	  if (hasTotalCap && totalLimit != null) {
 		remaining = Math.max(0, totalLimit - ms.used);
 	  }
+	  
+	  // Derive channel: if this benefit's card has a native CARD_BENEFITS entry
+	  // covering this category, inherit that entry's channel. Otherwise fall back
+	  // to the base category default.
+	  let merchantChannel = null;
+	  for (const cb of CARD_BENEFITS) {
+		if (
+		  cb.card === benefit.card &&
+		  Array.isArray(cb.categories) &&
+		  cb.categories.includes(benefit.category)
+		) {
+		  merchantChannel = cb.channel;
+		  break;
+		}
+	  }
+	  if (!merchantChannel) {
+		merchantChannel = getBaseFallbackRecommendation(benefit.category).channel;
+	  }
 	
 	  return {
 		card: benefit.card,
-		channel: getBaseFallbackRecommendation(purchase.category).channel,
+		channel: merchantChannel,
 		reasonMain: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
 		reason: `Merchant offer at ${benefit.merchant} – ${discountLabel} back.`,
 		remainingAmount: remaining,
