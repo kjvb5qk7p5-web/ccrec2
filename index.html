@@ -1066,7 +1066,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.4.4 - Enable card inactivation</p>
+<p class="blackmuted"><br>v5.4.5 - Category search fix</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2193,16 +2193,16 @@
 	};
 	
 	const CATEGORY_MERCHANTS = {
-	  gas: ["exxon", "mobil", "sunoco", "shell", "chevron", "bp"],
+	  gas: ["exxon", "mobil", "sunoco", "shell", "chevron", "bp", "amaco", "citgo", "valero", "wawa", "lukoil"],
 	  coffee: ["starbucks", "dunkin"],
-	  groceries: ["instacart", "whole foods", "trader joe s", "kroger", "safeway"],
-	  hotel: ["marriott", "hyatt", "hilton"],
-	  flights: ["delta", "united", "american airlines", "jetblue"],
+	  groceries: ["instacart", "whole foods", "trader joe s", "kroger", "safeway", "acme", "shoprite"],
+	  hotel: ["marriott", "hyatt", "hilton", "ihg", "sheraton"],
+	  flights: ["delta", "united", "american airlines", "jetblue", "southwest"],
 	  rideshare: ["uber", "lyft"],
 	  rental_car: ["avis", "budget", "hertz", "enterprise", "national", "alamo"],
 	  entertainment: ["telecharge", "ticketmaster", "stubhub", "viagogo"],
 	  eyewear: ["lenscrafters", "warby parker"],
-	  pharmacy: ["cvs", "walgreens", "rite aid"]
+	  pharmacy: ["cvs", "walgreens", "rite aid", "duane reade"]
 	};
 	
 	let categorySelectionWasAuto = false;
@@ -2794,7 +2794,7 @@
 	function enrichMerchantBenefitSearchFields(b) {
 	  const merchant = b?.merchant != null ? String(b.merchant).trim() : "";
 	  const userTagInput = b?.userTagInput != null ? String(b.userTagInput) : "";
-	  const searchTags = Array.isArray(b?.searchTags)
+	  const searchTags = Array.isArray(b?.searchTags) && b.searchTags.length > 0
 		? b.searchTags.map(canonicalizeTag).filter(Boolean)
 		: buildMerchantOfferSearchTags({ merchant, userTagInput });
 	
@@ -3590,7 +3590,7 @@
 		if (!raw) return [];
 		const parsed = JSON.parse(raw);
 		if (!Array.isArray(parsed)) return [];
-		return parsed.map(normalizeImportedMerchantBenefit);
+		return parsed.map(b => enrichMerchantBenefitSearchFields(normalizeImportedMerchantBenefit(b)));
 	  } catch {
 		return [];
 	  }
