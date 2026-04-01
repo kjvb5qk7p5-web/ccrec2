@@ -1066,7 +1066,7 @@
 		<button id="btnFloatingSave" type="button"></button>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.4.5 - Category search fix</p>
+<p class="blackmuted"><br>v5.4.6 - Category search fixes</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2707,7 +2707,7 @@
 		  continue;
 		}
 	
-		if (norm.includes(merchantKey) || merchantKey.includes(norm)) {
+		if (hasWholeWord(norm, merchantKey) || hasWholeWord(merchantKey, norm)) {
 		  categories.forEach(cat => bump(cat, 60));
 		}
 	  }
@@ -3105,14 +3105,15 @@
 		  }
 	
 		  const totalScore = baseScore + categoryScore - idx;
+		  if (categoryScore <= 0 && baseScore < 60) continue;  // skip low-signal matches with no category relevance
 	
 		  suggestions.push({
 			kind: "card_benefit_category",
 			benefitId: benefit.id,
 			value: category,
 			label:
-			  categories.length > 1
-				? `💳 ${benefit.label} → ${categoryLabel}`
+			  CARD_BENEFITS.filter(b => b.categories?.includes(category)).length > 1
+				? `💳 ${categoryLabel}`
 				: `💳 ${benefit.label}`,
 			score: totalScore,
 			matchedTerms: baseMatchedTerms + categoryMatchedTerms
