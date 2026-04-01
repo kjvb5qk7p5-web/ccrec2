@@ -3105,7 +3105,7 @@
 		  }
 	
 		  const totalScore = baseScore + categoryScore - idx;
-		  if (categoryScore <= 0 && baseScore < 60) continue;  // skip low-signal matches with no category relevance
+		  if (categoryScore <= 0 && baseScore < 60) return;  // skip low-signal matches with no category relevance
 	
 		  suggestions.push({
 			kind: "card_benefit_category",
