@@ -1463,7 +1463,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.0</p>
+<p class="blackmuted"><br>v6.0.1 - New category picker</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5187,7 +5187,6 @@
 	
 		  const expiryText = b.endDate ? formatBenefitEndDateDisplay(b.endDate, parseISODateLocal(formatTodayISO())) : "";
 		  const subtitleParts = [
-			b.card ? (CARDS[b.card]?.short || b.card) : "",
 			discountText,
 			expiryText
 		  ].filter(Boolean);
@@ -5366,6 +5365,7 @@
 		merchantPage.innerHTML = merchantOffers.map(item => renderCategoryPickerRow({
 		  value: item.value,
 		  title: escapeHtml(item.title),
+		  subtitle: escapeHtml(item.subtitle),
 		  selected: item.selected
 		})).join("");
 	  }
@@ -5388,6 +5388,7 @@
 		? merchantOffers.map(item => renderCategoryPickerRow({
 			value: item.value,
 			title: escapeHtml(item.title),
+			subtitle: escapeHtml(item.subtitle),
 			selected: item.selected
 		  })).join("")
 		: `<div class="category-picker-empty">No merchant-offer matches.</div>`;
