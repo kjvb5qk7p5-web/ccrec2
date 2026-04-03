@@ -6082,7 +6082,9 @@
 	
 		document.getElementById("amount").value = "";
 		document.getElementById("date").value = formatTodayISO();
-		setDefaultPurchaseCategory();
+      	setDefaultPurchaseCategory();
+      	updateCategoryPickerTrigger();
+      	closeCategoryPicker();
 	
 		lastRecommendation = null;
 		showToast("✓ Purchase saved");
