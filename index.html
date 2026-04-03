@@ -896,6 +896,23 @@
 	  display: block;
 	}
 	
+	body.category-picker-open {
+	  position: fixed;
+	  overflow: hidden;
+	  width: 100%;
+	}
+	
+	.category-picker-overlay,
+	.category-picker-sheet,
+	.category-picker-pager,
+	.category-picker-page {
+	  overscroll-behavior: contain;
+	}
+	
+	.category-picker-page {
+	  -webkit-overflow-scrolling: touch;
+	}
+	
 	.category-picker-backdrop {
 	  position: absolute;
 	  inset: 0;
@@ -1470,7 +1487,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.0.5 - New category picker</p>
+<p class="blackmuted"><br>v6.0.6 - New category picker</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5042,6 +5059,7 @@
 	  page: 0,
 	  search: ""
 	};
+	let categoryPickerSavedScrollY = 0;
 	
 	function getBaseCategoryMetaByValue(value) {
 	  return BASE_CATEGORIES.find(cat => cat.value === value) || null;
@@ -5217,6 +5235,10 @@
 	
 	  const targetPage = getCategoryPickerPageForValue(selectedValue);
 	  categoryPickerState.page = targetPage;
+	  
+	  categoryPickerSavedScrollY = window.scrollY || window.pageYOffset || 0;
+		document.body.classList.add("category-picker-open");
+		document.body.style.top = `-${categoryPickerSavedScrollY}px`;
 	
 	  if (overlay) {
 		overlay.classList.add("open");
@@ -5231,12 +5253,14 @@
 	  jumpCategoryPickerToPage(targetPage, false);
 	
 	  requestAnimationFrame(() => {
-		requestAnimationFrame(() => {
-		  scrollSelectedCategoryPickerRowIntoView();
-		  const input = document.getElementById("categoryPickerSearch");
-		  if (input) input.focus();
+		  requestAnimationFrame(() => {
+			scrollSelectedCategoryPickerRowIntoView();
+			setTimeout(() => {
+			  const input = document.getElementById("categoryPickerSearch");
+			  if (input) input.focus();
+			}, 50);
+		  });
 		});
-	  });
 	}
 	
 	function closeCategoryPicker() {
@@ -5250,6 +5274,10 @@
 		overlay.setAttribute("aria-hidden", "true");
 	  }
 	  if (trigger) trigger.setAttribute("aria-expanded", "false");
+	  
+	  document.body.classList.remove("category-picker-open");
+	  document.body.style.top = "";
+	  window.scrollTo(0, categoryPickerSavedScrollY);
 	}
 	
 	function jumpCategoryPickerToPage(pageIndex, smooth = true) {
