@@ -832,6 +832,307 @@
 	  padding-bottom: 72px;
 	}
 
+	/* =========================
+	   Hidden utility
+	   ========================= */
+	.sr-only {
+	  position: absolute !important;
+	  width: 1px !important;
+	  height: 1px !important;
+	  padding: 0 !important;
+	  margin: -1px !important;
+	  overflow: hidden !important;
+	  clip: rect(0, 0, 0, 0) !important;
+	  white-space: nowrap !important;
+	  border: 0 !important;
+	}
+	
+	/* Hide the native category select from view, but keep it in the DOM */
+	.new-purchase-card #category {
+	  position: absolute !important;
+	  left: -9999px !important;
+	  width: 1px !important;
+	  height: 1px !important;
+	  opacity: 0 !important;
+	  pointer-events: none !important;
+	}
+	
+	/* =========================
+	   Category picker trigger
+	   ========================= */
+	.category-picker-trigger {
+	  width: 100%;
+	  margin-top: 4px;
+	  padding: 10px 12px;
+	  border: 1px solid #ccc;
+	  border-radius: 6px;
+	  background: #f4f4f4;
+	  display: flex;
+	  align-items: center;
+	  justify-content: space-between;
+	  font-size: 1.1rem;
+	  text-align: left;
+	  box-sizing: border-box;
+	}
+	
+	.category-picker-trigger-chevron {
+	  color: #666;
+	  font-size: 1.25rem;
+	  line-height: 1;
+	  margin-left: 10px;
+	}
+
+	/* =========================
+	   Category picker overlay
+	   ========================= */
+	.category-picker-overlay {
+	  position: fixed;
+	  inset: 0;
+	  z-index: 1200;
+	  display: none;
+	}
+	
+	.category-picker-overlay.open {
+	  display: block;
+	}
+	
+	.category-picker-backdrop {
+	  position: absolute;
+	  inset: 0;
+	  background: rgba(0,0,0,0.35);
+	}
+	
+	.category-picker-sheet {
+	  position: absolute;
+	  inset: 40px 10px 10px 10px;
+	  background: #fff;
+	  border-radius: 20px;
+	  box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+	  display: flex;
+	  flex-direction: column;
+	  overflow: hidden;
+	}
+	
+	.category-picker-handle {
+	  width: 80px;
+	  height: 6px;
+	  border-radius: 999px;
+	  background: #d1d5db;
+	  margin: 10px auto 6px auto;
+	}
+	
+	.category-picker-header {
+	  display: flex;
+	  align-items: flex-start;
+	  justify-content: space-between;
+	  gap: 12px;
+	  padding: 8px 14px 8px 14px;
+	}
+	
+	.category-picker-title {
+	  font-size: 1.25rem;
+	  font-weight: 700;
+	  line-height: 1.2;
+	}
+	
+	.category-picker-subtitle {
+	  font-size: 0.85rem;
+	  color: #666;
+	  margin-top: 2px;
+	}
+	
+	.category-picker-close {
+	  border: none;
+	  background: transparent;
+	  font-size: 1.3rem;
+	  line-height: 1;
+	  padding: 2px 4px;
+	  color: #0b6efd;
+	}
+	
+	/* Pager tabs */
+	.category-picker-tabs {
+	  display: flex;
+	  gap: 6px;
+	  margin: 0 12px 8px 12px;
+	  padding: 4px;
+	  border: 1px solid #e5e7eb;
+	  border-radius: 16px;
+	  background: #f9fafb;
+	}
+	
+	.category-picker-tab {
+	  flex: 1;
+	  border: none;
+	  background: transparent;
+	  padding: 8px 10px;
+	  border-radius: 12px;
+	  font-size: 0.95rem;
+	  font-weight: 500;
+	}
+	
+	.category-picker-tab.active {
+	  color: #0b6efd;
+	  font-weight: 700;
+	  background: #fff;
+	  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+	}
+	
+	/* Horizontal pager */
+	.category-picker-pager {
+	  flex: 1;
+	  overflow-x: auto;
+	  overflow-y: hidden;
+	  display: flex;
+	  scroll-snap-type: x mandatory;
+	  scroll-behavior: smooth;
+	  -webkit-overflow-scrolling: touch;
+	}
+	
+	.category-picker-pager::-webkit-scrollbar {
+	  display: none;
+	}
+	
+	.category-picker-page {
+	  flex: 0 0 100%;
+	  width: 100%;
+	  scroll-snap-align: start;
+	  overflow-y: auto;
+	  min-width: 100%;
+	}
+	
+	.category-picker-page-inner {
+	  padding: 0 12px 110px 12px;
+	  box-sizing: border-box;
+	}
+	
+	/* Section + rows */
+	.category-picker-section-title {
+	  font-size: 1.05rem;
+	  font-weight: 700;
+	  margin: 12px 2px 8px 2px;
+	}
+	
+	.category-picker-group-title {
+	  font-size: 0.95rem;
+	  font-weight: 700;
+	  color: #111;
+	  margin: 14px 2px 6px 2px;
+	}
+	
+	.category-picker-row {
+	  width: 100%;
+	  border: none;
+	  border-top: 1px solid #e5e7eb;
+	  background: transparent;
+	  padding: 10px 4px;
+	  text-align: left;
+	  display: flex;
+	  align-items: flex-start;
+	  justify-content: space-between;
+	  gap: 10px;
+	}
+	
+	.category-picker-row:first-child {
+	  border-top: 1px solid #e5e7eb;
+	}
+	
+	.category-picker-row-main {
+	  min-width: 0;
+	  flex: 1;
+	}
+	
+	.category-picker-row-title {
+	  font-size: 1rem;
+	  line-height: 1.25;
+	  color: #111;
+	}
+	
+	.category-picker-row-subtitle {
+	  font-size: 0.82rem;
+	  color: #666;
+	  margin-top: 3px;
+	  line-height: 1.2;
+	}
+	
+	.category-picker-row-arrow {
+	  color: #9ca3af;
+	  font-size: 1.15rem;
+	  line-height: 1;
+	  padding-top: 2px;
+	}
+	
+	.category-picker-row.selected {
+	  background: #eff6ff;
+	}
+	
+	.category-picker-row.selected .category-picker-row-title {
+	  color: #0b6efd;
+	  font-weight: 700;
+	}
+	
+	.category-picker-row.unavailable {
+	  opacity: 0.55;
+	}
+	
+	.category-picker-badge-wrap {
+	  margin-bottom: 4px;
+	}
+	
+	.category-picker-empty {
+	  color: #666;
+	  font-size: 0.9rem;
+	  padding: 12px 2px;
+	}
+	
+	/* Sticky footer search */
+	.category-picker-footer {
+	  position: absolute;
+	  left: 0;
+	  right: 0;
+	  bottom: 0;
+	  border-top: 1px solid #e5e7eb;
+	  background: #fff;
+	  padding: 10px 12px calc(10px + env(safe-area-inset-bottom)) 12px;
+	  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+	}
+	
+	.category-picker-search-label {
+	  display: block;
+	  font-size: 0.82rem;
+	  color: #666;
+	  margin-top: 0;
+	  margin-bottom: 4px;
+	  font-weight: 500;
+	}
+	
+	.category-picker-search {
+	  width: 100%;
+	  box-sizing: border-box;
+	  font-size: 1rem;
+	  padding: 10px 12px;
+	  border: 1px solid #d1d5db;
+	  border-radius: 12px;
+	  background: #f9fafb;
+	  margin-top: 0;
+	}
+	
+	/* Mobile polish */
+	@media (max-width: 600px) {
+	  .category-picker-sheet {
+		inset: 16px 6px 6px 6px;
+		border-radius: 18px;
+	  }
+	
+	  .category-picker-page-inner {
+		padding-left: 10px;
+		padding-right: 10px;
+	  }
+	
+	  .category-picker-trigger {
+		padding: 10px 10px;
+	  }
+	}
   </style>
 </head>
 <body>
@@ -844,23 +1145,27 @@
     <h2>Card Recommendation</h2>
 
     <div style="margin-top: 12px;">
-	  <label for="purchaseSearch" style="display:block; margin-bottom: 1px;">
-		Purchase type (optional)
+	  <label for="categoryPickerTrigger" style="display:block; margin-bottom: 1px;">
+		Purchase Category
 	  </label>
-	  <div class="blackmuted" style="font-size: 0.95em; margin-bottom: 2px;">
-		Filters Purchase Category
-	  </div>
-	  <input
-		type="text"
-		id="purchaseSearch"
-		placeholder="e.g. Sunoco, takeout, coffee, Marriott"
-	  />
-    <label>
-      Purchase Category<br>
-      <!-- Options will be populated dynamically from BASE_CATEGORIES + merchant benefits -->
-      <select id="category" style="font-family: system-ui, emoji;"></select>
-    </label>
-    </div>
+	
+	  <button
+		type="button"
+		id="categoryPickerTrigger"
+		class="category-picker-trigger"
+		aria-haspopup="dialog"
+		aria-expanded="false"
+	  >
+		<span id="categoryPickerTriggerText">Select purchase category</span>
+		<span class="category-picker-trigger-chevron">›</span>
+	  </button>
+	
+	  <!-- Keep the real select in the DOM as the source of truth -->
+	  <label class="sr-only" aria-hidden="true">
+		Hidden Purchase Category
+		<select id="category" style="font-family: system-ui, emoji;"></select>
+	  </label>
+	</div>
 
 	<div class="np-row" style="margin-top: 12px;">
 	  <label class="np-field">
@@ -1060,13 +1365,69 @@
       </p>
     </div>
   </div>
+  
 	<div id="floatingSaveBar">
-	  <div class="float-inner">
-		<button id="floatingSaveCloseBtn" class="floating-save-close" type="button" aria-label="Dismiss save bar">×</button>
-		<button id="btnFloatingSave" type="button"></button>
+		  <div class="float-inner">
+			<button id="floatingSaveCloseBtn" class="floating-save-close" type="button" aria-label="Dismiss save bar">×</button>
+			<button id="btnFloatingSave" type="button"></button>
+		  </div>
+		</div>
+		<div id="categoryPickerOverlay" class="category-picker-overlay" aria-hidden="true">
+	  <div id="categoryPickerBackdrop" class="category-picker-backdrop"></div>
+	
+	  <div
+		id="categoryPickerSheet"
+		class="category-picker-sheet"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="categoryPickerTitle"
+	  >
+		<div class="category-picker-handle"></div>
+	
+		<div class="category-picker-header">
+		  <div>
+			<div id="categoryPickerTitle" class="category-picker-title">Choose purchase category</div>
+			<div class="category-picker-subtitle">Swipe between pages</div>
+		  </div>
+		  <button type="button" id="categoryPickerCloseBtn" class="category-picker-close" aria-label="Close picker">✕</button>
+		</div>
+	
+		<div class="category-picker-tabs" id="categoryPickerTabs">
+		  <button type="button" class="category-picker-tab active" data-page="0">All</button>
+		  <button type="button" class="category-picker-tab" data-page="1">Card benefits</button>
+		  <button type="button" class="category-picker-tab" data-page="2">Merchant offers</button>
+		</div>
+	
+		<div id="categoryPickerPager" class="category-picker-pager">
+		  <section class="category-picker-page" data-page="0">
+			<div id="categoryPickerAllPage" class="category-picker-page-inner"></div>
+		  </section>
+	
+		  <section class="category-picker-page" data-page="1">
+			<div id="categoryPickerCardPage" class="category-picker-page-inner"></div>
+		  </section>
+	
+		  <section class="category-picker-page" data-page="2">
+			<div id="categoryPickerMerchantPage" class="category-picker-page-inner"></div>
+		  </section>
+		</div>
+	
+		<div class="category-picker-footer">
+		  <label for="categoryPickerSearch" class="category-picker-search-label">
+			Search merchants or benefits
+		  </label>
+		  <input
+			type="text"
+			id="categoryPickerSearch"
+			class="category-picker-search"
+			placeholder="e.g. Sunoco, takeout, Marriott..."
+			autocomplete="off"
+		  />
+		</div>
 	  </div>
 	</div>
-<p class="blackmuted"><br>v5.4.6 - Category search fixes</p>
+	
+<p class="blackmuted"><br>v6</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2203,6 +2564,39 @@
 	  entertainment: ["telecharge", "ticketmaster", "stubhub", "viagogo"],
 	  eyewear: ["lenscrafters", "warby parker"],
 	  pharmacy: ["cvs", "walgreens", "rite aid", "duane reade"]
+	};
+	
+	const CATEGORY_GROUP_MAP = {
+	  dining: "Dining",
+	  resy: "Dining",
+	  csr_opentable: "Dining",
+	  ag_dining: "Dining",
+	  doordash: "Dining",
+	  uber_eats: "Dining",
+	  dunkin: "Dining",
+	
+	  groceries: "Groceries",
+	  doordash_groceries: "Groceries",
+	  instacart: "Groceries",
+	
+	  lyft: "Rideshare",
+	  rideshare_other: "Rideshare",
+	
+	  united_flight: "Travel",
+	  delta_flight_threshold: "Travel",
+	  other_flight: "Travel",
+	  marriott_hotel: "Travel",
+	  theedit_hotel: "Travel",
+	  renowned_hotel: "Travel",
+	  delta_stays: "Travel",
+	  other_hotel: "Travel",
+	  uq_rentalcar: "Travel",
+	
+	  stubhub: "Entertainment",
+	  streaming: "Entertainment",
+	
+	  peloton: "Other",
+	  other: "Other"
 	};
 	
 	let categorySelectionWasAuto = false;
@@ -4596,6 +4990,341 @@
 	  };
 	}
 
+	/* =========================
+	   Category picker helpers
+	   ========================= */
+	
+	let categoryPickerState = {
+	  open: false,
+	  page: 0,
+	  search: ""
+	};
+	
+	function getBaseCategoryMetaByValue(value) {
+	  return BASE_CATEGORIES.find(cat => cat.value === value) || null;
+	}
+	
+	function getMerchantBenefitByValue(value) {
+	  if (!value || !String(value).startsWith("mb:")) return null;
+	  const id = String(value).slice(3);
+	  const benefits = loadMerchantBenefits();
+	  return benefits.find(b => String(b.id) === id) || null;
+	}
+	
+	function getCategoryDisplayText(value) {
+	  const merchantBenefit = getMerchantBenefitByValue(value);
+	  if (merchantBenefit) {
+		return merchantBenefit.merchant || "Merchant offer";
+	  }
+	
+	  const baseCat = getBaseCategoryMetaByValue(value);
+	  if (baseCat) {
+		return baseCat.label;
+	  }
+	
+	  return "Select purchase category";
+	}
+	
+	function updateCategoryPickerTrigger() {
+	  const triggerText = document.getElementById("categoryPickerTriggerText");
+	  const categorySelect = document.getElementById("category");
+	  if (!triggerText || !categorySelect) return;
+	
+	  triggerText.textContent = getCategoryDisplayText(categorySelect.value);
+	}
+	
+	function getActiveMerchantBenefitsForPicker() {
+	  const benefits = loadMerchantBenefits();
+	  const txs = loadTransactions();
+	  const merchantState = computeMerchantState(txs, benefits);
+	  const today = parseISODateLocal(formatTodayISO());
+	
+	  const active = benefits.filter((b) => {
+		if (!b.endDate) return false;
+	
+		const { expired } = classifyBenefitEnd(b.endDate, today);
+		if (expired) return false;
+	
+		if (b.limitType === "total" && b.limitValue != null && !isNaN(b.limitValue)) {
+		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
+		  if (ms.used >= Number(b.limitValue)) return false;
+		}
+	
+		if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
+		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
+		  if (ms.txCount >= Number(b.maxTransactions)) return false;
+		}
+	
+		return true;
+	  });
+	
+	  active.sort((a, b) => {
+		const nameA = normalizeSearchText(a.merchant || "");
+		const nameB = normalizeSearchText(b.merchant || "");
+		return nameA.localeCompare(nameB);
+	  });
+	
+	  return active;
+	}
+	
+	function getAvailableCardBenefitsForSearch() {
+	  const txs = loadTransactions();
+	  const today = new Date();
+	  return CARD_BENEFITS.filter((benefit) =>
+		isCardBenefitAvailableToday(benefit, today, txs)
+	  );
+	}
+	
+	function getCardCategorySearchMatches(query) {
+	  const q = normalizeSearchText(query || "");
+	  if (!q) return null;
+	
+	  const availableBenefits = getAvailableCardBenefitsForSearch();
+	  const suggestions = findRelevantCardBenefitCategorySuggestions(q, availableBenefits);
+	
+	  const allowedValues = new Set();
+	  suggestions.forEach(item => allowedValues.add(item.value));
+	  return allowedValues;
+	}
+	
+	function getMerchantOfferSearchMatches(query) {
+	  const q = normalizeSearchText(query || "");
+	  if (!q) return null;
+	
+	  const activeBenefits = getActiveMerchantBenefitsForPicker();
+	  const suggestions = findRelevantMerchantOffers(q, activeBenefits);
+	
+	  const allowedIds = new Set();
+	  suggestions.forEach(({ benefit }) => allowedIds.add(String(benefit.id)));
+	  return allowedIds;
+	}
+	
+	function getGroupedCardCategoriesForPicker(query = "") {
+	  const selectedValue = document.getElementById("category")?.value || "";
+	  const allowedValues = getCardCategorySearchMatches(query);
+	  const groups = {};
+	
+	  BASE_CATEGORIES.forEach((cat) => {
+		if (allowedValues && !allowedValues.has(cat.value)) return;
+	
+		const groupName = CATEGORY_GROUP_MAP[cat.value] || "Other";
+		if (!groups[groupName]) groups[groupName] = [];
+	
+		groups[groupName].push({
+		  value: cat.value,
+		  label: cat.label,
+		  selected: selectedValue === cat.value
+		});
+	  });
+	
+	  const orderedGroupNames = ["Dining", "Groceries", "Travel", "Rideshare", "Entertainment", "Other"];
+	
+	  return orderedGroupNames
+		.filter(groupName => groups[groupName] && groups[groupName].length > 0)
+		.map(groupName => ({
+		  groupName,
+		  items: groups[groupName]
+		}));
+	}
+	
+	function getMerchantOffersForPicker(query = "") {
+	  const selectedValue = document.getElementById("category")?.value || "";
+	  const activeBenefits = getActiveMerchantBenefitsForPicker();
+	  const allowedIds = getMerchantOfferSearchMatches(query);
+	
+	  return activeBenefits
+		.filter((b) => {
+		  if (!allowedIds) return true;
+		  return allowedIds.has(String(b.id));
+		})
+		.map((b) => {
+		  const discountText =
+			b.discountType === "percent"
+			  ? `${b.discountValue}% off`
+			  : `$${Number(b.discountValue || 0).toFixed(2)} off`;
+	
+		  const expiryText = b.endDate ? formatBenefitEndDateDisplay(b.endDate, parseISODateLocal(formatTodayISO())) : "";
+		  const subtitleParts = [
+			b.card ? (CARDS[b.card]?.short || b.card) : "",
+			discountText,
+			expiryText
+		  ].filter(Boolean);
+	
+		  return {
+			id: String(b.id),
+			value: "mb:" + b.id,
+			title: b.merchant || "(unnamed merchant)",
+			subtitle: subtitleParts.join(" • "),
+			card: b.card || "",
+			selected: selectedValue === ("mb:" + b.id)
+		  };
+		});
+	}
+	
+	function renderCardBadgeForPicker(cardCode) {
+	  return cardCode ? renderCardBadge(cardCode) : "";
+	}
+	
+	function openCategoryPicker() {
+	  categoryPickerState.open = true;
+	  categoryPickerState.search = "";
+	  categoryPickerState.page = 0;
+	
+	  const overlay = document.getElementById("categoryPickerOverlay");
+	  const trigger = document.getElementById("categoryPickerTrigger");
+	  const search = document.getElementById("categoryPickerSearch");
+	
+	  if (overlay) {
+		overlay.classList.add("open");
+		overlay.setAttribute("aria-hidden", "false");
+	  }
+	  if (trigger) trigger.setAttribute("aria-expanded", "true");
+	  if (search) search.value = "";
+	
+	  renderCategoryPicker();
+	  syncCategoryPickerTabState();
+	  jumpCategoryPickerToPage(0, false);
+	
+	  setTimeout(() => {
+		const input = document.getElementById("categoryPickerSearch");
+		if (input) input.focus();
+	  }, 50);
+	}
+	
+	function closeCategoryPicker() {
+	  categoryPickerState.open = false;
+	
+	  const overlay = document.getElementById("categoryPickerOverlay");
+	  const trigger = document.getElementById("categoryPickerTrigger");
+	
+	  if (overlay) {
+		overlay.classList.remove("open");
+		overlay.setAttribute("aria-hidden", "true");
+	  }
+	  if (trigger) trigger.setAttribute("aria-expanded", "false");
+	}
+	
+	function jumpCategoryPickerToPage(pageIndex, smooth = true) {
+	  const pager = document.getElementById("categoryPickerPager");
+	  if (!pager) return;
+	
+	  categoryPickerState.page = pageIndex;
+	  syncCategoryPickerTabState();
+	
+	  const left = pager.clientWidth * pageIndex;
+	  pager.scrollTo({
+		left,
+		behavior: smooth ? "smooth" : "auto"
+	  });
+	}
+	
+	function syncCategoryPickerTabState() {
+	  const tabs = document.querySelectorAll(".category-picker-tab");
+	  tabs.forEach((tab) => {
+		const page = Number(tab.getAttribute("data-page"));
+		tab.classList.toggle("active", page === categoryPickerState.page);
+	  });
+	}
+	
+	function applyCategoryPickerSelection(value) {
+	  const select = document.getElementById("category");
+	  if (!select) return;
+	
+	  select.value = value;
+	  updateCategoryPickerTrigger();
+	  closeCategoryPicker();
+	
+	  // This keeps the rest of the app behavior unchanged
+	  select.dispatchEvent(new Event("change", { bubbles: true }));
+	}
+	
+	function renderCategoryPickerRow({ value, title, subtitle = "", card = "", selected = false }) {
+	  const selectedClass = selected ? " selected" : "";
+	  const badgeHtml = card ? `<div class="category-picker-badge-wrap">${renderCardBadgeForPicker(card)}</div>` : "";
+	
+	  return `
+		<button type="button" class="category-picker-row${selectedClass}" data-picker-value="${escapeHtml(value)}">
+		  <div class="category-picker-row-main">
+			${badgeHtml}
+			<div class="category-picker-row-title">${title}</div>
+			${subtitle ? `<div class="category-picker-row-subtitle">${subtitle}</div>` : ""}
+		  </div>
+		  <div class="category-picker-row-arrow">›</div>
+		</button>
+	  `;
+	}
+	
+	function renderCategoryPicker() {
+	  const allPage = document.getElementById("categoryPickerAllPage");
+	  const cardPage = document.getElementById("categoryPickerCardPage");
+	  const merchantPage = document.getElementById("categoryPickerMerchantPage");
+	  if (!allPage || !cardPage || !merchantPage) return;
+	
+	  const query = categoryPickerState.search || "";
+	  const groupedCards = getGroupedCardCategoriesForPicker(query);
+	  const merchantOffers = getMerchantOffersForPicker(query);
+	
+	  // Card page
+	  if (!groupedCards.length) {
+		cardPage.innerHTML = `<div class="category-picker-empty">No card-benefit matches.</div>`;
+	  } else {
+		cardPage.innerHTML = groupedCards.map(group => `
+		  <div class="category-picker-group">
+			<div class="category-picker-group-title">${escapeHtml(group.groupName)}</div>
+			${group.items.map(item => renderCategoryPickerRow({
+			  value: item.value,
+			  title: escapeHtml(item.label),
+			  selected: item.selected
+			})).join("")}
+		  </div>
+		`).join("");
+	  }
+	
+	  // Merchant page
+	  if (!merchantOffers.length) {
+		merchantPage.innerHTML = `<div class="category-picker-empty">No merchant-offer matches.</div>`;
+	  } else {
+		merchantPage.innerHTML = merchantOffers.map(item => renderCategoryPickerRow({
+		  value: item.value,
+		  title: escapeHtml(item.title),
+		  subtitle: escapeHtml(item.subtitle),
+		  card: item.card,
+		  selected: item.selected
+		})).join("");
+	  }
+	
+	  // All page
+	  const allCardsHtml = groupedCards.length
+		? groupedCards.map(group => `
+			<div class="category-picker-group">
+			  <div class="category-picker-group-title">${escapeHtml(group.groupName)}</div>
+			  ${group.items.map(item => renderCategoryPickerRow({
+				value: item.value,
+				title: escapeHtml(item.label),
+				selected: item.selected
+			  })).join("")}
+			</div>
+		  `).join("")
+		: `<div class="category-picker-empty">No card-benefit matches.</div>`;
+	
+	  const allMerchantHtml = merchantOffers.length
+		? merchantOffers.map(item => renderCategoryPickerRow({
+			value: item.value,
+			title: escapeHtml(item.title),
+			subtitle: escapeHtml(item.subtitle),
+			card: item.card,
+			selected: item.selected
+		  })).join("")
+		: `<div class="category-picker-empty">No merchant-offer matches.</div>`;
+	
+	  allPage.innerHTML = `
+		<div class="category-picker-section-title">💳 Card benefits</div>
+		${allCardsHtml}
+		<div class="category-picker-section-title">🏪 Merchant offers</div>
+		${allMerchantHtml}
+	  `;
+	}
+
     // ---------- New Purchase Category select population ----------
     function populateCategorySelectBase() {
       const select = document.getElementById("category");
@@ -4745,87 +5474,38 @@
 	  return suggestions;
 	}
 	
-	// 5.1 wrapper function to enable shortening of category select based on search inputs
+	// 6.0 wrapper function for new picker
 	function populateCategorySelect() {
 	  populateCategorySelectBase();
+	  updateCategoryPickerTrigger();
 	
-	  const select = document.getElementById("category");
-	  const searchInput = document.getElementById("purchaseSearch");
-	  if (!select || !searchInput) return;
-	
-	  const query = normalizeSearchText(searchInput.value || "");
-	
-	  const setDiningDefault = () => {
-		const hasDining = !!select.querySelector('option[value="dining"]');
-		if (hasDining) {
-		  select.value = "dining";
-		}
-	  };
-	
-	  // No search text at all -> Dining
-	  if (!query) {
-		setDiningDefault();
-		return;
-	  }
-	
-	  const suggestions = getSuggestedCategoryOptions(query);
-	
-	  const suggested = document.createElement("optgroup");
-	  suggested.label = "🔎 Suggested";
-	
-	  const seenValues = new Set();
-	  const orderedValues = [];
-	
-	  suggestions.slice(0, 8).forEach((item) => {
-		if (seenValues.has(item.value)) return;
-		seenValues.add(item.value);
-		orderedValues.push(item.value);
-	
-		const opt = document.createElement("option");
-		opt.value = item.value;
-		opt.textContent = item.label;
-		suggested.appendChild(opt);
-	  });
-	
-	  // Search text but no actual matches -> still Dining
-	  if (orderedValues.length === 0) {
-		setDiningDefault();
-		return;
-	  }
-	
-	  select.insertBefore(suggested, select.firstChild);
-	
-	  const userLockedCategorySelection = select.dataset.userLockedSelection === "1";
-	  if (
-		!userLockedCategorySelection ||
-		!select.querySelector(`option[value="${CSS.escape(select.value)}"]`)
-	  ) {
-		select.value = orderedValues[0];
+	  if (categoryPickerState.open) {
+		renderCategoryPicker();
 	  }
 	}
     
-        // ---------- Merchant Benefit Category select population ----------
-		function populateMerchantBenefitCategorySelect() {
-		  const select = document.getElementById("benefitCategorySelect");
-		  if (!select) return;
-		
-		  // Clear any existing options
-		  select.innerHTML = "";
-		
-		  // Add default placeholder
-		  const defaultOption = document.createElement("option");
-		  defaultOption.value = "";
-		  defaultOption.textContent = "-- Select category --";
-		  select.appendChild(defaultOption);
-		
-		  // Use the same BASE_CATEGORIES array (with emojis if you’ve added them)
-		  BASE_CATEGORIES.forEach(cat => {
-			const option = document.createElement("option");
-			option.value = cat.value;
-			option.textContent = cat.label; // or `${cat.emoji || ""} ${cat.label}` if you separated emojis
-			select.appendChild(option);
-		  });
-		}
+	// ---------- Merchant Benefit Category select population ----------
+	function populateMerchantBenefitCategorySelect() {
+	  const select = document.getElementById("benefitCategorySelect");
+	  if (!select) return;
+	
+	  // Clear any existing options
+	  select.innerHTML = "";
+	
+	  // Add default placeholder
+	  const defaultOption = document.createElement("option");
+	  defaultOption.value = "";
+	  defaultOption.textContent = "-- Select category --";
+	  select.appendChild(defaultOption);
+	
+	  // Use the same BASE_CATEGORIES array (with emojis if you’ve added them)
+	  BASE_CATEGORIES.forEach(cat => {
+		const option = document.createElement("option");
+		option.value = cat.value;
+		option.textContent = cat.label; // or `${cat.emoji || ""} ${cat.label}` if you separated emojis
+		select.appendChild(option);
+	  });
+	}
 
     // ---------- Merchant benefits UI ----------
     function renderMerchantBenefits() {
@@ -5325,7 +6005,6 @@
 		document.getElementById("reasonBox").textContent = "";
 	
 		document.getElementById("amount").value = "";
-		document.getElementById("purchaseSearch").value = "";
 		document.getElementById("date").value = formatTodayISO();
 		setDefaultPurchaseCategory();
 	
@@ -5343,12 +6022,13 @@
     // Reset New Purchase section
     document.getElementById("btnReset").addEventListener("click", () => {
       document.getElementById("amount").value = "";
-      document.getElementById("purchaseSearch").value = "";
 
       initFormDefaults();
       populateCategorySelect();
       
       setDefaultPurchaseCategory();
+      updateCategoryPickerTrigger();
+	  closeCategoryPicker();
 
       hideFloatingSaveBar();
       document.getElementById("recommendationSection").style.display = "none";
@@ -5663,6 +6343,68 @@
 	  hideFloatingSaveBar();
 	});
 
+	/* =========================
+	   Category picker event wiring
+	   ========================= */
+	
+	document.getElementById("categoryPickerTrigger")?.addEventListener("click", () => {
+	  openCategoryPicker();
+	});
+	
+	document.getElementById("categoryPickerCloseBtn")?.addEventListener("click", () => {
+	  closeCategoryPicker();
+	});
+	
+	document.getElementById("categoryPickerBackdrop")?.addEventListener("click", () => {
+	  closeCategoryPicker();
+	});
+	
+	document.getElementById("categoryPickerSearch")?.addEventListener("input", (e) => {
+	  categoryPickerState.search = e.target.value || "";
+	  renderCategoryPicker();
+	
+	  if (lastRecommendation) {
+		invalidateRecommendationIfFormChanged();
+	  }
+	});
+	
+	document.getElementById("categoryPickerTabs")?.addEventListener("click", (e) => {
+	  const btn = e.target.closest(".category-picker-tab");
+	  if (!btn) return;
+	  const page = Number(btn.getAttribute("data-page"));
+	  jumpCategoryPickerToPage(page, true);
+	});
+	
+	document.getElementById("categoryPickerPager")?.addEventListener("scroll", (e) => {
+	  const pager = e.currentTarget;
+	  const pageWidth = pager.clientWidth || 1;
+	  const page = Math.round(pager.scrollLeft / pageWidth);
+	  if (page !== categoryPickerState.page) {
+		categoryPickerState.page = page;
+		syncCategoryPickerTabState();
+	  }
+	});
+	
+	document.getElementById("categoryPickerOverlay")?.addEventListener("click", (e) => {
+	  const row = e.target.closest("[data-picker-value]");
+	  if (!row) return;
+	
+	  const value = row.getAttribute("data-picker-value");
+	  if (!value) return;
+	
+	  applyCategoryPickerSelection(value);
+	});
+
+	document.getElementById("category")?.addEventListener("change", () => {
+	  updateCategoryPickerTrigger();
+	});
+	
+	document.addEventListener("keydown", (e) => {
+	  if (e.key === "Escape" && categoryPickerState.open) {
+		closeCategoryPicker();
+	  }
+	});
+
     // Init on load
     initFormDefaults();               // sets date to today
     renderActiveCardsSummary();
@@ -5673,26 +6415,6 @@
 	document.getElementById("benefitMerchant")
 	  ?.addEventListener("input", renderBenefitSuggestedTags);
 
-	document.getElementById("purchaseSearch")?.addEventListener("input", () => {
-	  const select = document.getElementById("category");
-	  if (select) {
-		select.dataset.userLockedSelection = "";
-	  }
-	  categorySelectionWasAuto = true;
-	  if (lastRecommendation) {
-		invalidateRecommendationIfFormChanged();
-	  }
-	  populateCategorySelect();
-	});
-	
-	document.getElementById("category")?.addEventListener("change", () => {
-	  const searchVal = document.getElementById("purchaseSearch")?.value || "";
-	  if (searchVal.trim()) {
-		document.getElementById("category").dataset.userLockedSelection = "1";
-	  }
-	  categorySelectionWasAuto = false;
-	});    
-	  
     // Default category to Dining / Restaurants on first load
     const categorySelect = document.getElementById("category");
     if (categorySelect && categorySelect.querySelector('option[value="dining"]')) {
@@ -5700,6 +6422,8 @@
     } else if (categorySelect && categorySelect.options.length > 0) {
       categorySelect.value = categorySelect.options[0].value;
     }
+    
+    updateCategoryPickerTrigger();
 
     // Populate card dropdowns from CARDS registry
     populateCardSelect(
