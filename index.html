@@ -875,7 +875,7 @@
 	  box-sizing: border-box;
 	}
 	
-	.category-picker-trigger-text {
+	.category-picker-trigger-text.is-selected {
 	  font-weight: 700;
 	}
 	
@@ -5100,7 +5100,9 @@
 	  const categorySelect = document.getElementById("category");
 	  if (!triggerText || !categorySelect) return;
 	
-	  triggerText.textContent = getCategoryDisplayText(categorySelect.value);
+	  const text = getCategoryDisplayText(categorySelect.value);
+	  triggerText.textContent = text;
+	  triggerText.classList.toggle("is-selected", !!categorySelect.value);
 	}
 	
 	function getActiveMerchantBenefitsForPicker() {
