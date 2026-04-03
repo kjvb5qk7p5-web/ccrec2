@@ -1085,6 +1085,17 @@
 	  padding: 12px 2px;
 	}
 	
+	.merchant-offer-row {
+	  padding-top: 8px;
+	  padding-bottom: 6px;
+	}
+	
+	.merchant-offer-row .category-picker-row-subtitle {
+	  margin-top: 1px;
+	  line-height: 1.05;
+	  font-size: 0.8rem;
+	}
+	
 	/* Sticky footer search */
 	.category-picker-footer {
 	  position: absolute;
@@ -1459,7 +1470,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.0.3 - New category picker</p>
+<p class="blackmuted"><br>v6.0.4 - New category picker</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5320,12 +5331,12 @@
 	  select.dispatchEvent(new Event("change", { bubbles: true }));
 	}
 	
-	function renderCategoryPickerRow({ value, title, subtitle = "", card = "", selected = false }) {
+	function renderCategoryPickerRow({ value, title, subtitle = "", card = "", selected = false, rowClass = "" }) {
 	  const selectedClass = selected ? " selected" : "";
 	  const badgeHtml = card ? `<div class="category-picker-badge-wrap">${renderCardBadgeForPicker(card)}</div>` : "";
 	
 	  return `
-		<button type="button" class="category-picker-row${selectedClass}" data-picker-value="${escapeHtml(value)}">
+		<button type="button" class="category-picker-row${rowClass ? ` ${rowClass}` : ""}${selectedClass}" data-picker-value="${escapeHtml(value)}">
 		  <div class="category-picker-row-main">
 			${badgeHtml}
 			<div class="category-picker-row-title">${title}</div>
@@ -5369,7 +5380,8 @@
 		  value: item.value,
 		  title: escapeHtml(item.title),
 		  subtitle: escapeHtml(item.subtitle),
-		  selected: item.selected
+		  selected: item.selected,
+		  rowClass: "merchant-offer-row"
 		})).join("");
 	  }
 	
@@ -6450,6 +6462,16 @@
 	  }
 	});
 
+	document.getElementById("categoryPickerSearch")?.addEventListener("input", (e) => {
+	  categoryPickerState.search = e.target.value || "";
+	  renderCategoryPicker();
+	  updateCategoryPickerSearchClearVisibility();
+	
+	  if (lastRecommendation) {
+		invalidateRecommendationIfFormChanged();
+	  }
+	});
+	
 	document.getElementById("categoryPickerSearchClearBtn")?.addEventListener("click", () => {
 	  const input = document.getElementById("categoryPickerSearch");
 	  if (!input) return;
