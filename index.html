@@ -1412,30 +1412,26 @@
 		<div class="category-picker-header">
 		  <div>
 			<div id="categoryPickerTitle" class="category-picker-title">Choose purchase category</div>
-			<div class="category-picker-subtitle">Swipe between pages</div>
+			<div class="category-picker-subtitle">Choose by card or merchant benefit</div>
 		  </div>
 		  <button type="button" id="categoryPickerCloseBtn" class="category-picker-close" aria-label="Close picker">✕</button>
 		</div>
 	
 		<div class="category-picker-tabs" id="categoryPickerTabs">
-		  <button type="button" class="category-picker-tab active" data-page="0">All</button>
-		  <button type="button" class="category-picker-tab" data-page="1">Card benefits</button>
-		  <button type="button" class="category-picker-tab" data-page="2">Merchant offers</button>
+		  <button type="button" class="category-picker-tab active" data-page="0">Card benefits</button>
+		  <button type="button" class="category-picker-tab" data-page="1">Merchant offers</button>
 		</div>
 	
 		<div id="categoryPickerPager" class="category-picker-pager">
 		  <section class="category-picker-page" data-page="0">
-			<div id="categoryPickerAllPage" class="category-picker-page-inner"></div>
-		  </section>
-	
-		  <section class="category-picker-page" data-page="1">
 			<div id="categoryPickerCardPage" class="category-picker-page-inner"></div>
 		  </section>
-	
-		  <section class="category-picker-page" data-page="2">
+		
+		  <section class="category-picker-page" data-page="1">
 			<div id="categoryPickerMerchantPage" class="category-picker-page-inner"></div>
 		  </section>
 		</div>
+
 		<div class="category-picker-footer">
 		  <label for="categoryPickerSearch" class="category-picker-search-label">
 			Search merchants or benefits
@@ -1463,7 +1459,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.0.1 - New category picker</p>
+<p class="blackmuted"><br>v6.0.2 - New category picker</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5062,9 +5058,8 @@
 	}
 	
 	function getCategoryPickerPageForValue(value) {
-	  if (!value) return 0;
-	  if (String(value).startsWith("mb:")) return 2;
-	  return 1;
+	  if (value && String(value).startsWith("mb:")) return 1;
+	  return 0;
 	}
 	
 	function updateCategoryPickerTrigger() {
@@ -5333,10 +5328,9 @@
 	}
 	
 	function renderCategoryPicker() {
-	  const allPage = document.getElementById("categoryPickerAllPage");
 	  const cardPage = document.getElementById("categoryPickerCardPage");
 	  const merchantPage = document.getElementById("categoryPickerMerchantPage");
-	  if (!allPage || !cardPage || !merchantPage) return;
+	  if (!cardPage || !merchantPage) return;
 	
 	  const query = categoryPickerState.search || "";
 	  const groupedCards = getGroupedCardCategoriesForPicker(query);
@@ -5371,34 +5365,34 @@
 	  }
 	
 	  // All page
-	  const allCardsHtml = groupedCards.length
-		? groupedCards.map(group => `
-			<div class="category-picker-group">
-			  <div class="category-picker-group-title">${escapeHtml(group.groupName)}</div>
-			  ${group.items.map(item => renderCategoryPickerRow({
-				value: item.value,
-				title: escapeHtml(item.label),
-				selected: item.selected
-			  })).join("")}
-			</div>
-		  `).join("")
-		: `<div class="category-picker-empty">No card-benefit matches.</div>`;
+	  // const allCardsHtml = groupedCards.length
+		// ? groupedCards.map(group => `
+			// <div class="category-picker-group">
+			  // <div class="category-picker-group-title">${escapeHtml(group.groupName)}</div>
+			  // ${group.items.map(item => renderCategoryPickerRow({
+				// value: item.value,
+				// title: escapeHtml(item.label),
+				// selected: item.selected
+			  // })).join("")}
+			// </div>
+		  // `).join("")
+		// : `<div class="category-picker-empty">No card-benefit matches.</div>`;
 	
-	  const allMerchantHtml = merchantOffers.length
-		? merchantOffers.map(item => renderCategoryPickerRow({
-			value: item.value,
-			title: escapeHtml(item.title),
-			subtitle: escapeHtml(item.subtitle),
-			selected: item.selected
-		  })).join("")
-		: `<div class="category-picker-empty">No merchant-offer matches.</div>`;
+	  // const allMerchantHtml = merchantOffers.length
+		// ? merchantOffers.map(item => renderCategoryPickerRow({
+			// value: item.value,
+			// title: escapeHtml(item.title),
+			// subtitle: escapeHtml(item.subtitle),
+			// selected: item.selected
+		  // })).join("")
+		// : `<div class="category-picker-empty">No merchant-offer matches.</div>`;
 	
-	  allPage.innerHTML = `
-		<div class="category-picker-section-title">💳 Card benefits</div>
-		${allCardsHtml}
-		<div class="category-picker-section-title">🏪 Merchant offers</div>
-		${allMerchantHtml}
-	  `;
+	  // allPage.innerHTML = `
+		// <div class="category-picker-section-title">💳 Card benefits</div>
+		// ${allCardsHtml}
+		// <div class="category-picker-section-title">🏪 Merchant offers</div>
+		// ${allMerchantHtml}
+	  //`;
 	}
 
     // ---------- New Purchase Category select population ----------
