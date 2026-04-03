@@ -1487,7 +1487,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.0.6 - New category picker</p>
+<p class="blackmuted"><br>v6.0.8 - New category picker</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5887,6 +5887,11 @@
       const date = document.getElementById("date").value;
       const categoryValue = document.getElementById("category").value;
     
+      if (!categoryValue) {
+		alert("Please select a purchase category.");
+		return;
+	  }
+
       if (!amount || !date) {
         alert("Please enter amount and date.");
         return;
@@ -6469,10 +6474,6 @@
 	  categoryPickerState.search = e.target.value || "";
 	  renderCategoryPicker();
 	  updateCategoryPickerSearchClearVisibility();
-	
-	  if (lastRecommendation) {
-		invalidateRecommendationIfFormChanged();
-	  }
 	});
 
 	document.getElementById("categoryPickerSearchClearBtn")?.addEventListener("click", () => {
@@ -6484,10 +6485,6 @@
 	  renderCategoryPicker();
 	  updateCategoryPickerSearchClearVisibility();
 	  input.blur();
-	
-	  if (lastRecommendation) {
-		invalidateRecommendationIfFormChanged();
-	  }
 	});
 	
 	document.getElementById("categoryPickerTabs")?.addEventListener("click", (e) => {
