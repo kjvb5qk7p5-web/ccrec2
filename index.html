@@ -1470,7 +1470,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.0.4 - New category picker</p>
+<p class="blackmuted"><br>v6.0.5 - New category picker</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5119,24 +5119,9 @@
 	  const q = normalizeSearchText(query || "");
 	  if (!q) return null;
 	
-	  const expandedTerms = expandSearchQuery(q);
-	  const allowedValues = new Set();
-	
-	  // 1) Direct match against the visible base-category rows themselves
-	  BASE_CATEGORIES.forEach((cat) => {
-		const blob = normalizeSearchText([
-		  cat.value,
-		  cat.label
-		].join(" "));
-	
-		const score = scoreBlobAgainstQuery(blob, expandedTerms);
-		if (score > 0) {
-		  allowedValues.add(cat.value);
-		}
-	  });
-	
-	  // 2) Semantic match through CARD_BENEFITS metadata
 	  const categorySuggestions = findRelevantCardBenefitCategorySuggestions(q, CARD_BENEFITS);
+	
+	  const allowedValues = new Set();
 	  categorySuggestions.forEach((item) => {
 		allowedValues.add(item.value);
 	  });
@@ -6462,16 +6447,6 @@
 	  }
 	});
 
-	document.getElementById("categoryPickerSearch")?.addEventListener("input", (e) => {
-	  categoryPickerState.search = e.target.value || "";
-	  renderCategoryPicker();
-	  updateCategoryPickerSearchClearVisibility();
-	
-	  if (lastRecommendation) {
-		invalidateRecommendationIfFormChanged();
-	  }
-	});
-	
 	document.getElementById("categoryPickerSearchClearBtn")?.addEventListener("click", () => {
 	  const input = document.getElementById("categoryPickerSearch");
 	  if (!input) return;
