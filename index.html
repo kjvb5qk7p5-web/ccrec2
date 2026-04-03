@@ -1107,7 +1107,8 @@
 	}
 	
 	.category-picker-search {
-	  width: 100%;
+	  flex: 1;
+	  width: auto;
 	  box-sizing: border-box;
 	  font-size: 1rem;
 	  padding: 10px 12px;
@@ -1115,6 +1116,30 @@
 	  border-radius: 12px;
 	  background: #f9fafb;
 	  margin-top: 0;
+	}
+	
+	.category-picker-search-row {
+	  display: flex;
+	  align-items: center;
+	  gap: 8px;
+	}
+	
+	.category-picker-search-clear {
+	  flex: 0 0 auto;
+	  margin-top: 0;
+	  padding: 0;
+	  width: 38px;
+	  height: 38px;
+	  border: 1px solid #d1d5db;
+	  border-radius: 12px;
+	  background: #f9fafb;
+	  font-size: 1.1rem;
+	  line-height: 1;
+	  color: #666;
+	}
+	
+	.category-picker-search-clear.hidden {
+	  visibility: hidden;
 	}
 	
 	/* Mobile polish */
@@ -1411,23 +1436,34 @@
 			<div id="categoryPickerMerchantPage" class="category-picker-page-inner"></div>
 		  </section>
 		</div>
-	
 		<div class="category-picker-footer">
 		  <label for="categoryPickerSearch" class="category-picker-search-label">
 			Search merchants or benefits
 		  </label>
-		  <input
-			type="text"
-			id="categoryPickerSearch"
-			class="category-picker-search"
-			placeholder="e.g. Sunoco, takeout, Marriott..."
-			autocomplete="off"
-		  />
+		
+		  <div class="category-picker-search-row">
+			<input
+			  type="text"
+			  id="categoryPickerSearch"
+			  class="category-picker-search"
+			  placeholder="e.g. Sunoco, takeout, Marriott..."
+			  autocomplete="off"
+			/>
+			<button
+			  type="button"
+			  id="categoryPickerSearchClearBtn"
+			  class="category-picker-search-clear"
+			  aria-label="Clear search"
+			  title="Clear search"
+			>
+			  ×
+			</button>
+		  </div>
 		</div>
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6</p>
+<p class="blackmuted"><br>v6.0</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5025,6 +5061,12 @@
 	  return "Select purchase category";
 	}
 	
+	function getCategoryPickerPageForValue(value) {
+	  if (!value) return 0;
+	  if (String(value).startsWith("mb:")) return 2;
+	  return 1;
+	}
+	
 	function updateCategoryPickerTrigger() {
 	  const triggerText = document.getElementById("categoryPickerTriggerText");
 	  const categorySelect = document.getElementById("category");
@@ -5168,11 +5210,14 @@
 	function openCategoryPicker() {
 	  categoryPickerState.open = true;
 	  categoryPickerState.search = "";
-	  categoryPickerState.page = 0;
 	
 	  const overlay = document.getElementById("categoryPickerOverlay");
 	  const trigger = document.getElementById("categoryPickerTrigger");
 	  const search = document.getElementById("categoryPickerSearch");
+	  const selectedValue = document.getElementById("category")?.value || "";
+	
+	  const targetPage = getCategoryPickerPageForValue(selectedValue);
+	  categoryPickerState.page = targetPage;
 	
 	  if (overlay) {
 		overlay.classList.add("open");
@@ -5183,12 +5228,16 @@
 	
 	  renderCategoryPicker();
 	  syncCategoryPickerTabState();
-	  jumpCategoryPickerToPage(0, false);
+	  updateCategoryPickerSearchClearVisibility();
+	  jumpCategoryPickerToPage(targetPage, false);
 	
-	  setTimeout(() => {
-		const input = document.getElementById("categoryPickerSearch");
-		if (input) input.focus();
-	  }, 50);
+	  requestAnimationFrame(() => {
+		requestAnimationFrame(() => {
+		  scrollSelectedCategoryPickerRowIntoView();
+		  const input = document.getElementById("categoryPickerSearch");
+		  if (input) input.focus();
+		});
+	  });
 	}
 	
 	function closeCategoryPicker() {
@@ -5218,12 +5267,41 @@
 	  });
 	}
 	
+	function scrollSelectedCategoryPickerRowIntoView() {
+	  const selectedValue = document.getElementById("category")?.value || "";
+	  if (!selectedValue) return;
+	
+	  const pager = document.getElementById("categoryPickerPager");
+	  if (!pager) return;
+	
+	  const activePage = pager.querySelector(`.category-picker-page[data-page="${categoryPickerState.page}"]`);
+	  if (!activePage) return;
+	
+	  const selector = `[data-picker-value="${CSS.escape(selectedValue)}"]`;
+	  const row = activePage.querySelector(selector);
+	  if (!row) return;
+	
+	  row.scrollIntoView({
+		block: "center",
+		behavior: "auto"
+	  });
+	}
+	
 	function syncCategoryPickerTabState() {
 	  const tabs = document.querySelectorAll(".category-picker-tab");
 	  tabs.forEach((tab) => {
 		const page = Number(tab.getAttribute("data-page"));
 		tab.classList.toggle("active", page === categoryPickerState.page);
 	  });
+	}
+	
+	function updateCategoryPickerSearchClearVisibility() {
+	  const input = document.getElementById("categoryPickerSearch");
+	  const btn = document.getElementById("categoryPickerSearchClearBtn");
+	  if (!input || !btn) return;
+	
+	  const hasText = !!String(input.value || "").trim();
+	  btn.classList.toggle("hidden", !hasText);
 	}
 	
 	function applyCategoryPickerSelection(value) {
@@ -5233,6 +5311,7 @@
 	  select.value = value;
 	  updateCategoryPickerTrigger();
 	  closeCategoryPicker();
+	  categoryPickerState.search = "";
 	
 	  // This keeps the rest of the app behavior unchanged
 	  select.dispatchEvent(new Event("change", { bubbles: true }));
@@ -5287,8 +5366,6 @@
 		merchantPage.innerHTML = merchantOffers.map(item => renderCategoryPickerRow({
 		  value: item.value,
 		  title: escapeHtml(item.title),
-		  subtitle: escapeHtml(item.subtitle),
-		  card: item.card,
 		  selected: item.selected
 		})).join("");
 	  }
@@ -5311,8 +5388,6 @@
 		? merchantOffers.map(item => renderCategoryPickerRow({
 			value: item.value,
 			title: escapeHtml(item.title),
-			subtitle: escapeHtml(item.subtitle),
-			card: item.card,
 			selected: item.selected
 		  })).join("")
 		: `<div class="category-picker-empty">No merchant-offer matches.</div>`;
@@ -6362,6 +6437,22 @@
 	document.getElementById("categoryPickerSearch")?.addEventListener("input", (e) => {
 	  categoryPickerState.search = e.target.value || "";
 	  renderCategoryPicker();
+	  updateCategoryPickerSearchClearVisibility();
+	
+	  if (lastRecommendation) {
+		invalidateRecommendationIfFormChanged();
+	  }
+	});
+
+	document.getElementById("categoryPickerSearchClearBtn")?.addEventListener("click", () => {
+	  const input = document.getElementById("categoryPickerSearch");
+	  if (!input) return;
+	
+	  input.value = "";
+	  categoryPickerState.search = "";
+	  renderCategoryPicker();
+	  updateCategoryPickerSearchClearVisibility();
+	  input.focus();
 	
 	  if (lastRecommendation) {
 		invalidateRecommendationIfFormChanged();
