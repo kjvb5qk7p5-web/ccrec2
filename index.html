@@ -1049,10 +1049,10 @@
 	}
 	
 	.category-picker-row-subtitle {
-	  font-size: 0.82rem;
+	  font-size: 0.8rem;
 	  color: #666;
-	  margin-top: 3px;
-	  line-height: 1.2;
+	  margin-top: 1px;
+	  line-height: 1.1;
 	}
 	
 	.category-picker-row-arrow {
@@ -1459,7 +1459,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.0.2 - New category picker</p>
+<p class="blackmuted"><br>v6.0.3 - New category picker</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5104,23 +5104,32 @@
 	  return active;
 	}
 	
-	function getAvailableCardBenefitsForSearch() {
-	  const txs = loadTransactions();
-	  const today = new Date();
-	  return CARD_BENEFITS.filter((benefit) =>
-		isCardBenefitAvailableToday(benefit, today, txs)
-	  );
-	}
-	
 	function getCardCategorySearchMatches(query) {
 	  const q = normalizeSearchText(query || "");
 	  if (!q) return null;
 	
-	  const availableBenefits = getAvailableCardBenefitsForSearch();
-	  const suggestions = findRelevantCardBenefitCategorySuggestions(q, availableBenefits);
-	
+	  const expandedTerms = expandSearchQuery(q);
 	  const allowedValues = new Set();
-	  suggestions.forEach(item => allowedValues.add(item.value));
+	
+	  // 1) Direct match against the visible base-category rows themselves
+	  BASE_CATEGORIES.forEach((cat) => {
+		const blob = normalizeSearchText([
+		  cat.value,
+		  cat.label
+		].join(" "));
+	
+		const score = scoreBlobAgainstQuery(blob, expandedTerms);
+		if (score > 0) {
+		  allowedValues.add(cat.value);
+		}
+	  });
+	
+	  // 2) Semantic match through CARD_BENEFITS metadata
+	  const categorySuggestions = findRelevantCardBenefitCategorySuggestions(q, CARD_BENEFITS);
+	  categorySuggestions.forEach((item) => {
+		allowedValues.add(item.value);
+	  });
+	
 	  return allowedValues;
 	}
 	
