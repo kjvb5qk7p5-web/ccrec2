@@ -1530,7 +1530,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.4 - Refine sorting</p>
+<p class="blackmuted"><br>v6.4.1 - Refine sorting and category labels</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4653,6 +4653,39 @@
 	
 	  return output;
 	}
+	
+	// 6.4 helper for category labels
+	function getDisplayCategoryForMerchantBenefit(benefit) {
+	  const merchant = normalizeSearchText(benefit.merchant || "");
+	
+	  // 1) Try CATEGORY_MERCHANTS first (strongest signal)
+	  if (typeof CATEGORY_MERCHANTS !== "undefined") {
+		for (const [category, merchants] of Object.entries(CATEGORY_MERCHANTS)) {
+		  if (merchants.some(m => normalizeSearchText(m) === merchant)) {
+			return category;
+		  }
+		}
+	  }
+	
+	  // 2) Try MERCHANT_HINTS
+	  if (typeof MERCHANT_HINTS !== "undefined") {
+		const hints = MERCHANT_HINTS[merchant];
+		if (Array.isArray(hints) && hints.length > 0) {
+		  return hints[0]; // first = primary category
+		}
+	  }
+	
+	  // 3) Fallback: normalize existing category
+	  const raw = benefit.category || "";
+	  const normalized = normalizeSearchText(raw);
+	
+	  // collapse known bad variants
+	  if (normalized.includes("flight")) return "travel";
+	  if (normalized.includes("hotel")) return "hotel";
+	  if (normalized.includes("rental")) return "rental_car";
+	
+	  return normalized || "other";
+	}
 
     // ---------- State summaries ----------
     function renderStateSummary() {
@@ -4848,7 +4881,7 @@
 		merchantRows.push({
 		  label: benefit.merchant || "",
 		  card: benefit.card || "",
-		  category: benefit.category || "other",
+		  category: getDisplayCategoryForMerchantBenefit(benefit),
 		  time: timeText,
 		  usage: usageText,
 		  fullyUsed,
