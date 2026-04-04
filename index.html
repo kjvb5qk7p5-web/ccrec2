@@ -207,6 +207,13 @@
       text-decoration: underline;  /* or remove if you want truly stealth links */
     }
   
+    /* Make active sort obvious */
+    .sort-btn-active {
+	  background: #0b6efd;
+	  color: white;
+	  border-color: #0b6efd;
+	}
+    
     /* TABLE STYLING – base */
     table {
       border-collapse: collapse;
@@ -1268,13 +1275,25 @@
 
   <!-- Current month / year credit usage summary -->
   <div class="card">
-    <h2>Credit Card Benefits</h2>
-    <div id="cardBenefitsSummary" class="muted"></div>
+  <h2>Credit Card Benefits</h2>
+
+  <div style="margin: 6px 0 10px 0;">
+    <button type="button" id="btnSortCardBenefitsByCard">Sort: Card</button>
+    <button type="button" id="btnSortCardBenefitsByCategory" style="margin-left:6px;">Sort: Category</button>
+  </div>
+
+  <div id="cardBenefitsSummary" class="muted"></div>
   </div>
 
   <div class="card">
-    <h2>Merchant Offers</h2>
-    <div id="merchantOffersSummary" class="muted"></div>
+  <h2>Merchant Offers</h2>
+
+  <div style="margin: 6px 0 10px 0;">
+    <button type="button" id="btnSortMerchantOffersAlpha">Sort: A–Z</button>
+    <button type="button" id="btnSortMerchantOffersByCategory" style="margin-left:6px;">Sort: Category</button>
+  </div>
+
+  <div id="merchantOffersSummary" class="muted"></div>
   </div>
 
   <div class="card">
@@ -1497,7 +1516,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.2.2 - Split renderings, fixed formatting</p>
+<p class="blackmuted"><br>v6.3 - Split renderings, add sorting</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1650,6 +1669,7 @@
 		  "delta_stays",
 		  "other_hotel"
 		],
+		summary_sort_category: "travel",
 	
 		cadence: "annual",
 		cadence_type: "card_anniversary",
@@ -1700,6 +1720,7 @@
 		  '🥡 <a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> dining',
 	
 		categories: ["doordash"],
+		summary_sort_category: "dining",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -1740,6 +1761,7 @@
 		  '🛒 <a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> groceries',
 	
 		categories: ["doordash_groceries"],
+		summary_sort_category: "groceries",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -1781,6 +1803,7 @@
 		  '🚗 <a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
 	
 		categories: ["lyft"],
+		summary_sort_category: "rideshare",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -1819,6 +1842,7 @@
 		state_labelHtml: "🚲 Peloton",
 	
 		categories: ["peloton"],
+		summary_sort_category: "other",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -1859,6 +1883,7 @@
 		  '🍔 Dining partners on <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" target="_blank" rel="noopener noreferrer">OpenTable</a>',
 	
 		categories: ["csr_opentable"],
+		summary_sort_category: "dining",
 	
 		cadence: "semiannual",
 		cadence_type: "calendar",
@@ -1899,6 +1924,7 @@
 		  '🏨 The Edit hotel partners on <a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" target="_blank" rel="noopener noreferrer">Chase Travel</a>',
 	
 		categories: ["theedit_hotel"],
+		summary_sort_category: "travel",
 	
 		cadence: "semiannual",
 		cadence_type: "calendar",
@@ -1939,6 +1965,7 @@
 		  '🎫 <a href="https://www.stubhub.com" target="_blank" rel="noopener noreferrer">StubHub</a> / <a href="https://www.viagogo.com" target="_blank" rel="noopener noreferrer">viagogo</a> / <a href="https://www.soccer.com" target="_blank" rel="noopener noreferrer">soccer.com</a>',
 	
 		categories: ["stubhub"],
+		summary_sort_category: "entertainment",
 	
 		cadence: "semiannual",
 		cadence_type: "calendar",
@@ -1984,6 +2011,7 @@
 		  '🚗🥡 <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides + Eats',
 	
 		categories: ["rideshare_other", "uber_eats"],
+		summary_sort_category: "rideshare",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -2026,6 +2054,7 @@
 		  '🍔 Dining partners (<a href="https://www.grubhub.com" target="_blank" rel="noopener noreferrer">GrubHub</a>/<a href="https://www.seamless.com" target="_blank" rel="noopener noreferrer">Seamless</a>, Cheesecake Factory, Goldbelly, Five Guys, <a href="https://www.wine.com" target="_blank" rel="noopener noreferrer">Wine.com</a>)',
 	
 		categories: ["ag_dining"],
+		summary_sort_category: "dining",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -2075,6 +2104,7 @@
 		state_labelHtml: "☕ Dunkin",
 	
 		categories: ["dunkin"],
+		summary_sort_category: "dining",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -2115,6 +2145,7 @@
 		  '🍽️ <a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
 	
 		categories: ["resy"],
+		summary_sort_category: "dining",
 	
 		cadence: "semiannual",
 		cadence_type: "calendar",
@@ -2159,6 +2190,7 @@
 		  '🚗 <a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a> + <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides',
 	
 		categories: ["rideshare_other", "lyft"],
+		summary_sort_category: "rideshare",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -2201,6 +2233,7 @@
 		  '🛒 <a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
 	
 		categories: ["instacart"],
+		summary_sort_category: "groceries",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -2239,6 +2272,7 @@
 		state_labelHtml: "🏨 Renowned Hotels",
 	
 		categories: ["renowned_hotel"],
+		summary_sort_category: "travel",
 	
 		cadence: "annual",
 		cadence_type: "card_anniversary",
@@ -2279,6 +2313,7 @@
 		  '🚙 Avis &amp; Budget car rental',
 	
 		categories: ["uq_rentalcar"],
+		summary_sort_category: "travel",
 	
 		cadence: "annual",
 		cadence_type: "card_anniversary",
@@ -2324,6 +2359,7 @@
 		  '🏨 <a href="https://carsandstays.delta.com/Hotels#" target="_blank" rel="noopener noreferrer">Delta Stays</a>',
 	
 		categories: ["delta_stays"],
+		summary_sort_category: "travel",
 	
 		cadence: "annual",
 		cadence_type: "card_anniversary",
@@ -2366,6 +2402,7 @@
 		state_labelHtml: "🍔 Dining credit",
 	
 		categories: ["dining"],
+		summary_sort_category: "dining",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -2670,6 +2707,8 @@
 	};
 	
 	let categorySelectionWasAuto = false;
+	let cardBenefitsSortMode = "card";
+	let merchantOffersSortMode = "alpha";
 	
 	function renderActiveCardsSummary() {
 	  const el = document.getElementById("activeCardsSummary");
@@ -4601,11 +4640,26 @@
 		  label: benefit.state_label || benefit.label || benefit.id,
 		  labelHtml: benefit.state_labelHtml || null,
 		  card: benefit.card,
+		  sortCategory: benefit.summary_sort_category || "other",
 		  time: getBenefitStateTimeLabel(benefit, today),
 		  usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
 		  fullyUsed,
 		});
 	  }
+	  
+	  if (cardBenefitsSortMode === "category") {
+		  ccRows.sort((a, b) =>
+			String(a.sortCategory || "").localeCompare(String(b.sortCategory || "")) ||
+			String(a.card || "").localeCompare(String(b.card || "")) ||
+			String(a.label || "").localeCompare(String(b.label || ""))
+		  );
+		} else {
+		  ccRows.sort((a, b) =>
+			String(a.card || "").localeCompare(String(b.card || "")) ||
+			String(a.sortCategory || "").localeCompare(String(b.sortCategory || "")) ||
+			String(a.label || "").localeCompare(String(b.label || ""))
+		  );
+		}
 	
 	  if (ccRows.length === 0) {
 		el.innerHTML = `<span class="muted">No credit card benefit data yet.</span>`;
@@ -4638,6 +4692,7 @@
 	  `;
 	
 	  el.innerHTML = html;
+	  updateSummarySortButtonStates();
 	}
 	
 	function renderMerchantOffersSummary() {
@@ -4710,6 +4765,7 @@
 		merchantRows.push({
 		  label: benefit.merchant || "",
 		  card: benefit.card || "",
+		  category: benefit.category || "other",
 		  time: timeText,
 		  usage: usageText,
 		  fullyUsed,
@@ -4719,6 +4775,20 @@
 		  hasPositiveUsage: used > 0,
 		});
 	  }
+	  
+	  if (merchantOffersSortMode === "category") {
+		  merchantRows.sort((a, b) =>
+			String(a.category || "").localeCompare(String(b.category || "")) ||
+			String(a.label || "").localeCompare(String(b.label || "")) ||
+			String(a.card || "").localeCompare(String(b.card || ""))
+		  );
+		} else {
+		  merchantRows.sort((a, b) =>
+			String(a.label || "").localeCompare(String(b.label || "")) ||
+			String(a.category || "").localeCompare(String(b.category || "")) ||
+			String(a.card || "").localeCompare(String(b.card || ""))
+		  );
+		}
 	
 	  if (merchantRows.length === 0) {
 		el.innerHTML = `<span class="muted">No merchant offer data yet.</span>`;
@@ -4762,6 +4832,7 @@
 	  `;
 	
 	  el.innerHTML = html;
+	  updateSummarySortButtonStates();
 	}
 
 	function renderRollingAnnualSummary() {
@@ -5930,6 +6001,26 @@
 	  document.body.classList.remove("float-bar-visible");
 	}
 	
+	function updateSummarySortButtonStates() {
+	  document.getElementById("btnSortCardBenefitsByCard")?.classList.toggle(
+		"sort-btn-active",
+		cardBenefitsSortMode === "card"
+	  );
+	  document.getElementById("btnSortCardBenefitsByCategory")?.classList.toggle(
+		"sort-btn-active",
+		cardBenefitsSortMode === "category"
+	  );
+	
+	  document.getElementById("btnSortMerchantOffersAlpha")?.classList.toggle(
+		"sort-btn-active",
+		merchantOffersSortMode === "alpha"
+	  );
+	  document.getElementById("btnSortMerchantOffersByCategory")?.classList.toggle(
+		"sort-btn-active",
+		merchantOffersSortMode === "category"
+	  );
+	}
+	
     // ---------- UI wiring ----------
 
     let lastRecommendation = null;
@@ -6588,6 +6679,31 @@
 	document.getElementById("floatingSaveCloseBtn").addEventListener("click", () => {
 	  hideFloatingSaveBar();
 	});
+	
+	// Sorting listeners 
+	document.getElementById("btnSortCardBenefitsByCard").addEventListener("click", () => {
+	  cardBenefitsSortMode = "card";
+	  renderCardBenefitsSummary();
+	  updateSummarySortButtonStates();
+	});
+	
+	document.getElementById("btnSortCardBenefitsByCategory").addEventListener("click", () => {
+	  cardBenefitsSortMode = "category";
+	  renderCardBenefitsSummary();
+	  updateSummarySortButtonStates();
+	});
+	
+	document.getElementById("btnSortMerchantOffersAlpha").addEventListener("click", () => {
+	  merchantOffersSortMode = "alpha";
+	  renderMerchantOffersSummary();
+	  updateSummarySortButtonStates();
+	});
+	
+	document.getElementById("btnSortMerchantOffersByCategory").addEventListener("click", () => {
+	  merchantOffersSortMode = "category";
+	  renderMerchantOffersSummary();
+	  updateSummarySortButtonStates();
+	});
 
 	/* =========================
 	   Category picker event wiring
@@ -6691,6 +6807,7 @@
     );
 
     renderStateSummary();
+    updateSummarySortButtonStates()
     renderRollingAnnualSummary();
   </script>
   </body>
