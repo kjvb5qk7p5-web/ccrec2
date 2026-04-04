@@ -4573,9 +4573,6 @@
 	
 	  const today = new Date();
 	
-	  // Keep computeState only if you still want non-benefit progress rows like DG threshold
-	  const cardState = computeState(txs);
-	
 	  // ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
 	  const ccRows = [];
 	
@@ -4606,20 +4603,6 @@
 		  time: getBenefitStateTimeLabel(benefit, today),
 		  usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
 		  fullyUsed,
-		});
-	  }
-	
-	  // Optional: keep DG threshold progress as a separate non-benefit row
-	  {
-		const used = cardState.dg10kSpendYTD || 0;
-		const limit = 10000;
-	
-		ccRows.push({
-		  label: "$10k Delta spend threshold",
-		  card: "DG",
-		  time: "Annual (YTD)",
-		  usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-		  fullyUsed: used >= limit,
 		});
 	  }
 	
