@@ -1497,7 +1497,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.2.1 - Split renderings, fixed formatting</p>
+<p class="blackmuted"><br>v6.2.2 - Split renderings, fixed formatting</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4690,12 +4690,16 @@
 	
 		let usageText;
 		const usedStr = formatUsageAmount(used);
-	
+		
 		if (hasTotalCap && totalLimit != null) {
 		  const limitStr = formatUsageAmount(totalLimit);
 		  usageText = `$${usedStr} of $${limitStr}`;
 		} else {
 		  usageText = `$${usedStr} used`;
+		}
+		
+		if (fullyUsed) {
+		  usageText += " Used up";
 		}
 	
 		let timeText = formatBenefitEndDateDisplay(benefit.endDate, todayDate);
