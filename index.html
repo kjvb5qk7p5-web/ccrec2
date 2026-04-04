@@ -1491,7 +1491,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.0.8 - New category picker</p>
+<p class="blackmuted"><br>v6.1.0 - Fail reasons</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2862,19 +2862,87 @@
 	  return "";
 	}
 	
-	// 5.0 Choose the best card-native benefit (replaces the old benefitPriority object inside calculateCardBenefitApplied)
-	function chooseBestCardBenefit(tx, txsBeforeSave) {
-	  const candidates = [];
+	// 6.1 richer card benefit analyzer that returns fail reasons
+	function analyzeCardBenefitCandidates(tx, txsBeforeSave) {
+	  const eligible = [];
+	  const unavailable = [];
 	
 	  for (const benefit of CARD_BENEFITS) {
-		  if (CARDS[benefit.card]?.is_active === false) continue;
-		  const candidate = evaluateCardBenefitCandidate(benefit, tx, txsBeforeSave);
-		  if (candidate) candidates.push(candidate);
+		if (CARDS[benefit.card]?.is_active === false) continue;
+	
+		let matches = false;
+		if (typeof benefit.eligible_fn === "function") {
+		  matches = !!benefit.eligible_fn(tx);
+		} else if (Array.isArray(benefit.categories)) {
+		  matches = benefit.categories.includes(tx.category);
 		}
 	
-	  if (!candidates.length) return null;
+		if (!matches) continue;
 	
-	  candidates.sort((a, b) => {
+		const { priorUsed, priorTxCount, window } = getBenefitUsageSoFar(benefit, tx, txsBeforeSave);
+		if (!window) continue;
+	
+		const amount = Number(tx.amount) || 0;
+		const capAmount = Number(benefit.cap_amount) || 0;
+		const remainingAmount = Math.max(0, capAmount - priorUsed);
+	
+		if (remainingAmount <= 0) {
+		  unavailable.push({
+			benefit,
+			reasonType: "used_up",
+			remainingAmount: 0,
+			priorUsed,
+			priorTxCount
+		  });
+		  continue;
+		}
+	
+		if (benefit.tx_cap != null && priorTxCount >= Number(benefit.tx_cap)) {
+		  unavailable.push({
+			benefit,
+			reasonType: "used_up",
+			remainingAmount,
+			priorUsed,
+			priorTxCount
+		  });
+		  continue;
+		}
+	
+		let immediateValue;
+		if (typeof benefit.value_fn === "function") {
+		  immediateValue = Number(benefit.value_fn(tx, remainingAmount)) || 0;
+		} else {
+		  immediateValue = Math.min(amount, remainingAmount);
+		}
+	
+		if (benefit.per_tx_cap != null && !isNaN(benefit.per_tx_cap)) {
+		  immediateValue = Math.min(immediateValue, Number(benefit.per_tx_cap));
+		}
+	
+		immediateValue = Math.max(0, Math.min(immediateValue, remainingAmount));
+	
+		if (immediateValue <= 0) {
+		  unavailable.push({
+			benefit,
+			reasonType: "used_up",
+			remainingAmount,
+			priorUsed,
+			priorTxCount
+		  });
+		  continue;
+		}
+	
+		eligible.push({
+		  benefit,
+		  immediateValue,
+		  remainingAmount,
+		  priorUsed,
+		  priorTxCount,
+		  window
+		});
+	  }
+	
+	  eligible.sort((a, b) => {
 		const pa = Number(a.benefit.priority) || 50;
 		const pb = Number(b.benefit.priority) || 50;
 		if (pa !== pb) return pa - pb;
@@ -2886,7 +2954,23 @@
 		return (Number(a.benefit.display_order) || 999) - (Number(b.benefit.display_order) || 999);
 	  });
 	
-	  return candidates[0];
+	  unavailable.sort((a, b) => {
+		const pa = Number(a.benefit.priority) || 50;
+		const pb = Number(b.benefit.priority) || 50;
+		if (pa !== pb) return pa - pb;
+		return (Number(a.benefit.display_order) || 999) - (Number(b.benefit.display_order) || 999);
+	  });
+	
+	  return {
+		eligible,
+		unavailable,
+		winner: eligible[0] || null,
+		firstUnavailable: unavailable[0] || null
+	  };
+	}
+	
+	function chooseBestCardBenefit(tx, txsBeforeSave) {
+	  return analyzeCardBenefitCandidates(tx, txsBeforeSave).winner;
 	}
 
 	// Compute the current rolling benefit-year window for a card
@@ -2923,6 +3007,40 @@
 		cardBenefitId: winner.benefit.id,
 		cardBenefitApplied: winner.immediateValue
 	  };
+	}
+	
+	// 6.1 helper for merchant fallback explanation text
+	function buildMerchantFallbackPrefix(diag) {
+	  if (!diag || diag.eligible) return "";
+	
+	  const merchantName = diag.benefit?.merchant || "This offer";
+	
+	  if (diag.reasonType === "below_min_spend" && diag.minSpend != null) {
+		return `${merchantName} offer requires at least $${Number(diag.minSpend).toFixed(2)}. `;
+	  }
+	
+	  if (diag.reasonType === "used_up") {
+		return `${merchantName} offer is already used up. `;
+	  }
+	
+	  if (diag.reasonType === "expired") {
+		return `${merchantName} offer is expired. `;
+	  }
+	
+	  return "";
+	}
+	
+	// 6.1 helper for card benefit fallback explanation text
+	function buildSkippedBenefitPrefix(unavailableCandidate, winnerCandidate) {
+	  if (!unavailableCandidate?.benefit) return "";
+	
+	  const reasonNo = unavailableCandidate.benefit.reason_no || "";
+	
+	  if (winnerCandidate?.benefit) {
+		return reasonNo;
+	  }
+	
+	  return reasonNo;
 	}
 	
 	// 5.0 helper that derives valid channels from the recommendation object
@@ -4937,9 +5055,9 @@
 		cardBenefitId: b.id
 	  };
 	}
-    
-    // 5.0 Merchant offer helper
-    function getMerchantOfferRecommendation(purchase, merchantState, benefits) {
+	
+	// 6.1 merchant diagnostic helper that passes why a merchant offer failed
+	function diagnoseMerchantOffer(purchase, merchantState, benefits) {
 	  if (!purchase.merchantBenefitId) return null;
 	
 	  const benefit = findBenefitById(purchase.merchantBenefitId, benefits);
@@ -4975,9 +5093,37 @@
 	
 	  const belowMinSpend = minSpend != null && amount < minSpend;
 	
-	  if (expired || exhaustedByTotal || exhaustedByTx || belowMinSpend) {
-		return null;
+	  if (expired) {
+		return { eligible: false, benefit, reasonType: "expired" };
 	  }
+	  if (exhaustedByTotal || exhaustedByTx) {
+		return { eligible: false, benefit, reasonType: "used_up" };
+	  }
+	  if (belowMinSpend) {
+		return {
+		  eligible: false,
+		  benefit,
+		  reasonType: "below_min_spend",
+		  minSpend
+		};
+	  }
+	
+	  return {
+		eligible: true,
+		benefit,
+		merchantStateRow: ms,
+		totalLimit
+	  };
+	}
+    
+    // 6.1 Merchant offer helper with logic for why a merchant offer fails
+	function getMerchantOfferRecommendation(purchase, merchantState, benefits) {
+	  const diag = diagnoseMerchantOffer(purchase, merchantState, benefits);
+	  if (!diag || !diag.eligible) return null;
+	
+	  const benefit = diag.benefit;
+	  const ms = diag.merchantStateRow || { used: 0, limit: null, txCount: 0 };
+	  const totalLimit = diag.totalLimit;
 	
 	  const discountLabel =
 		benefit.discountType === "percent"
@@ -4985,13 +5131,10 @@
 		  : `$${Number(benefit.discountValue || 0).toFixed(2)}`;
 	
 	  let remaining = null;
-	  if (hasTotalCap && totalLimit != null) {
+	  if (totalLimit != null) {
 		remaining = Math.max(0, totalLimit - ms.used);
 	  }
-	  
-	  // Derive channel: if this benefit's card has a native CARD_BENEFITS entry
-	  // covering this category, inherit that entry's channel. Otherwise fall back
-	  // to the base category default.
+	
 	  let merchantChannel = null;
 	  for (const cb of CARD_BENEFITS) {
 		if (
@@ -5021,34 +5164,52 @@
 	  };
 	}
 
-    // 5.0 Main recommendation function
+    // 5.0 Main recommendation function with 6.1 fallback reasons added
     function recommendFromRegistries(purchase, txs, merchantState, benefits) {
-	  // 1) Merchant offer wins first
-	  const merchantRec = getMerchantOfferRecommendation(purchase, merchantState, benefits);
+	  const tx = {
+		amount: purchase.amount,
+		date: purchase.date,
+		category: purchase.category
+	  };
+	
+	  // 1) Diagnose merchant-offer path
+	  const merchantDiag = diagnoseMerchantOffer(purchase, merchantState, benefits);
+	  const merchantRec = merchantDiag?.eligible
+		? getMerchantOfferRecommendation(purchase, merchantState, benefits)
+		: null;
+	
 	  if (merchantRec) return merchantRec;
 	
-	  // 2) Try card-native benefits
-	  const benefitCandidate = chooseBestCardBenefit(
-		{
-		  amount: purchase.amount,
-		  date: purchase.date,
-		  category: purchase.category
-		},
-		txs || []
-	  );
+	  // 2) Analyze card-native benefits
+	  const cardAnalysis = analyzeCardBenefitCandidates(tx, txs || []);
+	  if (cardAnalysis.winner) {
+		const rec = buildBenefitRecommendation(cardAnalysis.winner, purchase);
 	
-	  if (benefitCandidate) {
-		return buildBenefitRecommendation(benefitCandidate, purchase);
+		// If a higher-priority matching benefit was unavailable, prepend that explanation
+		if (cardAnalysis.firstUnavailable?.benefit?.reason_no) {
+		  rec.reason = `${cardAnalysis.firstUnavailable.benefit.reason_no}${rec.reason}`;
+		  rec.reasonMain = `${cardAnalysis.firstUnavailable.benefit.reason_no}${rec.reasonMain}`;
+		}
+	
+		return rec;
 	  }
 	
-	  // 3) Fall back to base category map
+	  // 3) Fall back to base category map, but preserve why we got here
 	  const fallback = getBaseFallbackRecommendation(purchase.category);
+	
+	  let prefix = "";
+	
+	  if (merchantDiag && !merchantDiag.eligible) {
+		prefix = buildMerchantFallbackPrefix(merchantDiag);
+	  } else if (cardAnalysis.firstUnavailable?.benefit) {
+		prefix = buildSkippedBenefitPrefix(cardAnalysis.firstUnavailable, null);
+	  }
 	
 	  return {
 		card: fallback.card,
 		channel: fallback.channel,
-		reasonMain: fallback.reason,
-		reason: fallback.reason,
+		reasonMain: `${prefix}${fallback.reason}`.trim(),
+		reason: `${prefix}${fallback.reason}`.trim(),
 		categoryLabel: null,
 		recommendationSource: "base_fallback"
 	  };
