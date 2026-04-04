@@ -358,11 +358,12 @@
       margin-right: 12px;
     }
   
-    /* Make state summary text black instead of muted grey */
-    #stateSummary {
-      color: #000;
-      font-size: 0.8rem;
-    }
+    /* Make split summary text black instead of muted grey */
+	#cardBenefitsSummary,
+	#merchantOffersSummary {
+	  color: #000;
+	  font-size: 0.8rem;
+	}
   
     /* State summary tables (Current Credits & Offers Usage) */
     .state-table-wrapper {
@@ -426,10 +427,10 @@
       font-weight: 600;
     }
 
-    .usage-positive {
-      color: green;
-      font-weight: normal;
-    }
+    .state-table td.usage-positive {
+	  color: green;
+	  font-weight: 600;
+	}
 
     /* Column widths for Current Credits & Offers state tables */
     .state-table th:nth-child(1),
@@ -1496,7 +1497,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.2.0 - Split renderings</p>
+<p class="blackmuted"><br>v6.2.1 - Split renderings, fixed formatting</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4668,12 +4669,12 @@
 		const txCount = ms.txCount || 0;
 	
 		let { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
-	
+		
+		let exhaustedByTx = false;
 		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
 		  const maxTx = Number(benefit.maxTransactions);
 		  if (maxTx >= 0 && txCount >= maxTx) {
-			expired = true;
-			expiringSoon = false;
+			exhaustedByTx = true;
 		  }
 		}
 	
@@ -4684,7 +4685,8 @@
 	
 		const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
 		const fullyUsed =
-		  hasTotalCap && totalLimit != null && used >= totalLimit;
+		  (hasTotalCap && totalLimit != null && used >= totalLimit) ||
+		  exhaustedByTx;
 	
 		let usageText;
 		const usedStr = formatUsageAmount(used);
@@ -4710,6 +4712,7 @@
 		  expiringSoon: expiringSoon && !expired,
 		  expired,
 		  usedAmount: used,
+		  hasPositiveUsage: used > 0,
 		});
 	  }
 	
@@ -4745,7 +4748,7 @@
 					<td>${escapeHtml(row.label || "")}</td>
 					<td>${renderCardBadge(row.card)}</td>
 					<td>${escapeHtml(row.time || "")}</td>
-					<td class="usage-cell">${escapeHtml(row.usage || "")}</td>
+					<td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${escapeHtml(row.usage || "")}</td>
 				  </tr>
 				`;
 			  }).join("")}
