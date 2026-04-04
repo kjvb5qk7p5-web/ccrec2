@@ -433,6 +433,20 @@
       color: red;
       font-weight: 600;
     }
+    
+    .state-table tr.group-header-row td {
+	  background: #f7f7f7;
+	  font-weight: 700;
+	  color: #111;
+	  border-top: 2px solid #ddd;
+	  border-bottom: 1px solid #ddd;
+	}
+	
+	.state-table tr.group-header-row td.group-header-cell {
+	  padding-top: 6px;
+	  padding-bottom: 6px;
+	  letter-spacing: 0.1px;
+	}
 
     .state-table td.usage-positive {
 	  color: green;
@@ -1516,7 +1530,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.3 - Split renderings, add sorting</p>
+<p class="blackmuted"><br>v6.4 - Refine sorting</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1540,7 +1554,7 @@
 	
 		anniversary_start: "2025-12-01",
 		annualFee: 795,
-		sort_order: 1,
+		sort_order: 10,
 	
 		points_currency: "UR",
 		transferable_points: true,
@@ -1563,7 +1577,7 @@
 	
 		anniversary_start: "2025-12-21",
 		annualFee: 325,
-		sort_order: 2,
+		sort_order: 20,
 	
 		points_currency: "MR",
 		transferable_points: true,
@@ -1586,7 +1600,7 @@
 	
 		anniversary_start: "2025-02-01",
 		annualFee: 250,
-		sort_order: 3,
+		sort_order: 30,
 	
 		points_currency: "UA",
 		transferable_points: false,
@@ -1609,7 +1623,7 @@
 	
 		anniversary_start: "2025-04-11",
 		annualFee: 650,
-		sort_order: 4,
+		sort_order: 40,
 	
 		points_currency: "Bonvoy",
 		transferable_points: false,
@@ -1632,7 +1646,7 @@
 	
 		anniversary_start: "2026-01-13",
 		annualFee: 150,
-		sort_order: 5,
+		sort_order: 50,
 	
 		points_currency: "SkyMiles",
 		transferable_points: false,
@@ -2579,6 +2593,19 @@
 		channel: "direct",
 		reason: "Default to Chase Sapphire for flexible points."
 	  }
+	};
+	
+	const SUMMARY_SORT_CATEGORY_LABELS = {
+	  dining: "Dining",
+	  groceries: "Groceries",
+	  coffee: "Coffee",
+	  rideshare: "Rideshare",
+	  travel: "Travel",
+	  hotel: "Hotels",
+	  rental_car: "Rental Cars",
+	  entertainment: "Entertainment",
+	  retail: "Retail",
+	  other: "Other"
 	};
 	
 	const CARD_BENEFITS_BY_ID = Object.fromEntries(
@@ -4599,6 +4626,33 @@
 		merchantBenefitApplied: discount,
 	  };
 	}
+	
+	function getSummarySortCategoryLabel(categoryKey) {
+	  return SUMMARY_SORT_CATEGORY_LABELS[categoryKey] || categoryKey || "Other";
+	}
+	
+	// 6.4 helper for state summary header rows
+	function addGroupHeaderRows(rows, getGroupKey, getGroupLabel) {
+	  const output = [];
+	  let lastGroupKey = null;
+	
+	  for (const row of rows) {
+		const groupKey = getGroupKey(row);
+	
+		if (groupKey !== lastGroupKey) {
+		  output.push({
+			_isGroupHeader: true,
+			groupKey,
+			groupLabel: getGroupLabel(groupKey, row)
+		  });
+		  lastGroupKey = groupKey;
+		}
+	
+		output.push(row);
+	  }
+	
+	  return output;
+	}
 
     // ---------- State summaries ----------
     function renderStateSummary() {
@@ -4640,7 +4694,9 @@
 		  label: benefit.state_label || benefit.label || benefit.id,
 		  labelHtml: benefit.state_labelHtml || null,
 		  card: benefit.card,
+		  cardSortOrder: Number(CARDS[benefit.card]?.sort_order ?? 999),
 		  sortCategory: benefit.summary_sort_category || "other",
+		  benefitDisplayOrder: Number(benefit.display_order ?? 999),
 		  time: getBenefitStateTimeLabel(benefit, today),
 		  usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
 		  fullyUsed,
@@ -4650,14 +4706,31 @@
 	  if (cardBenefitsSortMode === "category") {
 		  ccRows.sort((a, b) =>
 			String(a.sortCategory || "").localeCompare(String(b.sortCategory || "")) ||
-			String(a.card || "").localeCompare(String(b.card || "")) ||
+			Number(a.cardSortOrder ?? 999) - Number(b.cardSortOrder ?? 999) ||
+			Number(a.benefitDisplayOrder ?? 999) - Number(b.benefitDisplayOrder ?? 999) ||
 			String(a.label || "").localeCompare(String(b.label || ""))
 		  );
 		} else {
 		  ccRows.sort((a, b) =>
-			String(a.card || "").localeCompare(String(b.card || "")) ||
-			String(a.sortCategory || "").localeCompare(String(b.sortCategory || "")) ||
+			Number(a.cardSortOrder ?? 999) - Number(b.cardSortOrder ?? 999) ||
+			Number(a.benefitDisplayOrder ?? 999) - Number(b.benefitDisplayOrder ?? 999) ||
 			String(a.label || "").localeCompare(String(b.label || ""))
+		  );
+		}
+	
+	  let displayRows = ccRows;
+
+		if (cardBenefitsSortMode === "category") {
+		  displayRows = addGroupHeaderRows(
+			ccRows,
+			row => row.sortCategory || "other",
+			groupKey => getSummarySortCategoryLabel(groupKey)
+		  );
+		} else {
+		  displayRows = addGroupHeaderRows(
+			ccRows,
+			row => row.card || "",
+			groupKey => CARDS[groupKey]?.label || groupKey
 		  );
 		}
 	
@@ -4678,14 +4751,24 @@
 			  </tr>
 			</thead>
 			<tbody>
-			  ${ccRows.map((row) => `
-				<tr class="${row.fullyUsed ? "credit-met-row" : ""}">
-				  <td>${row.labelHtml || escapeHtml(row.label || "")}</td>
-				  <td>${renderCardBadge(row.card)}</td>
-				  <td>${escapeHtml(row.time || "")}</td>
-				  <td class="usage-cell">${escapeHtml(row.usage || "")}</td>
-				</tr>
-			  `).join("")}
+			  ${displayRows.map((row) => {
+				  if (row._isGroupHeader) {
+					return `
+					  <tr class="group-header-row">
+						<td class="group-header-cell" colspan="4">${escapeHtml(row.groupLabel || "")}</td>
+					  </tr>
+					`;
+				  }
+				
+				  return `
+					<tr class="${row.fullyUsed ? "credit-met-row" : ""}">
+					  <td>${row.labelHtml || escapeHtml(row.label || "")}</td>
+					  <td>${renderCardBadge(row.card)}</td>
+					  <td>${escapeHtml(row.time || "")}</td>
+					  <td class="usage-cell">${escapeHtml(row.usage || "")}</td>
+					</tr>
+				  `;
+				}).join("")}
 			</tbody>
 		  </table>
 		</div>
@@ -4789,6 +4872,16 @@
 			String(a.card || "").localeCompare(String(b.card || ""))
 		  );
 		}
+		
+		let displayRows = merchantRows;
+		
+		if (merchantOffersSortMode === "category") {
+		  displayRows = addGroupHeaderRows(
+			merchantRows,
+			row => row.category || "other",
+			groupKey => getSummarySortCategoryLabel(groupKey)
+		  );
+		}
 	
 	  if (merchantRows.length === 0) {
 		el.innerHTML = `<span class="muted">No merchant offer data yet.</span>`;
@@ -4807,25 +4900,33 @@
 			  </tr>
 			</thead>
 			<tbody>
-			  ${merchantRows.map((row) => {
-				const rowClass =
-				  row.expired
-					? "expired-row"
-					: row.expiringSoon
-					  ? "expiring-soon-row"
-					  : row.fullyUsed
-						? "credit-met-row"
-						: "";
-	
-				return `
-				  <tr class="${rowClass}">
-					<td>${escapeHtml(row.label || "")}</td>
-					<td>${renderCardBadge(row.card)}</td>
-					<td>${escapeHtml(row.time || "")}</td>
-					<td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${escapeHtml(row.usage || "")}</td>
-				  </tr>
-				`;
-			  }).join("")}
+			  ${displayRows.map((row) => {
+				  if (row._isGroupHeader) {
+					return `
+					  <tr class="group-header-row">
+						<td class="group-header-cell" colspan="4">${escapeHtml(row.groupLabel || "")}</td>
+					  </tr>
+					`;
+				  }
+				
+				  const rowClass =
+					row.expired
+					  ? "expired-row"
+					  : row.expiringSoon
+						? "expiring-soon-row"
+						: row.fullyUsed
+						  ? "credit-met-row"
+						  : "";
+				
+				  return `
+					<tr class="${rowClass}">
+					  <td>${escapeHtml(row.label || "")}</td>
+					  <td>${renderCardBadge(row.card)}</td>
+					  <td>${escapeHtml(row.time || "")}</td>
+					  <td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${escapeHtml(row.usage || "")}</td>
+					</tr>
+				  `;
+				}).join("")}
 			</tbody>
 		  </table>
 		</div>
