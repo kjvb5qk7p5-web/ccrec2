@@ -1582,7 +1582,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.6 - Refine formatting</p>
+<p class="blackmuted"><br>v6.6.1 - Refine formatting</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2751,7 +2751,7 @@
 	  eyewear: ["lenscrafters", "warby parker", "rayban", "eyeglasses", "lenscrafters", "sunglass hut", "lensdirect"],
 	  pharmacy: ["cvs", "walgreens", "rite aid", "duane reade"],
 	  wellness: ["musely", "prenuvo", "function health"],
-	  clothing: ["charles tyrwhitt", "lululemon", "express", "banana republic", "j crew", "jcrew", "cole haan", "muji", "bonobos"],
+	  clothing: ["charles tyrwhitt", "lululemon", "express", "banana republic", "j crew", "jcrew", "cole haan", "muji", "bonobos", "LL Bean"],
 	  electronics: ["sony", "best buy"]
 	};
 	
@@ -4729,10 +4729,40 @@
 	function getDisplayCategoryForMerchantBenefit(benefit) {
 	  const merchant = normalizeSearchText(benefit.merchant || "");
 	
+	  // small local helper: exact > whole-word > prefix > substring
+	  function merchantMatches(candidate, actualMerchant) {
+		const c = normalizeSearchText(candidate || "");
+		const m = normalizeSearchText(actualMerchant || "");
+		if (!c || !m) return false;
+	
+		if (c === m) return true;
+	
+		const cWords = c.split(/\s+/).filter(Boolean);
+		const mWords = m.split(/\s+/).filter(Boolean);
+	
+		// whole-word sequence appears inside merchant words
+		for (let i = 0; i <= mWords.length - cWords.length; i++) {
+		  let ok = true;
+		  for (let j = 0; j < cWords.length; j++) {
+			if (mWords[i + j] !== cWords[j]) {
+			  ok = false;
+			  break;
+			}
+		  }
+		  if (ok) return true;
+		}
+	
+		// prefix / substring fallback for realistic variants like "broadway.com"
+		if (m.startsWith(c)) return true;
+		if (m.includes(c)) return true;
+	
+		return false;
+	  }
+	
 	  // 1) Try CATEGORY_MERCHANTS first (strongest signal)
 	  if (typeof CATEGORY_MERCHANTS !== "undefined") {
 		for (const [category, merchants] of Object.entries(CATEGORY_MERCHANTS)) {
-		  if (merchants.some(m => normalizeSearchText(m) === merchant)) {
+		  if (merchants.some(m => merchantMatches(m, merchant))) {
 			return category;
 		  }
 		}
@@ -4740,9 +4770,17 @@
 	
 	  // 2) Try MERCHANT_HINTS
 	  if (typeof MERCHANT_HINTS !== "undefined") {
-		const hints = MERCHANT_HINTS[merchant];
-		if (Array.isArray(hints) && hints.length > 0) {
-		  return hints[0]; // first = primary category
+		// first try exact key
+		const exactHints = MERCHANT_HINTS[merchant];
+		if (Array.isArray(exactHints) && exactHints.length > 0) {
+		  return exactHints[0];
+		}
+	
+		// then try fuzzy-ish key matching
+		for (const [hintMerchant, hints] of Object.entries(MERCHANT_HINTS)) {
+		  if (merchantMatches(hintMerchant, merchant) && Array.isArray(hints) && hints.length > 0) {
+			return hints[0];
+		  }
 		}
 	  }
 	
