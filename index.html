@@ -1582,7 +1582,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.5.5 - Refine formatting</p>
+<p class="blackmuted"><br>v6.6 - Refine formatting</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4683,7 +4683,23 @@
 	}
 	
 	function getSummarySortCategoryLabel(categoryKey) {
-	  return SUMMARY_SORT_CATEGORY_LABELS[categoryKey] || categoryKey || "Other";
+	  const mapped = SUMMARY_SORT_CATEGORY_LABELS[categoryKey];
+	  if (mapped) return mapped;
+	
+	  const raw = String(categoryKey || "Other").trim();
+	  if (!raw) return "Other";
+	
+	  return raw.charAt(0).toUpperCase() + raw.slice(1);
+	}
+	
+	function compareSummarySortCategories(a, b) {
+	  const aKey = String(a || "").toLowerCase();
+	  const bKey = String(b || "").toLowerCase();
+	
+	  if (aKey === "other" && bKey !== "other") return 1;
+	  if (bKey === "other" && aKey !== "other") return -1;
+	
+	  return aKey.localeCompare(bKey);
 	}
 	
 	// 6.4 helper for state summary header rows
@@ -4793,19 +4809,19 @@
 	  }
 	
 	  if (cardBenefitsSortMode === "category") {
-		ccRows.sort((a, b) =>
-		  String(a.sortCategory || "").localeCompare(String(b.sortCategory || "")) ||
-		  Number(a.cardSortOrder ?? 999) - Number(b.cardSortOrder ?? 999) ||
-		  Number(a.benefitDisplayOrder ?? 999) - Number(b.benefitDisplayOrder ?? 999) ||
-		  String(a.label || "").localeCompare(String(b.label || ""))
-		);
-	  } else {
-		ccRows.sort((a, b) =>
-		  Number(a.cardSortOrder ?? 999) - Number(b.cardSortOrder ?? 999) ||
-		  Number(a.benefitDisplayOrder ?? 999) - Number(b.benefitDisplayOrder ?? 999) ||
-		  String(a.label || "").localeCompare(String(b.label || ""))
-		);
-	  }
+		  ccRows.sort((a, b) =>
+			compareSummarySortCategories(a.sortCategory || "", b.sortCategory || "") ||
+			Number(a.cardSortOrder ?? 999) - Number(b.cardSortOrder ?? 999) ||
+			Number(a.benefitDisplayOrder ?? 999) - Number(b.benefitDisplayOrder ?? 999) ||
+			String(a.label || "").localeCompare(String(b.label || ""))
+		  );
+		} else {
+		  ccRows.sort((a, b) =>
+			Number(a.cardSortOrder ?? 999) - Number(b.cardSortOrder ?? 999) ||
+			Number(a.benefitDisplayOrder ?? 999) - Number(b.benefitDisplayOrder ?? 999) ||
+			String(a.label || "").localeCompare(String(b.label || ""))
+		  );
+		}
 	
 	  let displayRows = ccRows;
 	
@@ -4967,7 +4983,7 @@
 	  
 	  if (merchantOffersSortMode === "category") {
 		  merchantRows.sort((a, b) =>
-			String(a.category || "").localeCompare(String(b.category || "")) ||
+			compareSummarySortCategories(a.category || "", b.category || "") ||
 			String(a.label || "").localeCompare(String(b.label || "")) ||
 			String(a.card || "").localeCompare(String(b.card || ""))
 		  );
