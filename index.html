@@ -408,11 +408,14 @@
     }
 
     .state-table thead th {
-      background: #f7f7f7;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
+	  background: #f7f7f7;
+	  position: sticky;
+	  top: 0;
+	  z-index: 1;
+	  padding-top: 8px;
+	  padding-bottom: 8px;
+	  line-height: 1.2;
+	}
     
     .state-table td:first-child {
 	  line-height: 1.2;
@@ -425,7 +428,7 @@
 	  overflow-wrap: anywhere;
 	  text-align: right;
 	  font-variant-numeric: tabular-nums;
-	  line-height: 1.15;
+	  line-height: 1.1;
 	}
   
     /* Green for fully used benefits */
@@ -1573,7 +1576,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.5.2 - Refine formatting</p>
+<p class="blackmuted"><br>v6.5.3 - Refine formatting</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4775,6 +4778,7 @@
 		  benefitDisplayOrder: Number(benefit.display_order ?? 999),
 		  time: getBenefitStateTimeLabel(benefit, today),
 		  usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
+		  usageHtml: `$${formatUsageAmount(used)} of<br>$${formatUsageAmount(limit)}`,
 		  fullyUsed,
 		});
 	  }
@@ -4841,7 +4845,7 @@
 					<td>${row.labelHtml || escapeHtml(row.label || "")}</td>
 					<td>${renderCardBadge(row.card)}</td>
 					<td>${escapeHtml(row.time || "")}</td>
-					<td class="usage-cell">${escapeHtml(row.usage || "")}</td>
+					<td class="usage-cell">${row.usageHtml || escapeHtml(row.usage || "")}</td>
 				  </tr>
 				`;
 			  }).join("")}
@@ -4905,15 +4909,20 @@
 		let usageText;
 		const usedStr = formatUsageAmount(used);
 		
+		let usageHtml;
+		
 		if (hasTotalCap && totalLimit != null) {
 		  const limitStr = formatUsageAmount(totalLimit);
 		  usageText = `$${usedStr} of $${limitStr}`;
+		  usageHtml = `$${usedStr} of<br>$${limitStr}`;
 		} else {
 		  usageText = `$${usedStr} used`;
+		  usageHtml = `$${usedStr} used`;
 		}
 		
 		if (fullyUsed) {
 		  usageText += " Used up";
+		  usageHtml += `<br>Used up`;
 		}
 	
 		let timeText = formatBenefitEndDateDisplay(benefit.endDate, todayDate);
@@ -4927,6 +4936,7 @@
 		  category: getDisplayCategoryForMerchantBenefit(benefit),
 		  time: timeText,
 		  usage: usageText,
+		  usageHtml,
 		  fullyUsed,
 		  expiringSoon: expiringSoon && !expired,
 		  expired,
@@ -4999,7 +5009,7 @@
 					  <td>${escapeHtml(row.label || "")}</td>
 					  <td>${renderCardBadge(row.card)}</td>
 					  <td>${escapeHtml(row.time || "")}</td>
-					  <td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${escapeHtml(row.usage || "")}</td>
+					  <td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${row.usageHtml || escapeHtml(row.usage || "")}</td>
 					</tr>
 				  `;
 				}).join("")}
