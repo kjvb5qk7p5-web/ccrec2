@@ -1576,7 +1576,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.5.3 - Refine formatting</p>
+<p class="blackmuted"><br>v6.5.4 - Refine formatting</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4153,12 +4153,12 @@
       const parsed = Number(value);
       const num = Number.isFinite(parsed) ? parsed : 0;
     
-      // For 0 or large values, show whole dollars.
-      if (num === 0 || Math.abs(num) > 9.99) {
-        return num.toFixed(0);
-      }
+      // For 0, large values, or whole-dollar values, show no cents.
+	  if (num === 0 || Math.abs(num) > 9.99 || Number.isInteger(num)) {
+		return num.toFixed(0);
+	  }
     
-      // For small non-zero values, keep cents.
+      // For small non-zero non-round values, keep cents.
       return num.toFixed(2);
     }
 
@@ -4929,14 +4929,20 @@
 		if (expired) {
 		  timeText = timeText ? `${timeText} Expired` : "Expired";
 		}
-	
+		
+		let discountLabel = "";
+		if (benefit.discountType === "percent") {
+		  discountLabel = `${Number(benefit.discountValue || 0)}%`;
+		} else {
+		  discountLabel = `$${formatUsageAmount(Number(benefit.discountValue || 0))}`;
+		}
+		
 		merchantRows.push({
-		  label: benefit.merchant || "",
+		  label: `${benefit.merchant || ""} (${discountLabel})`,
 		  card: benefit.card || "",
 		  category: getDisplayCategoryForMerchantBenefit(benefit),
 		  time: timeText,
 		  usage: usageText,
-		  usageHtml,
 		  fullyUsed,
 		  expiringSoon: expiringSoon && !expired,
 		  expired,
