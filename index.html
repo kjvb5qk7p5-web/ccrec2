@@ -1584,7 +1584,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.6.1 - Refine formatting</p>
+<p class="blackmuted"><br>v6.6.2</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5783,6 +5783,19 @@
 	  });
 	}
 	
+	function scrollActiveCategoryPickerPageToTop() {
+	  const pager = document.getElementById("categoryPickerPager");
+	  if (!pager) return;
+	
+	  const activePage = pager.querySelector(`.category-picker-page[data-page="${categoryPickerState.page}"]`);
+	  if (!activePage) return;
+	
+	  activePage.scrollTo({
+		top: 0,
+		behavior: "auto"
+	  });
+	}
+	
 	function syncCategoryPickerTabState() {
 	  const tabs = document.querySelectorAll(".category-picker-tab");
 	  tabs.forEach((tab) => {
@@ -5803,14 +5816,17 @@
 	function applyCategoryPickerSelection(value) {
 	  const select = document.getElementById("category");
 	  if (!select) return;
+	  
+	  const input = document.getElementById("categoryPickerSearch");
+	  if (input) input.blur();
 	
-	  select.value = value;
-	  updateCategoryPickerTrigger();
-	  closeCategoryPicker();
-	  categoryPickerState.search = "";
-	
-	  // This keeps the rest of the app behavior unchanged
-	  select.dispatchEvent(new Event("change", { bubbles: true }));
+	  setTimeout(() => {
+		select.value = value;
+		updateCategoryPickerTrigger();
+		closeCategoryPicker();
+		categoryPickerState.search = "";
+		select.dispatchEvent(new Event("change", { bubbles: true }));
+	  }, 0);
 	}
 	
 	function renderCategoryPickerRow({ value, title, subtitle = "", card = "", selected = false, rowClass = "" }) {
@@ -6988,6 +7004,10 @@
 	  categoryPickerState.search = e.target.value || "";
 	  renderCategoryPicker();
 	  updateCategoryPickerSearchClearVisibility();
+	
+	  requestAnimationFrame(() => {
+		scrollActiveCategoryPickerPageToTop();
+	  });
 	});
 
 	document.getElementById("categoryPickerSearchClearBtn")?.addEventListener("click", () => {
