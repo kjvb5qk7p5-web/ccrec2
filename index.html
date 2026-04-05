@@ -5783,15 +5783,18 @@
 	  });
 	}
 	
-	function scrollActiveCategoryPickerPageToTop() {
+	function scrollFirstVisibleCategoryPickerResultIntoView() {
 	  const pager = document.getElementById("categoryPickerPager");
 	  if (!pager) return;
 	
 	  const activePage = pager.querySelector(`.category-picker-page[data-page="${categoryPickerState.page}"]`);
 	  if (!activePage) return;
 	
-	  activePage.scrollTo({
-		top: 0,
+	  const firstRow = activePage.querySelector(".category-picker-row");
+	  if (!firstRow) return;
+	
+	  firstRow.scrollIntoView({
+		block: "nearest",
 		behavior: "auto"
 	  });
 	}
@@ -7006,7 +7009,9 @@
 	  updateCategoryPickerSearchClearVisibility();
 	
 	  requestAnimationFrame(() => {
-		scrollActiveCategoryPickerPageToTop();
+		requestAnimationFrame(() => {
+		  scrollFirstVisibleCategoryPickerResultIntoView();
+		});
 	  });
 	});
 
