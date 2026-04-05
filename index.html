@@ -1573,7 +1573,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.5.1 - Refine formatting</p>
+<p class="blackmuted"><br>v6.5.2 - Refine formatting</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4830,7 +4830,7 @@
 			  ${displayRows.map((row) => {
 				if (row._isGroupHeader) {
 				  return `
-					<tr class="group-header-row">
+					<tr class="group-header-row" data-group-key="${escapeHtml(row.groupKey || "")}">
 					  <td class="group-header-cell" colspan="4">${escapeHtml(row.groupLabel || "")}</td>
 					</tr>
 				  `;
@@ -4956,15 +4956,6 @@
 			merchantRows,
 			row => row.category || "other",
 			groupKey => getSummarySortCategoryLabel(groupKey)
-		  );
-		} else {
-		  displayRows = addGroupHeaderRows(
-			merchantRows,
-			row => {
-			  const first = String(row.label || "").trim().charAt(0).toUpperCase();
-			  return first || "#";
-			},
-			groupKey => groupKey
 		  );
 		}
 	
