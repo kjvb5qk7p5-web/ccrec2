@@ -1582,7 +1582,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.6.3</p>
+<p class="blackmuted"><br>v6.6.4</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2657,6 +2657,10 @@
 	  rental_car: "Rental Cars",
 	  entertainment: "Entertainment",
 	  retail: "Retail",
+	  wellness: "Wellness",
+	  clothing: "Clothing",
+	  eyewear: "Eyewear",
+	  electronics: "Electronics",
 	  other: "Other"
 	};
 	
@@ -2708,7 +2712,8 @@
 	  rental_car: ["rental car", "car rental", "rent a car"],
 	  entertainment: ["entertainment", "show", "movie", "theater", "broadway", "concert"],
 	  tickets: ["tickets", "concert tickets", "event tickets"],
-	  eyewear: ["eyewear", "glasses", "frames", "contacts", "vision", "optical"],
+	  eyewear: ["eyewear", "glasses", "frames", "contacts", "vision", "optical", "sunglasses"],
+	  clothing: ["clothes", "apparel", "shirt", "shirts", "pants", "shorts", "shoes"],
 	  pharmacy: ["pharmacy", "drugstore", "rx", "prescription"],
 	  retail: ["retail", "shopping", "store", "gift", "gifts", "clothing", "shoes", "electronics"],
 	  travel: ["travel", "trip", "vacation"]
@@ -2996,6 +3001,7 @@
 	
 	  for (const benefit of CARD_BENEFITS) {
 		if (CARDS[benefit.card]?.is_active === false) continue;
+		if (tx.cardUsed && tx.cardUsed !== benefit.card) continue;
 	
 		let matches = false;
 		if (typeof benefit.eligible_fn === "function") {
@@ -3157,10 +3163,27 @@
 	  return "";
 	}
 	
+	function shouldPrependUnavailableReason(unavailableCandidate, winnerCandidate) {
+	  if (!unavailableCandidate?.benefit || !winnerCandidate?.benefit) return false;
+	
+	  const unavailablePriority = Number(unavailableCandidate.benefit.priority ?? 50);
+	  const winnerPriority = Number(winnerCandidate.benefit.priority ?? 50);
+	
+	  if (unavailablePriority < winnerPriority) return true;
+	  if (unavailablePriority > winnerPriority) return false;
+	
+	  const unavailableDisplayOrder = Number(unavailableCandidate.benefit.display_order ?? 999);
+	  const winnerDisplayOrder = Number(winnerCandidate.benefit.display_order ?? 999);
+	
+	  return unavailableDisplayOrder <= winnerDisplayOrder;
+	}
+	
 	// 6.1 helper for card benefit fallback explanation text
 	function buildSkippedBenefitPrefix(unavailableCandidate, winnerCandidate) {
 	  if (!unavailableCandidate?.benefit) return "";
 	
+	  // Future hook: winnerCandidate could later be used for comparative explanation logic
+	  // (for example, only prepend when the skipped benefit outranks the winner).
 	  const reasonNo = unavailableCandidate.benefit.reason_no || "";
 	
 	  if (winnerCandidate?.benefit) {
@@ -3497,14 +3520,20 @@
 	function enrichMerchantBenefitSearchFields(b) {
 	  const merchant = b?.merchant != null ? String(b.merchant).trim() : "";
 	  const userTagInput = b?.userTagInput != null ? String(b.userTagInput) : "";
-	  const searchTags = Array.isArray(b?.searchTags) && b.searchTags.length > 0
+	
+	  const existing = Array.isArray(b?.searchTags)
 		? b.searchTags.map(canonicalizeTag).filter(Boolean)
-		: buildMerchantOfferSearchTags({ merchant, userTagInput });
+		: [];
+	
+	  const suggested = getSuggestedTagsForMerchant(merchant);
+	  const manual = parseSearchTagsInput(userTagInput);
+	
+	  const searchTags = [...new Set([...suggested, ...manual, ...existing])];
 	
 	  return {
 		...b,
 		userTagInput,
-		searchTags: [...new Set(searchTags)],
+		searchTags,
 		schemaVersion: SEARCH_SCHEMA_VERSION
 	  };
 	}
@@ -4294,7 +4323,7 @@
 		if (!raw) return [];
 		const parsed = JSON.parse(raw);
 		if (!Array.isArray(parsed)) return [];
-		return parsed.map(b => enrichMerchantBenefitSearchFields(normalizeImportedMerchantBenefit(b)));
+		return parsed.map(enrichMerchantBenefitSearchFields);
 	  } catch {
 		return [];
 	  }
@@ -4818,7 +4847,7 @@
 		.sort((a, b) => (Number(a.display_order ?? 999) - Number(b.display_order ?? 999)));
 	
 	  for (const benefit of sortedBenefits) {
-		const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today);
+		const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
 	
 		const limit = Number(benefit.cap_amount || 0);
 		const used = limit > 0 ? Math.min(usage.used, limit) : usage.used;
@@ -4843,6 +4872,7 @@
 		  usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
 		  usageHtml: `$${formatUsageAmount(used)} of<br>$${formatUsageAmount(limit)}`,
 		  fullyUsed,
+		  hasPositiveUsage: used > 0 && !fullyUsed,
 		});
 	  }
 	
@@ -4908,7 +4938,7 @@
 					<td>${row.labelHtml || escapeHtml(row.label || "")}</td>
 					<td>${renderCardBadge(row.card)}</td>
 					<td>${escapeHtml(row.time || "")}</td>
-					<td class="usage-cell">${row.usageHtml || escapeHtml(row.usage || "")}</td>
+					<td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${escapeHtml(row.usage || "")}</td>
 				  </tr>
 				`;
 			  }).join("")}
@@ -4968,6 +4998,10 @@
 		const fullyUsed =
 		  (hasTotalCap && totalLimit != null && used >= totalLimit) ||
 		  exhaustedByTx;
+		  
+		if (fullyUsed) {
+		  expiringSoon = false;
+		}
 	
 		let usageText;
 		const usedStr = formatUsageAmount(used);
@@ -5486,7 +5520,10 @@
 		const rec = buildBenefitRecommendation(cardAnalysis.winner, purchase);
 	
 		// If a higher-priority matching benefit was unavailable, prepend that explanation
-		if (cardAnalysis.firstUnavailable?.benefit?.reason_no) {
+		if (
+		  cardAnalysis.firstUnavailable?.benefit?.reason_no &&
+		  shouldPrependUnavailableReason(cardAnalysis.firstUnavailable, cardAnalysis.winner)
+		) {
 		  rec.reason = `${cardAnalysis.firstUnavailable.benefit.reason_no}${rec.reason}`;
 		  rec.reasonMain = `${cardAnalysis.firstUnavailable.benefit.reason_no}${rec.reasonMain}`;
 		}
