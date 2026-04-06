@@ -1582,7 +1582,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.6.4</p>
+<p class="blackmuted"><br>v6.6.4b</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4323,7 +4323,7 @@
 		if (!raw) return [];
 		const parsed = JSON.parse(raw);
 		if (!Array.isArray(parsed)) return [];
-		return parsed.map(enrichMerchantBenefitSearchFields);
+		return parsed.map(b => enrichMerchantBenefitSearchFields(normalizeImportedMerchantBenefit(b)));
 	  } catch {
 		return [];
 	  }
@@ -4869,8 +4869,12 @@
 		  sortCategory: benefit.summary_sort_category || "other",
 		  benefitDisplayOrder: Number(benefit.display_order ?? 999),
 		  time: getBenefitStateTimeLabel(benefit, today),
-		  usage: `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`,
-		  usageHtml: `$${formatUsageAmount(used)} of<br>$${formatUsageAmount(limit)}`,
+		  usage: limit > 0
+		    ? `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`
+		    : `$${formatUsageAmount(used)} used`,
+		  usageHtml: limit > 0
+		    ? `$${formatUsageAmount(used)}<br>of $${formatUsageAmount(limit)}`
+		    : `$${formatUsageAmount(used)} used`,
 		  fullyUsed,
 		  hasPositiveUsage: used > 0 && !fullyUsed,
 		});
@@ -4938,7 +4942,7 @@
 					<td>${row.labelHtml || escapeHtml(row.label || "")}</td>
 					<td>${renderCardBadge(row.card)}</td>
 					<td>${escapeHtml(row.time || "")}</td>
-					<td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${escapeHtml(row.usage || "")}</td>
+					<td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${row.usageHtml || escapeHtml(row.usage || "")}</td>
 				  </tr>
 				`;
 			  }).join("")}
@@ -5011,17 +5015,12 @@
 		if (hasTotalCap && totalLimit != null) {
 		  const limitStr = formatUsageAmount(totalLimit);
 		  usageText = `$${usedStr} of $${limitStr}`;
-		  usageHtml = `$${usedStr} of<br>$${limitStr}`;
+		  usageHtml = `$${usedStr}<br>of $${limitStr}`;
 		} else {
 		  usageText = `$${usedStr} used`;
 		  usageHtml = `$${usedStr} used`;
 		}
 		
-		if (fullyUsed) {
-		  usageText += " Used up";
-		  usageHtml += `<br>Used up`;
-		}
-	
 		let timeText = formatBenefitEndDateDisplay(benefit.endDate, todayDate);
 		if (expired) {
 		  timeText = timeText ? `${timeText} Expired` : "Expired";
@@ -5049,7 +5048,7 @@
 		  expiringSoon: expiringSoon && !expired,
 		  expired,
 		  usedAmount: used,
-		  hasPositiveUsage: used > 0,
+		  hasPositiveUsage: used > 0 && !fullyUsed,
 		});
 	  }
 	  
