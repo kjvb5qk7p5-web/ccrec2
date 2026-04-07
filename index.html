@@ -538,7 +538,7 @@
 	  text-align: center;
 	  font-weight: 400;
 	  padding-top: 1px;
-	  padding-bottom: 1px;
+	  padding-bottom: 2px;
 	}
 	
 	.benefit-cell-text {
@@ -1445,7 +1445,7 @@
       </label>
 
       <label>
-        Max total benefit value (optional, in $)<br>
+        Max total value (optional, in $)<br>
         <input type="number" id="benefitLimitValue" min="0" step="0.01" placeholder="e.g. 50 means up to $50 total" />
       </label>
 
@@ -1461,7 +1461,7 @@
       </label>
 
       <label>
-        Benefit end date<br>
+        Offer end date<br>
         <input type="date" id="benefitEndDate" />
       </label>
 
@@ -1502,7 +1502,7 @@
       </table>
 
       <p class="muted">
-        Merchant benefits are stored locally in your browser (separate from purchases).
+        Merchant offers are stored locally in your browser (separate from purchases).
       </p>
     </div>
   </div>
@@ -2713,6 +2713,26 @@
 	  other: "Other"
 	};
 	
+	const CATEGORY_ICONS = {
+	  dining: "🍔",
+	  takeout: "🥡",
+	  groceries: "🛒",
+	  coffee: "☕️",
+	  rideshare: "🚗",
+	  travel: "✈️🏨",
+	  hotel: "🏨",
+	  rental_car: "🚙",
+	  entertainment: "🎫",
+	  retail: "🛍🧾",️
+	  wellness: "🫶",
+	  clothing: "👕🩳",
+	  eyewear: "👓",
+	  electronics: "📺",
+	  gas: "⛽️",
+	  pharmacy: "💊",
+	  other: "🛍"
+	};
+	
 	const CARD_BENEFITS_BY_ID = Object.fromEntries(
 	  CARD_BENEFITS.map(b => [b.id, b])
 	);
@@ -2751,7 +2771,7 @@
 	  delivery: ["delivery", "delivered", "food delivery"],
 	  coffee: ["coffee", "cafe", "espresso", "latte", "cappuccino"],
 	  groceries: ["groceries", "grocery", "supermarket"],
-	  gas: ["gas", "gas station", "petrol", "fuel"],
+	  gas: ["gas", "gas station", "petrol", "fuel", "gasoline"],
 	  convenience_store: ["convenience store", "bodega", "mini mart"],
 	  hotel: ["hotel", "hotels", "resort", "motel"],
 	  lodging: ["lodging", "accommodation", "stay"],
@@ -4432,14 +4452,14 @@
 
           // Validate merchant benefits array
           if (!Array.isArray(data.merchantBenefits)) {
-            alert("Invalid merchant benefits data in backup file.");
+            alert("Invalid merchant offers data in backup file.");
             return;
           }
 
           // Ask for confirmation
           const txCount = data.transactions.length;
           const benefitCount = data.merchantBenefits.length;
-          const msg = `Import ${txCount} transactions and ${benefitCount} merchant benefits?\n\nThis will REPLACE all current data.`;
+          const msg = `Import ${txCount} transactions and ${benefitCount} merchant offers?\n\nThis will REPLACE all current data.`;
           
           if (!confirm(msg)) {
             return;
@@ -4476,7 +4496,7 @@
 		  if (!txRollbackOk || !benefitRollbackOk) {
 			alert("⚠️ Critical: import failed AND rollback failed. Your data may be corrupted. Export immediately and reload the page.");
 		  } else {
-			showToast("⚠️ Import failed — merchant benefits could not be saved. No changes were applied.");
+			showToast("⚠️ Import failed — merchant offers could not be saved. No changes were applied.");
 		  }
 		  return;
 		}
@@ -5362,12 +5382,12 @@
 	const currentYearLabel = new Date().getFullYear();
 	
 	html += `
-	  <h3 class="annual-summary-subhead" style="margin-top:12px;">Merchant Benefits - ${currentYearLabel}</h3>
+	  <h3 class="annual-summary-subhead" style="margin-top:12px;">Merchant Offers - ${currentYearLabel}</h3>
 	  <table class="merchant-summary-table">
 		<thead>
 		  <tr>
 			<th>Card</th>
-			<th>Merchant Benefits Realized</th>
+			<th>Value of used Merchant Offers</th>
 		  </tr>
 		</thead>
 		<tbody>
