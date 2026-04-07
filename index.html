@@ -1613,7 +1613,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.7</p>
+<p class="blackmuted"><br>v6.7.1</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5599,19 +5599,28 @@
 	  // 2) Analyze card-native benefits
 	  const cardAnalysis = analyzeCardBenefitCandidates(tx, txs || []);
 	  if (cardAnalysis.winner) {
-		const rec = buildBenefitRecommendation(cardAnalysis.winner, purchase);
+	  const rec = buildBenefitRecommendation(cardAnalysis.winner, purchase);
 	
-		// If a higher-priority matching benefit was unavailable, prepend that explanation
-		if (
-		  cardAnalysis.firstUnavailable?.benefit?.reason_no &&
-		  shouldPrependUnavailableReason(cardAnalysis.firstUnavailable, cardAnalysis.winner)
-		) {
-		  rec.reason = `${cardAnalysis.firstUnavailable.benefit.reason_no}${rec.reason}`;
-		  rec.reasonMain = `${cardAnalysis.firstUnavailable.benefit.reason_no}${rec.reasonMain}`;
-		}
-	
-		return rec;
+	  // If a higher-priority matching benefit was unavailable, prepend that explanation
+	  if (
+		cardAnalysis.firstUnavailable?.benefit?.reason_no &&
+		shouldPrependUnavailableReason(cardAnalysis.firstUnavailable, cardAnalysis.winner)
+	  ) {
+		rec.reason = `${cardAnalysis.firstUnavailable.benefit.reason_no}${rec.reason}`;
+		rec.reasonMain = `${cardAnalysis.firstUnavailable.benefit.reason_no}${rec.reasonMain}`;
 	  }
+	
+	  // If a selected merchant offer was ineligible, explain why before the card rec
+	  if (merchantDiag && !merchantDiag.eligible) {
+		const merchantPrefix = buildMerchantFallbackPrefix(merchantDiag);
+		if (merchantPrefix) {
+		  rec.reason = `${merchantPrefix}${rec.reason}`;
+		  rec.reasonMain = `${merchantPrefix}${rec.reasonMain}`;
+		}
+	  }
+	
+	  return rec;
+	}
 	
 	  // 3) Fall back to base category map, but preserve why we got here
 	  const fallback = getBaseFallbackRecommendation(purchase.category);
