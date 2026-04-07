@@ -5108,6 +5108,8 @@
 		  timeText = timeText ? `${timeText} Expired` : "Expired";
 		}
 		
+		const derivedCategory = getDisplayCategoryForMerchantBenefit(benefit);
+		
 		let discountLabel = "";
 		if (benefit.discountType === "percent") {
 		  discountLabel = `${Number(benefit.discountValue || 0)}%`;
@@ -5122,8 +5124,9 @@
 		merchantRows.push({
 		  label: plainLabel,
 		  labelHtml,
+		  icon: CATEGORY_ICONS[derivedCategory] || CATEGORY_ICONS.other || "",
 		  card: benefit.card || "",
-		  category: getDisplayCategoryForMerchantBenefit(benefit),
+		  category: derivedCategory,
 		  time: timeText,
 		  usage: usageText,
 		  usageHtml,
@@ -5196,7 +5199,7 @@
 				
 				  return `
 					<tr class="${rowClass}">
-					  <td>${row.labelHtml || escapeHtml(row.label || "")}</td>
+					  <td>${renderBenefitCellHtml(row.icon, row.labelHtml, row.label)}</td>
 					  <td>${renderCardBadge(row.card)}</td>
 					  <td>${escapeHtml(row.time || "")}</td>
 					  <td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${row.usageHtml || escapeHtml(row.usage || "")}</td>
