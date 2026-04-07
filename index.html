@@ -519,6 +519,35 @@
 	  color: #666;
 	  font-size: 0.92em;
 	}
+	
+	.benefit-cell {
+	  display: grid;
+	  grid-template-columns: 1.35em 1fr;
+	  column-gap: 8px;
+	  align-items: start;
+	}
+	
+	.benefit-cell-icon {
+	  display: block;
+	  width: 1.35em;
+	  max-width: 1.35em;
+	  line-height: 1;
+	  white-space: normal;
+	  overflow-wrap: anywhere;
+	  word-break: break-word;
+	  text-align: center;
+	  font-weight: 400;
+	}
+	
+	.benefit-cell-text {
+	  min-width: 0;
+	}
+	
+	.benefit-cell-text a:link,
+	.benefit-cell-text a:visited {
+	  color: inherit;
+	  text-decoration: underline;
+	}
     
     #cardBenefitsSummary a:link,
 	#cardBenefitsSummary a:visited,
@@ -1582,7 +1611,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.6.4b</p>
+<p class="blackmuted"><br>v6.7</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1722,8 +1751,9 @@
 	
 		label: "Travel credit",
 		labelHtml: "Travel credit",
-		state_label: "✈️🏨🚗 Travel credit",
-		state_labelHtml: "✈️🏨🚗 Travel credit",
+		state_label: "Travel credit",
+		state_labelHtml: "Travel credit",
+		icon: "✈️🏨",
 	
 		categories: [
 		  "united_flight",
@@ -1781,9 +1811,10 @@
 		label: "DoorDash dining",
 		labelHtml:
 		  '<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> dining',
-		state_label: "🥡 DoorDash dining",
+		state_label: "DoorDash dining",
 		state_labelHtml:
-		  '🥡 <a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> dining',
+		  '<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> dining',
+		icon: "🥡",
 	
 		categories: ["doordash"],
 		summary_sort_category: "dining",
@@ -1822,9 +1853,10 @@
 		label: "DoorDash groceries",
 		labelHtml:
 		  '<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> groceries',
-		state_label: "🛒 DoorDash groceries",
+		state_label: "DoorDash groceries",
 		state_labelHtml:
-		  '🛒 <a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> groceries',
+		  '<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> groceries',
+		icon: "🛒",
 	
 		categories: ["doordash_groceries"],
 		summary_sort_category: "groceries",
@@ -1864,9 +1896,10 @@
 		label: "Lyft",
 		labelHtml:
 		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
-		state_label: "🚗 Lyft",
+		state_label: "Lyft",
 		state_labelHtml:
-		  '🚗 <a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+		icon: "🚗",
 	
 		categories: ["lyft"],
 		summary_sort_category: "rideshare",
@@ -1903,10 +1936,11 @@
 		  searchAliases: ["bike subscription", "fitness membership"],
 	
 		label: "Peloton",
-		labelHtml: "🚲 Peloton",
+		labelHtml: "Peloton",
 		state_label: "Peloton",
-		state_labelHtml: "🚲 Peloton",
-	
+		state_labelHtml: "Peloton",
+		icon: "🚲",
+		
 		categories: ["peloton"],
 		summary_sort_category: "other",
 	
@@ -1944,9 +1978,10 @@
 		label: "OpenTable dining partners",
 		labelHtml:
 		  '<a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" target="_blank" rel="noopener noreferrer">OpenTable</a> dining partners',
-		state_label: "🍔 Dining partners on OpenTable",
+		state_label: "Dining partners on OpenTable",
 		state_labelHtml:
-		  '🍔 Dining partners on <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" target="_blank" rel="noopener noreferrer">OpenTable</a>',
+		  'Dining partners on <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" target="_blank" rel="noopener noreferrer">OpenTable</a>',
+		icon: "🍔",
 	
 		categories: ["csr_opentable"],
 		summary_sort_category: "dining",
@@ -1985,9 +2020,10 @@
 		label: "The Edit hotel partners",
 		labelHtml:
 		  '<a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" target="_blank" rel="noopener noreferrer">The Edit hotel partners</a>',
-		state_label: "🏨 The Edit hotel partners",
+		state_label: "The Edit hotel partners",
 		state_labelHtml:
-		  '🏨 The Edit hotel partners on <a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" target="_blank" rel="noopener noreferrer">Chase Travel</a>',
+		  'The Edit hotel partners on <a href="https://secure.chase.com/web/auth/dashboard#/dashboard/travel/editHub/directory" target="_blank" rel="noopener noreferrer">Chase Travel</a>',
+		icon: "🏨",
 	
 		categories: ["theedit_hotel"],
 		summary_sort_category: "travel",
@@ -2026,9 +2062,10 @@
 		label: "StubHub / viagogo / soccer.com",
 		labelHtml:
 		  '<a href="https://www.stubhub.com" target="_blank" rel="noopener noreferrer">StubHub</a> / <a href="https://www.viagogo.com" target="_blank" rel="noopener noreferrer">viagogo</a> / <a href="https://www.soccer.com" target="_blank" rel="noopener noreferrer">soccer.com</a>',
-		state_label: "🎫 StubHub / viagogo / soccer.com",
+		state_label: "StubHub / viagogo / soccer.com",
 		state_labelHtml:
-		  '🎫 <a href="https://www.stubhub.com" target="_blank" rel="noopener noreferrer">StubHub</a> / <a href="https://www.viagogo.com" target="_blank" rel="noopener noreferrer">viagogo</a> / <a href="https://www.soccer.com" target="_blank" rel="noopener noreferrer">soccer.com</a>',
+		  '<a href="https://www.stubhub.com" target="_blank" rel="noopener noreferrer">StubHub</a> / <a href="https://www.viagogo.com" target="_blank" rel="noopener noreferrer">viagogo</a> / <a href="https://www.soccer.com" target="_blank" rel="noopener noreferrer">soccer.com</a>',
+		icon: "🎫",
 	
 		categories: ["stubhub"],
 		summary_sort_category: "entertainment",
@@ -2072,9 +2109,10 @@
 		label: "Uber rides + Eats",
 		labelHtml:
 		  '<a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides + Eats',
-		state_label: "🚗🥡 Uber rides + Eats",
+		state_label: "Uber rides + Eats",
 		state_labelHtml:
-		  '🚗🥡 <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides + Eats',
+		  '<a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides + Eats',
+		icon: "🚗🥡",
 	
 		categories: ["rideshare_other", "uber_eats"],
 		summary_sort_category: "rideshare",
@@ -2115,9 +2153,10 @@
 		label: "Dining partners (GrubHub, Seamless, Cheesecake Factory, Goldbelly, Five Guys, wine.com)",
 		labelHtml:
 		  'Dining partners (<a href="https://www.grubhub.com" target="_blank" rel="noopener noreferrer">GrubHub</a>/<a href="https://www.seamless.com" target="_blank" rel="noopener noreferrer">Seamless</a>, Cheesecake Factory, Goldbelly, Five Guys, <a href="https://www.wine.com" target="_blank" rel="noopener noreferrer">Wine.com</a>)',
-		state_label: "🍔 Dining partners (GrubHub, Seamless, Cheesecake Factory, Goldbelly, Five Guys, wine.com)",
+		state_label: "Dining partners (GrubHub, Seamless, Cheesecake Factory, Goldbelly, Five Guys, wine.com)",
 		state_labelHtml:
-		  '🍔 Dining partners (<a href="https://www.grubhub.com" target="_blank" rel="noopener noreferrer">GrubHub</a>/<a href="https://www.seamless.com" target="_blank" rel="noopener noreferrer">Seamless</a>, Cheesecake Factory, Goldbelly, Five Guys, <a href="https://www.wine.com" target="_blank" rel="noopener noreferrer">Wine.com</a>)',
+		  'Dining partners (<a href="https://www.grubhub.com" target="_blank" rel="noopener noreferrer">GrubHub</a>/<a href="https://www.seamless.com" target="_blank" rel="noopener noreferrer">Seamless</a>, Cheesecake Factory, Goldbelly, Five Guys, <a href="https://www.wine.com" target="_blank" rel="noopener noreferrer">Wine.com</a>)',
+		icon: "🍔",
 	
 		categories: ["ag_dining"],
 		summary_sort_category: "dining",
@@ -2166,8 +2205,9 @@
 	
 		label: "Dunkin",
 		labelHtml: "Dunkin",
-		state_label: "☕ Dunkin",
-		state_labelHtml: "☕ Dunkin",
+		state_label: "Dunkin",
+		state_labelHtml: "Dunkin",
+		icon: "☕",
 	
 		categories: ["dunkin"],
 		summary_sort_category: "dining",
@@ -2206,9 +2246,10 @@
 		label: "Resy dining",
 		labelHtml:
 		  '<a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
-		state_label: "🍔 Resy dining",
+		state_label: "Resy dining",
 		state_labelHtml:
-		  '🍔 <a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
+		  '<a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
+		icon: "🍔",
 	
 		categories: ["resy"],
 		summary_sort_category: "dining",
@@ -2251,9 +2292,10 @@
 		label: "Lyft + Uber rides",
 		labelHtml:
 		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a> + <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides',
-		state_label: "🚗 Lyft + Uber rides",
+		state_label: "Lyft + Uber rides",
 		state_labelHtml:
-		  '🚗 <a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a> + <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides',
+		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a> + <a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> rides',
+		icon: "🚗",
 	
 		categories: ["rideshare_other", "lyft"],
 		summary_sort_category: "rideshare",
@@ -2294,9 +2336,10 @@
 		label: "Instacart",
 		labelHtml:
 		  '<a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
-		state_label: "🛒 Instacart",
+		state_label: "Instacart",
 		state_labelHtml:
-		  '🛒 <a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
+		  '<a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
+		icon: "🛒",
 	
 		categories: ["instacart"],
 		summary_sort_category: "groceries",
@@ -2334,8 +2377,9 @@
 	
 		label: "Renowned Hotels",
 		labelHtml: "Renowned Hotels",
-		state_label: "🏨 Renowned Hotels",
-		state_labelHtml: "🏨 Renowned Hotels",
+		state_label: "Renowned Hotels",
+		state_labelHtml: "Renowned Hotels",
+		icon: "🏨",
 	
 		categories: ["renowned_hotel"],
 		summary_sort_category: "travel",
@@ -2374,9 +2418,10 @@
 		label: "Avis & Budget car rental",
 		labelHtml:
 		  'Avis &amp; Budget car rental',
-		state_label: "🚙 Avis & Budget car rental",
+		state_label: "Avis & Budget car rental",
 		state_labelHtml:
-		  '🚙 Avis &amp; Budget car rental',
+		  'Avis &amp; Budget car rental',
+		icon: "🚙",
 	
 		categories: ["uq_rentalcar"],
 		summary_sort_category: "travel",
@@ -2420,9 +2465,10 @@
 		label: "Delta Stays",
 		labelHtml:
 		  '<a href="https://carsandstays.delta.com/Hotels#" target="_blank" rel="noopener noreferrer">Delta Stays</a>',
-		state_label: "🏨 Delta Stays",
+		state_label: "Delta Stays",
 		state_labelHtml:
-		  '🏨 <a href="https://carsandstays.delta.com/Hotels#" target="_blank" rel="noopener noreferrer">Delta Stays</a>',
+		  '<a href="https://carsandstays.delta.com/Hotels#" target="_blank" rel="noopener noreferrer">Delta Stays</a>',
+		icon: "🏨",
 	
 		categories: ["delta_stays"],
 		summary_sort_category: "travel",
@@ -2464,8 +2510,9 @@
 	
 		label: "Dining credit",
 		labelHtml: "Dining credit",
-		state_label: "🍔 Dining credit",
-		state_labelHtml: "🍔 Dining credit",
+		state_label: "Dining credit",
+		state_labelHtml: "Dining credit",
+		icon: "🍔",
 	
 		categories: ["dining"],
 		summary_sort_category: "dining",
@@ -4824,6 +4871,18 @@
 	
 	  return normalized || "other";
 	}
+	
+	function renderBenefitCellHtml(icon, labelHtml, labelText) {
+	  const safeIcon = escapeHtml(icon || "");
+	  const textHtml = labelHtml || escapeHtml(labelText || "");
+	
+	  return `
+		<div class="benefit-cell">
+		  <span class="benefit-cell-icon">${safeIcon}</span>
+		  <span class="benefit-cell-text">${textHtml}</span>
+		</div>
+	  `;
+	}
 
     // ---------- State summaries ----------
     function renderStateSummary() {
@@ -4864,6 +4923,7 @@
 		ccRows.push({
 		  label: benefit.state_label || benefit.label || benefit.id,
 		  labelHtml: benefit.state_labelHtml || null,
+		  icon: benefit.icon || "",
 		  card: benefit.card,
 		  cardSortOrder: Number(CARDS[benefit.card]?.sort_order ?? 999),
 		  sortCategory: benefit.summary_sort_category || "other",
@@ -4939,7 +4999,7 @@
 	
 				return `
 				  <tr class="${row.fullyUsed ? "credit-met-row" : ""}">
-					<td>${row.labelHtml || escapeHtml(row.label || "")}</td>
+					<td>${renderBenefitCellHtml(row.icon, row.labelHtml, row.label)}</td>
 					<td>${renderCardBadge(row.card)}</td>
 					<td>${escapeHtml(row.time || "")}</td>
 					<td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${row.usageHtml || escapeHtml(row.usage || "")}</td>
