@@ -1571,8 +1571,23 @@
 		</div>
 	
 		<div class="category-picker-tabs" id="categoryPickerTabs">
-		  <button type="button" class="category-picker-tab active" data-page="0">Card benefits</button>
-		  <button type="button" class="category-picker-tab" data-page="1">Merchant offers</button>
+		  <button
+			  type="button"
+			  class="category-picker-tab active"
+			  data-page="0"
+			  data-base-label="Card benefits"
+			>
+			  Card benefits
+			</button>
+			
+			<button
+			  type="button"
+			  class="category-picker-tab"
+			  data-page="1"
+			  data-base-label="Merchant offers"
+			>
+			  Merchant offers
+			</button>
 		</div>
 
 		<div class="category-picker-search-wrap">
@@ -4895,7 +4910,7 @@
 	}
 	
 	function renderBenefitCellHtml(icon, labelHtml, labelText) {
-	  const safeIcon = escapeHtml(icon || "");
+	  const safeIcon = escapeHtml(icon || "⚪️");
 	  const textHtml = labelHtml || escapeHtml(labelText || "");
 	
 	  return `
@@ -5932,6 +5947,26 @@
 	  });
 	}
 	
+	function updateCategoryPickerTabLabels(cardCount, merchantCount, query) {
+	  const tabs = document.querySelectorAll(".category-picker-tab");
+	
+	  tabs.forEach((tab) => {
+		const page = Number(tab.getAttribute("data-page"));
+		const baseLabel = tab.getAttribute("data-base-label") || tab.textContent.trim();
+	
+		if (!query) {
+		  tab.textContent = baseLabel;
+		  return;
+		}
+	
+		if (page === 0) {
+		  tab.textContent = `${baseLabel} (${cardCount})`;
+		} else if (page === 1) {
+		  tab.textContent = `${baseLabel} (${merchantCount})`;
+		}
+	  });
+	}
+	
 	function updateCategoryPickerSearchClearVisibility() {
 	  const input = document.getElementById("categoryPickerSearch");
 	  const btn = document.getElementById("categoryPickerSearchClearBtn");
@@ -5981,11 +6016,22 @@
 	  const query = categoryPickerState.search || "";
 	  const groupedCards = getGroupedCardCategoriesForPicker(query);
 	  const merchantOffers = getMerchantOffersForPicker(query);
+	  
+	  const cardCount = groupedCards.reduce((sum, group) => sum + group.items.length, 0);
+		const merchantCount = merchantOffers.length;
+		
+		updateCategoryPickerTabLabels(cardCount, merchantCount, query);
 	
 	  // Card page
 	  if (!groupedCards.length) {
-		cardPage.innerHTML = `<div class="category-picker-empty">No card-benefit matches.</div>`;
-	  } else {
+		  let message = "No card-benefit matches.";
+		
+		  if (query && merchantCount > 0) {
+			message += ` ${merchantCount} merchant-offer match${merchantCount === 1 ? "" : "es"} on the other tab.`;
+		  }
+		
+		  cardPage.innerHTML = `<div class="category-picker-empty">${escapeHtml(message)}</div>`;
+		} else {
 		cardPage.innerHTML = groupedCards.map(group => `
 		  <div class="category-picker-group">
 			<div class="category-picker-group-title">${escapeHtml(group.groupName)}</div>
@@ -6000,8 +6046,14 @@
 	
 	  // Merchant page
 	  if (!merchantOffers.length) {
-		merchantPage.innerHTML = `<div class="category-picker-empty">No merchant-offer matches.</div>`;
-	  } else {
+		  let message = "No merchant-offer matches.";
+		
+		  if (query && cardCount > 0) {
+			message += ` ${cardCount} card-benefit match${cardCount === 1 ? "" : "es"} on the other tab.`;
+		  }
+		
+		  merchantPage.innerHTML = `<div class="category-picker-empty">${escapeHtml(message)}</div>`;
+		} else {
 		merchantPage.innerHTML = merchantOffers.map(item => renderCategoryPickerRow({
 		  value: item.value,
 		  title: escapeHtml(item.title),
