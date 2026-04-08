@@ -6880,51 +6880,51 @@
 
 	// Save transaction
 	function savePurchase() {
-		if (isSavingPurchase) return;
-		isSavingPurchase = true;
-		  
-		const saveBtn = document.getElementById("btnSaveTx");
-		const floatingSaveBtn = document.getElementById("btnFloatingSave");
-		
-		if (saveBtn) saveBtn.disabled = true;
-		if (floatingSaveBtn) floatingSaveBtn.disabled = true;
-		
-		try {
-	  if (!lastRecommendation) {
-		alert("Get a recommendation first.");
-		return;
-	  }
-	  
-	  const currentPurchase = getCurrentPurchaseFromForm();
+	  if (isSavingPurchase) return;
+	  isSavingPurchase = true;
+	
+	  const saveBtn = document.getElementById("btnSaveTx");
+	  const floatingSaveBtn = document.getElementById("btnFloatingSave");
+	
+	  if (saveBtn) saveBtn.disabled = true;
+	  if (floatingSaveBtn) floatingSaveBtn.disabled = true;
+	
+	  try {
+		if (!lastRecommendation) {
+		  alert("Get a recommendation first.");
+		  return;
+		}
+	
+		const currentPurchase = getCurrentPurchaseFromForm();
 		if (!purchaseMatchesLastRecommendation(currentPurchase, lastRecommendation.purchase)) {
 		  alert("The form has changed since the last recommendation. Please get a new recommendation before saving.");
 		  return;
 		}
 	
-	  const overrideCard = document.getElementById("cardUsedSelect").value;
+		const overrideCard = document.getElementById("cardUsedSelect").value;
 		const overrideChannel = document.getElementById("channelUsedSelect").value;
 		const cardUsed = overrideCard || lastRecommendation.rec.card;
-		
+	
 		const validChannels = getValidChannelsForSelectedCard(
 		  lastRecommendation.purchase,
 		  lastRecommendation.rec,
 		  cardUsed
 		);
-		
+	
 		const defaultChannel = getDefaultChannelForSelectedCard(
 		  lastRecommendation.purchase,
 		  lastRecommendation.rec,
 		  cardUsed
 		);
-		
+	
 		const channelUsed = overrideChannel || defaultChannel;
-		
+	
 		if (!validChannels.includes(channelUsed)) {
 		  alert("The selected channel is not valid for the chosen card/category combination. Please choose a matching channel.");
 		  return;
 		}
 	
-	  const tx = {
+		const tx = {
 		  id: makeUniqueId("tx"),
 		  stableKey: makeUniqueId("txn"),
 		  createdAt: makeCreatedAt(),
@@ -6939,28 +6939,27 @@
 		  cardBenefitApplied: 0,
 		};
 	
-	  const txsBeforeSave = loadTransactions();
-	  const benefits = loadMerchantBenefits();
+		const txsBeforeSave = loadTransactions();
+		const benefits = loadMerchantBenefits();
 	
-	  // Calculate merchant benefit value for this transaction
-	  const merchantApplied = calculateMerchantBenefitApplied(tx, benefits, txsBeforeSave);
-	  tx.merchantBenefitId = merchantApplied.merchantBenefitId;
-	  tx.merchantBenefitApplied = merchantApplied.merchantBenefitApplied;
+		// Calculate merchant benefit value for this transaction
+		const merchantApplied = calculateMerchantBenefitApplied(tx, benefits, txsBeforeSave);
+		tx.merchantBenefitId = merchantApplied.merchantBenefitId;
+		tx.merchantBenefitApplied = merchantApplied.merchantBenefitApplied;
 	
-	  // Calculate card benefit value for this transaction
-	  const cardApplied = calculateCardBenefitApplied(tx, txsBeforeSave);
-	  tx.cardBenefitId = cardApplied.cardBenefitId;
-	  tx.cardBenefitApplied = cardApplied.cardBenefitApplied;
+		// Calculate card benefit value for this transaction
+		const cardApplied = calculateCardBenefitApplied(tx, txsBeforeSave);
+		tx.cardBenefitId = cardApplied.cardBenefitId;
+		tx.cardBenefitApplied = cardApplied.cardBenefitApplied;
 	
-	  const nextTxs = txsBeforeSave.concat(tx);
+		const nextTxs = txsBeforeSave.concat(tx);
 	
-	  const ok = saveTransactions(nextTxs);
-	  if (!ok) {
-		showToast("⚠️ Unable to save transactions — storage full or private mode.");
-		return;
-	  }
+		const ok = saveTransactions(nextTxs);
+		if (!ok) {
+		  showToast("⚠️ Unable to save transactions — storage full or private mode.");
+		  return;
+		}
 	
-	  try {
 		renderTransactions();
 		renderStateSummary();
 		renderRollingAnnualSummary();
@@ -6975,23 +6974,21 @@
 	
 		document.getElementById("amount").value = "";
 		document.getElementById("date").value = formatTodayISO();
-      	setDefaultPurchaseCategory();
-      	updateCategoryPickerTrigger();
-      	closeCategoryPicker();
+		setDefaultPurchaseCategory();
+		updateCategoryPickerTrigger();
+		closeCategoryPicker();
 	
 		lastRecommendation = null;
 		showToast("✓ Purchase saved");
 	  } catch (err) {
 		console.error("Error after saving purchase during rerender/reset:", err);
 		alert("Purchase was saved, but part of the screen failed to refresh. Check the console for details.");
-		} finally {
+	  } finally {
 		isSavingPurchase = false;
 		if (saveBtn) saveBtn.disabled = false;
 		if (floatingSaveBtn) floatingSaveBtn.disabled = false;
 	  }
-
-	}
-	
+	}	
 	document.getElementById("btnSaveTx").addEventListener("click", savePurchase);
 	document.getElementById("btnFloatingSave").addEventListener("click", savePurchase);
 
