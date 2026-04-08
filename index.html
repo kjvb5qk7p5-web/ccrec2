@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.7.1</p>
+<p class="blackmuted"><br>v6.7.3</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2880,6 +2880,8 @@
 	let categorySelectionWasAuto = false;
 	let cardBenefitsSortMode = "card";
 	let merchantOffersSortMode = "alpha";
+	let isAddingBenefit = false;
+	let isSavingPurchase = false;
 	
 	function renderActiveCardsSummary() {
 	  const el = document.getElementById("activeCardsSummary");
@@ -3393,6 +3395,9 @@
 
 	function normalizeImportedTransaction(tx) {
 	  return {
+		id: tx.id || makeUniqueId("tx"),
+		stableKey: tx.stableKey || makeUniqueId("txn"),
+		createdAt: tx.createdAt || makeCreatedAt(),
 		date: tx.date || "",
 		amount: Number(tx.amount) || 0,
 		category: tx.category || "",
@@ -3411,7 +3416,9 @@
 	
 	function normalizeImportedMerchantBenefit(b) {
 	  const normalized = {
-		id: b?.id != null ? String(b.id) : ("mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000)),
+		id: b?.id != null ? String(b.id) : makeUniqueId("mb"),
+		stableKey: b.stableKey || makeUniqueId("mo"),
+		createdAt: b.createdAt || makeCreatedAt(),
 		merchant: b?.merchant != null ? String(b.merchant).trim() : "",
 		card: b?.card != null ? String(b.card).toUpperCase() : "",
 		discountType: b?.discountType === "percent" ? "percent" : "amount",
@@ -4444,6 +4451,111 @@
 	  document.body.removeChild(link);
 	  URL.revokeObjectURL(url);
 	}
+	
+	function dedupeTransactionsForImport(txs) {
+	  const seenStable = new Set();
+	  const seenFallback = new Set();
+	  const out = [];
+	
+	  for (const tx of txs) {
+		if (tx.stableKey) {
+		  if (seenStable.has(tx.stableKey)) continue;
+		  seenStable.add(tx.stableKey);
+		  out.push(tx);
+		  continue;
+		}
+	
+		const fallbackKey = JSON.stringify([
+		  tx.date || "",
+		  Number(tx.amount || 0).toFixed(2),
+		  tx.category || "",
+		  tx.channel || "",
+		  tx.cardUsed || "",
+		  tx.merchantBenefitId || "",
+		  Number(tx.merchantBenefitApplied || 0).toFixed(2),
+		  tx.cardBenefitId || "",
+		  Number(tx.cardBenefitApplied || 0).toFixed(2)
+		]);
+	
+		if (seenFallback.has(fallbackKey)) continue;
+		seenFallback.add(fallbackKey);
+		out.push(tx);
+	  }
+	
+	  return out;
+	}
+	
+	function dedupeMerchantBenefitsForImport(benefits) {
+	  const seenStable = new Set();
+	  const seenFallback = new Set();
+	  const out = [];
+	
+	  for (const b of benefits) {
+		if (b.stableKey) {
+		  if (seenStable.has(b.stableKey)) continue;
+		  seenStable.add(b.stableKey);
+		  out.push(b);
+		  continue;
+		}
+	
+		const fallbackKey = JSON.stringify([
+		  (b.merchant || "").trim().toLowerCase(),
+		  b.card || "",
+		  b.category || "",
+		  b.discountType || "",
+		  Number(b.discountValue || 0).toFixed(2),
+		  b.limitType || "",
+		  b.limitValue == null ? "" : Number(b.limitValue).toFixed(2),
+		  b.minSpend == null ? "" : Number(b.minSpend).toFixed(2),
+		  b.maxTransactions == null ? "" : String(b.maxTransactions),
+		  b.endDate || ""
+		]);
+	
+		if (seenFallback.has(fallbackKey)) continue;
+		seenFallback.add(fallbackKey);
+		out.push(b);
+	  }
+	
+	  return out;
+	}
+	
+	function ensureUniqueMerchantBenefitIds(benefits) {
+	  const seen = new Set();
+	  const idRemap = new Map();
+	  const out = [];
+	
+	  for (const benefit of benefits) {
+		const copy = { ...benefit };
+		const originalId = String(copy.id || "");
+		let finalId = originalId || makeUniqueId("mb");
+	
+		while (seen.has(finalId)) {
+		  finalId = makeUniqueId("mb");
+		}
+	
+		seen.add(finalId);
+		copy.id = finalId;
+		out.push(copy);
+	
+		if (originalId && originalId !== finalId) {
+		  idRemap.set(originalId, finalId);
+		}
+	  }
+	
+	  return { benefits: out, idRemap };
+	}
+	
+	function remapTransactionMerchantBenefitIds(txs, idRemap) {
+	  return txs.map((tx) => {
+		const oldId = tx.merchantBenefitId;
+		if (!oldId || !idRemap.has(String(oldId))) return tx;
+	
+		return {
+		  ...tx,
+		  merchantBenefitId: idRemap.get(String(oldId))
+		};
+	  });
+	}
 
     // Import data from JSON file
     function importDataFromFile(file) {
@@ -4480,30 +4592,56 @@
             return;
           }
 
-		// Import the data (save first, verify both succeeded)
+		// Import the data (normalize -> dedupe -> remap -> save)
 		const oldTxs = loadTransactions();
 		const oldBenefits = loadMerchantBenefits();
 		
-		const normalizedTxs = data.transactions.map(normalizeImportedTransaction);
+		// 1. Normalize transactions first
+		let normalizedTxs = data.transactions.map(normalizeImportedTransaction);
+		
+		// 2. Normalize + validate merchant offers
+		let normalizedBenefits = data.merchantBenefits
+		  .map(normalizeImportedMerchantBenefit)
+		  .filter(b =>
+			b.merchant &&
+			b.card &&
+			b.endDate &&
+			b.category &&
+			b.discountValue > 0 &&
+			(b.maxTransactions == null || b.maxTransactions > 0) &&
+			(b.limitValue == null || b.limitValue > 0) &&
+			(b.minSpend == null || b.minSpend > 0)
+		  );
+		
+		// Keep raw post-normalization counts so you can report removed duplicates later
+		const rawNormalizedTxCount = normalizedTxs.length;
+		const rawNormalizedBenefitCount = normalizedBenefits.length;
+		
+		// 3. Dedupe merchant offers first
+		normalizedBenefits = dedupeMerchantBenefitsForImport(normalizedBenefits);
+		
+		// 4. Ensure merchant-offer IDs are unique
+		const uniqueBenefitResult = ensureUniqueMerchantBenefitIds(normalizedBenefits);
+		normalizedBenefits = uniqueBenefitResult.benefits;
+		
+		// 5. Remap transaction merchantBenefitIds if any benefit IDs changed
+		normalizedTxs = remapTransactionMerchantBenefitIds(
+		  normalizedTxs,
+		  uniqueBenefitResult.idRemap
+		);
+		
+		// 6. Dedupe transactions after remapping
+		normalizedTxs = dedupeTransactionsForImport(normalizedTxs);
+		
+		// 7. Save transactions first
 		const txOk = saveTransactions(normalizedTxs);
 		if (!txOk) {
 		  showToast("⚠️ Unable to import transactions — storage full or private mode.");
 		  return;
 		}
 		
-		const normalizedBenefits = data.merchantBenefits
-		  .map(normalizeImportedMerchantBenefit)
-		  .filter(b =>
-			  b.merchant &&
-			  b.card &&
-			  b.endDate &&
-			  b.category &&
-			  b.discountValue > 0 &&
-			  (b.maxTransactions == null || b.maxTransactions > 0) &&
-			  (b.limitValue == null || b.limitValue > 0) &&
-			  (b.minSpend == null || b.minSpend > 0)
-			);
-  		const benefitsOk = saveMerchantBenefits(normalizedBenefits);
+		// 8. Save merchant offers second
+		const benefitsOk = saveMerchantBenefits(normalizedBenefits);
 		if (!benefitsOk) {
 		  // Roll back both — check each independently
 		  const txRollbackOk = saveTransactions(oldTxs);
@@ -4514,8 +4652,8 @@
 			showToast("⚠️ Import failed — merchant offers could not be saved. No changes were applied.");
 		  }
 		  return;
-		}
-		
+		}		
+
 		// Re-render everything
 		renderTransactions();
 		renderMerchantBenefits();
@@ -4526,7 +4664,17 @@
 		
 		const importedTxCount = normalizedTxs.length;
 		const importedBenefitCount = normalizedBenefits.length;
-		alert(`Successfully imported ${importedTxCount} transactions and ${importedBenefitCount} merchant benefits!`);
+		
+		const removedTxDuplicates = rawNormalizedTxCount - importedTxCount;
+		const removedBenefitDuplicates = rawNormalizedBenefitCount - importedBenefitCount;
+		
+		let successMsg = `Successfully imported ${importedTxCount} transactions and ${importedBenefitCount} merchant offers.`;
+		
+		if (removedTxDuplicates > 0 || removedBenefitDuplicates > 0) {
+		  successMsg += ` Removed ${removedTxDuplicates} duplicate transaction${removedTxDuplicates === 1 ? "" : "s"} and ${removedBenefitDuplicates} duplicate merchant offer${removedBenefitDuplicates === 1 ? "" : "s"}.`;
+		}
+		
+		alert(successMsg);
 
         } catch (error) {
           alert("Error reading backup file. Make sure it's a valid JSON file exported from this app.");
@@ -5490,6 +5638,18 @@
 	  };
 	}
 	
+	// stable ID helper function
+	function makeUniqueId(prefix = "id") {
+	  if (window.crypto && crypto.randomUUID) {
+		return `${prefix}_${crypto.randomUUID()}`;
+	  }
+	  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
+	}
+	
+	function makeCreatedAt() {
+	  return new Date().toISOString();
+	}
+	
 	// 6.1 merchant diagnostic helper that passes why a merchant offer failed
 	function diagnoseMerchantOffer(purchase, merchantState, benefits) {
 	  if (!purchase.merchantBenefitId) return null;
@@ -6186,6 +6346,7 @@
     
     }
     
+    /* obsolete function
 	function getSuggestedCategoryOptions(query) {
 	  const merchantBenefits = loadMerchantBenefits();
 	  const txs = loadTransactions();
@@ -6241,7 +6402,8 @@
 	
 	  suggestions.sort((a, b) => b.score - a.score);
 	  return suggestions;
-	}
+	} 
+	*/
 	
 	// 6.0 wrapper function for new picker
 	function populateCategorySelect() {
@@ -6718,6 +6880,16 @@
 
 	// Save transaction
 	function savePurchase() {
+		if (isSavingPurchase) return;
+		isSavingPurchase = true;
+		  
+		const saveBtn = document.getElementById("btnSaveTx");
+		const floatingSaveBtn = document.getElementById("btnFloatingSave");
+		
+		if (saveBtn) saveBtn.disabled = true;
+		if (floatingSaveBtn) floatingSaveBtn.disabled = true;
+		
+		try {
 	  if (!lastRecommendation) {
 		alert("Get a recommendation first.");
 		return;
@@ -6753,6 +6925,9 @@
 		}
 	
 	  const tx = {
+		  id: makeUniqueId("tx"),
+		  stableKey: makeUniqueId("txn"),
+		  createdAt: makeCreatedAt(),
 		  date: currentPurchase.date,
 		  amount: Number(currentPurchase.amount),
 		  category: currentPurchase.category,
@@ -6809,7 +6984,12 @@
 	  } catch (err) {
 		console.error("Error after saving purchase during rerender/reset:", err);
 		alert("Purchase was saved, but part of the screen failed to refresh. Check the console for details.");
+		} finally {
+		isSavingPurchase = false;
+		if (saveBtn) saveBtn.disabled = false;
+		if (floatingSaveBtn) floatingSaveBtn.disabled = false;
 	  }
+
 	}
 	
 	document.getElementById("btnSaveTx").addEventListener("click", savePurchase);
@@ -6836,6 +7016,7 @@
       chanSelect.innerHTML = "";
 
       lastRecommendation = null;
+      
     });
     
     // 5.0 cardUsedSelect change handler
@@ -6924,117 +7105,131 @@
 
 	// Add merchant benefit
 	document.getElementById("btnAddBenefit").addEventListener("click", () => {
-	  const merchant = document.getElementById("benefitMerchant").value.trim();
-	  const card = document.getElementById("benefitCard").value;
-	  const discountType = document.getElementById("benefitDiscountType").value;
-	  const discountValueRaw = document.getElementById("benefitDiscountValue").value;
-	  const limitType = document.getElementById("benefitLimitType").value;
-	  const limitValueRaw = document.getElementById("benefitLimitValue").value;
-	  const maxTxRaw = document.getElementById("benefitMaxTx").value;
-	  const minSpendRaw = document.getElementById("benefitMinSpend").value;
-	  const endDate = document.getElementById("benefitEndDate").value;
-	  const category = document.getElementById("benefitCategorySelect").value;
-	  const searchTagsRaw = document.getElementById("benefitSearchTags").value.trim();
+	  if (isAddingBenefit) return;
+	  isAddingBenefit = true;
 	
-	  if (!merchant || !card || !discountType || !discountValueRaw || !endDate || !category) {
-		alert("Please fill at least Merchant, Card, Discount type/value, End date, and Category.");
-		return;
-	  }
+	  const btn = document.getElementById("btnAddBenefit");
+	  if (btn) btn.disabled = true;
 	
-	  // Validate that category is actually valid
-	  const validCategories = BASE_CATEGORIES.map(c => c.value);
-	  if (!validCategories.includes(category)) {
-		alert("Invalid category selected. Please choose a valid category.");
-		return;
-	  }
-	
-	  const discountValue = Number(discountValueRaw);
-	  if (isNaN(discountValue) || discountValue <= 0) {
-		alert("Discount value must be a positive number.");
-		return;
-	  }
-	
-	  let limitValue = null;
-	  if (limitValueRaw !== "") {
-		limitValue = Number(limitValueRaw);
-		if (isNaN(limitValue) || limitValue < 0) {
-		  alert("Discount limit value must be a non-negative number.");
-		  return;
-		}
-	  }
-	  if (limitValue != null && limitValue <= 0) limitValue = null;
-
-	
-	  let minSpend = null;
-	  if (minSpendRaw !== "") {
-		minSpend = Number(minSpendRaw);
-		if (isNaN(minSpend) || minSpend < 0) {
-		  alert("Minimum spend must be a non-negative number.");
-		  return;
-		}
-	  }
-	  if (minSpend != null && minSpend <= 0) minSpend = null;
-	
-	  let maxTransactions = null;
-	  if (maxTxRaw !== "") {
-		maxTransactions = Number(maxTxRaw);
-		if (
-		  isNaN(maxTransactions) ||
-		  maxTransactions < 0 ||
-		  !Number.isInteger(maxTransactions)
-		) {
-		  alert("Maximum transactions must be a non-negative whole number.");
-		  return;
-		}
-	  }
-	  if (maxTransactions != null && maxTransactions <= 0) maxTransactions = null;
-	
-	  const id = "mb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-	
-	  const newBenefit = enrichMerchantBenefitSearchFields({
-		  id,
-		  merchant,
-		  card,
-		  discountType,
-		  discountValue,
-		  limitType,
-		  limitValue,
-		  minSpend,
-		  endDate,
-		  category,
-		  maxTransactions,
+	  try {
+		  const merchant = document.getElementById("benefitMerchant").value.trim();
+		  const card = document.getElementById("benefitCard").value;
+		  const discountType = document.getElementById("benefitDiscountType").value;
+		  const discountValueRaw = document.getElementById("benefitDiscountValue").value;
+		  const limitType = document.getElementById("benefitLimitType").value;
+		  const limitValueRaw = document.getElementById("benefitLimitValue").value;
+		  const maxTxRaw = document.getElementById("benefitMaxTx").value;
+		  const minSpendRaw = document.getElementById("benefitMinSpend").value;
+		  const endDate = document.getElementById("benefitEndDate").value;
+		  const category = document.getElementById("benefitCategorySelect").value;
+		  const searchTagsRaw = document.getElementById("benefitSearchTags").value.trim();
 		
-		  userTagInput: searchTagsRaw
-		});
+		  if (!merchant || !card || !discountType || !discountValueRaw || !endDate || !category) {
+			alert("Please fill at least Merchant, Card, Discount type/value, End date, and Category.");
+			return;
+		  }
+		
+		  // Validate that category is actually valid
+		  const validCategories = BASE_CATEGORIES.map(c => c.value);
+		  if (!validCategories.includes(category)) {
+			alert("Invalid category selected. Please choose a valid category.");
+			return;
+		  }
+		
+		  const discountValue = Number(discountValueRaw);
+		  if (isNaN(discountValue) || discountValue <= 0) {
+			alert("Discount value must be a positive number.");
+			return;
+		  }
+		
+		  let limitValue = null;
+		  if (limitValueRaw !== "") {
+			limitValue = Number(limitValueRaw);
+			if (isNaN(limitValue) || limitValue < 0) {
+			  alert("Discount limit value must be a non-negative number.");
+			  return;
+			}
+		  }
+		  if (limitValue != null && limitValue <= 0) limitValue = null;
 	
-	  const benefits = loadMerchantBenefits();
-	  benefits.push(newBenefit);
+		
+		  let minSpend = null;
+		  if (minSpendRaw !== "") {
+			minSpend = Number(minSpendRaw);
+			if (isNaN(minSpend) || minSpend < 0) {
+			  alert("Minimum spend must be a non-negative number.");
+			  return;
+			}
+		  }
+		  if (minSpend != null && minSpend <= 0) minSpend = null;
+		
+		  let maxTransactions = null;
+		  if (maxTxRaw !== "") {
+			maxTransactions = Number(maxTxRaw);
+			if (
+			  isNaN(maxTransactions) ||
+			  maxTransactions < 0 ||
+			  !Number.isInteger(maxTransactions)
+			) {
+			  alert("Maximum transactions must be a non-negative whole number.");
+			  return;
+			}
+		  }
+		  if (maxTransactions != null && maxTransactions <= 0) maxTransactions = null;
+		
+		  const id = makeUniqueId("mb");
+		
+		  const newBenefit = enrichMerchantBenefitSearchFields({
+			  id,
+			  stableKey: makeUniqueId("mo"),
+			  createdAt: makeCreatedAt(),
+			  merchant,
+			  card,
+			  discountType,
+			  discountValue,
+			  limitType,
+			  limitValue,
+			  minSpend,
+			  endDate,
+			  category,
+			  maxTransactions,
+			
+			  userTagInput: searchTagsRaw
+			});
+		
+		  const benefits = loadMerchantBenefits();
+		  benefits.push(newBenefit);
+		
+		  // Save first and check success explicitly
+		  const ok = saveMerchantBenefits(benefits);
+		  if (!ok) {
+			showToast("⚠️ Unable to save merchant benefit — storage full or private mode.");
+			return;
+		  }
+		
+		  // Clear inputs (only after successful save)
+		  document.getElementById("benefitMerchant").value = "";
+		  document.getElementById("benefitDiscountValue").value = "";
+		  document.getElementById("benefitLimitValue").value = "";
+		  document.getElementById("benefitMinSpend").value = "";
+		  document.getElementById("benefitEndDate").value = "";
+		  document.getElementById("benefitMaxTx").value = "";
+		  document.getElementById("benefitSearchTags").value = "";
+		  document.getElementById("benefitSuggestedTags").innerHTML = "";
+		
+		  // Re-render everything that depends on merchant benefits
+		  renderMerchantBenefits();
+		  populateCategorySelect();
+		  populateMerchantBenefitCategorySelect();
+		  renderStateSummary();
+		  renderRollingAnnualSummary();
+		
+		  showToast("✓ Merchant Benefit saved");
 	
-	  // Save first and check success explicitly
-	  const ok = saveMerchantBenefits(benefits);
-	  if (!ok) {
-		showToast("⚠️ Unable to save merchant benefit — storage full or private mode.");
-		return;
+	} finally {
+		isAddingBenefit = false;
+		if (btn) btn.disabled = false;
 	  }
-	
-	  // Clear inputs (only after successful save)
-	  document.getElementById("benefitMerchant").value = "";
-	  document.getElementById("benefitDiscountValue").value = "";
-	  document.getElementById("benefitLimitValue").value = "";
-	  document.getElementById("benefitMinSpend").value = "";
-	  document.getElementById("benefitEndDate").value = "";
-	  document.getElementById("benefitMaxTx").value = "";
-	  document.getElementById("benefitSearchTags").value = "";
-	  document.getElementById("benefitSuggestedTags").innerHTML = "";
-	
-	  // Re-render everything that depends on merchant benefits
-	  renderMerchantBenefits();
-	  populateCategorySelect();
-	  populateMerchantBenefitCategorySelect();
-	  renderStateSummary();
-	  renderRollingAnnualSummary();
-	
-	  showToast("✓ Merchant Benefit saved");
 	});
 
 	// 5.0 make floating save bar disappear when the form changes after a recommendation
