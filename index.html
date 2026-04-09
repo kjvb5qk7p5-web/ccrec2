@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.7.3</p>
+<p class="blackmuted"><br>v6.7.4</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2882,6 +2882,9 @@
 	let merchantOffersSortMode = "alpha";
 	let isAddingBenefit = false;
 	let isSavingPurchase = false;
+	const uiState = {
+	  selectedCategory: ""
+	};
 	
 	function renderActiveCardsSummary() {
 	  const el = document.getElementById("activeCardsSummary");
@@ -3953,6 +3956,30 @@
 	  });
 	
 	  return suggestions;
+	}
+	
+	// uiState helper functions
+	function setSelectedCategory(value, { syncSelect = true, updateTrigger = true, rerenderPicker = true } = {}) {
+	  uiState.selectedCategory = String(value || "");
+	
+	  if (syncSelect) {
+		const select = document.getElementById("category");
+		if (select) {
+		  select.value = uiState.selectedCategory;
+		}
+	  }
+	
+	  if (updateTrigger) {
+		updateCategoryPickerTrigger();
+	  }
+	
+	  if (rerenderPicker && categoryPickerState.open) {
+		renderCategoryPicker();
+	  }
+	}
+	
+	function getSelectedCategory() {
+	  return uiState.selectedCategory || "";
 	}
 
 	// Storage and UI helper functions
@@ -5864,12 +5891,13 @@
 	
 	function updateCategoryPickerTrigger() {
 	  const triggerText = document.getElementById("categoryPickerTriggerText");
-	  const categorySelect = document.getElementById("category");
-	  if (!triggerText || !categorySelect) return;
+	  if (!triggerText) return;
 	
-	  const text = getCategoryDisplayText(categorySelect.value);
+	  const value = getSelectedCategory();
+	  const text = getCategoryDisplayText(value);
+	
 	  triggerText.textContent = text;
-	  triggerText.classList.toggle("is-selected", !!categorySelect.value);
+	  triggerText.classList.toggle("is-selected", !!value);
 	}
 	
 	function getActiveMerchantBenefitsForPicker() {
@@ -5933,7 +5961,7 @@
 	}
 	
 	function getGroupedCardCategoriesForPicker(query = "") {
-	  const selectedValue = document.getElementById("category")?.value || "";
+	  const selectedValue = getSelectedCategory();
 	  const allowedValues = getCardCategorySearchMatches(query);
 	  const groups = {};
 	
@@ -5950,6 +5978,7 @@
 		});
 	  });
 	
+	  // hard-coding below, need to fix later
 	  const orderedGroupNames = ["Dining", "Groceries", "Travel", "Rideshare", "Entertainment", "Other"];
 	
 	  return orderedGroupNames
@@ -5961,7 +5990,7 @@
 	}
 	
 	function getMerchantOffersForPicker(query = "") {
-	  const selectedValue = document.getElementById("category")?.value || "";
+	  const selectedValue = getSelectedCategory();
 	  const activeBenefits = getActiveMerchantBenefitsForPicker();
 	  const allowedIds = getMerchantOfferSearchMatches(query);
 	
@@ -6004,7 +6033,7 @@
 	  const overlay = document.getElementById("categoryPickerOverlay");
 	  const trigger = document.getElementById("categoryPickerTrigger");
 	  const search = document.getElementById("categoryPickerSearch");
-	  const selectedValue = document.getElementById("category")?.value || "";
+	  const selectedValue = getSelectedCategory();
 	
 	  const targetPage = getCategoryPickerPageForValue(selectedValue);
 	  categoryPickerState.page = targetPage;
@@ -6064,7 +6093,7 @@
 	}
 	
 	function scrollSelectedCategoryPickerRowIntoView() {
-	  const selectedValue = document.getElementById("category")?.value || "";
+	  const selectedValue = getSelectedCategory();
 	  if (!selectedValue) return;
 	
 	  const pager = document.getElementById("categoryPickerPager");
@@ -6137,18 +6166,23 @@
 	}
 	
 	function applyCategoryPickerSelection(value) {
-	  const select = document.getElementById("category");
-	  if (!select) return;
-	  
 	  const input = document.getElementById("categoryPickerSearch");
 	  if (input) input.blur();
 	
 	  setTimeout(() => {
-		select.value = value;
-		updateCategoryPickerTrigger();
+		setSelectedCategory(value, {
+		  syncSelect: true,
+		  updateTrigger: true,
+		  rerenderPicker: false
+		});
+	
 		closeCategoryPicker();
 		categoryPickerState.search = "";
-		select.dispatchEvent(new Event("change", { bubbles: true }));
+	
+		const select = document.getElementById("category");
+		if (select) {
+		  select.dispatchEvent(new Event("change", { bubbles: true }));
+		}
 	  }, 0);
 	}
 	
@@ -6405,16 +6439,30 @@
 	} 
 	*/
 	
-	// 6.0 wrapper function for new picker
+	// 6.7 wrapper function for new picker
 	function populateCategorySelect() {
 	  populateCategorySelectBase();
-	  updateCategoryPickerTrigger();
+	
+	  const select = document.getElementById("category");
+	  if (!select) return;
+	
+	  const current = getSelectedCategory();
+	
+	  if (current && select.querySelector(`option[value="${CSS.escape(current)}"]`)) {
+		setSelectedCategory(current, {
+		  syncSelect: true,
+		  updateTrigger: true,
+		  rerenderPicker: false
+		});
+	  } else {
+		setDefaultPurchaseCategory();
+	  }
 	
 	  if (categoryPickerState.open) {
 		renderCategoryPicker();
 	  }
-	}
-    
+	}    
+	
 	// ---------- Merchant Benefit Category select population ----------
 	function populateMerchantBenefitCategorySelect() {
 	  const select = document.getElementById("benefitCategorySelect");
@@ -6815,7 +6863,7 @@
 	function getCurrentPurchaseFromForm() {
 	  const amount = document.getElementById("amount").value;
 	  const date = document.getElementById("date").value;
-	  const categoryValue = document.getElementById("category").value;
+	  const categoryValue = getSelectedCategory();
 	
 	  if (!amount || !date) return null;
 	
@@ -6853,28 +6901,32 @@
 	  );
 	}
 
-	// 5.0 helper to reset default category for purchase window
+	// 6.7 helper to reset default category for purchase window
 	function setDefaultPurchaseCategory() {
-	  const categorySelect = document.getElementById("category");
-	  if (!categorySelect) return;
-	
-	  // Prefer dining if available; otherwise first non-merchant-offer option; otherwise first option
-	  const diningOption = categorySelect.querySelector('option[value="dining"]');
-	  if (diningOption) {
-		categorySelect.value = "dining";
+	  const select = document.getElementById("category");
+	  if (!select) {
+		setSelectedCategory("");
 		return;
 	  }
 	
-	  const firstCardBenefitOption = Array.from(categorySelect.options).find(
+	  const diningOption = select.querySelector('option[value="dining"]');
+	  if (diningOption) {
+		setSelectedCategory("dining");
+		return;
+	  }
+	
+	  const firstCardBenefitOption = Array.from(select.options).find(
 		opt => opt.value && !String(opt.value).startsWith("mb:")
 	  );
 	  if (firstCardBenefitOption) {
-		categorySelect.value = firstCardBenefitOption.value;
+		setSelectedCategory(firstCardBenefitOption.value);
 		return;
 	  }
 	
-	  if (categorySelect.options.length > 0) {
-		categorySelect.value = categorySelect.options[0].value;
+	  if (select.options.length > 0) {
+		setSelectedCategory(select.options[0].value);
+	  } else {
+		setSelectedCategory("");
 	  }
 	}
 
@@ -6998,9 +7050,7 @@
 
       initFormDefaults();
       populateCategorySelect();
-      
       setDefaultPurchaseCategory();
-      updateCategoryPickerTrigger();
 	  closeCategoryPicker();
 
       hideFloatingSaveBar();
@@ -7422,8 +7472,15 @@
 	  applyCategoryPickerSelection(value);
 	});
 
-	document.getElementById("category")?.addEventListener("change", () => {
-	  updateCategoryPickerTrigger();
+	document.getElementById("category")?.addEventListener("change", (e) => {
+	  const nextValue = e.target.value || "";
+	  if (nextValue !== getSelectedCategory()) {
+		setSelectedCategory(nextValue, {
+		  syncSelect: false,
+		  updateTrigger: true,
+		  rerenderPicker: true
+		});
+	  }
 	});
 	
 	document.addEventListener("keydown", (e) => {
@@ -7444,13 +7501,13 @@
 
     // Default category to Dining / Restaurants on first load
     const categorySelect = document.getElementById("category");
-    if (categorySelect && categorySelect.querySelector('option[value="dining"]')) {
-      categorySelect.value = "dining";
-    } else if (categorySelect && categorySelect.options.length > 0) {
-      categorySelect.value = categorySelect.options[0].value;
-    }
-    
-    updateCategoryPickerTrigger();
+	if (categorySelect && categorySelect.querySelector('option[value="dining"]')) {
+	  setSelectedCategory("dining");
+	} else if (categorySelect && categorySelect.options.length > 0) {
+	  setSelectedCategory(categorySelect.options[0].value);
+	} else {
+	  setSelectedCategory("");
+	}
 
     // Populate card dropdowns from CARDS registry
     populateCardSelect(
