@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.7.4</p>
+<p class="blackmuted"><br>v6.7.5</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2735,16 +2735,20 @@
 	  coffee: "☕️",
 	  rideshare: "🚗",
 	  travel: "✈️🏨",
+	  flights: "✈️",
+	  airfare: "✈️",
 	  hotel: "🏨",
+	  lodging: "🏨",
 	  rental_car: "🚙",
 	  entertainment: "🎫",
 	  retail: "🛍🧾",
 	  wellness: "🫶",
 	  clothing: "👕🩳",
 	  eyewear: "👓",
-	  electronics: "📺",
+	  electronics: "🖥️",
 	  gas: "⛽️",
 	  pharmacy: "💊",
+	  convenience_store: "🏪",
 	  other: "🛍"
 	};
 	
@@ -5084,6 +5088,24 @@
 	  return normalized || "other";
 	}
 	
+	// helper for smarter fallback icons for merchant offers
+	function getCategoryIcon(category) {
+	  if (!category) return CATEGORY_ICONS.other || "";
+	
+	  // Direct match first
+	  if (CATEGORY_ICONS[category]) return CATEGORY_ICONS[category];
+	
+	  // Try coarsening through CATEGORY_GROUP_MAP
+	  // e.g. "lyft" → "Rideshare" → "rideshare" → "🚗"
+	  const groupName = CATEGORY_GROUP_MAP[category];
+	  if (groupName) {
+		const groupKey = groupName.toLowerCase().replace(/\s+/g, "_");
+		if (CATEGORY_ICONS[groupKey]) return CATEGORY_ICONS[groupKey];
+	  }
+	
+	  return CATEGORY_ICONS.other || "";
+	}
+	
 	function renderBenefitCellHtml(icon, labelHtml, labelText) {
 	  const safeIcon = escapeHtml(icon || "⚪️");
 	  const textHtml = labelHtml || escapeHtml(labelText || "");
@@ -5314,7 +5336,7 @@
 		merchantRows.push({
 		  label: plainLabel,
 		  labelHtml,
-		  icon: CATEGORY_ICONS[derivedCategory] || CATEGORY_ICONS.other || "",
+		  icon: getCategoryIcon(derivedCategory),
 		  card: benefit.card || "",
 		  category: derivedCategory,
 		  time: timeText,
