@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8</p>
+<p class="blackmuted"><br>v6.8.0</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2559,6 +2559,340 @@
 	
 	];
 	
+	// CATEGORY_REGISTRY v0 
+	// Active leaf if ANY of:
+	//  • Active merchant offer exists in that category (date valid, cap/maxTx not exhausted)
+	//  • Any card benefit uses that category
+	// Active group if it has >= 1 active leaf
+	
+	const CATEGORY_REGISTRY = {
+	  groups: {
+		dining: {
+		  key: "dining",
+		  label: "Dining",
+		  icon: "🍔",
+		  sort_order: 10, // matches getGroupedCardCategoriesForPicker hard-coded order
+		},
+		coffee: {
+		  key: "coffee",
+		  label: "Coffee",
+		  icon: "☕️",
+		  sort_order: 20, 
+		},
+		groceries: {
+		  key: "groceries",
+		  label: "Groceries",
+		  icon: "🛒",
+		  sort_order: 30,
+		},
+		travel: {
+		  key: "travel",
+		  label: "Travel",
+		  icon: "✈️",
+		  sort_order: 40,
+		},
+		rideshare: {
+		  key: "rideshare",
+		  label: "Rideshare",
+		  icon: "🚗",
+		  sort_order: 50,
+		},
+		entertainment: {
+		  key: "entertainment",
+		  label: "Entertainment",
+		  icon: "🎉",
+		  sort_order: 60,
+		},
+		clothing: {
+		  key: "clothing",
+		  label: "Clothing",
+		  icon: "👕",
+		  sort_order: 70,
+		},
+		eyewear: {
+		  key: "eyewear",
+		  label: "Eyewear",
+		  icon: "👓",
+		  sort_order: 80,
+		},
+		gas: {
+		  key: "gas",
+		  label: "Gas",
+		  icon: "⛽️",
+		  sort_order: 90,
+		},
+		wellness: {
+		  key: "wellness",
+		  label: "Wellness",
+		  icon: "🫶",
+		  sort_order: 100,
+		},
+		other: {
+		  key: "other",
+		  label: "Other",
+		  icon: "🛍️",
+		  sort_order: 999,
+		},
+	  },
+	
+	  // Leaf categories are transaction/offer categories (your BASE_CATEGORIES values).
+	  // Each leaf can have:
+	  // - group_key: which section it belongs to
+	  // - label/icon: for picker + display tables
+	  // - parent_key: optional logical parent for hierarchy (your “clothing” vs “shoes” idea)
+	  leaves: {
+		// ---- Dining ----
+		dining: {
+		  key: "dining",
+		  label: "Dining – Restaurants",
+		  icon: "🍔",
+		  group_key: "dining",
+		},
+		resy: {
+		  key: "resy",
+		  label: "Dining – Resy",
+		  icon: "🍔",
+		  group_key: "dining",
+		  parent_key: "dining",
+		},
+		csr_opentable: {
+		  key: "csr_opentable",
+		  label: "Dining – OpenTable (CSR partners)",
+		  icon: "🍔",
+		  group_key: "dining",
+		  parent_key: "dining",
+		},
+		ag_dining: {
+		  key: "ag_dining",
+		  label: "Dining – Amex Gold partners",
+		  icon: "🥡",
+		  group_key: "dining",
+		  parent_key: "dining",
+		},
+		doordash: {
+		  key: "doordash",
+		  label: "Dining – DoorDash",
+		  icon: "🥡",
+		  group_key: "dining",
+		  parent_key: "dining",
+		},
+		uber_eats: {
+		  key: "uber_eats",
+		  label: "Dining – Uber Eats",
+		  icon: "🥡",
+		  group_key: "dining",
+		  parent_key: "dining",
+		},
+		
+		// ---- Coffee ----
+		dunkin: {
+		  key: "dunkin",
+		  label: "Dunkin",
+		  icon: "🍩",
+		  group_key: "dining",
+		  parent_key: "coffee",
+		},
+	
+		// ---- Groceries ----
+		groceries: {
+		  key: "groceries",
+		  label: "Groceries – Grocery store",
+		  icon: "🛒",
+		  group_key: "groceries",
+		},
+		doordash_groceries: {
+		  key: "doordash_groceries",
+		  label: "Groceries – DoorDash",
+		  icon: "🛒",
+		  group_key: "groceries",
+		  parent_key: "groceries",
+		},
+		instacart: {
+		  key: "instacart",
+		  label: "Groceries – Instacart",
+		  icon: "🛒",
+		  group_key: "groceries",
+		  parent_key: "groceries",
+		},
+	
+		// ---- Travel ----
+		united_flight: {
+		  key: "united_flight",
+		  label: "Flight – United",
+		  icon: "✈️",
+		  group_key: "travel",
+		  parent_key: "flights",
+		},
+		delta_flight_threshold: {
+		  key: "delta_flight_threshold",
+		  label: "Flight – Delta",
+		  icon: "✈️",
+		  group_key: "travel",
+		  parent_key: "flights",
+		},
+		other_flight: {
+		  key: "other_flight",
+		  label: "Flight – Other airline",
+		  icon: "✈️",
+		  group_key: "travel",
+		  parent_key: "flights",
+		},
+	
+		marriott_hotel: {
+		  key: "marriott_hotel",
+		  label: "Hotel – Marriott",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		},
+		theedit_hotel: {
+		  key: "theedit_hotel",
+		  label: "Hotel – The Edit (Chase Travel)",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		},
+		renowned_hotel: {
+		  key: "renowned_hotel",
+		  label: "Hotel – Renowned (United program)",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		},
+		delta_stays: {
+		  key: "delta_stays",
+		  label: "Hotel – Delta Stays",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		},
+		other_hotel: {
+		  key: "other_hotel",
+		  label: "Hotel – Other lodging",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		},
+	
+		uq_rentalcar: {
+		  key: "uq_rentalcar",
+		  label: "Rental car – Avis / Budget",
+		  icon: "🚙",
+		  group_key: "travel",
+		  parent_key: "rental_car",
+		},
+	
+		// ---- Rideshare ----
+		lyft: {
+		  key: "lyft",
+		  label: "Rideshare – Lyft",
+		  icon: "🚗",
+		  group_key: "rideshare",
+		},
+		rideshare_other: {
+		  key: "rideshare_other",
+		  label: "Rideshare – Uber",
+		  icon: "🚗",
+		  group_key: "rideshare",
+		},
+	
+		// ---- Entertainment ----
+		stubhub: {
+		  key: "stubhub",
+		  label: "StubHub / viagogo",
+		  icon: "🎫",
+		  group_key: "entertainment",
+		  parent_key: "tickets",
+		},
+	
+		// ---- Other ----
+		peloton: {
+		  key: "peloton",
+		  label: "Peloton membership",
+		  icon: "🚲",
+		  group_key: "other",
+		},
+		streaming: {
+		  key: "streaming",
+		  label: "Streaming",
+		  icon: "📺",
+		  group_key: "other",
+		},
+		other: {
+		  key: "other",
+		  label: "Other / general spending",
+		  icon: "🛍️",
+		  group_key: "other",
+		},
+	
+		// ---- “Future-capable” leaves you said you want (not shown unless activated by your rules) ----
+		gas: {
+		  key: "gas",
+		  label: "Gas",
+		  icon: "⛽️",
+		  group_key: "other", // you can promote to a new group later if it becomes real
+		  parent_key: "gas",
+		},
+		clothing: {
+		  key: "clothing",
+		  label: "Clothing",
+		  icon: "👕🩳",
+		  group_key: "clothing",
+		  parent_key: "clothing",
+		},
+		shoes: {
+		  key: "shoes",
+		  label: "Shoes",
+		  icon: "👟",
+		  group_key: "clothing",
+		  parent_key: "shoes",
+		},
+		glasses: {
+		  key: "glasses",
+		  label: "Glasses",
+		  icon: "👓",
+		  group_key: "eyewear",
+		  parent_key: "glasses",
+		},
+		sunglasses: {
+		  key: "sunglasses",
+		  label: "Sunglasses",
+		  icon: "🕶️",
+		  group_key: "eyewear",
+		  parent_key: "sunglasses",
+		},
+		wellness: {
+		  key: "wellness",
+		  label: "Wellness",
+		  icon: "🫶",
+		  group_key: "wellness",
+		},
+	  },
+	
+	  // This is where we rationalize your card-benefit “summary_sort_category” universe
+	  // into the 6 display groups above.
+	  //
+	  // In your current file, summary_sort_category can be: dining, rideshare, travel, coffee,
+	  // groceries, entertainment, hotel, rental_car, tickets, retail, other.
+	  //
+	  // This mapping lets you migrate safely without breaking existing rows immediately.
+	  summary_sort_category_to_group: {
+		dining: "dining",
+		coffee: "dining",
+		groceries: "groceries",
+		rideshare: "rideshare",
+		travel: "travel",
+		hotel: "travel",        // “hotel” demoted; hotels live under Travel
+		rental_car: "travel",   // same
+		lodging: "travel",      // if it appears anywhere
+		flights: "travel",      // if it appears anywhere
+		entertainment: "entertainment",
+		tickets: "entertainment",
+		retail: "other",
+		other: "other",
+	  },
+	};	
+	
 	const BASE_CATEGORY_FALLBACKS = {
 	  dining: {
 		card: "AG",
@@ -3357,7 +3691,236 @@
 	  return validChannels[0] || "direct";
 	}
 	
-
+	// ============================
+	// CATEGORY_REGISTRY helpers v0
+	// (for v6-7-5smarterIcons.html)
+	// ============================
+	
+	// --- Basic utilities ---
+	
+	function getRegistryLeaf(registry, leafKey) {
+	  return (registry && registry.leaves && registry.leaves[leafKey]) || null;
+	}
+	
+	function getRegistryGroup(registry, groupKey) {
+	  return (registry && registry.groups && registry.groups[groupKey]) || null;
+	}
+	
+	function registryHasLeaf(registry, leafKey) {
+	  return !!getRegistryLeaf(registry, leafKey);
+	}
+	
+	function registryHasGroup(registry, groupKey) {
+	  return !!getRegistryGroup(registry, groupKey);
+	}
+	
+	// --- Sorting ---
+	
+	function sortGroupsByOrderThenLabel(a, b) {
+	  const ao = Number(a.sort_order ?? 999);
+	  const bo = Number(b.sort_order ?? 999);
+	  if (ao !== bo) return ao - bo;
+	  return String(a.label || "").localeCompare(String(b.label || ""));
+	}
+	
+	// Requirement: sort leaves within a group first by parent_key (if one exists) and then label.
+	function sortLeavesWithinGroup(leaves) {
+	  return (leaves || []).slice().sort((a, b) => {
+		const aParent = a.parent_key ? String(a.parent_key) : "";
+		const bParent = b.parent_key ? String(b.parent_key) : "";
+	
+		// 1) parent_key first (empty parent_key sorts first)
+		if (aParent !== bParent) return aParent.localeCompare(bParent);
+	
+		// 2) then label
+		const aLabel = a.label ? String(a.label) : "";
+		const bLabel = b.label ? String(b.label) : "";
+		if (aLabel !== bLabel) return aLabel.localeCompare(bLabel);
+	
+		// 3) stable fallback by key
+		const aKey = a.key ? String(a.key) : "";
+		const bKey = b.key ? String(b.key) : "";
+		return aKey.localeCompare(bKey);
+	  });
+	}
+	
+	// --- Active category rules ---
+	// Active leaf if ANY of:
+	//  • Active merchant offer exists in that category (date valid, cap/maxTx not exhausted)
+	//  • Any card benefit uses that category
+	// Active group if it has >= 1 active leaf
+	
+	function getCardBenefitCategoryKeysFromFile(cardBenefits = (typeof CARD_BENEFITS !== "undefined" ? CARD_BENEFITS : [])) {
+	  const out = new Set();
+	
+	  for (const b of cardBenefits) {
+		const cats = b && Array.isArray(b.categories) ? b.categories : [];
+		for (const c of cats) {
+		  if (c) out.add(String(c));
+		}
+	  }
+	
+	  return out;
+	}
+	
+	// Uses v6-7-5smarterIcons.html computeMerchantState(...) and classifyBenefitEnd(...)
+	function getActiveMerchantOfferCategoryKeys(txs, benefits, todayDate) {
+	  const out = new Set();
+	
+	  const today =
+		todayDate ||
+		(typeof parseISODateLocal === "function"
+		  ? parseISODateLocal(formatTodayISO?.() || "")
+		  : new Date());
+	
+	  // Merchant state computed from txs (already-saved txs)
+	  const merchantState =
+		typeof computeMerchantState === "function"
+		  ? computeMerchantState(txs, benefits, today)
+		  : {};
+	
+	  for (const benefit of benefits || []) {
+		const category = benefit && benefit.category ? String(benefit.category) : "";
+		if (!category) continue;
+	
+		// 1) Date-valid
+		const endDateStr = benefit.endDate || "";
+		if (!endDateStr || typeof classifyBenefitEnd !== "function") continue;
+	
+		const { expired } = classifyBenefitEnd(endDateStr, today);
+		if (expired) continue;
+	
+		// Pull usage for cap/maxTx checks
+		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+		const used = Number(ms.used || 0);
+		const txCount = Number(ms.txCount || 0);
+	
+		// 2) Total-cap not exhausted (only when limitType === "total")
+		if (
+		  benefit.limitType === "total" &&
+		  benefit.limitValue != null &&
+		  !isNaN(benefit.limitValue)
+		) {
+		  const limitNum = Number(benefit.limitValue);
+		  if (used >= limitNum) continue;
+		}
+	
+		// 3) maxTx not exhausted
+		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+		  const maxTx = Number(benefit.maxTransactions);
+		  if (maxTx >= 0 && txCount >= maxTx) continue;
+		}
+	
+		out.add(category);
+	  }
+	
+	  return out;
+	}
+	
+	function getActiveLeafCategoryKeys(registry, txs, benefits, todayDate) {
+	  const active = new Set();
+	
+	  // A) Card benefit categories (always activate those leaves, if present in registry)
+	  const cardCats = getCardBenefitCategoryKeysFromFile();
+	  for (const c of cardCats) {
+		if (registryHasLeaf(registry, c)) active.add(c);
+	  }
+	
+	  // B) Active merchant offer categories (activate those leaves, if present in registry)
+	  const merchCats = getActiveMerchantOfferCategoryKeys(txs, benefits, todayDate);
+	  for (const c of merchCats) {
+		if (registryHasLeaf(registry, c)) active.add(c);
+	  }
+	
+	  return active;
+	}
+	
+	function getActiveGroupKeysFromActiveLeaves(registry, activeLeafKeys) {
+	  const groups = new Set();
+	
+	  for (const leafKey of activeLeafKeys) {
+		const leaf = getRegistryLeaf(registry, leafKey);
+		if (!leaf) continue;
+	
+		const gk = leaf.group_key ? String(leaf.group_key) : "";
+		if (gk && registryHasGroup(registry, gk)) {
+		  groups.add(gk);
+		}
+	  }
+	
+	  return groups;
+	}
+	
+	// Produces a structure you can later wire into picker/state summary rendering:
+	// [
+	//   { group: {key,label,icon,sort_order}, leaves: [{key,label,icon,group_key,parent_key}, ...] },
+	//   ...
+	// ]
+	function buildActiveCategoryGroups(registry, txs, benefits, todayDate) {
+	  const activeLeaves = getActiveLeafCategoryKeys(registry, txs, benefits, todayDate);
+	  const activeGroups = getActiveGroupKeysFromActiveLeaves(registry, activeLeaves);
+	
+	  // Build group objects
+	  const groupObjs = Array.from(activeGroups)
+		.map((gk) => getRegistryGroup(registry, gk))
+		.filter(Boolean)
+		.sort(sortGroupsByOrderThenLabel);
+	
+	  // Attach leaves per group
+	  const result = [];
+	  for (const g of groupObjs) {
+		const leaves = [];
+	
+		for (const leafKey of activeLeaves) {
+		  const leaf = getRegistryLeaf(registry, leafKey);
+		  if (!leaf) continue;
+		  if (String(leaf.group_key || "") !== String(g.key || "")) continue;
+		  leaves.push(leaf);
+		}
+	
+		leaves.sort(sortLeavesWithinGroup);
+		result.push({ group: g, leaves });
+	  }
+	
+	  return result;
+	}
+	
+	// --- Registry coverage checks (safe to run in console) ---
+	
+	// Returns leaf keys referenced by CARD_BENEFITS categories or merchant benefits categories
+	// that are NOT present in CATEGORY_REGISTRY.leaves.
+	// (This helps you keep “future-capable” leaves ready without showing them.)
+	function findMissingRegistryLeaves(registry, benefits) {
+	  const missing = new Set();
+	
+	  // from card benefits
+	  const cardCats = getCardBenefitCategoryKeysFromFile();
+	  for (const c of cardCats) {
+		if (!registryHasLeaf(registry, c)) missing.add(c);
+	  }
+	
+	  // from merchant benefits (all, not just active)
+	  for (const b of benefits || []) {
+		const c = b && b.category ? String(b.category) : "";
+		if (c && !registryHasLeaf(registry, c)) missing.add(c);
+	  }
+	
+	  return Array.from(missing).sort();
+	}
+	
+	// Ensures summary_sort_category mappings only point to real groups in CATEGORY_REGISTRY
+	function validateSummarySortCategoryMapping(registry) {
+	  const mapping = (registry && registry.summary_sort_category_to_group) || {};
+	  const bad = [];
+	
+	  for (const [fromKey, toGroup] of Object.entries(mapping)) {
+		if (!registryHasGroup(registry, toGroup)) {
+		  bad.push({ from: fromKey, to: toGroup });
+		}
+	  }
+	
+	  return bad; // empty array = good
+	}
 
     // --- Cross-browser safe date parser (no UTC shift) ---
 	function parseISODateLocal(dateStr) {
@@ -4060,10 +4623,16 @@
     ];
       
     function getCategoryLabel(catValue) {
-      if (!catValue) return "";
-      const found = BASE_CATEGORIES.find(c => c.value === catValue);
-      return found ? found.label : catValue; // fall back to raw value if unknown
-    }
+	  if (!catValue) return "";
+	
+	  // Registry-first
+	  const leaf = CATEGORY_REGISTRY?.leaves?.[catValue];
+	  if (leaf && leaf.label) return leaf.label;
+	
+	  // Fallback: BASE_CATEGORIES lookup (old behavior)
+	  const found = (BASE_CATEGORIES || []).find(c => c.value === catValue);
+	  return found ? found.label : catValue;
+	}
 
     // Channel label mapping for human-readable text
     const CHANNEL_LABELS = {
@@ -5090,6 +5659,12 @@
 	
 	// helper for smarter fallback icons for merchant offers
 	function getCategoryIcon(category) {
+	  // Registry-first: leaf icon wins
+	  if (category && CATEGORY_REGISTRY?.leaves?.[category]?.icon) {
+		return CATEGORY_REGISTRY.leaves[category].icon;
+	  }
+	
+	  // Preserve your existing fallback behavior exactly
 	  if (!category) return CATEGORY_ICONS.other || "";
 	
 	  // Direct match first
@@ -5963,11 +6538,16 @@
 	  const categorySuggestions = findRelevantCardBenefitCategorySuggestions(q, CARD_BENEFITS);
 	
 	  const allowedValues = new Set();
-	  categorySuggestions.forEach((item) => {
-		allowedValues.add(item.value);
-	  });
-	
-	  return allowedValues;
+		categorySuggestions.forEach((item) => {
+		  const v = item && item.value ? String(item.value) : "";
+		  if (!v) return;
+		
+		  // Only allow categories that exist as leaves in CATEGORY_REGISTRY
+		  if (CATEGORY_REGISTRY?.leaves?.[v]) {
+			allowedValues.add(v);
+		  }
+		});
+		return allowedValues;
 	}
 	
 	function getMerchantOfferSearchMatches(query) {
@@ -5984,30 +6564,75 @@
 	
 	function getGroupedCardCategoriesForPicker(query = "") {
 	  const selectedValue = getSelectedCategory();
-	  const allowedValues = getCardCategorySearchMatches(query);
-	  const groups = {};
+	  const allowedValues = getCardCategorySearchMatches(query); // Set or null
 	
-	  BASE_CATEGORIES.forEach((cat) => {
-		if (allowedValues && !allowedValues.has(cat.value)) return;
+	  // 1) Compute which leaf categories are active under your rules
+	  // (these helpers exist now because you said steps 1–3 are done)
+	  const activeLeafKeys = getActiveLeafCategoryKeys(); // should return an array or Set of leaf keys
 	
-		const groupName = CATEGORY_GROUP_MAP[cat.value] || "Other";
-		if (!groups[groupName]) groups[groupName] = [];
+	  // Normalize to an array
+	  const activeKeysArr = Array.isArray(activeLeafKeys)
+		? activeLeafKeys.slice()
+		: Array.from(activeLeafKeys || []);
 	
-		groups[groupName].push({
-		  value: cat.value,
-		  label: cat.label,
-		  selected: selectedValue === cat.value
+	  // 2) Filter by search, if applicable
+	  const filteredLeafKeys = activeKeysArr.filter((leafKey) => {
+		if (!CATEGORY_REGISTRY?.leaves?.[leafKey]) return false;
+		if (!allowedValues) return true;
+		return allowedValues.has(leafKey);
+	  });
+	
+	  // 3) Group the leaves by group_key
+	  const groupsMap = {}; // group_key -> { group, items[] }
+	
+	  for (const leafKey of filteredLeafKeys) {
+		const leaf = CATEGORY_REGISTRY.leaves[leafKey];
+		const groupKey = leaf.group_key || "other";
+		const group = CATEGORY_REGISTRY.groups[groupKey] || CATEGORY_REGISTRY.groups.other;
+	
+		if (!groupsMap[groupKey]) {
+		  groupsMap[groupKey] = { groupKey, group, items: [] };
+		}
+	
+		groupsMap[groupKey].items.push({
+		  value: leaf.key,                 // leaf key is the select value
+		  label: leaf.label || leaf.key,   // displayed label
+		  selected: selectedValue === leaf.key
+		});
+	  }
+	
+	  // 4) Sort leaves within each group:
+	  // sort first by parent_key (if exists) then label
+	  Object.values(groupsMap).forEach((g) => {
+		g.items.sort((a, b) => {
+		  const la = CATEGORY_REGISTRY.leaves[a.value];
+		  const lb = CATEGORY_REGISTRY.leaves[b.value];
+	
+		  const pa = (la && la.parent_key) ? String(la.parent_key) : "";
+		  const pb = (lb && lb.parent_key) ? String(lb.parent_key) : "";
+		  if (pa !== pb) return pa.localeCompare(pb);
+	
+		  const aa = String(a.label || "");
+		  const bb = String(b.label || "");
+		  return aa.localeCompare(bb);
 		});
 	  });
 	
-	  // hard-coding below, need to fix later
-	  const orderedGroupNames = ["Dining", "Groceries", "Travel", "Rideshare", "Entertainment", "Other"];
+	  // 5) Sort groups by CATEGORY_REGISTRY.groups[groupKey].sort_order
+	  const sortedGroups = Object.values(groupsMap).sort((a, b) => {
+		const sa = Number(a.group?.sort_order ?? 999);
+		const sb = Number(b.group?.sort_order ?? 999);
+		if (sa !== sb) return sa - sb;
+		return String(a.group?.label || a.groupKey).localeCompare(String(b.group?.label || b.groupKey));
+	  });
 	
-	  return orderedGroupNames
-		.filter(groupName => groups[groupName] && groups[groupName].length > 0)
-		.map(groupName => ({
-		  groupName,
-		  items: groups[groupName]
+	  // 6) Return the exact shape renderCategoryPicker() expects:
+	  // [{ groupName, items }]
+	  return sortedGroups
+		.filter(g => g.items && g.items.length > 0)
+		.map(g => ({
+		  groupName: g.group?.label || g.groupKey,
+		  items: g.items
 		}));
 	}
 	
