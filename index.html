@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.00</p>
+<p class="blackmuted"><br>v6.8.01</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -6578,32 +6578,59 @@
 	}
 	
 	function getGroupedCardCategoriesForPicker(query = "") {
+	  const q = String(query || "").trim().toLowerCase();
+	
 	  const selectedValue = getSelectedCategory();
-	  const allowedValues = getCardCategorySearchMatches(query);
-	  const groups = {};
+	  const allowedValues = getCardCategorySearchMatches(q);
 	
-	  BASE_CATEGORIES.forEach((cat) => {
-		if (allowedValues && !allowedValues.has(cat.value)) return;
+	  const txs = loadTransactions();
+	  const benefits = loadMerchantBenefits();
+	  const today = (typeof parseISODateLocal === "function")
+		? parseISODateLocal(formatTodayISO())
+		: new Date();
 	
-		const groupName = CATEGORY_GROUP_MAP[cat.value] || "Other";
-		if (!groups[groupName]) groups[groupName] = [];
+	  // Build active groups/leaves from CATEGORY_REGISTRY + your rules
+	  const groups = buildActiveCategoryGroups(CATEGORY_REGISTRY, txs, benefits, today);
 	
-		groups[groupName].push({
-		  value: cat.value,
-		  label: cat.label,
-		  selected: selectedValue === cat.value
-		});
-	  });
+	  // If no search, still mark selected + apply allowedValues if it exists
+	  const normalized = [];
+	  for (const g of groups) {
+		const items = (g.leaves || [])
+		  .filter(leaf => {
+			const value = String(leaf.key || "");
+			if (allowedValues && !allowedValues.has(value)) return false;
+			return true;
+		  })
+		  .map(leaf => ({
+			value: leaf.key,
+			label: leaf.label,
+			selected: selectedValue === leaf.key,
+		  }));
 	
-	  // hard-coding below, need to fix later
-	  const orderedGroupNames = ["Dining", "Groceries", "Travel", "Rideshare", "Entertainment", "Other"];
+		if (items.length > 0) {
+		  normalized.push({
+			groupName: (g.group && g.group.label) ? g.group.label : (g.groupName || "Other"),
+			items,
+		  });
+		}
+	  }
 	
-	  return orderedGroupNames
-		.filter(groupName => groups[groupName] && groups[groupName].length > 0)
-		.map(groupName => ({
-		  groupName,
-		  items: groups[groupName]
-		}));
+	  // If no search text, return everything active (normalized)
+	  if (!q) return normalized;
+	
+	  // If search text, keep only items that match key or label
+	  const filtered = normalized
+		.map(g => {
+		  const items = g.items.filter(item => {
+			const key = String(item.value || "").toLowerCase();
+			const label = String(item.label || "").toLowerCase();
+			return key.includes(q) || label.includes(q);
+		  });
+		  return { groupName: g.groupName, items };
+		})
+		.filter(g => g.items.length > 0);
+	
+	  return filtered;
 	}
 	
 	function getMerchantOffersForPicker(query = "") {
