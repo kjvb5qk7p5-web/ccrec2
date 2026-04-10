@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.7.5</p>
+<p class="blackmuted"><br>v6.8</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -6802,7 +6802,7 @@
     document.getElementById("btnRecommend").addEventListener("click", () => {
       const amount = document.getElementById("amount").value;
       const date = document.getElementById("date").value;
-      const categoryValue = document.getElementById("category").value;
+      const categoryValue = getSelectedCategory();
     
       if (!categoryValue) {
 		alert("Please select a purchase category.");
