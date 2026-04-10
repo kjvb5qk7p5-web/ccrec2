@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8</p>
+<p class="blackmuted"><br>v6.8.00</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -3714,6 +3714,25 @@
 	  return !!getRegistryGroup(registry, groupKey);
 	}
 	
+	function getCategoryLabelFromRegistry(categoryKey) {
+	  if (!categoryKey) return "";
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, String(categoryKey));
+	  if (leaf && leaf.label) return String(leaf.label);
+	  return "";
+	}
+	
+	function getCategoryIconFromRegistry(categoryKey) {
+	  if (!categoryKey) return "";
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, String(categoryKey));
+	  if (leaf && leaf.icon) return String(leaf.icon);
+	
+	  // If someone passes a group key by accident, support that too.
+	  const group = getRegistryGroup(CATEGORY_REGISTRY, String(categoryKey));
+	  if (group && group.icon) return String(group.icon);
+	
+	  return "";
+	}
+	
 	// --- Sorting ---
 	
 	function sortGroupsByOrderThenLabel(a, b) {
@@ -4616,11 +4635,22 @@
       { value: "other",               label: "🛍️ other / general spending" }
     ];
       
-    function getCategoryLabel(catValue) {
-      if (!catValue) return "";
-      const found = BASE_CATEGORIES.find(c => c.value === catValue);
-      return found ? found.label : catValue; // fall back to raw value if unknown
-    }
+    function getCategoryLabel(categoryKey) {
+	  if (!categoryKey) return "";
+	
+	  // 1) CATEGORY_REGISTRY leaf label wins
+	  const regLabel = getCategoryLabelFromRegistry(categoryKey);
+	  if (regLabel) return regLabel;
+	
+	  // 2) Legacy BASE_CATEGORIES fallback (keeps current behavior stable)
+	  if (typeof BASE_CATEGORIES !== "undefined" && Array.isArray(BASE_CATEGORIES)) {
+		const found = BASE_CATEGORIES.find(c => c && c.value === categoryKey);
+		if (found && found.label) return found.label;
+	  }
+	
+	  // 3) Final fallback
+	  return String(categoryKey);
+	}
 
     // Channel label mapping for human-readable text
     const CHANNEL_LABELS = {
@@ -5647,20 +5677,28 @@
 	
 	// helper for smarter fallback icons for merchant offers
 	function getCategoryIcon(category) {
-	  if (!category) return CATEGORY_ICONS.other || "";
+	  if (!category) return CATEGORY_ICONS?.other || "";
 	
-	  // Direct match first
-	  if (CATEGORY_ICONS[category]) return CATEGORY_ICONS[category];
+	  // 1) CATEGORY_REGISTRY leaf/group icon wins
+	  const regIcon = getCategoryIconFromRegistry(category);
+	  if (regIcon) return regIcon;
 	
-	  // Try coarsening through CATEGORY_GROUP_MAP
-	  // e.g. "lyft" → "Rideshare" → "rideshare" → "🚗"
-	  const groupName = CATEGORY_GROUP_MAP[category];
-	  if (groupName) {
-		const groupKey = groupName.toLowerCase().replace(/\s+/g, "_");
-		if (CATEGORY_ICONS[groupKey]) return CATEGORY_ICONS[groupKey];
+	  // 2) Legacy direct match (backward compatible)
+	  if (typeof CATEGORY_ICONS !== "undefined" && CATEGORY_ICONS[category]) {
+		return CATEGORY_ICONS[category];
 	  }
 	
-	  return CATEGORY_ICONS.other || "";
+	  // 3) Legacy coarsening through CATEGORY_GROUP_MAP
+	  const groupName = (typeof CATEGORY_GROUP_MAP !== "undefined")
+		? CATEGORY_GROUP_MAP[category]
+		: null;
+	
+	  if (groupName) {
+		const groupKey = String(groupName).toLowerCase().replace(/\s+/g, "_");
+		if (CATEGORY_ICONS?.[groupKey]) return CATEGORY_ICONS[groupKey];
+	  }
+	
+	  return CATEGORY_ICONS?.other || "";
 	}
 	
 	function renderBenefitCellHtml(icon, labelHtml, labelText) {
