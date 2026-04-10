@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.01</p>
+<p class="blackmuted"><br>v6.8.02</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -6604,6 +6604,7 @@
 		  .map(leaf => ({
 			value: leaf.key,
 			label: leaf.label,
+			icon: leaf.icon,
 			selected: selectedValue === leaf.key,
 		  }));
 	
@@ -6830,7 +6831,7 @@
 	  }, 0);
 	}
 	
-	function renderCategoryPickerRow({ value, title, subtitle = "", card = "", selected = false, rowClass = "" }) {
+	function renderCategoryPickerRow({ value, title, icon = "", subtitle = "", card = "", selected = false, rowClass = "" }) {
 	  const selectedClass = selected ? " selected" : "";
 	  const badgeHtml = card ? `<div class="category-picker-badge-wrap">${renderCardBadgeForPicker(card)}</div>` : "";
 	
@@ -6838,7 +6839,7 @@
 		<button type="button" class="category-picker-row${rowClass ? ` ${rowClass}` : ""}${selectedClass}" data-picker-value="${escapeHtml(value)}">
 		  <div class="category-picker-row-main">
 			${badgeHtml}
-			<div class="category-picker-row-title">${title}</div>
+			<div class="category-picker-row-title">${icon ? `<span class="category-picker-row-icon">${escapeHtml(icon)}</span> ` : ""}${title}</div>
 			${subtitle ? `<div class="category-picker-row-subtitle">${subtitle}</div>` : ""}
 		  </div>
 		  <div class="category-picker-row-arrow">›</div>
@@ -6875,7 +6876,8 @@
 			<div class="category-picker-group-title">${escapeHtml(group.groupName)}</div>
 			${group.items.map(item => renderCategoryPickerRow({
 			  value: item.value,
-			  title: escapeHtml(item.label),
+			  title: escapeHtml(item.label || ""),
+			  icon: item.icon || "",
 			  selected: item.selected
 			})).join("")}
 		  </div>
