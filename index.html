@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.02</p>
+<p class="blackmuted"><br>v6.8.03</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2968,42 +2968,42 @@
 		  key: "dining",
 		  label: "Dining – Restaurants",
 		  icon: "🍔",
-		  group_key: "dining",
+		  group_key: "1dining",
 		},
 		resy: {
 		  key: "resy",
 		  label: "Dining – Resy",
 		  icon: "🍔",
 		  group_key: "dining",
-		  parent_key: "dining",
+		  parent_key: "1dining",
 		},
 		csr_opentable: {
 		  key: "csr_opentable",
 		  label: "Dining – OpenTable (CSR partners)",
 		  icon: "🍔",
 		  group_key: "dining",
-		  parent_key: "dining",
+		  parent_key: "1dining",
 		},
 		ag_dining: {
 		  key: "ag_dining",
 		  label: "Dining – Amex Gold partners",
 		  icon: "🥡",
 		  group_key: "dining",
-		  parent_key: "dining",
+		  parent_key: "1dining",
 		},
 		doordash: {
 		  key: "doordash",
 		  label: "Dining – DoorDash",
 		  icon: "🥡",
 		  group_key: "dining",
-		  parent_key: "dining",
+		  parent_key: "1dining",
 		},
 		uber_eats: {
 		  key: "uber_eats",
 		  label: "Dining – Uber Eats",
 		  icon: "🥡",
 		  group_key: "dining",
-		  parent_key: "dining",
+		  parent_key: "1dining",
 		},
 		
 		// ---- Coffee ----
@@ -3021,20 +3021,21 @@
 		  label: "Groceries – Grocery store",
 		  icon: "🛒",
 		  group_key: "groceries",
+		  parent_key: "1groceries",
 		},
 		doordash_groceries: {
 		  key: "doordash_groceries",
 		  label: "Groceries – DoorDash",
 		  icon: "🛒",
 		  group_key: "groceries",
-		  parent_key: "groceries",
+		  parent_key: "2groceries",
 		},
 		instacart: {
 		  key: "instacart",
 		  label: "Groceries – Instacart",
 		  icon: "🛒",
 		  group_key: "groceries",
-		  parent_key: "groceries",
+		  parent_key: "2groceries",
 		},
 	
 		// ---- Travel ----
@@ -6659,6 +6660,7 @@
 		  return {
 			id: String(b.id),
 			value: "mb:" + b.id,
+			icon: getCategoryIconFromRegistry(b.category) || getCategoryIcon(b.category) || "",
 			title: b.merchant || "(unnamed merchant)",
 			subtitle: subtitleParts.join(" • "),
 			card: b.card || "",
@@ -6897,6 +6899,7 @@
 		merchantPage.innerHTML = merchantOffers.map(item => renderCategoryPickerRow({
 		  value: item.value,
 		  title: escapeHtml(item.title),
+		  icon: item.icon || "",
 		  subtitle: escapeHtml(item.subtitle),
 		  selected: item.selected,
 		  rowClass: "merchant-offer-row"
