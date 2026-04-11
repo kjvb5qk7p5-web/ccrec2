@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.033</p>
+<p class="blackmuted"><br>v6.8.04</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5565,23 +5565,42 @@
 	}
 	
 	function getSummarySortCategoryLabel(categoryKey) {
+	  if (!categoryKey) return "Other";
+	
+	  // 1) Resolve old summary_sort_category keys (e.g. "hotel" → "travel") via registry mapping
+	  const groupKey =
+		(CATEGORY_REGISTRY.summary_sort_category_to_group &&
+		  CATEGORY_REGISTRY.summary_sort_category_to_group[categoryKey]) ||
+		categoryKey;
+	
+	  // 2) Look up group label from CATEGORY_REGISTRY
+	  const group = getRegistryGroup(CATEGORY_REGISTRY, groupKey);
+	  if (group && group.label) return group.label;
+	
+	  // 3) Legacy SUMMARY_SORT_CATEGORY_LABELS fallback
 	  const mapped = SUMMARY_SORT_CATEGORY_LABELS[categoryKey];
 	  if (mapped) return mapped;
 	
-	  const raw = String(categoryKey || "Other").trim();
-	  if (!raw) return "Other";
-	
-	  return raw.charAt(0).toUpperCase() + raw.slice(1);
+	  // 4) Final fallback: capitalize raw key
+	  const raw = String(categoryKey).trim();
+	  return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "Other";
 	}
 	
 	function compareSummarySortCategories(a, b) {
-	  const aKey = String(a || "").toLowerCase();
-	  const bKey = String(b || "").toLowerCase();
+	  // Resolve old summary_sort_category keys to group keys first
+	  const mapping = CATEGORY_REGISTRY.summary_sort_category_to_group || {};
+	  const aGroupKey = mapping[a] || String(a || "other").toLowerCase();
+	  const bGroupKey = mapping[b] || String(b || "other").toLowerCase();
 	
-	  if (aKey === "other" && bKey !== "other") return 1;
-	  if (bKey === "other" && aKey !== "other") return -1;
+	  // "other" always sorts last regardless of sort_order
+	  if (aGroupKey === "other" && bGroupKey !== "other") return 1;
+	  if (bGroupKey === "other" && aGroupKey !== "other") return -1;
 	
-	  return aKey.localeCompare(bKey);
+	  const aOrder = Number(getRegistryGroup(CATEGORY_REGISTRY, aGroupKey)?.sort_order ?? 998);
+	  const bOrder = Number(getRegistryGroup(CATEGORY_REGISTRY, bGroupKey)?.sort_order ?? 998);
+	
+	  if (aOrder !== bOrder) return aOrder - bOrder;
+	  return aGroupKey.localeCompare(bGroupKey);
 	}
 	
 	// 6.4 helper for state summary header rows
@@ -5758,7 +5777,10 @@
 		  icon: benefit.icon || "",
 		  card: benefit.card,
 		  cardSortOrder: Number(CARDS[benefit.card]?.sort_order ?? 999),
-		  sortCategory: benefit.summary_sort_category || "other",
+		  sortCategory: (CATEGORY_REGISTRY.summary_sort_category_to_group &&
+			  CATEGORY_REGISTRY.summary_sort_category_to_group[benefit.summary_sort_category])
+			  || benefit.summary_sort_category
+			  || "other",
 		  benefitDisplayOrder: Number(benefit.display_order ?? 999),
 		  time: getBenefitStateTimeLabel(benefit, today),
 		  usage: limit > 0
@@ -5936,7 +5958,11 @@
 		  labelHtml,
 		  icon: getCategoryIcon(derivedCategory),
 		  card: benefit.card || "",
-		  category: derivedCategory,
+		  category: (CATEGORY_REGISTRY.summary_sort_category_to_group &&
+			  CATEGORY_REGISTRY.summary_sort_category_to_group[derivedCategory])
+			  || (getRegistryLeaf(CATEGORY_REGISTRY, derivedCategory)?.group_key)
+			  || derivedCategory
+			  || "other",
 		  time: timeText,
 		  usage: usageText,
 		  usageHtml,
@@ -6496,6 +6522,11 @@
 		return merchantBenefit.merchant || "Merchant offer";
 	  }
 	
+	  // 1) CATEGORY_REGISTRY leaf label wins
+	  const regLabel = getCategoryLabelFromRegistry(value);
+	  if (regLabel) return regLabel;
+	
+	  // 2) Legacy BASE_CATEGORIES fallback
 	  const baseCat = getBaseCategoryMetaByValue(value);
 	  if (baseCat) {
 		return baseCat.label;
@@ -7146,22 +7177,36 @@
 	  const select = document.getElementById("benefitCategorySelect");
 	  if (!select) return;
 	
-	  // Clear any existing options
 	  select.innerHTML = "";
 	
-	  // Add default placeholder
 	  const defaultOption = document.createElement("option");
 	  defaultOption.value = "";
 	  defaultOption.textContent = "-- Select category --";
 	  select.appendChild(defaultOption);
 	
-	  // Use the same BASE_CATEGORIES array (with emojis if you’ve added them)
-	  BASE_CATEGORIES.forEach(cat => {
-		const option = document.createElement("option");
-		option.value = cat.value;
-		option.textContent = cat.label; // or `${cat.emoji || ""} ${cat.label}` if you separated emojis
-		select.appendChild(option);
-	  });
+	  // Build groups sorted by sort_order, leaves sorted within each group
+	  const groups = Object.values(CATEGORY_REGISTRY.groups || {})
+		.sort(sortGroupsByOrderThenLabel);
+	
+	  for (const group of groups) {
+		const leaves = Object.values(CATEGORY_REGISTRY.leaves || {})
+		  .filter(leaf => leaf && leaf.group_key === group.key)
+		  .sort(sortLeavesWithinGroup);
+	
+		if (leaves.length === 0) continue;
+	
+		const optgroup = document.createElement("optgroup");
+		optgroup.label = `${group.icon || ""} ${group.label}`.trim();
+	
+		for (const leaf of leaves) {
+		  const opt = document.createElement("option");
+		  opt.value = leaf.key;
+		  opt.textContent = `${leaf.icon || ""} ${leaf.label}`.trim();
+		  optgroup.appendChild(opt);
+		}
+	
+		select.appendChild(optgroup);
+	  }
 	}
 
     // ---------- Merchant benefits UI ----------
