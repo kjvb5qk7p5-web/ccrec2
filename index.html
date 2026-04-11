@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.03</p>
+<p class="blackmuted"><br>v6.8.032</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2968,7 +2968,8 @@
 		  key: "dining",
 		  label: "Dining – Restaurants",
 		  icon: "🍔",
-		  group_key: "1dining",
+		  group_key: "dining",
+		  parent_key: "1dining",
 		},
 		resy: {
 		  key: "resy",
@@ -6507,6 +6508,32 @@
 	  return 0;
 	}
 	
+	function normalizeCategoryKey(input) {
+	  const raw = String(input || "").trim();
+	  if (!raw) return "";
+	
+	  // 1) Already a leaf key?
+	  if (getRegistryLeaf(CATEGORY_REGISTRY, raw)) return raw;
+	
+	  // 2) Exact match against registry leaf labels
+	  for (const leaf of Object.values(CATEGORY_REGISTRY.leaves || {})) {
+		if (leaf && String(leaf.label || "").trim() === raw) return leaf.key;
+	  }
+	
+	  // 3) BASE_CATEGORIES label -> value (handles “🛒 Groceries- grocery store”)
+	  if (typeof BASE_CATEGORIES !== "undefined" && Array.isArray(BASE_CATEGORIES)) {
+		const hit = BASE_CATEGORIES.find(c => String(c.label || "").trim() === raw);
+		if (hit && hit.value) return hit.value;
+	  }
+	
+	  // 4) Try stripping leading emoji + space (common format)
+	  const stripped = raw.replace(/^[^\w]+?\s+/, "").trim();
+	  if (stripped && getRegistryLeaf(CATEGORY_REGISTRY, stripped)) return stripped;
+	
+	  // 5) Nothing worked: return original (so fallbacks still have a shot)
+	  return raw;
+	}
+	
 	function updateCategoryPickerTrigger() {
 	  const triggerText = document.getElementById("categoryPickerTriggerText");
 	  if (!triggerText) return;
@@ -6656,11 +6683,12 @@
 			discountText,
 			expiryText
 		  ].filter(Boolean);
+		  const catKey = normalizeCategoryKey(b.category);
 	
 		  return {
 			id: String(b.id),
 			value: "mb:" + b.id,
-			icon: getCategoryIconFromRegistry(b.category) || getCategoryIcon(b.category) || "",
+			icon: getCategoryIconFromRegistry(catKey) || getCategoryIcon(catKey) || "",
 			title: b.merchant || "(unnamed merchant)",
 			subtitle: subtitleParts.join(" • "),
 			card: b.card || "",
