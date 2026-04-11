@@ -1628,7 +1628,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.032</p>
+<p class="blackmuted"><br>v6.8.033</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -6683,12 +6683,12 @@
 			discountText,
 			expiryText
 		  ].filter(Boolean);
-		  const catKey = normalizeCategoryKey(b.category);
+		  const derivedCategory = getDisplayCategoryForMerchantBenefit(b);
 	
 		  return {
 			id: String(b.id),
 			value: "mb:" + b.id,
-			icon: getCategoryIconFromRegistry(catKey) || getCategoryIcon(catKey) || "",
+			icon: getCategoryIcon(derivedCategory) || "⚪️",
 			title: b.merchant || "(unnamed merchant)",
 			subtitle: subtitleParts.join(" • "),
 			card: b.card || "",
