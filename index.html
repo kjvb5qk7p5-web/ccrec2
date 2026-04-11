@@ -1174,6 +1174,9 @@
 	  font-size: 1.1rem;
 	  line-height: 1.25;
 	  color: #111;
+	  display: flex;
+	  align-items: flex-start;
+	  gap: 0;
 	}
 	
 	.category-picker-row-subtitle {
@@ -1181,7 +1184,6 @@
 	  color: #666;
 	  margin-top: 1px;
 	  line-height: 1.1;
-	  padding-left: 1.5em;
 	}
 	
 	.category-picker-row-arrow {
@@ -1635,7 +1637,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.06</p>
+<p class="blackmuted"><br>v6.8.07</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -6909,14 +6911,18 @@
 	function renderCategoryPickerRow({ value, title, icon = "", subtitle = "", card = "", selected = false, rowClass = "" }) {
 	  const selectedClass = selected ? " selected" : "";
 	  const badgeHtml = card ? `<div class="category-picker-badge-wrap">${renderCardBadgeForPicker(card)}</div>` : "";
-	
-	  return `
-		<button type="button" class="category-picker-row${rowClass ? ` ${rowClass}` : ""}${selectedClass}" data-picker-value="${escapeHtml(value)}">
-		  <div class="category-picker-row-main">
-			${badgeHtml}
-			<div class="category-picker-row-title">${renderBenefitCellHtml(icon, null, title)}</div>
-			${subtitle ? `<div class="category-picker-row-subtitle">${subtitle}</div>` : ""}
-		  </div>
+	  const iconHtml = icon ? `<span class="category-picker-row-icon">${escapeHtml(icon)}</span>` : "";
+
+		return `
+			<button type="button" class="category-picker-row${rowClass ? ` ${rowClass}` : ""}${selectedClass}" data-picker-value="${escapeHtml(value)}">
+			  <div class="category-picker-row-main">
+				<div class="category-picker-row-title">
+				  ${iconHtml}
+				  <div class="category-picker-row-text">
+					<div>${title}</div>
+					${subtitle ? `<div class="category-picker-row-subtitle">${subtitle}</div>` : ""}
+				  </div>
+				</div>
 		  <div class="category-picker-row-arrow">›</div>
 		</button>
 	  `;
