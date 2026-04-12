@@ -6763,6 +6763,16 @@
 	  categorySuggestions.forEach((item) => {
 		allowedValues.add(item.value);
 	  });
+	  
+	  // Also include any leaf whose key or label directly contains the query
+	  for (const leaf of Object.values(CATEGORY_REGISTRY.leaves || {})) {
+		if (!leaf) continue;
+		const key = normalizeSearchText(leaf.key || "");
+		const label = normalizeSearchText(leaf.label || "");
+		if (key.includes(q) || label.includes(q)) {
+		  allowedValues.add(leaf.key);
+		}
+	  }
 	
 	  return allowedValues;
 	}
@@ -6799,7 +6809,6 @@
 	  for (const g of groups) {
 		const items = (g.leaves || [])
 		  .filter(leaf => {
-			if (leaf.always_active) return true;
 			const value = String(leaf.key || "");
 			if (allowedValues && !allowedValues.has(value)) return false;
 			return true;
