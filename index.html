@@ -1643,7 +1643,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.3</p>
+<p class="blackmuted"><br>v6.8.3b</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1974,7 +1974,7 @@
 		icon: "🚲",
 		
 		categories: ["peloton"],
-		summary_sort_category: "other",
+		summary_sort_category: "wellness",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -2869,7 +2869,7 @@
 	  stubhub: "Entertainment",
 	  streaming: "Entertainment",
 	
-	  peloton: "Other",
+	  peloton: "Wellness",
 	  other: "Other"
 	};
 	
@@ -2937,7 +2937,7 @@
 		},
 		wellness: {
 		  key: "wellness",
-		  label: "Wellness",
+		  label: "Wellness & Beauty",
 		  icon: "🫶",
 		  sort_order: 100,
 		},
@@ -3373,6 +3373,7 @@
 		health: "health",
 		gym: "wellness",
 		fitness: "wellness",
+		wellness: "wellness",
 		ev_charging: "gas",
 		rent: "housing",
 		utilities: "housing",
@@ -7240,79 +7241,29 @@
         select.appendChild(offersGroup);
       }
     
-      // ----- Card Benefits group (base categories) -----
-      const cardGroup = document.createElement("optgroup");
-      cardGroup.label = "💳 Card Benefits";
-    
-      BASE_CATEGORIES.forEach((cat) => {
-        const opt = document.createElement("option");
-        opt.value = cat.value;
-        opt.textContent = cat.label;
-        cardGroup.appendChild(opt);
-      });
-    
-      select.appendChild(cardGroup);
+      // ----- Card Benefits group (from CATEGORY_REGISTRY) -----
+		  const cardGroup = document.createElement("optgroup");
+		  cardGroup.label = "💳 Card Benefits";
+	
+		  const groups = Object.values(CATEGORY_REGISTRY.groups || {})
+			.sort(sortGroupsByOrderThenLabel);
+	
+		  for (const group of groups) {
+			const leaves = Object.values(CATEGORY_REGISTRY.leaves || {})
+			  .filter(leaf => leaf && leaf.group_key === group.key)
+			  .sort(sortLeavesWithinGroup);
+	
+			for (const leaf of leaves) {
+			  const opt = document.createElement("option");
+			  opt.value = leaf.key;
+			  opt.textContent = `${leaf.icon || ""} ${leaf.label}`.trim();
+			  cardGroup.appendChild(opt);
+			}
+		  }
+	
+		  select.appendChild(cardGroup);
     
     }
-    
-    /* obsolete function
-	function getSuggestedCategoryOptions(query) {
-	  const merchantBenefits = loadMerchantBenefits();
-	  const txs = loadTransactions();
-	  const merchantState = computeMerchantState(txs, merchantBenefits);
-	  const today = parseISODateLocal(formatTodayISO());
-	
-	  const activeMerchantBenefits = merchantBenefits.filter((b) => {
-		if (!b.endDate) return false;
-	
-		const { expired } = classifyBenefitEnd(b.endDate, today);
-		if (expired) return false;
-	
-		if (b.limitType === "total" && b.limitValue != null && !isNaN(b.limitValue)) {
-		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
-		  if (ms.used >= Number(b.limitValue)) return false;
-		}
-	
-		if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
-		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
-		  if (ms.txCount >= Number(b.maxTransactions)) return false;
-		}
-	
-		return true;
-	  });
-	
-	  const merchantMatches = findRelevantMerchantOffers(query, activeMerchantBenefits);
-	  
-	  const currentDate = new Date();
-		
-		const availableCardBenefits = CARD_BENEFITS.filter((benefit) =>
-		  isCardBenefitAvailableToday(benefit, currentDate, txs)
-		);
-		
-	  const cardCategoryMatches = findRelevantCardBenefitCategorySuggestions(
-		  query,
-		  availableCardBenefits
-		);
-	
-	  const suggestions = [];
-	
-	  merchantMatches.forEach(({ benefit, score }) => {
-		suggestions.push({
-		  kind: "merchant_offer",
-		  value: "mb:" + benefit.id,
-		  label: `🏪 ${benefit.merchant}`,
-		  score
-		});
-	  });
-	
-	  cardCategoryMatches.forEach((item) => {
-		suggestions.push(item);
-	  });
-	
-	  suggestions.sort((a, b) => b.score - a.score);
-	  return suggestions;
-	} 
-	*/
 	
 	// 6.7 wrapper function for new picker
 	function populateCategorySelect() {
@@ -8066,7 +8017,7 @@
 		  }
 		
 		  // Validate that category is actually valid
-		  const validCategories = BASE_CATEGORIES.map(c => c.value);
+		  const validCategories = Object.keys(CATEGORY_REGISTRY.leaves || {});
 		  if (!validCategories.includes(category)) {
 			alert("Invalid category selected. Please choose a valid category.");
 			return;
