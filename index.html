@@ -1638,7 +1638,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.1</p>
+<p class="blackmuted"><br>v6.8.2</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2926,7 +2926,7 @@
 		},
 		gas: {
 		  key: "gas",
-		  label: "Gas",
+		  label: "Gas & EV Charging",
 		  icon: "⛽️",
 		  sort_order: 90,
 		},
@@ -3146,7 +3146,7 @@
 		  key: "peloton",
 		  label: "Peloton membership",
 		  icon: "🚲",
-		  group_key: "other",
+		  group_key: "wellness",
 		},
 		streaming: {
 		  key: "streaming",
@@ -3166,7 +3166,7 @@
 		  key: "gas",
 		  label: "Gas",
 		  icon: "⛽️",
-		  group_key: "other", // you can promote to a new group later if it becomes real
+		  group_key: "gas", 
 		  parent_key: "gas",
 		},
 		clothing: {
@@ -3288,7 +3288,7 @@
 		// ---- Gas (addition to existing group) ----
 		ev_charging: {
 		  key: "ev_charging",
-		  label: "Gas – EV Charging",
+		  label: "EV Charging",
 		  icon: "🔋",
 		  group_key: "gas",
 		  parent_key: "gas",
@@ -6817,22 +6817,7 @@
 		}
 	  }
 	
-	  // If no search text, return everything active (normalized)
-	  if (!q) return normalized;
-	
-	  // If search text, keep only items that match key or label
-	  const filtered = normalized
-		.map(g => {
-		  const items = g.items.filter(item => {
-			const key = String(item.value || "").toLowerCase();
-			const label = String(item.label || "").toLowerCase();
-			return key.includes(q) || label.includes(q);
-		  });
-		  return { groupName: g.groupName, items };
-		})
-		.filter(g => g.items.length > 0);
-	
-	  return filtered;
+	  return normalized;
 	}
 	
 	function getMerchantOffersForPicker(query = "") {
