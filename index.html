@@ -1328,7 +1328,6 @@
 		aria-expanded="false"
 	  >
 		<span id="categoryPickerTriggerText" class="category-picker-trigger-text">Select purchase category</span>
-		<span class="category-picker-trigger-chevron">›</span>
 	  </button>
 	
 	  <!-- Keep the real select in the DOM as the source of truth -->
@@ -1638,7 +1637,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.2b</p>
+<p class="blackmuted"><br>v6.8.3</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -6713,9 +6712,30 @@
 	  if (!triggerText) return;
 	
 	  const value = getSelectedCategory();
-	  const text = getCategoryDisplayText(value);
 	
-	  triggerText.textContent = text;
+	  let icon = "";
+	  let text = "";
+	
+	  if (!value) {
+		text = "Select purchase category";
+	  } else if (value.startsWith("mb:")) {
+		// Merchant offer: use its derived category icon + merchant name
+		const benefit = getMerchantBenefitByValue(value);
+		text = benefit ? (benefit.merchant || "Merchant offer") : "Merchant offer";
+		const derivedCategory = benefit
+		  ? getDisplayCategoryForMerchantBenefit(benefit)
+		  : "";
+		icon = getCategoryIcon(derivedCategory);
+	  } else {
+		// Card benefit category: use registry leaf icon + label
+		icon = getCategoryIconFromRegistry(value);
+		text = getCategoryLabelFromRegistry(value) || getCategoryDisplayText(value);
+	  }
+	
+	  triggerText.innerHTML = icon
+		? `<span class="category-picker-row-icon">${escapeHtml(icon)}</span> ${escapeHtml(text)}`
+		: escapeHtml(text);
+	
 	  triggerText.classList.toggle("is-selected", !!value);
 	}
 	
