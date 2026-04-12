@@ -1638,7 +1638,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.2</p>
+<p class="blackmuted"><br>v6.8.2b</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2981,6 +2981,7 @@
 		  icon: "🍔",
 		  group_key: "dining",
 		  parent_key: "1dining",
+		  always_active: true,
 		},
 		resy: {
 		  key: "resy",
@@ -3206,14 +3207,14 @@
 		// ---- Transit ----
 		transit_general: {
 		  key: "transit_general",
-		  label: "Transit – Subway / Bus / Train",
+		  label: "Mass Transit – Subway / Bus / Train",
 		  icon: "🚌",
 		  group_key: "transit",
 		  parent_key: "transit",
 		},
 		parking_tolls: {
 		  key: "parking_tolls",
-		  label: "Transit – Parking & Tolls",
+		  label: "Parking & Tolls",
 		  icon: "🅿️",
 		  group_key: "transit",
 		  parent_key: "transit",
@@ -3261,7 +3262,7 @@
 		// ---- Health ----
 		pharmacy: {
 		  key: "pharmacy",
-		  label: "Health – Pharmacy / Drugstore",
+		  label: "Pharmacy / Drugstore",
 		  icon: "💊",
 		  group_key: "health",
 		  parent_key: "health",
@@ -3269,7 +3270,7 @@
 		},
 		medical: {
 		  key: "medical",
-		  label: "Health – Medical / Dental",
+		  label: "Medical / Dental",
 		  icon: "🏥",
 		  group_key: "health",
 		  parent_key: "health",
@@ -3278,7 +3279,7 @@
 		// ---- Wellness (additions to existing group) ----
 		gym_fitness: {
 		  key: "gym_fitness",
-		  label: "Wellness – Gym & Fitness",
+		  label: "Gym & Fitness",
 		  icon: "🏋️",
 		  group_key: "wellness",
 		  parent_key: "wellness",
@@ -3305,7 +3306,7 @@
 		},
 		home_improvement: {
 		  key: "home_improvement",
-		  label: "Housing – Home Improvement",
+		  label: "Home Improvement",
 		  icon: "🔨",
 		  group_key: "housing",
 		  parent_key: "housing",
@@ -3313,7 +3314,7 @@
 		},
 		utilities: {
 		  key: "utilities",
-		  label: "Housing – Utilities",
+		  label: "Utilities",
 		  icon: "⚡",
 		  group_key: "housing",
 		  parent_key: "housing",
@@ -3321,7 +3322,7 @@
 		},
 		telecom: {
 		  key: "telecom",
-		  label: "Housing – Phone & Internet",
+		  label: "Phone & Internet",
 		  icon: "📱",
 		  group_key: "housing",
 		  parent_key: "housing",
@@ -6798,6 +6799,7 @@
 	  for (const g of groups) {
 		const items = (g.leaves || [])
 		  .filter(leaf => {
+			if (leaf.always_active) return true;
 			const value = String(leaf.key || "");
 			if (allowedValues && !allowedValues.has(value)) return false;
 			return true;
