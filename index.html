@@ -1214,7 +1214,7 @@
 	  display: inline-block;
 	  width: 1.5em;
 	  text-align: center;
-	  padding-right: 4px;
+	  padding-right: 6px;
 	}
 	
 	.category-picker-empty {
@@ -1638,7 +1638,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.07</p>
+<p class="blackmuted"><br>v6.8.1</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2065,6 +2065,7 @@
 		priority: 10,
 		display_order: 60,
 		channel: "theedit_chase",
+		channel_allowed: "direct",
 	
 		eligible_fn: (tx) => tx.category === "theedit_hotel",
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
@@ -2421,6 +2422,7 @@
 		priority: 10,
 		display_order: 220,
 		channel: "renowned_chase",
+		channel_allowed: "direct",
 	
 		eligible_fn: (tx) => tx.category === "renowned_hotel",
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
@@ -2463,6 +2465,7 @@
 		priority: 10,
 		display_order: 230,
 		channel: "united_rentalcar",
+		channel_allowed: "direct",
 	
 		eligible_fn: (tx) => tx.category === "uq_rentalcar",
 		value_fn: (tx, remaining) =>
@@ -2510,6 +2513,7 @@
 		priority: 10,
 		display_order: 400,
 		channel: "delta_stays_platform",
+		channel_allowed: "direct",
 	
 		eligible_fn: (tx) => tx.category === "delta_stays",
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
@@ -2766,34 +2770,6 @@
 	  CARD_BENEFITS.map(b => [b.id, b])
 	);
 	
-	const CARD_BENEFITS_BY_CARD = CARD_BENEFITS.reduce((acc, b) => {
-	  if (!acc[b.card]) acc[b.card] = [];
-	  acc[b.card].push(b);
-	  return acc;
-	}, {});
-		
-	const SEARCH_TAGS = [
-	  "dining",
-	  "takeout",
-	  "delivery",
-	  "coffee",
-	  "groceries",
-	  "gas",
-	  "convenience_store",
-	  "hotel",
-	  "lodging",
-	  "flights",
-	  "airfare",
-	  "rideshare",
-	  "rental_car",
-	  "entertainment",
-	  "tickets",
-	  "eyewear",
-	  "pharmacy",
-	  "retail",
-	  "travel"
-	];
-	
 	const SYNONYM_MAP = {
 	  dining: ["dining", "restaurant", "restaurants", "meal", "eat out", "fast food"],
 	  takeout: ["takeout", "take out", "pickup", "carryout", "to go"],
@@ -2904,7 +2880,7 @@
 		  key: "dining",
 		  label: "Dining",
 		  icon: "🍔",
-		  sort_order: 10, // matches getGroupedCardCategoriesForPicker hard-coded order
+		  sort_order: 10, 
 		},
 		coffee: {
 		  key: "coffee",
@@ -2933,7 +2909,7 @@
 		entertainment: {
 		  key: "entertainment",
 		  label: "Entertainment",
-		  icon: "🎉",
+		  icon: "🎫",
 		  sort_order: 60,
 		},
 		clothing: {
@@ -2965,6 +2941,30 @@
 		  label: "Other",
 		  icon: "🛍️",
 		  sort_order: 999,
+		},
+		transit: {
+		  key: "transit",
+		  label: "Transit",
+		  icon: "🚌",
+		  sort_order: 55,   // slots between rideshare(50) and entertainment(60)
+		},
+		shopping: {
+		  key: "shopping",
+		  label: "Shopping",
+		  icon: "🛍️",
+		  sort_order: 65,   // slots between entertainment(60) and clothing(70)
+		},
+		health: {
+		  key: "health",
+		  label: "Health",
+		  icon: "💊",
+		  sort_order: 95,   // slots between gas(90) and wellness(100)
+		},
+		housing: {
+		  key: "housing",
+		  label: "Housing & Bills",
+		  icon: "🏠",
+		  sort_order: 105,  // slots between wellness(100) and other(999)
 		},
 	  },
 	
@@ -3022,7 +3022,7 @@
 		dunkin: {
 		  key: "dunkin",
 		  label: "Dunkin",
-		  icon: "🍩",
+		  icon: "☕️",
 		  group_key: "dining",
 		  parent_key: "coffee",
 		},
@@ -3152,7 +3152,7 @@
 		  key: "streaming",
 		  label: "Streaming",
 		  icon: "📺",
-		  group_key: "other",
+		  group_key: "entertainment",
 		},
 		other: {
 		  key: "other",
@@ -3203,6 +3203,137 @@
 		  icon: "🫶",
 		  group_key: "wellness",
 		},
+		// ---- Transit ----
+		transit_general: {
+		  key: "transit_general",
+		  label: "Transit – Subway / Bus / Train",
+		  icon: "🚌",
+		  group_key: "transit",
+		  parent_key: "transit",
+		},
+		parking_tolls: {
+		  key: "parking_tolls",
+		  label: "Transit – Parking & Tolls",
+		  icon: "🅿️",
+		  group_key: "transit",
+		  parent_key: "transit",
+		},
+		
+		// ---- Shopping ----
+		amazon: {
+		  key: "amazon",
+		  label: "Shopping – Amazon",
+		  icon: "📦",
+		  group_key: "shopping",
+		  parent_key: "online_shopping",
+		},
+		online_shopping: {
+		  key: "online_shopping",
+		  label: "Shopping – Online (general)",
+		  icon: "🖥️",
+		  group_key: "shopping",
+		  parent_key: "online_shopping",
+		},
+		wholesale_clubs: {
+		  key: "wholesale_clubs",
+		  label: "Shopping – Wholesale Clubs",
+		  icon: "🏪",
+		  group_key: "shopping",
+		  parent_key: "wholesale_clubs",
+		  // Costco, Sam's Club, BJ's — often their own reward category on co-branded cards
+		},
+		department_stores: {
+		  key: "department_stores",
+		  label: "Shopping – Department Stores",
+		  icon: "🏬",
+		  group_key: "shopping",
+		  parent_key: "retail",
+		},
+		home_goods: {
+		  key: "home_goods",
+		  label: "Shopping – Home Goods",
+		  icon: "🛋️",
+		  group_key: "shopping",
+		  parent_key: "retail",
+		  // IKEA, Target, general household supplies — distinct from home_improvement (contractors/lumber)
+		},
+		
+		// ---- Health ----
+		pharmacy: {
+		  key: "pharmacy",
+		  label: "Health – Pharmacy / Drugstore",
+		  icon: "💊",
+		  group_key: "health",
+		  parent_key: "health",
+		  // CVS, Walgreens, Rite Aid — major bonus category on Amex Blue Cash, etc.
+		},
+		medical: {
+		  key: "medical",
+		  label: "Health – Medical / Dental",
+		  icon: "🏥",
+		  group_key: "health",
+		  parent_key: "health",
+		},
+		
+		// ---- Wellness (additions to existing group) ----
+		gym_fitness: {
+		  key: "gym_fitness",
+		  label: "Wellness – Gym & Fitness",
+		  icon: "🏋️",
+		  group_key: "wellness",
+		  parent_key: "wellness",
+		  // Distinct from peloton (specific brand) — covers SoulCycle, Planet Fitness, etc.
+		},
+		
+		// ---- Gas (addition to existing group) ----
+		ev_charging: {
+		  key: "ev_charging",
+		  label: "Gas – EV Charging",
+		  icon: "🔋",
+		  group_key: "gas",
+		  parent_key: "gas",
+		},
+		
+		// ---- Housing ----
+		rent: {
+		  key: "rent",
+		  label: "Housing – Rent",
+		  icon: "🏠",
+		  group_key: "housing",
+		  parent_key: "housing",
+		  // Bilt Mastercard; increasingly relevant category
+		},
+		home_improvement: {
+		  key: "home_improvement",
+		  label: "Housing – Home Improvement",
+		  icon: "🔨",
+		  group_key: "housing",
+		  parent_key: "housing",
+		  // Home Depot, Lowe's — several cards give 3x here
+		},
+		utilities: {
+		  key: "utilities",
+		  label: "Housing – Utilities",
+		  icon: "⚡",
+		  group_key: "housing",
+		  parent_key: "housing",
+		  // Electric, gas, water; several cards include in bonus categories
+		},
+		telecom: {
+		  key: "telecom",
+		  label: "Housing – Phone & Internet",
+		  icon: "📱",
+		  group_key: "housing",
+		  parent_key: "housing",
+		  // Cell phone, cable, internet — some cards give 3x here; also useful for phone protection tracking
+		},
+		pets: {
+		  key: "pets",
+		  label: "Other – Pets",
+		  icon: "🐾",
+		  group_key: "other",
+		  // Pet food, vet, boarding — niche but a few co-branded cards have this
+		},
 	  },
 	
 	  // This is where we rationalize your card-benefit “summary_sort_category” universe
@@ -3224,6 +3355,26 @@
 		flights: "travel",      // if it appears anywhere
 		entertainment: "entertainment",
 		tickets: "entertainment",
+		transit: "transit",
+		parking: "transit",       // in case "parking" appears as a raw value
+		shopping: "shopping",
+		online: "shopping",       // defensive alias
+		wholesale: "shopping",
+		department_store: "shopping",
+		pharmacy: "health",
+		drugstore: "health",      // defensive alias
+		medical: "health",
+		health: "health",
+		gym: "wellness",
+		fitness: "wellness",
+		ev_charging: "gas",
+		rent: "housing",
+		utilities: "housing",
+		home_improvement: "housing",
+		telecom: "housing",
+		internet: "housing",      // defensive alias
+		phone: "housing",         // defensive alias
+		pets: "other",
 		retail: "other",
 		other: "other",
 	  },
@@ -3758,7 +3909,11 @@
 	
 	// Requirement: sort leaves within a group first by parent_key (if one exists) and then label.
 	function sortLeavesWithinGroup(a, b) {
-	  const ap = String(a.parent_key || ""); // parent_key first
+	  // always_active leaves float to the top
+	  if (a.always_active && !b.always_active) return -1;
+	  if (b.always_active && !a.always_active) return 1;
+	
+	  const ap = String(a.parent_key || "");
 	  const bp = String(b.parent_key || "");
 	  if (ap !== bp) return ap.localeCompare(bp);
 	
@@ -3767,7 +3922,6 @@
 	  const byLabel = al.localeCompare(bl);
 	  if (byLabel !== 0) return byLabel;
 	
-	  // deterministic final tie-break
 	  return String(a.key || "").localeCompare(String(b.key || ""));
 	}
 	
@@ -4762,35 +4916,6 @@
       opentable_platform:
         'via <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" ' +
         'target="_blank" rel="noopener noreferrer">OpenTable exclusive CSR partners</a>',
-    };
-
-    // Allowed channels per category (for override dropdown)
-    const CHANNELS_BY_CATEGORY = {
-      dining: ["direct"],
-      uber_eats: ["uber_app"],
-      ag_dining: ["direct"],
-      doordash: ["doordash"],
-      resy: ["resy"],
-      dunkin: ["direct"],
-      lyft: ["lyft_app"],
-      rideshare_other: ["uber_app"],
-      united_flight: ["united"],
-      delta_flight_threshold: ["delta"],
-      other_flight: ["chase_travel", "direct"],
-      uq_rentalcar: ["united_rentalcar"],
-	  theedit_hotel: ["theedit_chase", "direct"],
-      marriott_hotel: ["direct", "chase_travel"],
-      renowned_hotel: ["renowned_chase", "direct"],
-      delta_stays: ["delta_stays_platform"],
-      other_hotel: ["direct", "chase_travel"],
-      stubhub: ["stubhub_platform"],
-      instacart: ["instacart_platform"],
-      groceries: ["direct"],
-      streaming: ["direct"],
-      peloton: ["peloton_platform"],
-      doordash_groceries: ["doordash_groceries_platform"],
-      csr_opentable: ["opentable_platform"],
-      other: ["direct"],
     };
 
     function classifyBenefitEnd(endDateStr, todayDate) {
