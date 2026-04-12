@@ -982,6 +982,12 @@
 	  box-sizing: border-box;
 	}
 	
+	.category-picker-trigger-inner {
+	  display: flex;
+	  align-items: center;
+	  gap: 0;
+	}
+	
 	.category-picker-trigger-text.is-selected {
 	  font-weight: 700;
 	}
@@ -6733,7 +6739,7 @@
 	  }
 	
 	  triggerText.innerHTML = icon
-		? `<span class="category-picker-row-icon">${escapeHtml(icon)}</span> ${escapeHtml(text)}`
+		? `<span class="category-picker-trigger-inner"><span class="category-picker-row-icon">${escapeHtml(icon)}</span><span>${escapeHtml(text)}</span></span>`
 		: escapeHtml(text);
 	
 	  triggerText.classList.toggle("is-selected", !!value);
