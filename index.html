@@ -1370,7 +1370,7 @@
           <select id="cardUsedSelect"></select>
         </label>
 
-        <label>
+        <label id="channelUsedLabel" style="display:none;">
           Channel used (optional override)
           <select id="channelUsedSelect">
             <!-- options populated dynamically based on category -->
@@ -1643,7 +1643,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.3b</p>
+<p class="blackmuted"><br>v6.8.4</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1974,7 +1974,7 @@
 		icon: "🚲",
 		
 		categories: ["peloton"],
-		summary_sort_category: "wellness",
+		summary_sort_category: "health",
 	
 		cadence: "monthly",
 		cadence_type: "calendar",
@@ -2869,7 +2869,7 @@
 	  stubhub: "Entertainment",
 	  streaming: "Entertainment",
 	
-	  peloton: "Wellness",
+	  peloton: "Health",
 	  other: "Other"
 	};
 	
@@ -3152,7 +3152,7 @@
 		  key: "peloton",
 		  label: "Peloton membership",
 		  icon: "🚲",
-		  group_key: "wellness",
+		  group_key: "health",
 		},
 		streaming: {
 		  key: "streaming",
@@ -3286,8 +3286,8 @@
 		  key: "gym_fitness",
 		  label: "Gym & Fitness",
 		  icon: "🏋️",
-		  group_key: "wellness",
-		  parent_key: "wellness",
+		  group_key: "health",
+		  parent_key: "health",
 		  // Distinct from peloton (specific brand) — covers SoulCycle, Planet Fitness, etc.
 		},
 		
@@ -3601,6 +3601,7 @@
 	  for (const benefit of CARD_BENEFITS) {
 		if (CARDS[benefit.card]?.is_active === false) continue;
 		if (tx.cardUsed && tx.cardUsed !== benefit.card) continue;
+		if (benefit.channel_allowed && tx.channel === benefit.channel_allowed) continue;
 	
 		let matches = false;
 		if (typeof benefit.eligible_fn === "function") {
@@ -3798,6 +3799,10 @@
 	
 	  // Benefit-based recommendations: channel comes from the chosen CARD_BENEFITS entry
 	  if (rec.recommendationSource === "card_benefit") {
+		const benefit = rec.cardBenefitId ? CARD_BENEFITS_BY_ID[rec.cardBenefitId] : null;
+		if (benefit && benefit.channel_allowed) {
+		  return [benefit.channel, benefit.channel_allowed];
+		}
 		return rec.channel ? [rec.channel] : ["direct"];
 	  }
 	
@@ -3813,6 +3818,13 @@
 	  }
 	
 	  return rec.channel ? [rec.channel] : ["direct"];
+	}
+	
+	function syncChannelDropdownVisibility() {
+	  const label = document.getElementById("channelUsedLabel");
+	  const select = document.getElementById("channelUsedSelect");
+	  if (!label || !select) return;
+	  label.style.display = select.options.length > 1 ? "" : "none";
 	}
 
 	// 5.0 helpers for when the user overrides the card in a rec, 
@@ -7696,9 +7708,11 @@
 		});
 		
 		if (relevantChannels.includes(rec.channel)) {
-		  chanSelect.value = rec.channel;
-		}
-    });
+			chanSelect.value = rec.channel;
+		  }
+	
+		  syncChannelDropdownVisibility();
+		});
 
 	function getCurrentPurchaseFromForm() {
 	  const amount = document.getElementById("amount").value;
@@ -7933,9 +7947,11 @@
 	  });
 	
 	  if (relevantChannels.length > 0) {
-		chanSelect.value = relevantChannels[0];
-	  }
-	});
+			chanSelect.value = relevantChannels[0];
+		  }
+		
+		  syncChannelDropdownVisibility();
+		});
 
     // Clear all tx
 	document.getElementById("btnClear").addEventListener("click", () => {
