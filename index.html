@@ -1643,7 +1643,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.4</p>
+<p class="blackmuted"><br>v6.8.5</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -1791,11 +1791,18 @@
 		  "united_flight",
 		  "delta_flight_threshold",
 		  "other_flight",
+		  "american_flight",        // ← new: same MCC 4511, CSR covers all airlines
 		  "theedit_hotel",
 		  "marriott_hotel",
 		  "renowned_hotel",
 		  "delta_stays",
-		  "other_hotel"
+		  "other_hotel",
+		  "hilton_hotel",           // ← new: CSR covers all hotel chains
+		  "hyatt_hotel",            // ← new: CSR covers all hotel chains
+		  "airbnb",                 // ← new: CSR explicitly includes Airbnb (MCC 7011)
+		  "hertz_rentalcar",        // ← new: CSR covers all rental car companies
+		  "national_rentalcar",     // ← new: CSR covers all rental car companies
+		  "uq_rentalcar",
 		],
 		summary_sort_category: "travel",
 	
@@ -2824,20 +2831,59 @@
 	};
 	
 	const CATEGORY_MERCHANTS = {
-	  gas: ["exxon", "mobil", "sunoco", "shell", "chevron", "bp", "amaco", "citgo", "valero", "wawa", "lukoil", "cumberland farms"],
+	  gas: ["exxon", "mobil", "sunoco", "shell", "chevron", "bp", "amaco", "citgo", "valero", "wawa", "lukoil", "cumberland farms",
+		"gulf", "speedway", "quiktrip", "marathon"                          // ← new
+	  ],
+	  ev_charging: ["tesla supercharger", "chargepoint", "evgo", "blink", "electrify america"],  // ← new category entirely
 	  coffee: ["starbucks", "dunkin"],
-	  groceries: ["instacart", "whole foods", "trader joe s", "kroger", "safeway", "acme", "shoprite"],
-	  hotel: ["marriott", "hyatt", "hilton", "ihg", "sheraton", "airbnb", "worldhotels"],
-	  flights: ["delta", "united", "american airlines", "jetblue", "southwest"],
+	  groceries: ["instacart", "whole foods", "trader joe s", "kroger", "safeway", "acme", "shoprite",
+		"wegmans", "publix", "h-e-b", "stop & shop", "aldi", "lidl", "sprouts", "harris teeter", "meijer"  // ← new
+	  ],
+	  hotel: ["marriott", "hyatt", "hilton", "ihg", "sheraton", "airbnb", "worldhotels",
+		"wyndham", "best western", "radisson", "four seasons", "ritz-carlton", "kimpton", "autograph collection"  // ← new
+	  ],
+	  flights: ["delta", "united", "american airlines", "jetblue", "southwest",
+		"alaska airlines", "spirit", "frontier", "british airways", "air france", "lufthansa", "emirates", "klm"  // ← new
+	  ],
 	  rideshare: ["uber", "lyft"],
-	  rental_car: ["avis", "budget", "hertz", "enterprise", "national", "alamo", "sixt", "turo"],
-	  entertainment: ["telecharge", "ticketmaster", "stubhub", "viagogo", "broadway", "barclays", "seatgeek"],
-	  eyewear: ["lenscrafters", "warby parker", "eyeglasses", "lenscrafters", "lensdirect"],
-	  sunglasses: ["rayban", "sunglass hut"],
+	  rental_car: ["avis", "budget", "hertz", "enterprise", "national", "alamo", "sixt", "turo",
+		"dollar", "thrifty"                                                 // ← new
+	  ],
+	  entertainment: ["telecharge", "ticketmaster", "stubhub", "viagogo", "broadway", "barclays", "seatgeek",
+		"axs", "live nation", "msg", "eventbrite"                          // ← new
+	  ],
+	  eyewear: ["lenscrafters", "warby parker", "eyeglasses", "lensdirect",
+		"pearle vision", "national vision", "1-800 contacts", "clearly"    // ← new
+	  ],
+	  sunglasses: ["rayban", "sunglass hut",
+		"oakley", "maui jim"                                               // ← new
+	  ],
 	  pharmacy: ["cvs", "walgreens", "rite aid", "duane reade"],
-	  wellness: ["musely", "prenuvo", "function health"],
-	  clothing: ["charles tyrwhitt", "lululemon", "express", "banana republic", "j crew", "jcrew", "cole haan", "muji", "bonobos", "LL Bean"],
-	  electronics: ["sony", "best buy"]
+	  wellness: ["musely", "prenuvo", "function health",
+		"massage envy", "hand & stone", "equinox spa", "calm", "headspace" // ← new
+	  ],
+	  beauty: ["sephora", "ulta"],                                         // ← new category entirely
+	  clothing: ["charles tyrwhitt", "lululemon", "express", "banana republic", "j crew", "jcrew", "cole haan", "muji", "bonobos", "LL Bean",
+		"zara", "h&m", "gap", "old navy", "uniqlo", "asos", "nike", "adidas", "madewell", "ralph lauren"  // ← new
+	  ],
+	  shoes: ["dsw", "foot locker", "steve madden", "aldo", "new balance", "skechers"],  // ← new category entirely
+	  electronics: ["sony", "best buy",
+		"apple", "samsung", "microsoft", "b&h photo", "adorama", "newegg"  // ← new
+	  ],
+	  // ── Categories with no merchants yet ──────────────────────────────
+	  shopping: ["amazon", "target", "walmart", "costco", "sam s club", "bj s wholesale",
+		"wayfair", "ikea", "home goods", "tj maxx", "marshalls", "overstock", "etsy", "ebay"  // ← new category entirely
+	  ],
+	  home_improvement: ["home depot", "lowe s", "menards", "ace hardware", "true value"],  // ← new category entirely
+	  transit: ["mta", "nj transit", "amtrak", "bart", "cta", "wmata",
+		"septa", "mbta", "metra"                                           // ← new category entirely
+	  ],
+	  parking: ["spothero", "parkwhiz", "ezpass", "sunpass", "parkmobile", "paybyphone"],  // ← new category entirely
+	  telecom: ["verizon", "at&t", "t-mobile", "comcast", "xfinity", "spectrum", "cox"],  // ← new category entirely
+	  pets: ["petco", "petsmart", "chewy"],                               // ← new category entirely
+	  streaming: ["netflix", "hulu", "disney+", "hbo max", "peacock", "spotify",
+		"apple tv+", "youtube premium", "paramount+", "amazon prime video" // ← new category entirely
+	  ],
 	};
 	
 	const CATEGORY_GROUP_MAP = {
@@ -3340,6 +3386,149 @@
 		  group_key: "other",
 		  // Pet food, vet, boarding — niche but a few co-branded cards have this
 		},
+		// ---- Groceries (new specific merchants) ----
+		whole_foods: {
+		  key: "whole_foods",
+		  label: "Groceries – Whole Foods",
+		  icon: "🌿",
+		  group_key: "groceries",
+		  parent_key: "1groceries",
+		  // Codes 5411 but Chase Prime Visa routes to Amazon bonus bucket — needs own leaf
+		},
+		walmart_grocery: {
+		  key: "walmart_grocery",
+		  label: "Groceries – Walmart",
+		  icon: "🛒",
+		  group_key: "groceries",
+		  parent_key: "1groceries",
+		  // Codes 5411 on Visa/MC but most issuers explicitly exclude by merchant name
+		},
+		
+		// ---- Shopping (new specific merchants) ----
+		target: {
+		  key: "target",
+		  label: "Shopping – Target",
+		  icon: "🎯",
+		  group_key: "shopping",
+		  parent_key: "retail",
+		  // MCC 5310 (Discount Stores) — never earns grocery or dept store bonus; RedCard gives flat 5%
+		},
+		walmart: {
+		  key: "walmart",
+		  label: "Shopping – Walmart",
+		  icon: "🏪",
+		  group_key: "shopping",
+		  parent_key: "retail",
+		  // General in-store Walmart; Capital One Walmart card gives 5% online / 2% in-store
+		},
+		best_buy: {
+		  key: "best_buy",
+		  label: "Shopping – Best Buy",
+		  icon: "🖥️",
+		  group_key: "shopping",
+		  parent_key: "retail",
+		  // MCC 5732 Electronics — co-branded Citi card; distinct from general online_shopping
+		},
+		apple: {
+		  key: "apple",
+		  label: "Shopping – Apple",
+		  icon: "🍎",
+		  group_key: "shopping",
+		  parent_key: "online_shopping",
+		  // Apple Card gives 3% back at Apple; spans MCCs 5732 (hardware), 5815 (digital), 4899 (subscriptions)
+		},
+		
+		// ---- Wellness & Beauty (new specific merchants) ----
+		sephora: {
+		  key: "sephora",
+		  label: "Beauty – Sephora",
+		  icon: "💄",
+		  group_key: "wellness",
+		  parent_key: "beauty",
+		  // MCC 5977 Cosmetics — Amex Platinum has had Sephora credits; own MCC distinct from retail
+		},
+		ulta: {
+		  key: "ulta",
+		  label: "Beauty – Ulta",
+		  icon: "💅",
+		  group_key: "wellness",
+		  parent_key: "beauty",
+		  // MCC 5977 — Target RedCard gives 5% at Ulta in-store (unique cross-brand benefit)
+		},
+		
+		// ---- Coffee (new specific merchants) ----
+		starbucks: {
+		  key: "starbucks",
+		  label: "Starbucks",
+		  icon: "🟢",
+		  group_key: "dining",
+		  parent_key: "coffee",
+		  // MCC 5814 Fast Food (not 5812) — Amex Gold has had Starbucks credits; some issuers treat 5814 differently
+		},
+		
+		// ---- Travel – Flights (new airline) ----
+		american_flight: {
+		  key: "american_flight",
+		  label: "Flight – American",
+		  icon: "✈️",
+		  group_key: "travel",
+		  parent_key: "flights",
+		  // MCC 4511 — Citi AAdvantage gap filled; AA codes consistently same as United/Delta
+		},
+		
+		// ---- Travel – Lodging (new hotel brands) ----
+		hilton_hotel: {
+		  key: "hilton_hotel",
+		  label: "Hotel – Hilton",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		  // Amex Hilton Honors card gives 7x at Hilton properties
+		},
+		hyatt_hotel: {
+		  key: "hyatt_hotel",
+		  label: "Hotel – Hyatt",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		  // Chase World of Hyatt card gives 4x at Hyatt; outsized points value
+		},
+		airbnb: {
+		  key: "airbnb",
+		  label: "Hotel – Airbnb",
+		  icon: "🏡",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		  // Codes MCC 7011 (Hotels) but widely excluded from hotel bonuses by issuers — needs explicit handling
+		},
+		
+		// ---- Travel – Rental Cars (new brands) ----
+		hertz_rentalcar: {
+		  key: "hertz_rentalcar",
+		  label: "Rental car – Hertz",
+		  icon: "🚙",
+		  group_key: "travel",
+		  parent_key: "rental_car",
+		  // Amex Platinum gives President's Circle status at Hertz; MCC 7512 same as Avis
+		},
+		national_rentalcar: {
+		  key: "national_rentalcar",
+		  label: "Rental car – National",
+		  icon: "🚙",
+		  group_key: "travel",
+		  parent_key: "rental_car",
+		  // Most popular among status-conscious travelers; MCC 7512
+		},
+		
+		// ---- Entertainment (new specific merchant) ----
+		ticketmaster: {
+		  key: "ticketmaster",
+		  label: "Ticketmaster / Live Nation",
+		  icon: "🎟️",
+		  group_key: "entertainment",
+		  parent_key: "tickets",
+		  // Amex has presale access + credits; Live Nation venues may code 7941 (Sports) vs 7922 — inconsistent vs StubHub
+		},
 	  },
 	
 	  // This is where we rationalize your card-benefit “summary_sort_category” universe
@@ -3382,6 +3571,23 @@
 		internet: "housing",      // defensive alias
 		phone: "housing",         // defensive alias
 		pets: "other",
+		whole_foods: "groceries",
+		walmart_grocery: "groceries",
+		target: "shopping",
+		walmart: "shopping",
+		best_buy: "shopping",
+		apple: "shopping",
+		sephora: "wellness",
+		ulta: "wellness",
+		beauty: "wellness",       // parent_key alias
+		starbucks: "dining",
+		american_flight: "travel",
+		hilton_hotel: "travel",
+		hyatt_hotel: "travel",
+		airbnb: "travel",
+		hertz_rentalcar: "travel",
+		national_rentalcar: "travel",
+		ticketmaster: "entertainment",
 		retail: "other",
 		other: "other",
 	  },
