@@ -1643,7 +1643,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.5</p>
+<p class="blackmuted"><br>v6.8.6a</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2737,47 +2737,6 @@
 	  }
 	};
 	
-	const SUMMARY_SORT_CATEGORY_LABELS = {
-	  dining: "Dining",
-	  groceries: "Groceries",
-	  coffee: "Coffee",
-	  rideshare: "Rideshare",
-	  travel: "Travel",
-	  hotel: "Hotels",
-	  rental_car: "Rental Cars",
-	  entertainment: "Entertainment",
-	  retail: "Retail",
-	  wellness: "Wellness",
-	  clothing: "Clothing",
-	  eyewear: "Eyewear",
-	  electronics: "Electronics",
-	  other: "Other"
-	};
-	
-	const CATEGORY_ICONS = {
-	  dining: "🍔",
-	  takeout: "🥡",
-	  groceries: "🛒",
-	  coffee: "☕️",
-	  rideshare: "🚗",
-	  travel: "✈️🏨",
-	  flights: "✈️",
-	  airfare: "✈️",
-	  hotel: "🏨",
-	  lodging: "🏨",
-	  rental_car: "🚙",
-	  entertainment: "🎫",
-	  retail: "🛍🧾",
-	  wellness: "🫶",
-	  clothing: "👕🩳",
-	  eyewear: "👓",
-	  electronics: "🖥️",
-	  gas: "⛽️",
-	  pharmacy: "💊",
-	  convenience_store: "🏪",
-	  other: "🛍"
-	};
-	
 	const CARD_BENEFITS_BY_ID = Object.fromEntries(
 	  CARD_BENEFITS.map(b => [b.id, b])
 	);
@@ -2839,84 +2798,42 @@
 	  groceries: ["instacart", "whole foods", "trader joe s", "kroger", "safeway", "acme", "shoprite",
 		"wegmans", "publix", "h-e-b", "stop & shop", "aldi", "lidl", "sprouts", "harris teeter", "meijer"  // ← new
 	  ],
-	  hotel: ["marriott", "hyatt", "hilton", "ihg", "sheraton", "airbnb", "worldhotels",
-		"wyndham", "best western", "radisson", "four seasons", "ritz-carlton", "kimpton", "autograph collection"  // ← new
+	  hotel: ["marriott", "hyatt", "hilton", "ihg", "sheraton", "airbnb", "worldhotels", "wyndham", "best western", "radisson", "four seasons", "ritz-carlton", "kimpton", "autograph collection"  // ← new
 	  ],
-	  flights: ["delta", "united", "american airlines", "jetblue", "southwest",
-		"alaska airlines", "spirit", "frontier", "british airways", "air france", "lufthansa", "emirates", "klm"  // ← new
+	  flights: ["delta", "united", "american airlines", "jetblue", "southwest", "alaska airlines", "spirit", "frontier", "british airways", "air france", "lufthansa", "emirates", "klm"  // ← new
 	  ],
 	  rideshare: ["uber", "lyft"],
-	  rental_car: ["avis", "budget", "hertz", "enterprise", "national", "alamo", "sixt", "turo",
-		"dollar", "thrifty"                                                 // ← new
+	  rental_car: ["avis", "budget", "hertz", "enterprise", "national", "alamo", "sixt", "turo", "dollar", "thrifty"                                                 // ← new
 	  ],
 	  entertainment: ["telecharge", "ticketmaster", "stubhub", "viagogo", "broadway", "barclays", "seatgeek",
 		"axs", "live nation", "msg", "eventbrite"                          // ← new
 	  ],
-	  eyewear: ["lenscrafters", "warby parker", "eyeglasses", "lensdirect",
-		"pearle vision", "national vision", "1-800 contacts", "clearly"    // ← new
+	  eyewear: ["lenscrafters", "warby parker", "eyeglasses", "lensdirect", "pearle vision", "national vision", "1-800 contacts", "clearly"    // ← new
 	  ],
-	  sunglasses: ["rayban", "sunglass hut",
-		"oakley", "maui jim"                                               // ← new
+	  sunglasses: ["rayban", "sunglass hut", "oakley", "maui jim"                                               // ← new
 	  ],
 	  pharmacy: ["cvs", "walgreens", "rite aid", "duane reade"],
-	  wellness: ["musely", "prenuvo", "function health",
-		"massage envy", "hand & stone", "equinox spa", "calm", "headspace" // ← new
+	  wellness: ["musely", "prenuvo", "function health", "massage envy", "hand & stone", "equinox spa", "calm", "headspace" // ← new
 	  ],
 	  beauty: ["sephora", "ulta"],                                         // ← new category entirely
 	  clothing: ["charles tyrwhitt", "lululemon", "express", "banana republic", "j crew", "jcrew", "cole haan", "muji", "bonobos", "LL Bean",
 		"zara", "h&m", "gap", "old navy", "uniqlo", "asos", "nike", "adidas", "madewell", "ralph lauren"  // ← new
 	  ],
 	  shoes: ["dsw", "foot locker", "steve madden", "aldo", "new balance", "skechers"],  // ← new category entirely
-	  electronics: ["sony", "best buy",
-		"apple", "samsung", "microsoft", "b&h photo", "adorama", "newegg"  // ← new
+	  electronics: ["sony", "best buy", "apple", "samsung", "microsoft", "b&h photo", "adorama", "newegg"  // ← new
 	  ],
 	  // ── Categories with no merchants yet ──────────────────────────────
 	  shopping: ["amazon", "target", "walmart", "costco", "sam s club", "bj s wholesale",
 		"wayfair", "ikea", "home goods", "tj maxx", "marshalls", "overstock", "etsy", "ebay"  // ← new category entirely
 	  ],
 	  home_improvement: ["home depot", "lowe s", "menards", "ace hardware", "true value"],  // ← new category entirely
-	  transit: ["mta", "nj transit", "amtrak", "bart", "cta", "wmata",
-		"septa", "mbta", "metra"                                           // ← new category entirely
+	  transit: ["mta", "nj transit", "amtrak", "bart", "cta", "wmata", "septa", "mbta", "metra"                                           // ← new category entirely
 	  ],
 	  parking: ["spothero", "parkwhiz", "ezpass", "sunpass", "parkmobile", "paybyphone"],  // ← new category entirely
 	  telecom: ["verizon", "at&t", "t-mobile", "comcast", "xfinity", "spectrum", "cox"],  // ← new category entirely
 	  pets: ["petco", "petsmart", "chewy"],                               // ← new category entirely
-	  streaming: ["netflix", "hulu", "disney+", "hbo max", "peacock", "spotify",
-		"apple tv+", "youtube premium", "paramount+", "amazon prime video" // ← new category entirely
+	  streaming: ["netflix", "hulu", "disney+", "hbo max", "peacock", "spotify", "apple tv+", "youtube premium", "paramount+", "amazon prime video" // ← new category entirely
 	  ],
-	};
-	
-	const CATEGORY_GROUP_MAP = {
-	  dining: "Dining",
-	  resy: "Dining",
-	  csr_opentable: "Dining",
-	  ag_dining: "Dining",
-	  doordash: "Dining",
-	  uber_eats: "Dining",
-	  dunkin: "Dining",
-	
-	  groceries: "Groceries",
-	  doordash_groceries: "Groceries",
-	  instacart: "Groceries",
-	
-	  lyft: "Rideshare",
-	  rideshare_other: "Rideshare",
-	
-	  united_flight: "Travel",
-	  delta_flight_threshold: "Travel",
-	  other_flight: "Travel",
-	  marriott_hotel: "Travel",
-	  theedit_hotel: "Travel",
-	  renowned_hotel: "Travel",
-	  delta_stays: "Travel",
-	  other_hotel: "Travel",
-	  uq_rentalcar: "Travel",
-	
-	  stubhub: "Entertainment",
-	  streaming: "Entertainment",
-	
-	  peloton: "Health",
-	  other: "Other"
 	};
 	
 	// CATEGORY_REGISTRY v0 — built from v6-7-5smarterIcons.html registries + rules:
@@ -3541,6 +3458,7 @@
 	  summary_sort_category_to_group: {
 		dining: "dining",
 		coffee: "dining",
+		takeout: "dining",
 		groceries: "groceries",
 		rideshare: "rideshare",
 		travel: "travel",
@@ -3556,6 +3474,7 @@
 		online: "shopping",       // defensive alias
 		wholesale: "shopping",
 		department_store: "shopping",
+		electronics: "shopping",
 		pharmacy: "health",
 		drugstore: "health",      // defensive alias
 		medical: "health",
@@ -3684,58 +3603,6 @@
 	  return { priorUsed, priorTxCount, window };
 	}
 	
-	// 5.0 Evaluate one card benefit candidate
-	function evaluateCardBenefitCandidate(benefit, tx, txsBeforeSave) {
-	  if (!benefit || !tx) return null;
-	  if (tx.cardUsed && tx.cardUsed !== benefit.card) return null;
-	
-	  const amount = Number(tx.amount) || 0;
-	  if (amount <= 0) return null;
-	
-	  if (typeof benefit.eligible_fn === "function") {
-		if (!benefit.eligible_fn(tx)) return null;
-	  } else if (Array.isArray(benefit.categories)) {
-		if (!benefit.categories.includes(tx.category)) return null;
-	  } else {
-		return null;
-	  }
-	
-	  const { priorUsed, priorTxCount, window } = getBenefitUsageSoFar(benefit, tx, txsBeforeSave);
-	  if (!window) return null;
-	
-	  const capAmount = Number(benefit.cap_amount) || 0;
-	  const remainingAmount = Math.max(0, capAmount - priorUsed);
-	  if (remainingAmount <= 0) return null;
-	
-	  if (benefit.tx_cap != null && priorTxCount >= Number(benefit.tx_cap)) {
-		return null;
-	  }
-	
-	  let immediateValue;
-		if (typeof benefit.value_fn === "function") {
-		  immediateValue = Number(benefit.value_fn(tx, remainingAmount)) || 0;
-		} else {
-		  immediateValue = Math.min(amount, remainingAmount);
-		}
-		
-		if (benefit.per_tx_cap != null && !isNaN(benefit.per_tx_cap)) {
-		  immediateValue = Math.min(immediateValue, Number(benefit.per_tx_cap));
-		}
-		
-		immediateValue = Math.max(0, Math.min(immediateValue, remainingAmount));
-		
-	  if (immediateValue <= 0) return null;
-	
-	  return {
-		benefit,
-		immediateValue,
-		remainingAmount,
-		priorUsed,
-		priorTxCount,
-		window
-	  };
-	}
-	
 	// 5.0 small helper that totals usage by benefit id for the current window
 	function getSavedBenefitUsageForCurrentWindow(benefitId, today = new Date(), txs = null) {
 	  const benefit = CARD_BENEFITS_BY_ID[benefitId];
@@ -3761,30 +3628,6 @@
 	  }
 	
 	  return { used, txCount, window };
-	}
-	
-	function isCardBenefitAvailableToday(benefit, today = new Date(), txs = null) {
-	  if (!benefit) return false;
-	
-	  const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
-	
-	  const limit =
-		benefit.cap_amount != null && !isNaN(benefit.cap_amount)
-		  ? Number(benefit.cap_amount)
-		  : null;
-	
-	  const txCap =
-		benefit.tx_cap != null && !isNaN(benefit.tx_cap)
-		  ? Number(benefit.tx_cap)
-		  : null;
-	
-	  const fullyUsedByAmount =
-		limit != null && limit > 0 && usage.used >= limit;
-	
-	  const fullyUsedByTx =
-		txCap != null && txCap >= 0 && usage.txCount >= txCap;
-	
-	  return !fullyUsedByAmount && !fullyUsedByTx;
 	}
 	
 	function getBenefitStateTimeLabel(benefit, today = new Date()) {
@@ -4113,12 +3956,22 @@
 	
 	function getCategoryIconFromRegistry(categoryKey) {
 	  if (!categoryKey) return "";
-	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, String(categoryKey));
+	  const key = String(categoryKey);
+	
+	  // 1) Direct leaf match
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, key);
 	  if (leaf && leaf.icon) return String(leaf.icon);
 	
-	  // If someone passes a group key by accident, support that too.
-	  const group = getRegistryGroup(CATEGORY_REGISTRY, String(categoryKey));
+	  // 2) Direct group match
+	  const group = getRegistryGroup(CATEGORY_REGISTRY, key);
 	  if (group && group.icon) return String(group.icon);
+	
+	  // 3) Try coarsening through summary_sort_category_to_group
+	  const mappedGroupKey = CATEGORY_REGISTRY.summary_sort_category_to_group?.[key];
+	  if (mappedGroupKey) {
+		const mappedGroup = getRegistryGroup(CATEGORY_REGISTRY, mappedGroupKey);
+		if (mappedGroup && mappedGroup.icon) return String(mappedGroup.icon);
+	  }
 	
 	  return "";
 	}
@@ -4296,43 +4149,6 @@
 	  return result;
 	}
 	
-	// --- Registry coverage checks (safe to run in console) ---
-	
-	// Returns leaf keys referenced by CARD_BENEFITS categories or merchant benefits categories
-	// that are NOT present in CATEGORY_REGISTRY.leaves.
-	// (This helps you keep “future-capable” leaves ready without showing them.)
-	function findMissingRegistryLeaves(registry, benefits) {
-	  const missing = new Set();
-	
-	  // from card benefits
-	  const cardCats = getCardBenefitCategoryKeysFromFile();
-	  for (const c of cardCats) {
-		if (!registryHasLeaf(registry, c)) missing.add(c);
-	  }
-	
-	  // from merchant benefits (all, not just active)
-	  for (const b of benefits || []) {
-		const c = b && b.category ? String(b.category) : "";
-		if (c && !registryHasLeaf(registry, c)) missing.add(c);
-	  }
-	
-	  return Array.from(missing).sort();
-	}
-	
-	// Ensures summary_sort_category mappings only point to real groups in CATEGORY_REGISTRY
-	function validateSummarySortCategoryMapping(registry) {
-	  const mapping = (registry && registry.summary_sort_category_to_group) || {};
-	  const bad = [];
-	
-	  for (const [fromKey, toGroup] of Object.entries(mapping)) {
-		if (!registryHasGroup(registry, toGroup)) {
-		  bad.push({ from: fromKey, to: toGroup });
-		}
-	  }
-	
-	  return bad; // empty array = good
-	}
-
     // --- Cross-browser safe date parser (no UTC shift) ---
 	function parseISODateLocal(dateStr) {
 	  if (!dateStr) return null;
@@ -4581,12 +4397,6 @@
 		})
 		.slice(0, limit)
 		.map(([tag]) => tag);
-	}
-	
-	function buildMerchantOfferSearchTags({ merchant, userTagInput }) {
-	  const suggested = getSuggestedTagsForMerchant(merchant);
-	  const manual = parseSearchTagsInput(userTagInput);
-	  return [...new Set([...suggested, ...manual])];
 	}
 	
 	function enrichMerchantBenefitSearchFields(b) {
@@ -4852,22 +4662,6 @@
 		});
 	}
 	
-	function findRelevantCardBenefits(query, cardBenefits) {
-	  const expandedTerms = expandSearchQuery(query);
-	
-	  return cardBenefits
-		.map(benefit => {
-		  const { score, matchedTerms } = scoreCardBenefitAgainstQuery(benefit, expandedTerms);
-		  return { benefit, score, matchedTerms };
-		})
-		.filter(x => x.score > 0)
-		.sort((a, b) => {
-		  if (b.score !== a.score) return b.score - a.score;
-		  if (b.matchedTerms !== a.matchedTerms) return b.matchedTerms - a.matchedTerms;
-		  return (a.benefit.label || "").localeCompare(b.benefit.label || "");
-		});
-	}
-	
 	function findRelevantCardBenefitCategorySuggestions(query, cardBenefits) {
 	  const expandedTerms = expandSearchQuery(query);
 	  const suggestions = [];
@@ -4994,15 +4788,6 @@
       if (!el) return;
       el.textContent = message || "";
     }
-
-	function refreshAllViews() {
-	  renderTransactions();
-	  renderMerchantBenefits();
-	  populateCategorySelect();
-	  populateMerchantBenefitCategorySelect();
-	  renderStateSummary();
-	  renderRollingAnnualSummary();
-	}
 
     // Base categories (what used to be hard-coded in the HTML select)
     const BASE_CATEGORIES = [
@@ -5943,11 +5728,7 @@
 	  const group = getRegistryGroup(CATEGORY_REGISTRY, groupKey);
 	  if (group && group.label) return group.label;
 	
-	  // 3) Legacy SUMMARY_SORT_CATEGORY_LABELS fallback
-	  const mapped = SUMMARY_SORT_CATEGORY_LABELS[categoryKey];
-	  if (mapped) return mapped;
-	
-	  // 4) Final fallback: capitalize raw key
+	  // 3) Final fallback: capitalize raw key
 	  const raw = String(categoryKey).trim();
 	  return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "Other";
 	}
@@ -6065,28 +5846,8 @@
 	
 	// helper for smarter fallback icons for merchant offers
 	function getCategoryIcon(category) {
-	  if (!category) return CATEGORY_ICONS?.other || "";
-	
-	  // 1) CATEGORY_REGISTRY leaf/group icon wins
-	  const regIcon = getCategoryIconFromRegistry(category);
-	  if (regIcon) return regIcon;
-	
-	  // 2) Legacy direct match (backward compatible)
-	  if (typeof CATEGORY_ICONS !== "undefined" && CATEGORY_ICONS[category]) {
-		return CATEGORY_ICONS[category];
-	  }
-	
-	  // 3) Legacy coarsening through CATEGORY_GROUP_MAP
-	  const groupName = (typeof CATEGORY_GROUP_MAP !== "undefined")
-		? CATEGORY_GROUP_MAP[category]
-		: null;
-	
-	  if (groupName) {
-		const groupKey = String(groupName).toLowerCase().replace(/\s+/g, "_");
-		if (CATEGORY_ICONS?.[groupKey]) return CATEGORY_ICONS[groupKey];
-	  }
-	
-	  return CATEGORY_ICONS?.other || "";
+	  if (!category) return "";
+	  return getCategoryIconFromRegistry(category);
 	}
 	
 	function renderBenefitCellHtml(icon, labelHtml, labelText) {
