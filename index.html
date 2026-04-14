@@ -1496,6 +1496,16 @@
 		
 		<div id="benefitSuggestedTags" class="muted" style="margin-top:6px;"></div>
 
+      <label>
+        Custom icon (optional)<br>
+        <input
+          type="text"
+          id="benefitIcon"
+          placeholder="e.g. 🍕"
+          style="width: 5em; font-family: system-ui, emoji;"
+        />
+      </label>
+
       <button id="btnAddBenefit" class="primary" style="margin-top:8px;">
         Add Benefit
       </button>
@@ -1643,7 +1653,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.6a</p>
+<p class="blackmuted"><br>v6.8.6b</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4237,6 +4247,7 @@
 			: null,
 		userTagInput: b?.userTagInput != null ? String(b.userTagInput) : "",
 		searchTags: Array.isArray(b?.searchTags) ? b.searchTags : [],
+		icon: b?.icon ? String(b.icon).trim() : "",
 		schemaVersion: b?.schemaVersion || SEARCH_SCHEMA_VERSION
 	  };
 	
@@ -6083,7 +6094,7 @@
 		merchantRows.push({
 		  label: plainLabel,
 		  labelHtml,
-		  icon: getCategoryIcon(derivedCategory),
+		  icon: benefit.icon || getCategoryIcon(derivedCategory),
 		  card: benefit.card || "",
 		  category: (CATEGORY_REGISTRY.summary_sort_category_to_group &&
 			  CATEGORY_REGISTRY.summary_sort_category_to_group[derivedCategory])
@@ -6711,7 +6722,7 @@
 		const derivedCategory = benefit
 		  ? getDisplayCategoryForMerchantBenefit(benefit)
 		  : "";
-		icon = getCategoryIcon(derivedCategory);
+		icon = benefit.icon || getCategoryIcon(derivedCategory);
 	  } else {
 		// Card benefit category: use registry leaf icon + label
 		icon = getCategoryIconFromRegistry(value);
@@ -6863,7 +6874,7 @@
 		  return {
 			id: String(b.id),
 			value: "mb:" + b.id,
-			icon: getCategoryIcon(derivedCategory) || "⚪️",
+			icon: b.icon || getCategoryIcon(derivedCategory) || "⚪️",
 			title: b.merchant || "(unnamed merchant)",
 			subtitle: subtitleParts.join(" • "),
 			card: b.card || "",
@@ -7993,6 +8004,7 @@
 		  const endDate = document.getElementById("benefitEndDate").value;
 		  const category = document.getElementById("benefitCategorySelect").value;
 		  const searchTagsRaw = document.getElementById("benefitSearchTags").value.trim();
+			const iconRaw = document.getElementById("benefitIcon").value.trim();
 		
 		  if (!merchant || !card || !discountType || !discountValueRaw || !endDate || !category) {
 			alert("Please fill at least Merchant, Card, Discount type/value, End date, and Category.");
@@ -8000,11 +8012,24 @@
 		  }
 		
 		  // Validate that category is actually valid
-		  const validCategories = Object.keys(CATEGORY_REGISTRY.leaves || {});
-		  if (!validCategories.includes(category)) {
-			alert("Invalid category selected. Please choose a valid category.");
-			return;
-		  }
+			const validCategories = Object.keys(CATEGORY_REGISTRY.leaves || {});
+			if (!validCategories.includes(category)) {
+			  alert("Invalid category selected. Please choose a valid category.");
+			  return;
+			}
+		
+			// Validate icon length (max 2 visible characters)
+			let iconValue = "";
+			if (iconRaw) {
+			  const segments = typeof Intl !== "undefined" && Intl.Segmenter
+				? [...new Intl.Segmenter().segment(iconRaw)].length
+				: iconRaw.length;
+			  if (segments > 2) {
+				alert("Custom icon must be 1–2 characters (emoji). Please shorten it.");
+				return;
+			  }
+			  iconValue = iconRaw;
+			}
 		
 		  const discountValue = Number(discountValueRaw);
 		  if (isNaN(discountValue) || discountValue <= 0) {
@@ -8063,7 +8088,7 @@
 			  endDate,
 			  category,
 			  maxTransactions,
-			
+			  icon: iconValue,
 			  userTagInput: searchTagsRaw
 			});
 		
@@ -8086,6 +8111,7 @@
 		  document.getElementById("benefitMaxTx").value = "";
 		  document.getElementById("benefitSearchTags").value = "";
 		  document.getElementById("benefitSuggestedTags").innerHTML = "";
+		  document.getElementById("benefitIcon").value = "";
 		
 		  // Re-render everything that depends on merchant benefits
 		  renderMerchantBenefits();
