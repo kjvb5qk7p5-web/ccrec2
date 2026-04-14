@@ -1653,7 +1653,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.6b</p>
+<p class="blackmuted"><br>v6.8.6c</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4269,6 +4269,28 @@
 		.trim();
 	}
 	
+	function normalizeEmojiForComparison(str) {
+	  // Strip variation selectors (e.g. U+FE0F after ⛽) so ⛽️ and ⛽ match
+	  return String(str || "").replace(/\uFE0F/g, "").replace(/\uFE0E/g, "").trim();
+	}
+	
+	function extractEmojiQuery(rawQuery) {
+	  // Returns the raw query stripped of text, if it contains only emoji/whitespace.
+	  // Also handles emoji+text: returns just the emoji portion for icon matching.
+	  const raw = String(rawQuery || "").trim();
+	  if (!raw) return "";
+	
+	  // Segment into grapheme clusters; collect any that are not plain ASCII text
+	  if (typeof Intl !== "undefined" && Intl.Segmenter) {
+		const segments = [...new Intl.Segmenter().segment(raw)].map(s => s.segment);
+		const emojiSegments = segments.filter(s => /\p{Emoji}/u.test(s) && !/^[0-9#*]$/.test(s));
+		return emojiSegments.map(normalizeEmojiForComparison).join("");
+	  }
+	
+	  // Fallback: strip ASCII letters/digits/spaces and return what's left
+	  return normalizeEmojiForComparison(raw.replace(/[a-zA-Z0-9\s,]/g, ""));
+	}
+	
 	function buildReverseSynonymMap(synonymMap) {
 	  const reverse = {};
 	  for (const [canonical, variants] of Object.entries(synonymMap)) {
@@ -6771,39 +6793,80 @@
 	}
 	
 	function getCardCategorySearchMatches(query) {
-	  const q = normalizeSearchText(query || "");
-	  if (!q) return null;
-	
-	  const categorySuggestions = findRelevantCardBenefitCategorySuggestions(q, CARD_BENEFITS);
+	  const raw = String(query || "").trim();
+	  if (!raw) return null;
 	
 	  const allowedValues = new Set();
-	  categorySuggestions.forEach((item) => {
-		allowedValues.add(item.value);
-	  });
-	  
-	  // Also include any leaf whose key or label directly contains the query
-	  for (const leaf of Object.values(CATEGORY_REGISTRY.leaves || {})) {
-		if (!leaf) continue;
-		const key = normalizeSearchText(leaf.key || "");
-		const label = normalizeSearchText(leaf.label || "");
-		if (key.includes(q) || label.includes(q)) {
-		  allowedValues.add(leaf.key);
+	
+	  // Emoji stream: match leaves whose icon contains the searched emoji
+	  const emojiQ = extractEmojiQuery(raw);
+	  if (emojiQ) {
+		for (const leaf of Object.values(CATEGORY_REGISTRY.leaves || {})) {
+		  if (!leaf || !leaf.icon) continue;
+		  if (normalizeEmojiForComparison(leaf.icon).includes(emojiQ)) {
+			allowedValues.add(leaf.key);
+		  }
+		}
+		// Also check group icons (in case a group-level icon is searched)
+		for (const leaf of Object.values(CATEGORY_REGISTRY.leaves || {})) {
+		  if (!leaf) continue;
+		  const group = getRegistryGroup(CATEGORY_REGISTRY, leaf.group_key || "");
+		  if (group && group.icon && normalizeEmojiForComparison(group.icon).includes(emojiQ)) {
+			allowedValues.add(leaf.key);
+		  }
 		}
 	  }
 	
-	  return allowedValues;
+	  // Text stream: existing logic (only runs if there's text content)
+	  const q = normalizeSearchText(raw);
+	  if (q) {
+		const categorySuggestions = findRelevantCardBenefitCategorySuggestions(q, CARD_BENEFITS);
+		categorySuggestions.forEach((item) => {
+		  allowedValues.add(item.value);
+		});
+	
+		// Also include any leaf whose key or label directly contains the query
+		for (const leaf of Object.values(CATEGORY_REGISTRY.leaves || {})) {
+		  if (!leaf) continue;
+		  const key = normalizeSearchText(leaf.key || "");
+		  const label = normalizeSearchText(leaf.label || "");
+		  if (key.includes(q) || label.includes(q)) {
+			allowedValues.add(leaf.key);
+		  }
+		}
+	  }
+	
+	  return allowedValues.size > 0 ? allowedValues : new Set();
 	}
 	
 	function getMerchantOfferSearchMatches(query) {
-	  const q = normalizeSearchText(query || "");
-	  if (!q) return null;
+	  const raw = String(query || "").trim();
+	  if (!raw) return null;
 	
 	  const activeBenefits = getActiveMerchantBenefitsForPicker();
-	  const suggestions = findRelevantMerchantOffers(q, activeBenefits);
-	
 	  const allowedIds = new Set();
-	  suggestions.forEach(({ benefit }) => allowedIds.add(String(benefit.id)));
-	  return allowedIds;
+	
+	  // Emoji stream: match offers whose icon (custom or derived) contains the searched emoji
+	  const emojiQ = extractEmojiQuery(raw);
+	  if (emojiQ) {
+		for (const benefit of activeBenefits) {
+		  const benefitIcon = benefit.icon
+			? benefit.icon
+			: getCategoryIcon(getDisplayCategoryForMerchantBenefit(benefit));
+		  if (benefitIcon && normalizeEmojiForComparison(benefitIcon).includes(emojiQ)) {
+			allowedIds.add(String(benefit.id));
+		  }
+		}
+	  }
+	
+	  // Text stream: existing logic
+	  const q = normalizeSearchText(raw);
+	  if (q) {
+		const suggestions = findRelevantMerchantOffers(q, activeBenefits);
+		suggestions.forEach(({ benefit }) => allowedIds.add(String(benefit.id)));
+	  }
+	
+	  return allowedIds.size > 0 ? allowedIds : new Set();
 	}
 	
 	function getGroupedCardCategoriesForPicker(query = "") {
