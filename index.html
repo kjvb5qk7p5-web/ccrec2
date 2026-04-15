@@ -528,22 +528,6 @@
 	  border-bottom: 1px solid #dbe7f7;
 	}
 	
-	.state-table tr.group-header-row[data-group-key="CSR"] td {
-	  background: #eef4ff;
-	}
-	
-	.state-table tr.group-header-row[data-group-key="AG"] td {
-	  background: #fff6ea;
-	}
-	
-	.state-table tr.group-header-row[data-group-key="UQ"] td {
-	  background: #f6efff;
-	}
-	
-	.state-table tr.group-header-row[data-group-key="DG"] td {
-	  background: #fff0f3;
-	}
-	
 	.state-table tr.group-header-row td.group-header-cell {
 	  padding-top: 9px;
 	  padding-bottom: 9px;
@@ -859,36 +843,6 @@
       border-color: #ccc;
     }
   
-    .card-badge.csr {
-      background: #e0ecff;
-      border-color: #0047AB;
-      color: #0047AB; /* CSR: #0047AB */
-    }
-  
-    .card-badge.uq {
-      background: #f2e6ff;
-      border-color: #480080;
-      color: #480080; /* UQ: #480080 */
-    }
-  
-    .card-badge.mb {
-      background: #f0f0f0;
-      border-color: #999999;
-      color: #555555; /* MB: #999999 as accent */
-    }
-  
-    .card-badge.dg {
-      background: #ffe6ea;
-      border-color: #CE1126;
-      color: #CE1126; /* DG: #CE1126 */
-    }
-
-    .card-badge.ag {
-      background: #ffebe4;  /* some gold-ish background fff3cd */
-      border-color: #b8860b;
-      color: #b8860b;
-    }
-
     /* Make badges match tiny table font in these tables */
     #loggedTable .card-badge,
     #benefitsTable .card-badge {
@@ -1424,7 +1378,7 @@
 	</div>
 
     <div style="margin-top: 12px;">
-      <button class="primary" id="btnRecommend">Get Card Recommendation</button>
+      <button class="primary" id="btnRecommend">Get Recommendation</button>
       <button id="btnReset" type="button" style="margin-left:8px;">Reset</button>
     </div>
 
@@ -1724,7 +1678,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.7b</p>
+<p class="blackmuted"><br>v6.8.8a</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5122,20 +5076,21 @@
 
     // Render a card badge as HTML
     function renderCardBadge(code) {
-      if (!code) return "";
-      const c = String(code).toUpperCase();
-      const meta = CARDS[c];
-    
-      if (!meta) {
-        // Fallback for anything unknown
-        return `<span class="card-badge">${c}</span>`;
-      }
-    
-      const label = meta.short || c;
-      const cls = meta.badgeClass || c.toLowerCase();
-    
-      return `<span class="card-badge ${cls}">${escapeHtml(label)}</span>`;
-    }
+	  if (!code) return "";
+	  const c = String(code).toUpperCase();
+	  const meta = CARDS[c];
+
+	  if (!meta) {
+		return `<span class="card-badge">${escapeHtml(c)}</span>`;
+	  }
+
+	  const label = meta.short || c;
+	  const bg = meta.badgeBg || "#f2f2f2";
+	  const border = meta.badgeBorder || "#ccc";
+	  const text = meta.badgeText || "#333";
+
+	  return `<span class="card-badge" style="background:${bg};border-color:${border};color:${text};">${escapeHtml(label)}</span>`;
+	}
 
     function populateCardSelect(selectEl, options = {}) {
       if (!selectEl) return;
@@ -6091,9 +6046,12 @@
 			<tbody>
 			  ${displayRows.map((row) => {
 				if (row._isGroupHeader) {
+				  const cardMeta = CARDS[row.groupKey];
+				  const headerBg = cardMeta?.badgeBg ? `background:${cardMeta.badgeBg};` : "";
+				  const headerBorder = cardMeta?.badgeBorder ? `border-top-color:${cardMeta.badgeBorder};` : "";
 				  return `
 					<tr class="group-header-row" data-group-key="${escapeHtml(row.groupKey || "")}">
-					  <td class="group-header-cell" colspan="4">${escapeHtml(row.groupLabel || "")}</td>
+					  <td class="group-header-cell" colspan="4" style="${headerBg}${headerBorder}">${escapeHtml(row.groupLabel || "")}</td>
 					</tr>
 				  `;
 				}
