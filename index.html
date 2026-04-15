@@ -1902,11 +1902,18 @@
 		  "united_flight",
 		  "delta_flight_threshold",
 		  "other_flight",
+		  "american_flight",        // ← new: same MCC 4511, CSR covers all airlines
 		  "theedit_hotel",
 		  "marriott_hotel",
 		  "renowned_hotel",
 		  "delta_stays",
-		  "other_hotel"
+		  "other_hotel",
+		  "hilton_hotel",           // ← new: CSR covers all hotel chains
+		  "hyatt_hotel",            // ← new: CSR covers all hotel chains
+		  "airbnb",                 // ← new: CSR explicitly includes Airbnb (MCC 7011)
+		  "hertz_rentalcar",        // ← new: CSR covers all rental car companies
+		  "national_rentalcar",     // ← new: CSR covers all rental car companies
+		  "uq_rentalcar"
 		]).has(tx.category),
 	
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
@@ -7626,11 +7633,15 @@
 	
 	  // Clear all fields
 	  document.getElementById("benefitMerchant").value = "";
+	  document.getElementById("benefitCard").value = "";
+	  document.getElementById("benefitDiscountType").value = "percent";
 	  document.getElementById("benefitDiscountValue").value = "";
+	  document.getElementById("benefitLimitType").value = "per_tx";
 	  document.getElementById("benefitLimitValue").value = "";
 	  document.getElementById("benefitMinSpend").value = "";
 	  document.getElementById("benefitEndDate").value = "";
 	  document.getElementById("benefitMaxTx").value = "";
+	  document.getElementById("benefitCategorySelect").value = "";
 	  document.getElementById("benefitSearchTags").value = "";
 	  document.getElementById("benefitSuggestedTags").innerHTML = "";
 	  document.getElementById("benefitIcon").value = "";
@@ -7648,7 +7659,7 @@
 		return;
 	  }
 	
-	  container.innerHTML = `Suggested tags: ${tags.map(tag => `[${tag}]`).join(" ")}`;
+	  container.textContent = `Suggested tags: ${tags.map(tag => `[${tag}]`).join(" ")}`;
 	}
 
 	//	helper to be able to remove floating save bar if user changes inputs
@@ -8324,16 +8335,17 @@
 			  return;
 			}
 		
+			const wasEditing = !!editingBenefitId;
 			exitEditMode();
-		
+	
 			// Re-render everything that depends on merchant benefits
 			renderMerchantBenefits();
 			populateCategorySelect();
 			populateMerchantBenefitCategorySelect();
 			renderStateSummary();
 			renderRollingAnnualSummary();
-		
-			showToast(editingBenefitId ? "✓ Merchant Offer updated" : "✓ Merchant Offer saved");
+	
+			showToast(wasEditing ? "✓ Merchant Offer updated" : "✓ Merchant Offer saved");
 	
 	} finally {
 		isAddingBenefit = false;
