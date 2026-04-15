@@ -1387,11 +1387,11 @@
 
   <!-- New purchase input -->
   <div class="card new-purchase-card">
-    <h2>Card Recommendation</h2>
+    <h2>Get Card Recommendation</h2>
 
     <div style="margin-top: 12px;">
 	  <label for="categoryPickerTrigger" style="display:block; margin-bottom: 1px;">
-		Purchase Category
+		Purchase Category or Merchant
 	  </label>
 	
 	  <button
@@ -1401,7 +1401,7 @@
 		aria-haspopup="dialog"
 		aria-expanded="false"
 	  >
-		<span id="categoryPickerTriggerText" class="category-picker-trigger-text">Select purchase category</span>
+		<span id="categoryPickerTriggerText" class="category-picker-trigger-text">Select purchase category or merchant</span>
 	  </button>
 	
 	  <!-- Keep the real select in the DOM as the source of truth -->
@@ -1575,7 +1575,7 @@
       </label>
 
       <button id="btnAddBenefit" class="primary" style="margin-top:8px;">
-        Add Benefit
+        Add Merchant Offer
       </button>
       <button id="btnCancelEdit" type="button" style="margin-top:8px; margin-left:8px; display:none;">
         Cancel
@@ -1598,7 +1598,7 @@
       </table>
 
       <p class="muted">
-        Merchant offers are stored locally in your browser (separate from purchases).
+        Merchant offers are stored locally. Export to backup your data before clearing browser data.
       </p>
     </div>
   </div>
@@ -1635,7 +1635,7 @@
       <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
 
       <p class="muted">
-        Stored in your browser's localStorage. Export to backup your data before clearing browser data. 
+        Transactions are stored locally. Export to backup your data before clearing browser data. 
       </p>
     </div>
   </div>
@@ -1660,8 +1660,8 @@
 	
 		<div class="category-picker-header">
 		  <div>
-			<div id="categoryPickerTitle" class="category-picker-title">Choose purchase category</div>
-			<div class="category-picker-subtitle">Choose by card or merchant benefit</div>
+			<div id="categoryPickerTitle" class="category-picker-title">Purchase type</div>
+			<div class="category-picker-subtitle">Select by card benefit category or merchant offer</div>
 		  </div>
 		  <button type="button" id="categoryPickerCloseBtn" class="category-picker-close" aria-label="Close picker">✕</button>
 		</div>
@@ -1673,7 +1673,7 @@
 			  data-page="0"
 			  data-base-label="Card benefits"
 			>
-			  Card benefits
+			  Benefit categories
 			</button>
 			
 			<button
@@ -1688,7 +1688,7 @@
 
 		<div class="category-picker-search-wrap">
 		  <label for="categoryPickerSearch" class="category-picker-search-label">
-			Search merchants or benefits
+			Search by category, merchant or icon
 		  </label>
 		
 		  <div class="category-picker-search-row">
