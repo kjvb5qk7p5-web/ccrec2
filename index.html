@@ -1332,17 +1332,639 @@
 		padding: 10px 10px;
 	  }
 	}
+  /* =========================================================
+     REDESIGN PASS 1 — premium utility + warm mobile polish
+     Add this near the END of the <style> block so it overrides
+     earlier styles without forcing you to surgically edit them.
+     ========================================================= */
+
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface-soft: #fcfbf8;
+    --surface-tint: #f5f8ff;
+    --surface-warm: #fffaf2;
+
+    --text: #18212b;
+    --text-soft: #5e6a76;
+    --text-faint: #7c8894;
+
+    --border: #e6e1d8;
+    --border-strong: #d8d1c6;
+
+    --primary: #2b6ff3;
+    --primary-hover: #185eea;
+    --primary-soft: #edf3ff;
+    --primary-line: #cfe0ff;
+
+    --success: #17803d;
+    --success-soft: #edf9f0;
+
+    --warning: #9a6700;
+    --warning-soft: #fff5d6;
+
+    --danger: #b42318;
+    --danger-soft: #fff1ef;
+
+    --shadow-sm: 0 2px 10px rgba(24, 33, 43, 0.05);
+    --shadow-md: 0 8px 26px rgba(24, 33, 43, 0.08);
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 22px;
+  }
+
+  html {
+    background: var(--bg);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    margin: 16px auto 32px auto;
+    max-width: 960px;
+    line-height: 1.35;
+  }
+
+  @media (max-width: 600px) {
+    body {
+      margin: 10px auto 22px auto;
+    }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  @media (max-width: 600px) {
+    .card {
+      padding: 14px 12px;
+      border-radius: 18px;
+    }
+  }
+
+  h1, h2, h3 {
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: 2rem;
+    line-height: 1.02;
+    margin-bottom: 0.45rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.45rem;
+  }
+
+  @media (max-width: 600px) {
+    h2 {
+      font-size: 1.72rem;
+    }
+  }
+
+  .blackmuted,
+  .muted {
+    color: var(--text-soft);
+    font-size: 0.9rem;
+  }
+
+  button {
+    border-radius: 12px;
+    border: 1px solid var(--border-strong);
+    background: #fffdfa;
+    color: var(--primary);
+    font-weight: 600;
+    padding: 10px 14px;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
+    box-shadow: none;
+  }
+
+  button:hover,
+  button:focus-visible {
+    background: #fff;
+    border-color: #cfd7e3;
+    outline: none;
+  }
+
+  button:active {
+    transform: translateY(1px);
+  }
+
+  button.primary,
+  #btnRecommend,
+  #btnSaveTx,
+  #btnFloatingSave,
+  #btnAddBenefit {
+    background: linear-gradient(180deg, #3d7cff 0%, #2b6ff3 100%);
+    color: #fff;
+    border-color: #2b6ff3;
+    box-shadow: 0 8px 18px rgba(43, 111, 243, 0.18);
+  }
+
+  button.primary:hover,
+  #btnRecommend:hover,
+  #btnSaveTx:hover,
+  #btnFloatingSave:hover,
+  #btnAddBenefit:hover,
+  button.primary:focus-visible,
+  #btnRecommend:focus-visible,
+  #btnSaveTx:focus-visible,
+  #btnFloatingSave:focus-visible,
+  #btnAddBenefit:focus-visible {
+    background: linear-gradient(180deg, #4d88ff 0%, #185eea 100%);
+    border-color: #185eea;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  textarea,
+  select,
+  .category-picker-trigger,
+  .category-picker-search {
+    background: #fffdfa;
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    color: var(--text);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  input[type="date"]:focus,
+  textarea:focus,
+  select:focus,
+  .category-picker-trigger:focus,
+  .category-picker-search:focus {
+    outline: none;
+    border-color: #a7c4ff;
+    box-shadow: 0 0 0 4px rgba(43, 111, 243, 0.10);
+  }
+
+  .new-purchase-card {
+    background:
+      radial-gradient(circle at top right, rgba(255, 243, 220, 0.85), transparent 34%),
+      linear-gradient(180deg, #ffffff 0%, #fdfaf5 100%);
+    border: 1px solid #e9dcc7;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding-top: 18px;
+  }
+
+  .new-purchase-card h2 {
+    margin-bottom: 0.2rem;
+  }
+
+  .new-purchase-card .np-label,
+  .new-purchase-card label {
+    color: var(--text);
+  }
+
+  .new-purchase-card input,
+  .new-purchase-card select,
+  .new-purchase-card button,
+  .category-picker-trigger {
+    font-size: 1.02rem;
+  }
+
+  .new-purchase-card .np-row {
+    gap: 12px;
+  }
+
+  .new-purchase-card .np-field input[type="number"],
+  .new-purchase-card .np-field input[type="date"] {
+    width: 100%;
+    min-width: 0;
+    height: 46px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .new-purchase-card .np-field {
+    min-width: 0;
+  }
+
+  .hero-subtitle {
+    color: var(--text-soft);
+    font-size: 0.98rem;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+
+  .active-cards-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 14px 0;
+  }
+
+  .active-card-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.78);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    font-size: 0.9rem;
+  }
+
+  #recommendationSection {
+    background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+    border: 1px solid var(--primary-line);
+    border-left: 1px solid var(--primary-line);
+    border-radius: 18px;
+    padding: 14px;
+    margin-top: 14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+  }
+
+  #recommendationBox,
+  #reasonBox {
+    font-size: 1rem;
+  }
+
+  .rec-topline {
+    color: var(--text-soft);
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .rec-card-shell {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .rec-main-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .rec-title-wrap {
+    min-width: 0;
+  }
+
+  .rec-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    line-height: 1.08;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .rec-subtitle {
+    color: var(--text-soft);
+    font-size: 0.92rem;
+    margin-top: 4px;
+  }
+
+  .rec-value-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--success-soft);
+    color: var(--success);
+    border: 1px solid #b7e2c2;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.96rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .rec-reason-card {
+    background: rgba(255,255,255,0.82);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+  }
+
+  .rec-reason-heading {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .rec-main-reason {
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .rec-bullets {
+    margin: 9px 0 0 0;
+    padding-left: 18px;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .rec-bullets li + li {
+    margin-top: 4px;
+  }
+
+  .rec-save-zone {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .rec-save-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .rec-save-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .rec-save-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .section-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .section-title-wrap {
+    min-width: 0;
+  }
+
+  .section-kicker {
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .section-subtitle {
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .sort-pill-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .sort-btn-active {
+    background: var(--primary-soft) !important;
+    color: var(--primary) !important;
+    border-color: #bfd3ff !important;
+    box-shadow: inset 0 0 0 1px rgba(43,111,243,0.03);
+  }
+
+  .insight-strip-card {
+    background: linear-gradient(180deg, #fffdfa 0%, #fff8ee 100%);
+    border: 1px solid #efe0c4;
+  }
+
+  #rightNowGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  @media (max-width: 720px) {
+    #rightNowGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .right-now-item {
+    background: rgba(255,255,255,0.86);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    min-width: 0;
+  }
+
+  .right-now-label {
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+  }
+
+  .right-now-value {
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .right-now-meta {
+    color: var(--text-soft);
+    font-size: 0.88rem;
+    line-height: 1.25;
+    margin-top: 5px;
+  }
+
+  .right-now-item.is-success {
+    background: var(--success-soft);
+    border-color: #cfead6;
+  }
+
+  .right-now-item.is-warning {
+    background: var(--warning-soft);
+    border-color: #f0dca5;
+  }
+
+  .right-now-item.is-danger {
+    background: var(--danger-soft);
+    border-color: #f3c6c0;
+  }
+
+  .summary-card-shell {
+    background: linear-gradient(180deg, #ffffff 0%, #fcfbf8 100%);
+  }
+
+  .summary-table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .state-table,
+  #rollingAnnualSummary .rolling-summary-table,
+  #rollingAnnualSummary .merchant-summary-table,
+  #loggedTable,
+  #benefitsTable {
+    font-size: 0.82rem;
+  }
+
+  .state-table th,
+  .state-table td,
+  #rollingAnnualSummary .rolling-summary-table th,
+  #rollingAnnualSummary .rolling-summary-table td,
+  #rollingAnnualSummary .merchant-summary-table th,
+  #rollingAnnualSummary .merchant-summary-table td,
+  #loggedTable th,
+  #loggedTable td,
+  #benefitsTable th,
+  #benefitsTable td {
+    border-color: #ece6dc;
+  }
+
+  .state-table thead th,
+  #rollingAnnualSummary .rolling-summary-table thead th,
+  #rollingAnnualSummary .merchant-summary-table thead th,
+  #loggedTable thead th,
+  #benefitsTable thead th {
+    background: #fbf9f5;
+    color: var(--text-soft);
+    font-weight: 700;
+  }
+
+  .state-table tr.group-header-row td {
+    background: #f6f3ee;
+    border-top: 1px solid #e8e0d4;
+    border-bottom: 1px solid #ebe4da;
+    color: var(--text);
+  }
+
+  .state-table td.usage-positive,
+  .credit-met,
+  .state-table tr.credit-met td,
+  .state-table tr.credit-met-row td {
+    color: var(--success);
+  }
+
+  .state-table tr.expiring-soon td,
+  .state-table tr.expiring-soon-row td {
+    color: var(--warning);
+  }
+
+  .state-table tr.expired td,
+  .state-table tr.expired-row td,
+  #benefitsTable tr.expired-benefit td {
+    color: var(--danger);
+  }
+
+  .card-badge {
+    border-width: 1.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+  }
+
+  .admin-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fcfbf8 100%);
+  }
+
+  .admin-toggle-btn {
+    min-width: 110px;
+  }
+
+  .admin-content-shell {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  #floatingSaveBar {
+    border-top: 1px solid var(--border);
+    background: rgba(248, 247, 244, 0.94);
+    backdrop-filter: blur(12px);
+  }
+
+  #floatingSaveBar .float-inner {
+    max-width: 960px;
+  }
+
+  #btnFloatingSave {
+    border-radius: 16px;
+    min-height: 50px;
+  }
+
+  .floating-save-close {
+    top: 8px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.7);
+  }
+
+  .category-picker-sheet {
+    background: linear-gradient(180deg, #ffffff 0%, #fdfaf5 100%);
+    border: 1px solid #eadfcd;
+  }
+
+  .category-picker-tabs {
+    background: #f8f3eb;
+    border-color: #eadfcd;
+  }
+
+  .category-picker-tab.active {
+    color: var(--primary);
+    background: #fff;
+  }
+
+  .category-picker-row.selected {
+    background: #eef4ff;
+  }
+
+  .category-picker-search-wrap {
+    background: rgba(255,255,255,0.9);
+  }
+
+  .card-reward-title {
+    margin-bottom: 0;
+  }
   </style>
 </head>
 <body>
   <div id="globalStatus"></div>
-  <h2>Card Rewards Maximizer</h2>
-<p class="blackmuted" id="activeCardsSummary"></p>
 
-  <!-- New purchase input -->
   <div class="card new-purchase-card">
-    <h2>Get Card Recommendation</h2>
+    <div class="section-kicker">Instant purchase decision</div>
+    <h2 class="card-reward-title">Card Rewards Maximizer</h2>
+    <p class="hero-subtitle">
+      Fast recommendation first. Full card-benefit logic and management tools underneath.
+    </p>
 
+    <div id="activeCardsSummary" class="active-cards-strip"></div>
+
+    <div class="section-header-row" style="margin-top: 2px; margin-bottom: 12px;">
+      <div class="section-title-wrap">
+        <div class="section-kicker">Decision engine</div>
+        <h3 style="margin:0;">Get Card Recommendation</h3>
+      </div>
+    </div>
+    
     <div style="margin-top: 12px;">
 	  <label for="categoryPickerTrigger" style="display:block; margin-bottom: 1px;">
 		Purchase Category or Merchant
@@ -1385,64 +2007,82 @@
     <div id="recommendationSection" style="margin-top: 12px; display:none;">
       <div id="recommendationBox"></div>
       <div id="reasonBox"></div>
-
-      <div style="margin-top: 10px;">
-        <label>
-          Card used (optional override)
-          <select id="cardUsedSelect"></select>
-        </label>
-
-        <label id="channelUsedLabel" style="display:none;">
-          Channel used (optional override)
-          <select id="channelUsedSelect">
-            <!-- options populated dynamically based on category -->
-          </select>
-        </label>
-
-        <div style="margin-top: 8px;">
-          <button class="primary" id="btnSaveTx">Confirm &amp; Save Purchase</button>
-        </div>
+    </div>
+  </div>
+  
+  <div class="card insight-strip-card">
+    <div class="section-header-row">
+      <div class="section-title-wrap">
+        <div class="section-kicker">What matters now</div>
+        <h3 style="margin:0;">Right now</h3>
+        <p class="section-subtitle">Quick wins, remaining credits, and expiring opportunities.</p>
       </div>
     </div>
+    <div id="rightNowGrid"></div>
   </div>
 
   <!-- Current month / year credit usage summary -->
-  <div class="card">
-  <h2>Credit Card Benefits</h2>
+  <div class="card summary-card-shell">
+    <div class="section-header-row">
+      <div class="section-title-wrap">
+        <div class="section-kicker">Deep detail</div>
+        <h3 style="margin:0;">Credit Card Benefits</h3>
+        <p class="section-subtitle">Summary-first view of active native credits and usage.</p>
+      </div>
 
-  <div style="margin: 6px 0 10px 0;">
-    <button type="button" id="btnSortCardBenefitsByCard">Sort: Card</button>
-    <button type="button" id="btnSortCardBenefitsByCategory" style="margin-left:6px;">Sort: Category</button>
+      <div class="sort-pill-row">
+        <button type="button" id="btnSortCardBenefitsByCard">Sort: Card</button>
+        <button type="button" id="btnSortCardBenefitsByCategory">Sort: Category</button>
+      </div>
+    </div>
+
+    <div id="cardBenefitsSummary" class="muted"></div>
   </div>
 
-  <div id="cardBenefitsSummary" class="muted"></div>
+  <div class="card summary-card-shell">
+    <div class="section-header-row">
+      <div class="section-title-wrap">
+        <div class="section-kicker">Deep detail</div>
+        <h3 style="margin:0;">Merchant Offers</h3>
+        <p class="section-subtitle">Glanceable summary first, full editable inventory below.</p>
+      </div>
+
+      <div class="sort-pill-row">
+        <button type="button" id="btnSortMerchantOffersAlpha">Sort: A–Z</button>
+        <button type="button" id="btnSortMerchantOffersByCategory">Sort: Category</button>
+      </div>
+    </div>
+
+    <div id="merchantOffersSummary" class="muted"></div>
   </div>
 
-  <div class="card">
-  <h2>Merchant Offers</h2>
-
-  <div style="margin: 6px 0 10px 0;">
-    <button type="button" id="btnSortMerchantOffersAlpha">Sort: A–Z</button>
-    <button type="button" id="btnSortMerchantOffersByCategory" style="margin-left:6px;">Sort: Category</button>
-  </div>
-
-  <div id="merchantOffersSummary" class="muted"></div>
-  </div>
-
-  <div class="card">
-    <h2>Annual Summaries</h2>
+  <div class="card summary-card-shell">
+    <div class="section-header-row">
+      <div class="section-title-wrap">
+        <div class="section-kicker">Longer view</div>
+        <h3 style="margin:0;">Annual Summaries</h3>
+        <p class="section-subtitle">Fee recapture and yearly offer value, without the accountant cosplay.</p>
+      </div>
+    </div>
     <div id="rollingAnnualSummary"></div>
   </div>
 
   <!-- Merchant Offers Management -->
-  <div class="card merch-input">
-    <h2>Merchant Offers</h2>
+  <div class="card merch-input admin-card">
+    <div class="section-header-row">
+      <div class="section-title-wrap">
+        <div class="section-kicker">Admin + maintenance</div>
+        <h3 style="margin:0;">Manage Merchant Offers</h3>
+        <p class="section-subtitle">Keep the offer inventory current. Hidden by default because this is not the main act.</p>
+      </div>
 
-    <button id="toggleBenefitsBtn" style="margin-bottom:8px;">
-      Show
-    </button>
+      <button id="toggleBenefitsBtn" class="admin-toggle-btn" type="button">
+        Show details
+      </button>
+    </div>
 
-    <div id="benefitsContent" style="display:none;">
+    <div id="benefitsContent" class="admin-content-shell" style="display:none;">
+    
       <h3 id="benefitFormHeading" style="margin-top:0.8rem;">Add Merchant Offer</h3>
 
       <label>
@@ -1558,14 +2198,21 @@
   </div>
 
   <!-- Logged transactions -->
-  <div class="card">
-    <h2>Logged Purchases</h2>
+  <div class="card admin-card">
+    <div class="section-header-row">
+      <div class="section-title-wrap">
+        <div class="section-kicker">History + audit</div>
+        <h3 style="margin:0;">Logged Purchases</h3>
+        <p class="section-subtitle">Recent purchase history and exported backup controls.</p>
+      </div>
 
-    <button id="toggleLogBtn" style="margin-bottom:8px;">
-      Show
-    </button>
+      <button id="toggleLogBtn" class="admin-toggle-btn" type="button">
+        Show details
+      </button>
+    </div>
 
-    <div id="logContent" style="display:none;">
+    <div id="logContent" class="admin-content-shell" style="display:none;">
+    
       <table id="loggedTable">
         <thead>
 			<tr>
@@ -4830,6 +5477,38 @@
 
 	// Storage and UI helper functions
 	
+	function renderActiveCardsHeroStrip() {
+	  const el = document.getElementById("activeCardsSummary");
+	  if (!el) return;
+	
+	  const activeCards = Object.values(CARDS)
+		.filter(card => card.is_active !== false)
+		.sort((a, b) => Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999));
+	
+	  el.innerHTML = activeCards.map(card => `
+		<span class="active-card-pill">
+		  ${renderCardBadge(card.code)}
+		  <span>${escapeHtml(card.label_long || card.label || card.code)}</span>
+		</span>
+	  `).join("");
+	}
+	
+	function updateAdminToggleLabels() {
+	  const benefitsContent = document.getElementById("benefitsContent");
+	  const toggleBenefitsBtn = document.getElementById("toggleBenefitsBtn");
+	  if (benefitsContent && toggleBenefitsBtn) {
+		const isOpen = benefitsContent.style.display !== "none" && benefitsContent.style.display !== "";
+		toggleBenefitsBtn.textContent = isOpen ? "Hide details" : "Show details";
+	  }
+	
+	  const logContent = document.getElementById("logContent");
+	  const toggleLogBtn = document.getElementById("toggleLogBtn");
+	  if (logContent && toggleLogBtn) {
+		const isOpen = logContent.style.display !== "none" && logContent.style.display !== "";
+		toggleLogBtn.textContent = isOpen ? "Hide details" : "Show details";
+	  }
+	}
+	
     function showToast(message) {
       const toast = document.createElement('div');
       toast.className = 'toast';
@@ -5506,6 +6185,7 @@
 		renderMerchantBenefits();
 		populateCategorySelect();
 		populateMerchantBenefitCategorySelect();
+		renderActiveCardsHeroStrip();
 		renderStateSummary();
 		renderRollingAnnualSummary();
 		
@@ -5942,8 +6622,130 @@
 
     // ---------- State summaries ----------
     function renderStateSummary() {
+	  renderRightNowStrip();
 	  renderCardBenefitsSummary();
 	  renderMerchantOffersSummary();
+	}
+	
+	function renderRightNowStrip() {
+	  const el = document.getElementById("rightNowGrid");
+	  if (!el) return;
+	
+	  const txs = loadTransactions();
+	  const benefits = loadMerchantBenefits();
+	  const merchantState = computeMerchantState(txs, benefits);
+	  const today = new Date();
+	  const todayDate = parseISODateLocal(formatTodayISO());
+	
+	  let availableNative = 0;
+	  let nativeRemainingTotal = 0;
+	
+	  for (const benefit of CARD_BENEFITS) {
+		if (CARDS[benefit.card]?.is_active === false) continue;
+	
+		const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
+		const limit = Number(benefit.cap_amount || 0);
+		if (!(limit > 0)) continue;
+	
+		const used = Math.min(Number(usage.used || 0), limit);
+	
+		const txCap =
+		  benefit.tx_cap != null && !isNaN(benefit.tx_cap)
+			? Number(benefit.tx_cap)
+			: null;
+	
+		const fullyUsed =
+		  used >= limit ||
+		  (txCap != null && Number(usage.txCount || 0) >= txCap);
+	
+		if (!fullyUsed) {
+		  availableNative += 1;
+		  nativeRemainingTotal += Math.max(0, limit - used);
+		}
+	  }
+	
+	  const expiringSoonOffers = [];
+	  let activeMerchantCount = 0;
+	
+	  for (const benefit of benefits) {
+		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+		const txCount = Number(ms.txCount || 0);
+	
+		const { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
+		if (expired) continue;
+	
+		let exhaustedByTx = false;
+		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+		  exhaustedByTx = txCount >= Number(benefit.maxTransactions);
+		}
+	
+		let exhaustedByValue = false;
+		if (
+		  benefit.limitType === "total" &&
+		  benefit.limitValue != null &&
+		  !isNaN(benefit.limitValue)
+		) {
+		  exhaustedByValue = Number(ms.used || 0) >= Number(benefit.limitValue);
+		}
+	
+		if (!exhaustedByTx && !exhaustedByValue) {
+		  activeMerchantCount += 1;
+		}
+	
+		if (expiringSoon && !exhaustedByTx && !exhaustedByValue) {
+		  expiringSoonOffers.push(benefit);
+		}
+	  }
+	
+	  expiringSoonOffers.sort((a, b) => {
+		const aTime = parseISODateLocal(a.endDate)?.getTime() ?? Infinity;
+		const bTime = parseISODateLocal(b.endDate)?.getTime() ?? Infinity;
+		return aTime - bTime;
+	  });
+	
+	  const nextExpiring = expiringSoonOffers[0] || null;
+	
+	  const latestTxs = [...txs]
+		.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+		.slice(0, 5);
+	
+	  let recentSavings = 0;
+	  for (const tx of latestTxs) {
+		recentSavings += Number(tx.cardBenefitAmount || 0) + Number(tx.merchantBenefitAmount || 0);
+	  }
+	
+	  const items = [
+		{
+		  label: "Native credits open",
+		  value: `${availableNative} active`,
+		  meta: `$${formatUsageAmount(nativeRemainingTotal)} still available across current windows`,
+		  className: availableNative > 0 ? "is-success" : ""
+		},
+		{
+		  label: "Merchant offers live",
+		  value: `${activeMerchantCount} live`,
+		  meta: nextExpiring
+			? `${escapeHtml(nextExpiring.merchant || "Offer")} expires ${formatDisplayDateShort(nextExpiring.endDate)}`
+			: "No active expiring-soon offers right now",
+		  className: nextExpiring ? "is-warning" : ""
+		},
+		{
+		  label: "Recent captured value",
+		  value: `$${formatUsageAmount(recentSavings)}`,
+		  meta: latestTxs.length > 0
+			? `Across your ${latestTxs.length} most recent logged purchases`
+			: "Log purchases to see captured value here",
+		  className: recentSavings > 0 ? "is-success" : ""
+		}
+	  ];
+	
+	  el.innerHTML = items.map(item => `
+		<div class="right-now-item ${item.className || ""}">
+		  <div class="right-now-label">${escapeHtml(item.label)}</div>
+		  <div class="right-now-value">${item.value}</div>
+		  <div class="right-now-meta">${item.meta}</div>
+		</div>
+	  `).join("");
 	}
 	
 	function renderCardBenefitsSummary() {
@@ -6036,7 +6838,7 @@
 	  }
 	
 	  const html = `
-		<div class="state-table-wrapper">
+		<div class="state-table-wrapper summary-table-wrap">
 		  <table class="state-table">
 			<thead>
 			  <tr>
@@ -6212,7 +7014,7 @@
 	  }
 	
 	  const html = `
-		<div class="state-table-wrapper">
+		<div class="state-table-wrapper summary-table-wrap">
 		  <table class="state-table">
 			<thead>
 			  <tr>
@@ -7694,81 +8496,208 @@
     }
 
     function renderRecommendationSection(rec) {
-      const recommendationBox = document.getElementById("recommendationBox");
-      const reasonBox = document.getElementById("reasonBox");
-    
-      if (!rec) {
-        recommendationBox.innerHTML = "";
-        reasonBox.innerHTML = "";
-        return;
-      }
-    
-      const cardBadgeHtml = renderCardBadge(rec.card);
-      
-      const channelLabelPlain = CHANNEL_LABELS[rec.channel] || rec.channel;
-      const channelLabelHtml =
-        CHANNEL_LABELS_HTML[rec.channel] ||
-        escapeHtml(channelLabelPlain);
-      
-      // "Recommendation:" (bold) on first line, then card badge + channel on next line
-      recommendationBox.innerHTML =
-        `<strong>Recommendation:</strong><br>` +
-        `${cardBadgeHtml} – ${channelLabelHtml}`;
-    
-      // Reason:
-      // First line: "Reason:" (bold)
-      // Next line: main reason text (no badge)
-      let mainReasonHtml;
-      if (rec.reasonMainHtml) {
-        // Use trusted HTML if provided
-        mainReasonHtml = rec.reasonMainHtml;
-      } else {
-        const mainReason = rec.reasonMain || rec.reason || "";
-        mainReasonHtml = escapeHtml(mainReason);
-      }
-      
-      let html = `<strong>Reason:</strong><br>${mainReasonHtml}`;
-    
-      const bullets = [];
-    
-      // Bullet 1 (if applicable): "$x.00 remaining of $y.00 available"
-      if (
-        rec.remainingAmount != null &&
-        !isNaN(rec.remainingAmount) &&
-        rec.totalCapAmount != null &&
-        !isNaN(rec.totalCapAmount)
-      ) {
-        bullets.push(
-          `$${rec.remainingAmount.toFixed(2)} remaining of $${rec.totalCapAmount.toFixed(
-            2
-          )} available`
-        );
-      }
-    
-      // Bullet 2 (if applicable): "Expires yyyy-mm-dd"
-      if (rec.expiresOn) {
-        bullets.push(`Expires ${rec.expiresOn}`);
-      }
-    
-      if (bullets.length > 0) {
-        html +=
-          "<ul>" +
-          bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("") +
-          "</ul>";
-      }
-    
-      // Final non-bulleted sentence (if applicable)
-      if (rec.priorityCash) {
-        html += `<p>This cash discount takes priority over the usual points optimization.</p>`;
-      }
-    
-      // Optional category label (mainly for card-native benefits)
-      if (rec.categoryLabel) {
-        html += `<p><em>Category: ${escapeHtml(rec.categoryLabel)}</em></p>`;
-      }
-    
-      reasonBox.innerHTML = html;
-    }
+	  const recommendationBox = document.getElementById("recommendationBox");
+	  const reasonBox = document.getElementById("reasonBox");
+	
+	  if (!rec) {
+		recommendationBox.innerHTML = "";
+		reasonBox.innerHTML = "";
+		return;
+	  }
+	
+	  const cardMeta = CARDS[rec.card] || {};
+	  const cardBadgeHtml = renderCardBadge(rec.card);
+	  const cardLabel = escapeHtml(cardMeta.label || rec.card || "");
+	  const channelLabelPlain = CHANNEL_LABELS[rec.channel] || rec.channel || "";
+	  const channelLabelHtml =
+		CHANNEL_LABELS_HTML[rec.channel] ||
+		escapeHtml(channelLabelPlain);
+	
+	  let valueChipHtml = "";
+	  if (rec.expectedValue != null && !isNaN(rec.expectedValue)) {
+		valueChipHtml = `
+		  <div class="rec-value-chip">
+			Estimated value
+			<span>$${formatUsageAmount(rec.expectedValue)}</span>
+		  </div>
+		`;
+	  } else if (rec.remainingAmount != null && !isNaN(rec.remainingAmount)) {
+		valueChipHtml = `
+		  <div class="rec-value-chip">
+			Remaining benefit
+			<span>$${formatUsageAmount(rec.remainingAmount)}</span>
+		  </div>
+		`;
+	  }
+	
+	  recommendationBox.innerHTML = `
+		<div class="rec-card-shell">
+		  <div class="rec-topline">Recommended card</div>
+	
+		  <div class="rec-main-row">
+			<div class="rec-title-wrap">
+			  <div class="rec-title">${cardBadgeHtml} ${cardLabel}</div>
+			  <div class="rec-subtitle">Use via ${channelLabelHtml}</div>
+			</div>
+			${valueChipHtml}
+		  </div>
+		</div>
+	  `;
+	
+	  let mainReasonHtml;
+	  if (rec.reasonMainHtml) {
+		mainReasonHtml = rec.reasonMainHtml;
+	  } else {
+		const mainReason = rec.reasonMain || rec.reason || "";
+		mainReasonHtml = escapeHtml(mainReason);
+	  }
+	
+	  const bullets = [];
+	
+	  if (
+		rec.remainingAmount != null &&
+		!isNaN(rec.remainingAmount) &&
+		rec.totalCapAmount != null &&
+		!isNaN(rec.totalCapAmount)
+	  ) {
+		bullets.push(
+		  `$${formatUsageAmount(rec.remainingAmount)} remaining of $${formatUsageAmount(rec.totalCapAmount)}`
+		);
+	  }
+	
+	  if (
+		rec.usedAmount != null &&
+		!isNaN(rec.usedAmount) &&
+		rec.totalCapAmount != null &&
+		!isNaN(rec.totalCapAmount)
+	  ) {
+		bullets.push(
+		  `$${formatUsageAmount(rec.usedAmount)} already used in this window`
+		);
+	  }
+	
+	  if (
+		rec.txCount != null &&
+		!isNaN(rec.txCount) &&
+		rec.txCap != null &&
+		!isNaN(rec.txCap)
+	  ) {
+		bullets.push(
+		  `${rec.txCount} of ${rec.txCap} qualifying uses already used`
+		);
+	  }
+	
+	  if (rec.channel && CHANNEL_LABELS[rec.channel]) {
+		bullets.push(`Assumes purchase is completed in ${CHANNEL_LABELS[rec.channel]}`);
+	  }
+	
+	  const bulletsHtml = bullets.length
+		? `<ul class="rec-bullets">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+		: "";
+	
+	  reasonBox.innerHTML = `
+		<div class="rec-reason-card">
+		  <div class="rec-reason-heading">Why this wins</div>
+		  <div class="rec-main-reason">${mainReasonHtml}</div>
+		  ${bulletsHtml}
+	
+		  <div class="rec-save-zone">
+			<div class="rec-save-grid">
+			  <label>
+				Card used (optional override)
+				<select id="cardUsedSelect"></select>
+			  </label>
+	
+			  <label id="channelUsedLabel" style="display:none;">
+				Channel used (optional override)
+				<select id="channelUsedSelect"></select>
+			  </label>
+			</div>
+	
+			<div class="rec-save-actions">
+			  <button class="primary" id="btnSaveTx">Confirm &amp; Save Purchase</button>
+			</div>
+		  </div>
+		</div>
+	  `;
+	
+	  wireRecommendationControlsAfterRender();
+	}
+	
+	function wireRecommendationControlsAfterRender() {
+	  const cardUsedSelect = document.getElementById("cardUsedSelect");
+	  const channelUsedSelect = document.getElementById("channelUsedSelect");
+	  const saveBtn = document.getElementById("btnSaveTx");
+	
+	  if (!cardUsedSelect || !channelUsedSelect || !saveBtn) return;
+	
+	  const activeCards = Object.values(CARDS)
+		.filter(card => card.is_active !== false)
+		.sort((a, b) => Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999));
+	
+	  cardUsedSelect.innerHTML = `<option value="">Recommended card</option>` +
+		activeCards.map(card => `<option value="${escapeHtml(card.code)}">${escapeHtml(card.label)}</option>`).join("");
+	
+	  channelUsedSelect.innerHTML = "";
+	
+	  cardUsedSelect.addEventListener("change", () => {
+		if (!lastRecommendation) return;
+	
+		const chanSelect = document.getElementById("channelUsedSelect");
+		if (!chanSelect) return;
+	
+		const overrideCard = document.getElementById("cardUsedSelect").value;
+		const chosenCard = overrideCard || lastRecommendation.rec.card;
+		const purchase = lastRecommendation.purchase;
+	
+		let relevantChannels = [];
+		relevantChannels = getValidChannelsForSelectedCard(
+		  purchase,
+		  lastRecommendation.rec,
+		  chosenCard
+		);
+	
+		chanSelect.innerHTML = "";
+		relevantChannels.forEach((code) => {
+		  const opt = document.createElement("option");
+		  opt.value = code;
+		  opt.textContent = CHANNEL_LABELS[code] || code;
+		  chanSelect.appendChild(opt);
+		});
+	
+		if (relevantChannels.length > 0) {
+		  chanSelect.value = relevantChannels[0];
+		}
+	
+		syncChannelDropdownVisibility();
+	  });
+	
+	  saveBtn.addEventListener("click", savePurchase);
+	
+	  if (lastRecommendation?.rec?.card) {
+		cardUsedSelect.value = "";
+	  }
+	
+	  const initialChannels = getValidChannelsForSelectedCard(
+		lastRecommendation?.purchase,
+		lastRecommendation?.rec,
+		lastRecommendation?.rec?.card
+	  ) || [];
+	
+	  channelUsedSelect.innerHTML = "";
+	  initialChannels.forEach((code) => {
+		const opt = document.createElement("option");
+		opt.value = code;
+		opt.textContent = CHANNEL_LABELS[code] || code;
+		channelUsedSelect.appendChild(opt);
+	  });
+	
+	  if (initialChannels.length > 0) {
+		channelUsedSelect.value = initialChannels[0];
+	  }
+	
+	  syncChannelDropdownVisibility();
+	}
 
     // Recommend button
     document.getElementById("btnRecommend").addEventListener("click", () => {
@@ -8010,6 +8939,7 @@
 	
 		renderTransactions();
 		renderStateSummary();
+		renderActiveCardsHeroStrip();
 		renderRollingAnnualSummary();
 		populateCategorySelect();
 		populateMerchantBenefitCategorySelect();
@@ -8037,7 +8967,6 @@
 		if (floatingSaveBtn) floatingSaveBtn.disabled = false;
 	  }
 	}	
-	document.getElementById("btnSaveTx").addEventListener("click", savePurchase);
 	document.getElementById("btnFloatingSave").addEventListener("click", savePurchase);
 
     // Reset New Purchase section
@@ -8054,47 +8983,16 @@
       document.getElementById("recommendationBox").textContent = "";
       document.getElementById("reasonBox").textContent = "";
 
-      document.getElementById("cardUsedSelect").value = "";
-      const chanSelect = document.getElementById("channelUsedSelect");
-      chanSelect.innerHTML = "";
+		const cardUsedSelect = document.getElementById("cardUsedSelect");
+		if (cardUsedSelect) cardUsedSelect.value = "";
+		
+		const chanSelect = document.getElementById("channelUsedSelect");
+		if (chanSelect) chanSelect.innerHTML = "";
 
       lastRecommendation = null;
       
     });
     
-    // 5.0 cardUsedSelect change handler
-    document.getElementById("cardUsedSelect").addEventListener("change", () => {
-	  if (!lastRecommendation) return;
-	
-	  const chanSelect = document.getElementById("channelUsedSelect");
-	  if (!chanSelect) return;
-	
-	  const overrideCard = document.getElementById("cardUsedSelect").value;
-	  const chosenCard = overrideCard || lastRecommendation.rec.card;
-	  const purchase = lastRecommendation.purchase;
-	
-	  let relevantChannels = [];
-	  relevantChannels = getValidChannelsForSelectedCard(
-		  purchase,
-		  lastRecommendation.rec,
-		  chosenCard
-		);
-	
-	  chanSelect.innerHTML = "";
-	  relevantChannels.forEach((code) => {
-		const opt = document.createElement("option");
-		opt.value = code;
-		opt.textContent = CHANNEL_LABELS[code] || code;
-		chanSelect.appendChild(opt);
-	  });
-	
-	  if (relevantChannels.length > 0) {
-			chanSelect.value = relevantChannels[0];
-		  }
-		
-		  syncChannelDropdownVisibility();
-		});
-
     // Clear all tx
 	document.getElementById("btnClear").addEventListener("click", () => {
 	  if (!confirm("Clear all logged purchases?")) return;
@@ -8107,6 +9005,7 @@
 	
 	  renderTransactions();
 	  renderStateSummary();
+	  renderActiveCardsHeroStrip();
 	  renderRollingAnnualSummary();
 	  populateCategorySelect();
 	  populateMerchantBenefitCategorySelect();
@@ -8128,6 +9027,8 @@
         logContent.style.display = "none";
         toggleLogBtn.textContent = "Show";
       }
+      
+      updateAdminToggleLabels();
     });
 
     // Show/Hide Merchant Benefits
@@ -8146,6 +9047,8 @@
         benefitsContent.style.display = "none";
         toggleBenefitsBtn.textContent = "Show";
       }
+      
+      updateAdminToggleLabels();
     });
 
 	// Add merchant benefit
@@ -8304,6 +9207,7 @@
 			populateCategorySelect();
 			populateMerchantBenefitCategorySelect();
 			renderStateSummary();
+			renderActiveCardsHeroStrip();
 			renderRollingAnnualSummary();
 	
 			showToast(wasEditing ? "✓ Merchant Offer updated" : "✓ Merchant Offer saved");
@@ -8350,6 +9254,7 @@
 		// Re-render everything that depends on txs
 		renderTransactions();
 		renderStateSummary();
+		renderActiveCardsHeroStrip();
 		renderRollingAnnualSummary();
 		populateCategorySelect(); // merchant offers might re-open if usage drops
 		renderMerchantBenefits();
@@ -8397,6 +9302,7 @@
         renderMerchantBenefits();
         populateCategorySelect();
         renderStateSummary();
+        renderActiveCardsHeroStrip();
         renderRollingAnnualSummary();
       });
 
@@ -8554,11 +9460,18 @@
 
     // Init on load
     initFormDefaults();               // sets date to today
-    renderActiveCardsSummary();
-    renderTransactions();
-    renderMerchantBenefits();
     populateCategorySelect();         // build Merchant Offers + Card Benefits
     populateMerchantBenefitCategorySelect();
+
+    renderActiveCardsHeroStrip();
+    renderStateSummary();
+    renderRollingAnnualSummary();
+    renderMerchantBenefits();
+    renderActiveCardsSummary();
+    renderTransactions();
+    updateAdminToggleLabels();
+    updateSummarySortButtonStates()
+
 	document.getElementById("benefitMerchant")
 	  ?.addEventListener("input", renderBenefitSuggestedTags);
 
@@ -8583,9 +9496,6 @@
       { includeEmpty: false }
     );
 
-    renderStateSummary();
-    updateSummarySortButtonStates()
-    renderRollingAnnualSummary();
   </script>
   </body>
 </html>
