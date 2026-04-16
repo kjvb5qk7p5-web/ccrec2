@@ -2055,6 +2055,12 @@
 	  max-width: 100%;
 	  min-width: 0;
 	  box-sizing: border-box;
+	  height: 46px;
+	  padding: 0 12px;
+	  font-size: 1rem;
+	  line-height: 46px;
+	  -webkit-appearance: none;
+	  appearance: none;
 	}
 	
 	@media (max-width: 600px) {
@@ -6887,7 +6893,7 @@
 	
 	  let recentSavings = 0;
 	  for (const tx of latestTxs) {
-		recentSavings += Number(tx.cardBenefitAmount || 0) + Number(tx.merchantBenefitAmount || 0);
+		recentSavings += Number(tx.cardBenefitApplied || 0) + Number(tx.merchantBenefitApplied || 0);
 	  }
 	
 	    const nextExpiringText = nextExpiring
