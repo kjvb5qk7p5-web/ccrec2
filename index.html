@@ -1944,6 +1944,101 @@
   .card-reward-title {
     margin-bottom: 0;
   }
+    /* ==========================================
+     PATCH FIXES AFTER REDESIGN PASS 1
+     ========================================== */
+
+  .new-purchase-card .np-row {
+    align-items: stretch;
+  }
+
+  .new-purchase-card .np-field {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .new-purchase-card .np-field input,
+  .new-purchase-card .np-field input[type="number"],
+  .new-purchase-card .np-field input[type="date"] {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 600px) {
+    .new-purchase-card .np-row {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .new-purchase-card .np-field {
+      width: 100%;
+    }
+
+    .new-purchase-card .np-field input,
+    .new-purchase-card .np-field input[type="number"],
+    .new-purchase-card .np-field input[type="date"] {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
+  /* Make the recommendation save controls behave nicely */
+  .rec-save-grid label {
+    min-width: 0;
+  }
+
+  .rec-save-grid select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Empty-state polish for the logged tx table */
+  #loggedTable {
+    table-layout: fixed;
+  }
+
+  #loggedTable tbody:empty::after {
+    content: "No purchases logged yet.";
+    display: block;
+    padding: 10px 8px;
+    color: var(--text-soft);
+    font-size: 0.8rem;
+  }
+
+  /* Slightly better empty-table balance */
+  #loggedTable th:nth-child(1),
+  #loggedTable td:nth-child(1) { width: 16%; }
+
+  #loggedTable th:nth-child(2),
+  #loggedTable td:nth-child(2) { width: 14%; }
+
+  #loggedTable th:nth-child(3),
+  #loggedTable td:nth-child(3) { width: 32%; }
+
+  #loggedTable th:nth-child(4),
+  #loggedTable td:nth-child(4) { width: 14%; }
+
+  #loggedTable th:nth-child(5),
+  #loggedTable td:nth-child(5) { width: 14%; }
+
+  #loggedTable th:nth-child(6),
+  #loggedTable td:nth-child(6) { width: 10%; }
+
+  @media (max-width: 600px) {
+    #loggedTable {
+      font-size: 0.68rem;
+    }
+
+    #benefitsTable {
+      font-size: 0.68rem;
+    }
+  }
   </style>
 </head>
 <body>
@@ -2325,7 +2420,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.8b</p>
+<p class="blackmuted"><br>v6.8.9</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5703,6 +5798,16 @@
     
       return { expired, expiringSoon };
     }
+    
+    function formatDisplayDateShort(isoDate) {
+	  if (!isoDate) return "";
+	  const d = parseISODateLocal(isoDate);
+	  if (!d) return String(isoDate);
+	
+	  const mm = String(d.getMonth() + 1).padStart(2, "0");
+	  const dd = String(d.getDate()).padStart(2, "0");
+	  return `${mm}/${dd}`;
+	}
 
     function formatTodayISO() {
       const today = new Date();
@@ -6622,7 +6727,12 @@
 
     // ---------- State summaries ----------
     function renderStateSummary() {
-	  renderRightNowStrip();
+	  try {
+		renderRightNowStrip();
+	  } catch (err) {
+		console.error("renderRightNowStrip failed:", err);
+	  }
+	
 	  renderCardBenefitsSummary();
 	  renderMerchantOffersSummary();
 	}
@@ -6714,6 +6824,10 @@
 		recentSavings += Number(tx.cardBenefitAmount || 0) + Number(tx.merchantBenefitAmount || 0);
 	  }
 	
+	    const nextExpiringText = nextExpiring
+		? `${escapeHtml(nextExpiring.merchant || "Offer")} expires ${escapeHtml(formatDisplayDateShort(nextExpiring.endDate))}`
+		: "No active expiring-soon offers right now";
+	
 	  const items = [
 		{
 		  label: "Native credits open",
@@ -6724,9 +6838,7 @@
 		{
 		  label: "Merchant offers live",
 		  value: `${activeMerchantCount} live`,
-		  meta: nextExpiring
-			? `${escapeHtml(nextExpiring.merchant || "Offer")} expires ${formatDisplayDateShort(nextExpiring.endDate)}`
-			: "No active expiring-soon offers right now",
+		  meta: nextExpiringText,
 		  className: nextExpiring ? "is-warning" : ""
 		},
 		{
@@ -8765,10 +8877,10 @@
     
       // Reset override dropdowns
       const cardSel = document.getElementById("cardUsedSelect");
-      cardSel.value = "";
+      if (cardSel) cardSel.value = "";
     
       const chanSelect = document.getElementById("channelUsedSelect");
-      chanSelect.innerHTML = "";
+      if (chanSelect) chanSelect.innerHTML = "";
     
       const relevantChannels = getValidChannelsForRecommendation(rec, purchase);
 		relevantChannels.forEach((code) => {
@@ -9467,7 +9579,6 @@
     renderStateSummary();
     renderRollingAnnualSummary();
     renderMerchantBenefits();
-    renderActiveCardsSummary();
     renderTransactions();
     updateAdminToggleLabels();
     updateSummarySortButtonStates()
@@ -9485,12 +9596,7 @@
 	  setSelectedCategory("");
 	}
 
-    // Populate card dropdowns from CARDS registry
-    populateCardSelect(
-      document.getElementById("cardUsedSelect"),
-      { includeEmpty: true, emptyLabel: "Use recommended card" }
-    );
-    
+    // Populate static card dropdowns from CARDS registry
     populateCardSelect(
       document.getElementById("benefitCard"),
       { includeEmpty: false }
