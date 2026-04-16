@@ -9400,8 +9400,11 @@
 	document.getElementById("category").addEventListener("change", invalidateRecommendationIfFormChanged);
 	document.getElementById("amount").addEventListener("input", invalidateRecommendationIfFormChanged);
 	document.getElementById("date").addEventListener("change", invalidateRecommendationIfFormChanged);
-	document.getElementById("channelUsedSelect").addEventListener("change", hideFloatingSaveBar);
-	document.getElementById("cardUsedSelect").addEventListener("change", hideFloatingSaveBar);
+	document.getElementById("recommendationSection").addEventListener("change", (e) => {
+	  if (e.target.id === "channelUsedSelect" || e.target.id === "cardUsedSelect") {
+		hideFloatingSaveBar();
+	  }
+	});
 
 
     // Event delegation for transaction delete (set up once)
