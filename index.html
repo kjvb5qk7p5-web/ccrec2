@@ -1678,7 +1678,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.8a</p>
+<p class="blackmuted"><br>v6.8.8b</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5565,13 +5565,16 @@
           // Build a special badge just for the log, with a data index
           const code = String(tx.cardUsed).toUpperCase();
 		  const meta = CARDS[code] || {};
-		  const cls = (meta.badgeClass || code).toLowerCase();
 		  const label = meta.short || code;
-    
+		  const bg = meta.badgeBg || "#f2f2f2";
+		  const border = meta.badgeBorder || "#ccc";
+		  const text = meta.badgeText || "#333";
+
           tdCard.innerHTML = `
             <span
-              class="card-badge ${cls} tx-delete-badge"
+              class="card-badge tx-delete-badge"
               data-tx-index="${idx}"
+              style="background:${bg};border-color:${border};color:${text};"
             >
               ${escapeHtml(label)}
             </span>
