@@ -1559,24 +1559,26 @@
   }
 
   .active-cards-strip {
-    display: flex;
-    flex-wrap: wrap;
+    display: inline-flex;
+    flex-direction: column;
     gap: 8px;
-    margin: 10px 0 14px 0;
+    padding: 12px 18px;
+    margin: 14px auto 18px auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
   }
 
   .active-card-pill {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 7px 10px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.78);
-    border: 1px solid var(--border);
-    color: var(--text-soft);
-    font-size: 0.9rem;
+    gap: 10px;
+    color: var(--text);
+    font-size: 0.95rem;
+    white-space: nowrap;
   }
-
+  
   #recommendationSection {
     background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
     border: 1px solid var(--primary-line);
@@ -2093,7 +2095,9 @@
       Pick a category, get a card.
     </p>
 
-    <div id="activeCardsSummary" class="active-cards-strip"></div>
+    <div style="display:flex; justify-content:center;">
+      <div id="activeCardsSummary" class="active-cards-strip"></div>
+    </div>
 
     <div class="section-header-row" style="margin-top: 2px; margin-bottom: 12px;">
       <div class="section-title-wrap">
