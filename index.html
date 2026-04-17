@@ -2462,7 +2462,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.9a-debug</p>
+<p class="blackmuted"><br>v6.8.9a</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -7904,8 +7904,7 @@
 	}
 	
 	function getGroupedCardCategoriesForPicker(query = "") {
-	  const q = String(query || "").trim().toLowerCase();
-	
+	  const q = String(query || "").trim();
 	  const selectedValue = getSelectedCategory();
 	  const allowedValues = getCardCategorySearchMatches(q);
 	
@@ -7923,6 +7922,7 @@
 	  for (const g of groups) {
 		const items = (g.leaves || [])
 		  .filter(leaf => {
+			if (leaf.always_active) return true;
 			const value = String(leaf.key || "");
 			if (allowedValues && !allowedValues.has(value)) return false;
 			return true;
