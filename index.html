@@ -2589,7 +2589,7 @@
 	
 		points_currency: "Bonvoy",
 		transferable_points: false,
-		is_active: false
+		is_active: true
 	  },
 	
 	  DG: {
@@ -3347,6 +3347,47 @@
 		allow_fallback: true,
 		counts_toward_annual_roi: true
 	  },
+	  
+	  {
+		id: "uq_jsx",
+		card: "UQ",
+		purchaseCategories: ["flights", "travel"],
+		  intentTags: ["flights", "airfare", "trip"],
+		  merchantKeywords: ["JSX"],
+		  searchAliases: ["air travel", "charter"],
+	
+		label: "JSX Flights",
+		labelHtml: "JSX Flights",
+		state_label: "JSX Flights",
+		state_labelHtml: "JSX Flights",
+		icon: "✈️",
+	
+		categories: ["jsx_flight"],
+		summary_sort_category: "travel",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-02-01",
+		cap_amount: 150,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 250,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "jsx_flight",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+	    reason_yes:
+	            "JSX flight booking – use United Quest at JSX to trigger the $150 annual credit.",
+        reason_no:
+            "JSX flight annual credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+
 	
 	  /* =========================
 		 DELTA GOLD
@@ -3518,6 +3559,12 @@
 		card: "UQ",
 		channel: "united",
 		reason: "Use United Quest for United flights to earn miles and airline-specific perks."
+	  },
+	
+	  jsx_flight: {
+		card: "CSR",
+		channel: "direct",
+		reason: "Use Chase Sapphire for airline flights for flexible points."
 	  },
 	
 	  delta_flight_threshold: {
@@ -3881,6 +3928,13 @@
 		united_flight: {
 		  key: "united_flight",
 		  label: "Flight – United",
+		  icon: "✈️",
+		  group_key: "travel",
+		  parent_key: "flights",
+		},
+		jsx_flight: {
+		  key: "jsx_flight",
+		  label: "Flight – JSX",
 		  icon: "✈️",
 		  group_key: "travel",
 		  parent_key: "flights",
