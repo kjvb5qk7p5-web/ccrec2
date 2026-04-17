@@ -3597,7 +3597,7 @@
 	  CARD_BENEFITS.map(b => [b.id, b])
 	);
 	
-	const SYNONYM_MAP = {
+	const SYNONYM_MAP = { // make sure all the root words (left) are also included in the synonym list
 	  dining: ["dining", "restaurant", "restaurants", "meal", "eat out", "fast food"],
 	  takeout: ["takeout", "take out", "pickup", "carryout", "to go"],
 	  delivery: ["delivery", "delivered", "food delivery"],
@@ -7923,7 +7923,6 @@
 	  for (const g of groups) {
 		const items = (g.leaves || [])
 		  .filter(leaf => {
-			if (leaf.always_active) return true;
 			const value = String(leaf.key || "");
 			if (allowedValues && !allowedValues.has(value)) return false;
 			return true;
