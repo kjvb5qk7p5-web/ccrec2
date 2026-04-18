@@ -2639,21 +2639,21 @@
 		icon: "✈️🏨",
 	
 		categories: [
-		  "united_flight",
-		  "delta_flight_threshold",
+		  // "united_flight",
+		  // "delta_flight_threshold",
 		  "other_flight",
-		  "american_flight",        // ← new: same MCC 4511, CSR covers all airlines
-		  "theedit_hotel",
-		  "marriott_hotel",
-		  "renowned_hotel",
-		  "delta_stays",
+		  // "american_flight",        // ← new: same MCC 4511, CSR covers all airlines
+		  // "theedit_hotel",
+		  // "marriott_hotel",
+		  // "renowned_hotel",
+		  // "delta_stays",
 		  "other_hotel",
-		  "hilton_hotel",           // ← new: CSR covers all hotel chains
-		  "hyatt_hotel",            // ← new: CSR covers all hotel chains
-		  "airbnb",                 // ← new: CSR explicitly includes Airbnb (MCC 7011)
-		  "hertz_rentalcar",        // ← new: CSR covers all rental car companies
-		  "national_rentalcar",     // ← new: CSR covers all rental car companies
-		  "uq_rentalcar",
+		  // "hilton_hotel",           // ← new: CSR covers all hotel chains
+		  // "hyatt_hotel",            // ← new: CSR covers all hotel chains
+		  // "airbnb",                 // ← new: CSR explicitly includes Airbnb (MCC 7011)
+		  // "hertz_rentalcar",        // ← new: CSR covers all rental car companies
+		  // "national_rentalcar",     // ← new: CSR covers all rental car companies
+		  // "uq_rentalcar",
 		],
 		summary_sort_category: "travel",
 	
@@ -3174,7 +3174,85 @@
 		allow_fallback: true,
 		counts_toward_annual_roi: true
 	  },
+	  
+	  {
+		id: "ag_dining",
+		card: "AG",
+		purchaseCategories: ["dining"],
+		  intentTags: ["restaurant", "reservation", "dining", "rez"],
+		  merchantKeywords: null,
+		  searchAliases: ["restaurant booking"],
 	
+		label: "Dining - Restaurants",
+		labelHtml: "Dining - Restaurants",
+		icon: "🍔",
+	
+		categories: ["dining"],
+		summary_sort_category: "dining",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: null,
+		cap_amount: null,
+		tx_cap: null,
+		per_tx_cap: null,
+		
+		non_monetary: true, // also remember to set value_fn: () => 0
+	
+		priority: 10,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "marriott_hotel",
+		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	    reason_yes:
+	            "Use Amex Gold for 4X points on dining.",
+        reason_no:
+            "This reason should not fire (ag_dining); ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: false
+	  },	
+		
+	  {
+		id: "ag_groceries",
+		card: "AG",
+		purchaseCategories: ["groceries"],
+		  intentTags: ["food", "grocery"],
+		  merchantKeywords: null,
+		  searchAliases: ["supermarket"],
+	
+		label: "Groceries – grocery store",
+		labelHtml: "Groceries – grocery store",
+		icon: "🛒",
+	
+		categories: ["groceries"],
+		summary_sort_category: "groceries",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: null,
+		cap_amount: null,
+		tx_cap: null,
+		per_tx_cap: null,
+		
+		non_monetary: true, // also remember to set value_fn: () => 0
+	
+		priority: 10,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "groceries",
+		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	    reason_yes:
+	            "Use Amex Gold for 4X points on groceries.",
+        reason_no:
+            "This reason should not fire (ag_groceries); ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: false
+	  },	
+		
 	  /* =========================
 		 UNITED QUEST
 		 ========================= */
@@ -3351,6 +3429,45 @@
 	  },
 	  
 	  {
+		id: "uq_united",
+		card: "UQ",
+		purchaseCategories: ["flights", "travel"],
+		  intentTags: ["flights", "airfare", "trip"],
+		  merchantKeywords: ["United"],
+		  searchAliases: ["air travel"],
+	
+		label: "United Airlines flights",
+		labelHtml: "United Airlines flights",
+		icon: "✈️",
+	
+		categories: ["united_flight"],
+		summary_sort_category: "travel",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-02-01",
+		cap_amount: null,
+		tx_cap: null,
+		per_tx_cap: null,
+		
+		non_monetary: true, // also remember to set value_fn: () => 0
+	
+		priority: 10,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "united_flight",
+		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	    reason_yes:
+	            "United Airlines flight booking – Use United Quest for United flights to earn miles and airline-specific perks.",
+        reason_no:
+            "This reason should not fire (uq_united); ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: false
+	  },
+	
+	  {
 		id: "uq_jsx",
 		card: "UQ",
 		purchaseCategories: ["flights", "travel"],
@@ -3437,6 +3554,45 @@
 		allow_fallback: true,
 		counts_toward_annual_roi: true
 	  },
+
+	  {
+		id: "dg_delta",
+		card: "DG",
+		purchaseCategories: ["flights", "travel"],
+		  intentTags: ["flights", "airfare", "trip"],
+		  merchantKeywords: ["Delta"],
+		  searchAliases: ["air travel"],
+	
+		label: "Delta Airlines flights",
+		labelHtml: "Delta Airlines flights",
+		icon: "✈️",
+	
+		categories: ["delta_flight_threshold"],
+		summary_sort_category: "travel",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2026-01-13",
+		cap_amount: null,
+		tx_cap: null,
+		per_tx_cap: null,
+		
+		non_monetary: true, // also remember to set value_fn: () => 0
+	
+		priority: 10,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "delta_flight_threshold",
+		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	    reason_yes:
+	            "Delta Airlines flight booking – Use Delta SkyMiles AmEx Gold for Delta flights to earn miles and airline-specific perks.",
+        reason_no:
+            "This reason should not fire (dg_delta); ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: false
+	  },	
 	
 	  /* =========================
 		 MARRIOTT BONVOY BRILLIANT
@@ -3480,8 +3636,48 @@
 	
 		allow_fallback: true,
 		counts_toward_annual_roi: true
-	  }
+	  },
+
+	  {
+		id: "mb_marriott",
+		card: "MB",
+		purchaseCategories: ["hotel", "lodging", "travel"],
+		  intentTags: ["hotel", "lodging", "trip"],
+		  merchantKeywords: ["The Ritz Carlton", "St Regis", "JW Marriott", "Luxury Collection", "W Hotels", "EDITION", "Marriott", "Sheraton", "Marriott Vacation Clubs", "Delta Hotels by Marriott", "Westin", "Le Meridien", "Renaissance Hotels", "Gaylord", "Courtyard", "Four Points", "SpringHill Suites", "Fairfield", "AC Hotels", "citizenM", "Aloft", "Moxy", "Protea", "City Express", "Four Points", "Series by Marriott", "Residence Inn", "TownePlace Suites", "Element Hotels", "StudioRes", "Autograph Collection", "Design Hotels", "Tribute Portfolio", "MGM Collection", "Outdoor Collection"],
+		  searchAliases: ["hotel booking"],
 	
+		label: "Marriott family hotel stays",
+		labelHtml:
+		  '<a href="https://www.marriott.com" target="_blank" rel="noopener noreferrer">Marriott hotels</a>',
+		icon: "🏨",
+	
+		categories: ["marriott_hotel"],
+		summary_sort_category: "travel",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: null,
+		cap_amount: null,
+		tx_cap: null,
+		per_tx_cap: null,
+		
+		non_monetary: true, // also remember to set value_fn: () => 0
+	
+		priority: 10,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "marriott_hotel",
+		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	    reason_yes:
+	            "Marriott family hotels booking – Use Bonvoy Brilliant for Marriott stays to earn bonus points and hotel perks.",
+        reason_no:
+            "This reason should not fire (mb_marriott); ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: false
+	  }	
+		
 	];
 	
 	const BASE_CATEGORY_FALLBACKS = {
@@ -3608,7 +3804,7 @@
 	  other_hotel: {
 		card: "CSR",
 		channel: "chase_travel",
-		reason: "Use Chase Sapphire for non-Marriott hotel stays."
+		reason: "Use Chase Sapphire for hotel, motel or Airbnb stays."
 	  },
 	
 	  peloton: {
@@ -3855,7 +4051,6 @@
 		  icon: "🍔",
 		  group_key: "dining",
 		  parent_key: "1dining",
-		  always_active: true,
 		},
 		resy: {
 		  key: "resy",
@@ -3905,11 +4100,10 @@
 		// ---- Groceries ----
 		groceries: {
 		  key: "groceries",
-		  label: "Groceries – Grocery store",
+		  label: "Groceries – grocery store",
 		  icon: "🛒",
 		  group_key: "groceries",
 		  parent_key: "1groceries",
-		  always_active: true,
 		},
 		doordash_groceries: {
 		  key: "doordash_groceries",
@@ -3986,7 +4180,7 @@
 		},
 		other_hotel: {
 		  key: "other_hotel",
-		  label: "Hotel – Other lodging",
+		  label: "Other lodging - hotel, motel, Airbnb",
 		  icon: "🏨",
 		  group_key: "travel",
 		  parent_key: "lodging",
@@ -4041,6 +4235,7 @@
 		  label: "Other / general spending",
 		  icon: "🛍️",
 		  group_key: "other",
+		  always_active: true,
 		},
 	
 		// ---- “Future-capable” leaves you said you want (not shown unless activated by your rules) ----
@@ -4590,7 +4785,7 @@
 		const capAmount = Number(benefit.cap_amount) || 0;
 		const remainingAmount = Math.max(0, capAmount - priorUsed);
 	
-		if (remainingAmount <= 0) {
+		if (!benefit.non_monetary && remainingAmount <= 0) {
 		  unavailable.push({
 			benefit,
 			reasonType: "used_up",
@@ -4623,17 +4818,19 @@
 		  immediateValue = Math.min(immediateValue, Number(benefit.per_tx_cap));
 		}
 	
-		immediateValue = Math.max(0, Math.min(immediateValue, remainingAmount));
-	
-		if (immediateValue <= 0) {
-		  unavailable.push({
-			benefit,
-			reasonType: "used_up",
-			remainingAmount,
-			priorUsed,
-			priorTxCount
-		  });
-		  continue;
+		if (!benefit.non_monetary) {
+		  immediateValue = Math.max(0, Math.min(immediateValue, remainingAmount));
+
+		  if (immediateValue <= 0) {
+			unavailable.push({
+			  benefit,
+			  reasonType: "used_up",
+			  remainingAmount,
+			  priorUsed,
+			  priorTxCount
+			});
+			continue;
+		  }
 		}
 	
 		eligible.push({
@@ -5787,7 +5984,7 @@
       { value: "theedit_hotel",       label: "🏨 Hotel- The Edit (Chase Travel collection)" },
       { value: "renowned_hotel",      label: "🏨 Hotel- Renowned (United program)" },
       { value: "delta_stays",         label: "🏨 Hotel- Delta Stays" },
-      { value: "other_hotel",         label: "🏨 Hotel- other hotel / lodging" },
+      { value: "other_hotel",         label: "🏨 Other lodging - hotel, motel, Airbnb" },
       { value: "uq_rentalcar",        label: "🚙 Rental Car- Avis / Budget" },
       { value: "peloton",             label: "🚲 Peloton membership" },
       // remove from select to turn off // { value: "streaming",           label: "📺 Streaming" },
@@ -7001,7 +7198,7 @@
 	
 	  // Build all real card-native benefit rows from CARD_BENEFITS
 	  const sortedBenefits = [...CARD_BENEFITS]
-		.filter(benefit => CARDS[benefit.card]?.is_active !== false)
+		.filter(benefit => CARDS[benefit.card]?.is_active !== false && !benefit.non_monetary) // filter out non-monetary card benefits
 		.sort((a, b) => (Number(a.display_order ?? 999) - Number(b.display_order ?? 999)));
 	
 	  for (const benefit of sortedBenefits) {
@@ -7554,8 +7751,8 @@
 		reasonMainHtml: b.reason_yesHtml || null,
 		reasonMain: b.reason_yes || "",
 		reason: b.reason_yes || "",
-		remainingAmount: candidate.remainingAmount,
-		totalCapAmount: Number(b.cap_amount) || 0,
+		remainingAmount: b.non_monetary ? null : candidate.remainingAmount, // allow for non-monetary benefits
+		totalCapAmount: b.non_monetary ? null : (Number(b.cap_amount) || 0), // allow for non-monetary benefits
 		categoryLabel: null,
 		recommendationSource: "card_benefit",
 		cardBenefitId: b.id
@@ -8828,7 +9025,7 @@
 	  }
 	
 	  if (rec.channel && CHANNEL_LABELS[rec.channel]) {
-		bullets.push(`Assumes purchase is completed in ${CHANNEL_LABELS[rec.channel]}`);
+		bullets.push(`Assumes purchase is completed ${CHANNEL_LABELS[rec.channel]}`);
 	  }
 	
 	  const bulletsHtml = bullets.length
