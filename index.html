@@ -2464,7 +2464,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.10</p>
+<p class="blackmuted"><br>v6.8.11</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -2629,7 +2629,7 @@
 		card: "CSR",
 		purchaseCategories: ["flights", "hotel", "travel", "rental_car", "rideshare"],
 		intentTags: ["travel", "flight", "hotel", "lodging", "trip"],
-		merchantKeywords: ["united", "delta", "marriott", "the edit", "renowned", "delta stays"],
+		merchantKeywords: ["united", "delta", "american airlines", "alaska airlines", "jetblue", "southwest", "marriott", "hilton", "hyatt", "airbnb", "hertz", "avis", "national", "enterprise"],
 		searchAliases: ["airfare", "air travel", "vacation", "travel credit"],
 	
 		label: "Travel credit",
@@ -2653,7 +2653,7 @@
 		  // "airbnb",                 // ← new: CSR explicitly includes Airbnb (MCC 7011)
 		  // "hertz_rentalcar",        // ← new: CSR covers all rental car companies
 		  // "national_rentalcar",     // ← new: CSR covers all rental car companies
-		  // "uq_rentalcar",
+		  "other_rentalcar",
 		],
 		summary_sort_category: "travel",
 	
@@ -2668,6 +2668,7 @@
 		display_order: 10,
 		channel: "direct",
 	
+		// for csr_travel, remember to add new travel categories that get created when needed for additional travel cards (e.g. airline cards, hotel cards)
 		eligible_fn: (tx) => new Set([
 		  "united_flight",
 		  "delta_flight_threshold",
@@ -2681,9 +2682,12 @@
 		  "hilton_hotel",           // ← new: CSR covers all hotel chains
 		  "hyatt_hotel",            // ← new: CSR covers all hotel chains
 		  "airbnb",                 // ← new: CSR explicitly includes Airbnb (MCC 7011)
+		  "hotelcollection_hotel",
 		  "hertz_rentalcar",        // ← new: CSR covers all rental car companies
 		  "national_rentalcar",     // ← new: CSR covers all rental car companies
-		  "uq_rentalcar"
+		  "avis_rentalcar",
+		  "budget_rentalcar",
+		  "other_rentalcar"
 		]).has(tx.category),
 	
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
@@ -2696,7 +2700,45 @@
 		allow_fallback: false,
 		counts_toward_annual_roi: true
 	  },
+	  
+	  {
+		id: "csr_trusted_traveler",
+		card: "CSR",
+		purchaseCategories: ["travel"],
+		intentTags: ["tsa", "precheck", "global entry", "nexus", "trusted traveler"],
+		merchantKeywords: ["tsa precheck", "global entry", "nexus"],
+		searchAliases: ["application fee", "expedited travel", "customs", "border"],
 	
+		label: "Trusted Traveler fee",
+		labelHtml: "Trusted Traveler fee",
+		state_label: "Trusted Traveler fee",
+		state_labelHtml: "Trusted Traveler fee",
+		icon: "🛂",
+	
+		categories: ["trusted_traveler"],
+		summary_sort_category: "travel",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-12-01",
+		cap_amount: 120,
+		tx_cap: 1,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 45,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "trusted_traveler",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+		reason_yes: "Use Chase Sapphire Reserve to cover your TSA PreCheck ($85), Global Entry ($120), or NEXUS ($50) application fee.",
+		reason_no: "Chase Sapphire Reserve Trusted Traveler fee credit is already used this year; ",
+	
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+
 	  {
 		id: "csr_doordash_dining",
 		card: "CSR",
@@ -2825,17 +2867,61 @@
 	  },
 	
 	  {
+		id: "csr_lyft_points",
+		card: "CSR",
+		purchaseCategories: ["rideshare"],
+		  intentTags: ["rideshare", "car service", "ride"],
+		  merchantKeywords: ["lyft"],
+		  searchAliases: ["ride share"],
+	
+		label: "Lyft",
+		labelHtml:
+		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+		state_label: "Lyft",
+		state_labelHtml:
+		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+		icon: "🚗",
+	
+		categories: ["lyft"],
+		summary_sort_category: "rideshare",
+	
+		cadence: "monthly",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: null,
+		tx_cap: null,
+		per_tx_cap: null,
+		
+		non_monetary: true, // also remember to set value_fn: () => 0
+	
+		priority: 100,
+		display_order: 50,
+		channel: "lyft_app",
+	
+		eligible_fn: (tx) => tx.category === "lyft",
+		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+        reason_yes:
+              "Use Chase Sapphire in the Lyft app to earn 5X points.",
+        reason_no:
+              "This reason should not fire (csr_lyft_points); ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
+	
+	  {
 		id: "csr_peloton",
 		card: "CSR",
 		purchaseCategories: ["retail"],
-		  intentTags: ["fitness", "subscription", "exercise"],
+		  intentTags: ["fitness", "exercise bike"],
 		  merchantKeywords: ["peloton"],
-		  searchAliases: ["bike subscription", "fitness membership"],
+		  searchAliases: ["exercise equipment"],
 	
-		label: "Peloton",
-		labelHtml: "Peloton",
-		state_label: "Peloton",
-		state_labelHtml: "Peloton",
+		label: "Peloton equipment",
+		labelHtml: "Peloton equipment",
+		state_label: "Peloton equipment",
+		state_labelHtml: "Peloton equipment",
 		icon: "🚲",
 		
 		categories: ["peloton"],
@@ -2844,24 +2930,26 @@
 		cadence: "monthly",
 		cadence_type: "calendar",
 		start_date: null,
-		cap_amount: 10,
+		cap_amount: 5000,
 		tx_cap: null,
 		per_tx_cap: null,
+		
+		non_monetary: true, // also remember to set value_fn: () => 0
 	
 		priority: 10,
 		display_order: 80,
 		channel: "peloton_platform",
 	
 		eligible_fn: (tx) => tx.category === "peloton",
-		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
         reason_yes:
-              "Use Chase Sapphire for your Peloton membership to earn the $10 monthly credit.",
+              "Use Chase Sapphire on your Peloton equipment and accessories to earn 10X points.",
         reason_no:
-            "Peloton membership monthly credit is used up; ",
+            "Peloton 10X points boost is used up; ",
 
 		allow_fallback: true,
-		counts_toward_annual_roi: true
+		counts_toward_annual_roi: false
 	  },
 	
 	  {
@@ -2994,6 +3082,48 @@
 	  /* =========================
 		 AMEX GOLD
 		 ========================= */
+	
+	  {
+		id: "ag_venuecollection",
+		card: "AG",
+		purchaseCategories: ["entertainment", "concessions"],
+		  intentTags: ["concert", "sports", "concessions", "show"],
+		  merchantKeywords: ["Barclays Center", "Climate Pledge Arena", "Crypto.com Arena", "Dignity Health Sports Park", "Hard Rock Stadium", "Hollywood Bowl", "Mercedes Benz Stadium", "O2 Arena", "UBS Arena", "United Center"],
+		  searchAliases: ["event tickets"],
+	
+		label: "American Express Venue Collection",
+		labelHtml:
+		  '<a href="https://www.americanexpress.com/en-us/benefits/membership/experiences/venues/all-venues/?intlink=us-GABM-GVC_Hub" target="_blank" rel="noopener noreferrer">American Express Venue Collection</a>',
+		state_label: "American Express Venue Collection",
+		state_labelHtml:
+		  '<a href="https://www.americanexpress.com/en-us/benefits/membership/experiences/venues/all-venues/?intlink=us-GABM-GVC_Hub" target="_blank" rel="noopener noreferrer">American Express Venue Collection</a>',
+		icon: "🍿",
+	
+		categories: ["venuecollection"],
+		summary_sort_category: "entertainment",
+	
+		cadence: "annual",
+		cadence_type: "calendar",
+		start_date: null,
+		cap_amount: 250,
+		tx_cap: null,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 190,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "venuecollection",
+		value_fn: (tx, remaining) => Math.min((Number(tx.amount) || 0) * 0.10, remaining),
+	
+        reason_yes:
+              "Use AmEx Gold on concessions purchases at The Venue Collection venues to receive a 10% credit.",
+        reason_no:
+            "The Venue Collection 10% credit is used up; ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
 	
 	  {
 		id: "ag_uber",
@@ -3253,6 +3383,46 @@
 		counts_toward_annual_roi: false
 	  },	
 		
+	  {
+		id: "ag_hotelcollection",
+		card: "AG",
+		purchaseCategories: ["hotel", "lodging", "travel"],
+		  intentTags: ["hotel", "lodging", "trip"],
+		  merchantKeywords: null,
+		  searchAliases: ["hotel booking"],
+	
+		label: "AmEx The Hotel Collection",
+		labelHtml:
+		  'AmEx The Hotel Collection',
+		icon: "🏨",
+	
+		categories: ["hotelcollection_hotel"],
+		summary_sort_category: "travel",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: null,
+		cap_amount: null,
+		tx_cap: null,
+		per_tx_cap: null,
+		
+		non_monetary: true, // also remember to set value_fn: () => 0
+	
+		priority: 100,
+		channel: "amex_travel",
+	
+		eligible_fn: (tx) => tx.category === "hotelcollection_hotel",
+		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	    reason_yes:
+	            "AmEx The Hotel Collection program – Use AmEx Gold for stays at select properties made through American Express Travel to earn hotel perks such as the $100 property credit.",
+        reason_no:
+            "This reason should not fire (ag_hotelcollection); ",
+
+		allow_fallback: true,
+		counts_toward_annual_roi: false
+	  },	
+		
 	  /* =========================
 		 UNITED QUEST
 		 ========================= */
@@ -3400,7 +3570,7 @@
 		  'Avis &amp; Budget car rental',
 		icon: "🚙",
 	
-		categories: ["uq_rentalcar"],
+		categories: ["avis_rentalcar", "budget_rentalcar"],
 		summary_sort_category: "travel",
 	
 		cadence: "annual",
@@ -3415,7 +3585,11 @@
 		channel: "united_rentalcar",
 		channel_allowed: "direct",
 	
-		eligible_fn: (tx) => tx.category === "uq_rentalcar",
+		eligible_fn: (tx) => new Set([
+		  "avis_rentalcar",
+		  "budget_rentalcar"
+		]).has(tx.category),
+
 		value_fn: (tx, remaining) =>
 		  Math.min(Number(tx.amount) || 0, 40, remaining),
 	
@@ -3507,6 +3681,43 @@
 		counts_toward_annual_roi: true
 	  },
 
+	  {
+		id: "uq_trusted_traveler",
+		card: "UQ",
+		purchaseCategories: ["travel"],
+		intentTags: ["tsa", "precheck", "global entry", "nexus", "trusted traveler"],
+		merchantKeywords: ["tsa precheck", "global entry", "nexus"],
+		searchAliases: ["application fee", "expedited travel", "customs", "border"],
+	
+		label: "Trusted Traveler fee",
+		labelHtml: "Trusted Traveler fee",
+		state_label: "Trusted Traveler fee",
+		state_labelHtml: "Trusted Traveler fee",
+		icon: "🛂",
+	
+		categories: ["trusted_traveler"],
+		summary_sort_category: "travel",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-02-01",
+		cap_amount: 120,
+		tx_cap: 1,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 260,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "trusted_traveler",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+		reason_yes: "Use United Quest to cover your TSA PreCheck ($85), Global Entry ($120), or NEXUS ($50) application fee.",
+		reason_no: "United Quest Trusted Traveler fee credit is already used this year; ",
+	
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
 	
 	  /* =========================
 		 DELTA GOLD
@@ -3637,6 +3848,44 @@
 		allow_fallback: true,
 		counts_toward_annual_roi: true
 	  },
+	  
+	{
+		id: "mb_trusted_traveler",
+		card: "MB",
+		purchaseCategories: ["travel"],
+		intentTags: ["tsa", "precheck", "global entry", "trusted traveler"],
+		merchantKeywords: ["tsa precheck", "global entry"],
+		searchAliases: ["application fee", "expedited travel"],
+	
+		label: "Trusted Traveler fee",
+		labelHtml: "Trusted Traveler fee",
+		state_label: "Trusted Traveler fee",
+		state_labelHtml: "Trusted Traveler fee",
+		icon: "🛂",
+	
+		categories: ["trusted_traveler"],
+		summary_sort_category: "travel",
+	
+		cadence: "annual",
+		cadence_type: "card_anniversary",
+		start_date: "2025-04-11",
+		cap_amount: 120,
+		tx_cap: 1,
+		per_tx_cap: null,
+	
+		priority: 10,
+		display_order: 310,
+		channel: "direct",
+	
+		eligible_fn: (tx) => tx.category === "trusted_traveler",
+		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+		reason_yes: "Use Marriott Bonvoy Brilliant to cover your TSA PreCheck ($85) or Global Entry ($120) application fee. Note: NEXUS is not covered.",
+		reason_no: "Marriott Bonvoy Brilliant Trusted Traveler fee credit is already used this year; ",
+	
+		allow_fallback: true,
+		counts_toward_annual_roi: true
+	  },
 
 	  {
 		id: "mb_marriott",
@@ -3670,7 +3919,7 @@
 		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
 	    reason_yes:
-	            "Marriott family hotels booking – Use Bonvoy Brilliant for Marriott stays to earn bonus points and hotel perks.",
+	            "Marriott family hotels booking – Use Bonvoy Brilliant for Marriott stays to earn bonus points and hotel perks such as the $100 property credit for certain bookings.",
         reason_no:
             "This reason should not fire (mb_marriott); ",
 
@@ -3810,7 +4059,7 @@
 	  peloton: {
 		card: "CSR",
 		channel: "peloton_platform",
-		reason: "Use Chase Sapphire Reserve for Peloton membership charges."
+		reason: "Use Chase Sapphire Reserve for Peloton equipment and accessories charges."
 	  },
 	
 	  streaming: {
@@ -4047,10 +4296,11 @@
 		// ---- Dining ----
 		dining: {
 		  key: "dining",
-		  label: "Dining – Restaurants",
+		  label: "Dining – restaurants",
 		  icon: "🍔",
 		  group_key: "dining",
 		  parent_key: "1dining",
+		  sort_order: 1,
 		},
 		resy: {
 		  key: "resy",
@@ -4104,6 +4354,7 @@
 		  icon: "🛒",
 		  group_key: "groceries",
 		  parent_key: "1groceries",
+		  sort_order: 1,
 		},
 		doordash_groceries: {
 		  key: "doordash_groceries",
@@ -4144,10 +4395,11 @@
 		},
 		other_flight: {
 		  key: "other_flight",
-		  label: "Flight – Other airline",
+		  label: "Flight – other airline",
 		  icon: "✈️",
 		  group_key: "travel",
 		  parent_key: "flights",
+		  sort_order: 999,
 		},
 	
 		marriott_hotel: {
@@ -4160,6 +4412,13 @@
 		theedit_hotel: {
 		  key: "theedit_hotel",
 		  label: "Hotel – The Edit (Chase Travel)",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		},
+		hotelcollection_hotel: {
+		  key: "hotelcollection_hotel",
+		  label: "Hotel – The Hotel Collection (AmEx program)",
 		  icon: "🏨",
 		  group_key: "travel",
 		  parent_key: "lodging",
@@ -4184,14 +4443,39 @@
 		  icon: "🏨",
 		  group_key: "travel",
 		  parent_key: "lodging",
+		  sort_order: 999,
 		},
 	
-		uq_rentalcar: {
-		  key: "uq_rentalcar",
-		  label: "Rental car – Avis / Budget",
+		avis_rentalcar: {
+		  key: "avis_rentalcar",
+		  label: "Rental car – Avis",
 		  icon: "🚙",
 		  group_key: "travel",
 		  parent_key: "rental_car",
+		},
+	
+		budget_rentalcar: {
+		  key: "budget_rentalcar",
+		  label: "Rental car – Budget",
+		  icon: "🚙",
+		  group_key: "travel",
+		  parent_key: "rental_car",
+		},
+	
+		other_rentalcar: {
+		  key: "other_rentalcar",
+		  label: "Rental car – other",
+		  icon: "🚙",
+		  group_key: "travel",
+		  parent_key: "rental_car",
+		},
+		trusted_traveler: {
+		  key: "trusted_traveler",
+		  label: "Trusted Traveler – TSA PreCheck / Global Entry / NEXUS",
+		  icon: "🛂",
+		  group_key: "travel",
+		  parent_key: "trusted_traveler",
+		  sort_order: 999,
 		},
 	
 		// ---- Rideshare ----
@@ -4217,10 +4501,18 @@
 		  parent_key: "tickets",
 		},
 	
+		venuecollection: {
+		  key: "venuecollection",
+		  label: "AmEx Venue Collection concessions",
+		  icon: "🍿",
+		  group_key: "entertainment",
+		  parent_key: "concessions",
+		},
+	
 		// ---- Other ----
 		peloton: {
 		  key: "peloton",
-		  label: "Peloton membership",
+		  label: "Peloton equipment",
 		  icon: "🚲",
 		  group_key: "health",
 		},
@@ -4236,6 +4528,7 @@
 		  icon: "🛍️",
 		  group_key: "other",
 		  always_active: true,
+		  sort_order: 999,
 		},
 	
 		// ---- “Future-capable” leaves you said you want (not shown unless activated by your rules) ----
@@ -4283,14 +4576,14 @@
 		// ---- Transit ----
 		transit_general: {
 		  key: "transit_general",
-		  label: "Mass Transit – Subway / Bus / Train",
+		  label: "Mass transit – subway / bus / train",
 		  icon: "🚌",
 		  group_key: "transit",
 		  parent_key: "transit",
 		},
 		parking_tolls: {
 		  key: "parking_tolls",
-		  label: "Parking & Tolls",
+		  label: "Parking & tolls",
 		  icon: "🅿️",
 		  group_key: "transit",
 		  parent_key: "transit",
@@ -4306,14 +4599,14 @@
 		},
 		online_shopping: {
 		  key: "online_shopping",
-		  label: "Shopping – Online (general)",
+		  label: "Shopping – online (general)",
 		  icon: "🖥️",
 		  group_key: "shopping",
 		  parent_key: "online_shopping",
 		},
 		wholesale_clubs: {
 		  key: "wholesale_clubs",
-		  label: "Shopping – Wholesale Clubs",
+		  label: "Shopping – wholesale clubs",
 		  icon: "🏪",
 		  group_key: "shopping",
 		  parent_key: "wholesale_clubs",
@@ -4321,14 +4614,14 @@
 		},
 		department_stores: {
 		  key: "department_stores",
-		  label: "Shopping – Department Stores",
+		  label: "Shopping – department Stores",
 		  icon: "🏬",
 		  group_key: "shopping",
 		  parent_key: "retail",
 		},
 		home_goods: {
 		  key: "home_goods",
-		  label: "Shopping – Home Goods",
+		  label: "Shopping – home goods",
 		  icon: "🛋️",
 		  group_key: "shopping",
 		  parent_key: "retail",
@@ -4338,7 +4631,7 @@
 		// ---- Health ----
 		pharmacy: {
 		  key: "pharmacy",
-		  label: "Pharmacy / Drugstore",
+		  label: "Pharmacy / drugstore",
 		  icon: "💊",
 		  group_key: "health",
 		  parent_key: "health",
@@ -4346,7 +4639,7 @@
 		},
 		medical: {
 		  key: "medical",
-		  label: "Medical / Dental",
+		  label: "Medical / dental",
 		  icon: "🏥",
 		  group_key: "health",
 		  parent_key: "health",
@@ -4355,7 +4648,7 @@
 		// ---- Wellness (additions to existing group) ----
 		gym_fitness: {
 		  key: "gym_fitness",
-		  label: "Gym & Fitness",
+		  label: "Gym & fitness",
 		  icon: "🏋️",
 		  group_key: "health",
 		  parent_key: "health",
@@ -4365,7 +4658,7 @@
 		// ---- Gas (addition to existing group) ----
 		ev_charging: {
 		  key: "ev_charging",
-		  label: "EV Charging",
+		  label: "EV charging",
 		  icon: "🔋",
 		  group_key: "gas",
 		  parent_key: "gas",
@@ -4374,7 +4667,7 @@
 		// ---- Housing ----
 		rent: {
 		  key: "rent",
-		  label: "Housing – Rent",
+		  label: "Housing – rent",
 		  icon: "🏠",
 		  group_key: "housing",
 		  parent_key: "housing",
@@ -4382,7 +4675,7 @@
 		},
 		home_improvement: {
 		  key: "home_improvement",
-		  label: "Home Improvement",
+		  label: "Home improvement",
 		  icon: "🔨",
 		  group_key: "housing",
 		  parent_key: "housing",
@@ -4398,7 +4691,7 @@
 		},
 		telecom: {
 		  key: "telecom",
-		  label: "Phone & Internet",
+		  label: "Phone & internet",
 		  icon: "📱",
 		  group_key: "housing",
 		  parent_key: "housing",
@@ -4406,7 +4699,7 @@
 		},
 		pets: {
 		  key: "pets",
-		  label: "Other – Pets",
+		  label: "Other – pets",
 		  icon: "🐾",
 		  group_key: "other",
 		  // Pet food, vet, boarding — niche but a few co-branded cards have this
@@ -4711,8 +5004,8 @@
 	
 		const applied = Number(priorTx.cardBenefitApplied) || 0;
 		priorUsed += applied;
-	
-		if (applied > 0) {
+
+		if (applied > 0 || benefit.non_monetary) {
 		  priorTxCount += 1;
 		}
 	  }
@@ -4741,7 +5034,8 @@
 	
 		const applied = Number(tx.cardBenefitApplied) || 0;
 		used += applied;
-		if (applied > 0) txCount += 1;
+		const benefitMeta = CARD_BENEFITS_BY_ID[benefitId];
+		if (applied > 0 || benefitMeta?.non_monetary) txCount += 1;
 	  }
 	
 	  return { used, txCount, window };
@@ -5113,6 +5407,10 @@
 	  const ap = String(a.parent_key || "");
 	  const bp = String(b.parent_key || "");
 	  if (ap !== bp) return ap.localeCompare(bp);
+	
+	  const ao = a.sort_order != null ? Number(a.sort_order) : 500;
+	  const bo = b.sort_order != null ? Number(b.sort_order) : 500;
+	  if (ao !== bo) return ao - bo;
 	
 	  const al = String(a.label || "");
 	  const bl = String(b.label || "");
@@ -6028,6 +6326,7 @@
       doordash: "in the DoorDash app",
       doordash_groceries_platform: "in the DoorDash app",
       opentable_platform: "via OpenTable",
+      amex_travel: "American Express Travel",
     };
 
     const CHANNEL_LABELS_HTML = {
@@ -6037,6 +6336,10 @@
       chase_travel:
         'via the <a href="https://www.chase.com/travel" ' +
         'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+      
+      amex_travel:
+        'via <a href="https://travel.americanexpress.com" ' +
+        'target="_blank" rel="noopener noreferrer">American Express Travel</a>',
       
       united_rentalcar:
         'via <a href="https://cars.united.com" ' +
@@ -6272,10 +6575,11 @@
 	
 	  // Pre-seed all known card-native benefits from CARD_BENEFITS
 	  for (const benefit of CARD_BENEFITS) {
+		if (benefit.non_monetary) continue;
 		const cardBucket = out[benefit.card];
 		if (!cardBucket) continue;
-	
-		cardBucket.benefits[benefit.id] = {
+
+	cardBucket.benefits[benefit.id] = {
 		  id: benefit.id,
 		  label: benefit.label || benefit.id,
 		  labelHtml: null,
@@ -7078,7 +7382,8 @@
 	
 	  for (const benefit of CARD_BENEFITS) {
 		if (CARDS[benefit.card]?.is_active === false) continue;
-	
+		if (benefit.non_monetary) continue;
+
 		const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
 		const limit = Number(benefit.cap_amount || 0);
 		if (!(limit > 0)) continue;
@@ -7751,8 +8056,8 @@
 		reasonMainHtml: b.reason_yesHtml || null,
 		reasonMain: b.reason_yes || "",
 		reason: b.reason_yes || "",
-		remainingAmount: b.non_monetary ? null : candidate.remainingAmount, // allow for non-monetary benefits
-		totalCapAmount: b.non_monetary ? null : (Number(b.cap_amount) || 0), // allow for non-monetary benefits
+		remainingAmount: (b.non_monetary && b.cap_amount == null) ? null : candidate.remainingAmount,
+		totalCapAmount: (b.non_monetary && b.cap_amount == null) ? null : (Number(b.cap_amount) || 0),
 		categoryLabel: null,
 		recommendationSource: "card_benefit",
 		cardBenefitId: b.id
@@ -8974,7 +9279,7 @@
 		  <div class="rec-main-row">
 			<div class="rec-title-wrap">
 			  <div class="rec-title">${cardBadgeHtml} ${cardLabel}</div>
-			  <div class="rec-subtitle">Use via ${channelLabelHtml}</div>
+			  <div class="rec-subtitle">Use ${channelLabelHtml}</div>
 			</div>
 			${valueChipHtml}
 		  </div>
