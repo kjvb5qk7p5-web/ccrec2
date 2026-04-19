@@ -2464,7 +2464,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.11</p>
+<p class="blackmuted"><br>v6.8.12</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -6261,35 +6261,6 @@
       el.textContent = message || "";
     }
 
-    // Base categories (what used to be hard-coded in the HTML select)
-    const BASE_CATEGORIES = [
-      { value: "dining",              label: "🍔 Dining- Restaurants" },
-      { value: "resy",                label: "🍔 Dining- Resy" },
-      { value: "csr_opentable",       label: "🍔 Dining- OpenTable CSR partners" },
-      { value: "ag_dining",           label: "🥡 Dining- GrubHub/Seamless, Cheesecake, Goldbelly, Five Guys, Wine.com" },
-      { value: "doordash",            label: "🥡 Dining- DoorDash" },
-      { value: "uber_eats",           label: "🥡 Dining- Uber Eats" },
-      { value: "dunkin",              label: "🍩 Dunkin" },
-      { value: "groceries",           label: "🛒 Groceries- grocery store" },
-      { value: "doordash_groceries",  label: "🛒 Groceries- DoorDash" },
-      { value: "instacart",           label: "🛒 Groceries- Instacart" },
-      { value: "lyft",                label: "🚗 Rideshare- Lyft" },
-      { value: "rideshare_other",     label: "🚗 Rideshare- Uber" },
-      { value: "united_flight",       label: "✈️ Flight- United" },
-      { value: "delta_flight_threshold", label: "✈️ Flight– Delta" },
-      { value: "other_flight",        label: "✈️ Flight- other airline" },
-      { value: "marriott_hotel",      label: "🏨 Hotel- Marriott" },
-      { value: "theedit_hotel",       label: "🏨 Hotel- The Edit (Chase Travel collection)" },
-      { value: "renowned_hotel",      label: "🏨 Hotel- Renowned (United program)" },
-      { value: "delta_stays",         label: "🏨 Hotel- Delta Stays" },
-      { value: "other_hotel",         label: "🏨 Other lodging - hotel, motel, Airbnb" },
-      { value: "uq_rentalcar",        label: "🚙 Rental Car- Avis / Budget" },
-      { value: "peloton",             label: "🚲 Peloton membership" },
-      // remove from select to turn off // { value: "streaming",           label: "📺 Streaming" },
-      { value: "stubhub",             label: "🎫 StubHub / viagogo" },
-      { value: "other",               label: "🛍️ other / general spending" }
-    ];
-      
     function getCategoryLabel(categoryKey) {
 	  if (!categoryKey) return "";
 	
@@ -6297,13 +6268,7 @@
 	  const regLabel = getCategoryLabelFromRegistry(categoryKey);
 	  if (regLabel) return regLabel;
 	
-	  // 2) Legacy BASE_CATEGORIES fallback (keeps current behavior stable)
-	  if (typeof BASE_CATEGORIES !== "undefined" && Array.isArray(BASE_CATEGORIES)) {
-		const found = BASE_CATEGORIES.find(c => c && c.value === categoryKey);
-		if (found && found.label) return found.label;
-	  }
-	
-	  // 3) Final fallback
+	  // 2) Final fallback
 	  return String(categoryKey);
 	}
 
@@ -8258,10 +8223,6 @@
 	};
 	let categoryPickerSavedScrollY = 0;
 	
-	function getBaseCategoryMetaByValue(value) {
-	  return BASE_CATEGORIES.find(cat => cat.value === value) || null;
-	}
-	
 	function getMerchantBenefitByValue(value) {
 	  if (!value || !String(value).startsWith("mb:")) return null;
 	  const id = String(value).slice(3);
@@ -8275,15 +8236,8 @@
 		return merchantBenefit.merchant || "Merchant offer";
 	  }
 	
-	  // 1) CATEGORY_REGISTRY leaf label wins
 	  const regLabel = getCategoryLabelFromRegistry(value);
 	  if (regLabel) return regLabel;
-	
-	  // 2) Legacy BASE_CATEGORIES fallback
-	  const baseCat = getBaseCategoryMetaByValue(value);
-	  if (baseCat) {
-		return baseCat.label;
-	  }
 	
 	  return "Select purchase category";
 	}
@@ -8305,17 +8259,11 @@
 		if (leaf && String(leaf.label || "").trim() === raw) return leaf.key;
 	  }
 	
-	  // 3) BASE_CATEGORIES label -> value (handles “🛒 Groceries- grocery store”)
-	  if (typeof BASE_CATEGORIES !== "undefined" && Array.isArray(BASE_CATEGORIES)) {
-		const hit = BASE_CATEGORIES.find(c => String(c.label || "").trim() === raw);
-		if (hit && hit.value) return hit.value;
-	  }
-	
-	  // 4) Try stripping leading emoji + space (common format)
+	  // 3) Try stripping leading emoji + space (common format)
 	  const stripped = raw.replace(/^[^\w]+?\s+/, "").trim();
 	  if (stripped && getRegistryLeaf(CATEGORY_REGISTRY, stripped)) return stripped;
 	
-	  // 5) Nothing worked: return original (so fallbacks still have a shot)
+	  // 4) Nothing worked: return original (so fallbacks still have a shot)
 	  return raw;
 	}
 	
