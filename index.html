@@ -5447,11 +5447,17 @@
 	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, key);
 	  if (leaf && leaf.icon) return String(leaf.icon);
 	
-	  // 2) Direct group match
+	  // 2) Parent key match — find any leaf whose parent_key matches and use its icon
+	  const childLeaf = Object.values(CATEGORY_REGISTRY.leaves || {}).find(
+		l => l && l.parent_key === key && l.icon
+	  );
+	  if (childLeaf) return String(childLeaf.icon);
+	
+	  // 3) Direct group match
 	  const group = getRegistryGroup(CATEGORY_REGISTRY, key);
 	  if (group && group.icon) return String(group.icon);
 	
-	  // 3) Try coarsening through summary_sort_category_to_group
+	  // 4) Try coarsening through summary_sort_category_to_group
 	  const mappedGroupKey = CATEGORY_REGISTRY.summary_sort_category_to_group?.[key];
 	  if (mappedGroupKey) {
 		const mappedGroup = getRegistryGroup(CATEGORY_REGISTRY, mappedGroupKey);
