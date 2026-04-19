@@ -2464,7 +2464,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.12</p>
+<p class="blackmuted"><br>v6.8.13</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -8093,8 +8093,9 @@
 		reasonMainHtml: b.reason_yesHtml || null,
 		reasonMain: b.reason_yes || "",
 		reason: b.reason_yes || "",
-		remainingAmount: (b.non_monetary && b.cap_amount == null) ? null : candidate.remainingAmount,
-		totalCapAmount: (b.non_monetary && b.cap_amount == null) ? null : (Number(b.cap_amount) || 0),
+		remainingAmount: b.non_monetary ? null : candidate.remainingAmount,
+		totalCapAmount: b.non_monetary ? null : (Number(b.cap_amount) || 0),
+		spendCap: (b.non_monetary && b.cap_amount != null) ? Number(b.cap_amount) : null,
 		categoryLabel: null,
 		recommendationSource: "card_benefit",
 		cardBenefitId: b.id
@@ -9347,6 +9348,10 @@
 		bullets.push(
 		  `${rec.txCount} of ${rec.txCap} qualifying uses already used`
 		);
+	  }
+	
+	  if (rec.spendCap != null && !isNaN(rec.spendCap)) {
+		bullets.push(`Applies for the first $${formatUsageAmount(rec.spendCap)} of eligible spend`);
 	  }
 	
 	  if (rec.channel && CHANNEL_LABELS[rec.channel]) {
