@@ -2153,6 +2153,21 @@
 	  .mo-group-header.expiring {
 		background: var(--warning-soft);
 	  }
+	  
+	  .mo-category-subheader {
+		padding: 8px 12px 6px 12px;
+		font-size: 0.76rem;
+		font-weight: 800;
+		color: var(--text-soft);
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		background: #fff;
+		border-top: 1px solid var(--border);
+	  }
+	
+	  .mo-category-subheader:first-child {
+		border-top: 0;
+	  }
 	
 	  .mo-list {
 		display: flex;
@@ -3198,7 +3213,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.9c1</p>
+<p class="blackmuted"><br>v6.9.1</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5895,8 +5910,12 @@
 		if (!window) continue;
 	
 		const amount = Number(tx.amount) || 0;
-		const capAmount = Number(benefit.cap_amount) || 0;
-		const remainingAmount = Math.max(0, capAmount - priorUsed);
+		const capAmount = (benefit.non_monetary && benefit.cap_amount == null)
+		  ? null
+		  : (Number(benefit.cap_amount) || 0);
+		const remainingAmount = capAmount == null
+		  ? null
+		  : Math.max(0, capAmount - priorUsed);
 	
 		if (!benefit.non_monetary && remainingAmount <= 0) {
 		  unavailable.push({
@@ -8435,9 +8454,9 @@
 		} else if (benefit.cadence === "semiannual") {
 		  windowExplanation = getSemiannualLabel(today);
 		} else if (benefit.cadence === "annual") {
-		  windowExplanation = "Annual benefit window";
-		} else if (benefit.cadence === "anniversary" || benefit.cadence === "cardmember_year") {
-		  windowExplanation = "Cardmember year benefit window";
+		  windowExplanation = benefit.cadence_type === "card_anniversary"
+			? "Cardmember year benefit window"
+			: "Annual (calendar year) benefit window";
 		} else {
 		  windowExplanation = getBenefitStateTimeLabel(benefit, today);
 		}
@@ -8920,9 +8939,11 @@
 		let remainingValueText = "";
 		if (hasTotalCap && totalLimit != null) {
 		  remainingValueText = `$${formatUsageAmount(Math.max(0, totalLimit - used))} left`;
-		} else {
-		  remainingValueText = "$0 cap";
-		}
+		} else if (benefit.limitType === "per_tx" && benefit.limitValue != null) {
+		remainingValueText = `$${formatUsageAmount(benefit.limitValue)} / tx`;
+		  } else {
+			remainingValueText = "";
+		  }
 	
 		activeRows.push({
 		  id: benefit.id,
@@ -8998,6 +9019,32 @@
 		  </button>
 		`;
 	  }
+	  
+	  function renderRowsWithOptionalCategoryHeaders(rows) {
+		if (merchantOffersSortMode !== "category") {
+		  return rows.map(renderRow).join("");
+		}
+	
+		let lastCategory = null;
+		let html = "";
+	
+		for (const row of rows) {
+		  const categoryKey = row.filterKey || "other";
+	
+		  if (categoryKey !== lastCategory) {
+			html += `
+			  <div class="mo-category-subheader">
+				${escapeHtml(getSummarySortCategoryLabel(categoryKey))}
+			  </div>
+			`;
+			lastCategory = categoryKey;
+		  }
+	
+		  html += renderRow(row);
+		}
+	
+		return html;
+	  }
 	
 	  let html = `
 		<div class="mo-summary-shell">
@@ -9020,27 +9067,27 @@
 	  if (activeRows.length === 0) {
 		html += `<div class="mo-empty">No active merchant offers match this filter.</div>`;
 	  } else {
-		if (expiringRows.length > 0) {
-		  html += `
-			<div class="mo-group">
-			  <div class="mo-group-header expiring">Expiring soon</div>
-			  <div class="mo-list">
-				${expiringRows.map(renderRow).join("")}
-			  </div>
-			</div>
-		  `;
-		}
+		    if (expiringRows.length > 0) {
+			  html += `
+				<div class="mo-group">
+				  <div class="mo-group-header expiring">Expiring soon</div>
+				  <div class="mo-list">
+					${renderRowsWithOptionalCategoryHeaders(expiringRows)}
+				  </div>
+				</div>
+			  `;
+			}
 	
-		if (availableRows.length > 0) {
-		  html += `
-			<div class="mo-group">
-			  <div class="mo-group-header">Available</div>
-			  <div class="mo-list">
-				${availableRows.map(renderRow).join("")}
-			  </div>
-			</div>
-		  `;
-		}
+		    if (availableRows.length > 0) {
+			  html += `
+				<div class="mo-group">
+				  <div class="mo-group-header">Available</div>
+				  <div class="mo-list">
+					${renderRowsWithOptionalCategoryHeaders(availableRows)}
+				  </div>
+				</div>
+			  `;
+			}
 	  }
 	
 	  html += `</div>`;
