@@ -2083,6 +2083,234 @@
 		overflow-x: hidden;
 	  }
 	}
+	
+	  /* ==========================================
+		 PHASE 2A — Merchant Offers structured rows
+		 ========================================== */
+	
+	  .mo-summary-shell {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	  }
+	
+	  .mo-summary-topline {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+	  }
+	
+	  .mo-summary-counts {
+		font-size: 0.9rem;
+		color: var(--text-soft);
+		font-weight: 600;
+	  }
+	
+	  .mo-filter-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	  }
+	
+	  .mo-filter-chip {
+		appearance: none;
+		border: 1px solid var(--border);
+		background: #fff;
+		color: var(--text-soft);
+		border-radius: 999px;
+		padding: 7px 12px;
+		font-size: 0.84rem;
+		font-weight: 700;
+		line-height: 1;
+		cursor: pointer;
+		box-shadow: none;
+	  }
+	
+	  .mo-filter-chip.is-active {
+		background: var(--primary-soft);
+		color: var(--primary);
+		border-color: #bfd3ff;
+	  }
+	
+	  .mo-group {
+		border: 1px solid var(--border);
+		border-radius: 16px;
+		background: #fff;
+		overflow: hidden;
+	  }
+	
+	  .mo-group-header {
+		padding: 10px 12px;
+		background: #fbf9f5;
+		border-bottom: 1px solid var(--border);
+		font-size: 0.92rem;
+		font-weight: 800;
+		color: var(--text);
+	  }
+	
+	  .mo-group-header.expiring {
+		background: var(--warning-soft);
+	  }
+	
+	  .mo-list {
+		display: flex;
+		flex-direction: column;
+	  }
+	
+	  .mo-row {
+		width: 100%;
+		text-align: left;
+		border: 0;
+		border-top: 1px solid var(--border);
+		background: #fff;
+		padding: 0;
+		border-radius: 0;
+		color: inherit;
+	  }
+	
+	  .mo-row:first-child {
+		border-top: 0;
+	  }
+	
+	  .mo-row:hover,
+	  .mo-row:focus-visible {
+		background: #fcfbf8;
+		border-color: var(--border);
+		outline: none;
+	  }
+	
+	  .mo-row-inner {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		gap: 10px;
+		align-items: center;
+		padding: 11px 12px;
+	  }
+	
+	  .mo-icon {
+		width: 1.7rem;
+		min-width: 1.7rem;
+		text-align: center;
+		font-size: 1.15rem;
+		line-height: 1;
+	  }
+	
+	  .mo-main {
+		min-width: 0;
+	  }
+	
+	  .mo-merchant {
+		font-size: 0.98rem;
+		font-weight: 800;
+		color: var(--text);
+		line-height: 1.15;
+	  }
+	
+	  .mo-subline {
+		font-size: 0.84rem;
+		color: var(--text-soft);
+		line-height: 1.15;
+		margin-top: 3px;
+	  }
+	
+	  .mo-right {
+		text-align: right;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 6px;
+	  }
+	
+	  .mo-value {
+		font-size: 0.96rem;
+		font-weight: 800;
+		color: var(--text);
+		line-height: 1;
+		white-space: nowrap;
+	  }
+	
+	  .mo-status-pill {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 999px;
+		padding: 5px 9px;
+		font-size: 0.73rem;
+		font-weight: 800;
+		line-height: 1;
+		border: 1px solid var(--border);
+		white-space: nowrap;
+	  }
+	
+	  .mo-status-pill.available {
+		background: #f7fafc;
+		color: var(--text-soft);
+	  }
+	
+	  .mo-status-pill.expiring-soon {
+		background: var(--warning-soft);
+		color: var(--warning);
+		border-color: #f0dca5;
+	  }
+	
+	  .mo-expanded {
+		border-top: 1px dashed var(--border);
+		background: #fcfbf8;
+		padding: 10px 12px 11px 12px;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px 12px;
+	  }
+	
+	  .mo-expanded-item {
+		min-width: 0;
+	  }
+	
+	  .mo-expanded-label {
+		font-size: 0.72rem;
+		font-weight: 800;
+		color: var(--text-faint);
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		line-height: 1.1;
+		margin-bottom: 2px;
+	  }
+	
+	  .mo-expanded-value {
+		font-size: 0.84rem;
+		color: var(--text);
+		line-height: 1.2;
+		word-break: break-word;
+	  }
+	
+	  .mo-empty {
+		font-size: 0.88rem;
+		color: var(--text-soft);
+		padding: 6px 2px 0 2px;
+	  }
+	
+	  @media (max-width: 600px) {
+		.mo-row-inner {
+		  grid-template-columns: auto 1fr;
+		  align-items: start;
+		}
+	
+		.mo-right {
+		  grid-column: 2;
+		  flex-direction: row;
+		  align-items: center;
+		  justify-content: flex-start;
+		  gap: 8px;
+		  text-align: left;
+		  margin-top: 6px;
+		}
+	
+		.mo-expanded {
+		  grid-template-columns: 1fr;
+		}
+	  }
   </style>
 </head>
 <body>
@@ -2464,7 +2692,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.8.14</p>
+<p class="blackmuted"><br>v6.9a1</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -3929,7 +4157,7 @@
 		
 	];
 	
-	const BASE_CATEGORY_FALLBACKS = {
+	const BASE_CATEGORY_FALLBACKS = { // every category used in a card benefit must also have an entry here, and exist in CATEGORY_REGISTRY
 	  dining: {
 		card: "AG",
 		channel: "direct",
@@ -4213,7 +4441,7 @@
 
 	};
 	
-	const CATEGORY_MERCHANTS = {
+	const CATEGORY_MERCHANTS = {   // these categories must match what's in CATEGORY_REGISTRY
 	  gas: ["exxon", "mobil", "sunoco", "shell", "chevron", "bp", "amaco", "citgo", "valero", "wawa", "lukoil", "cumberland farms",
 		"gulf", "speedway", "quiktrip", "marathon"                          // ← new
 	  ],
@@ -4260,10 +4488,9 @@
 	  ],
 	};
 	
-	// CATEGORY_REGISTRY v0 — built from v6-7-5smarterIcons.html registries + rules:
-	// Active leaf if ANY of:
-	//  • Active merchant offer exists in that category (date valid, cap/maxTx not exhausted)
-	//  • Any card benefit uses that category
+	// CATEGORY_REGISTRY v1:
+	// Active leaf MUST exist if ANY any card benefit uses that category, and that category must also exist in BASE_CATEGORY_FALLBACKS
+	// Make sure category names used in CATEGORY_MERCHANTS have a match in this registry
 	// Active group if it has >= 1 active leaf
 	
 	const CATEGORY_REGISTRY = {
@@ -4996,6 +5223,8 @@
 	let categorySelectionWasAuto = false;
 	let cardBenefitsSortMode = "card";
 	let merchantOffersSortMode = "alpha";
+	let merchantOffersFilterMode = "all"; // for 6.9 UI
+	let expandedMerchantOfferId = null; // for 6.9 UI
 	let isAddingBenefit = false;
 	let editingBenefitId = null;
 	let openBenefitPopover = null;
@@ -6966,6 +7195,9 @@
 		  return;
 		}		
 
+		merchantOffersFilterMode = "all";
+		expandedMerchantOfferId = null;
+		
 		// Re-render everything
 		renderTransactions();
 		renderMerchantBenefits();
@@ -7673,7 +7905,319 @@
 	  updateSummarySortButtonStates();
 	}
 	
+	// New helper functions for v6.9 new UI
+	function getMerchantOfferSummaryFilterKey(benefit) {
+	  const category = getDisplayCategoryForMerchantBenefit(benefit) || "";
+	  const c = String(category).toLowerCase();
+	
+	  if (c.includes("dining")) return "dining";
+	  if (c.includes("restaurant")) return "dining";
+	  if (c.includes("travel")) return "travel";
+	  if (c.includes("hotel")) return "travel";
+	  if (c.includes("flight")) return "travel";
+	  if (c.includes("airline")) return "travel";
+	  if (c.includes("shopping")) return "shopping";
+	  if (c.includes("online_shopping")) return "shopping";
+	  if (c.includes("home_goods")) return "shopping";
+	  if (c.includes("clothing")) return "shopping";
+	
+	  return "other";
+	}
+	
+	function getMerchantOfferStatusLabel({ expiringSoon }) {
+	  return expiringSoon ? "Expiring soon" : "Available";
+	}
+	
+	function getMerchantOfferShortDescription(benefit) {
+	  const parts = [];
+	
+	  if (benefit.discountType === "percent") {
+		if (benefit.discountValue != null && !isNaN(benefit.discountValue)) {
+		  parts.push(`${Number(benefit.discountValue)}% back`);
+		}
+	  } else if (benefit.discountType === "amount") {
+		if (benefit.discountValue != null && !isNaN(benefit.discountValue)) {
+		  parts.push(`$${formatUsageAmount(benefit.discountValue)} off`);
+		}
+	  }
+	
+	  if (benefit.minSpend != null && !isNaN(benefit.minSpend) && Number(benefit.minSpend) > 0) {
+		parts.push(`on $${formatUsageAmount(benefit.minSpend)}+`);
+	  }
+	
+	  return parts.join(" ") || "Offer";
+	}
+	
+	function getMerchantOfferExpandedDetails(benefit, used, txCount, totalLimit, fullyUsed, expiringSoon, todayDate) {
+	  const details = [];
+	
+	  details.push({
+		label: "Card",
+		value: CARDS[benefit.card]?.label || benefit.card || ""
+	  });
+	
+	  details.push({
+		label: "Category",
+		value: getDisplayCategoryForMerchantBenefit(benefit) || ""
+	  });
+	
+	  details.push({
+		label: "End date",
+		value: formatBenefitEndDateDisplay(benefit.endDate, todayDate) || benefit.endDate || ""
+	  });
+	
+	  if (benefit.limitType === "total" && totalLimit != null) {
+		details.push({
+		  label: "Usage",
+		  value: `$${formatUsageAmount(used)} of $${formatUsageAmount(totalLimit)} used`
+		});
+	  } else {
+		details.push({
+		  label: "Usage",
+		  value: `$${formatUsageAmount(used)} used`
+		});
+	  }
+	
+	  if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+		details.push({
+		  label: "Transactions",
+		  value: `${txCount} of ${Number(benefit.maxTransactions)} used`
+		});
+	  }
+	
+	  if (benefit.searchTags && Array.isArray(benefit.searchTags) && benefit.searchTags.length > 0) {
+		details.push({
+		  label: "Tags",
+		  value: benefit.searchTags.join(", ")
+		});
+	  }
+	
+	  details.push({
+		label: "Status",
+		value: fullyUsed ? "Used up" : (expiringSoon ? "Expiring soon" : "Available")
+	  });
+	
+	  return details.filter(item => item.value != null && String(item.value).trim() !== "");
+	}
+	
+	// new v6.9 merchant offers state summary layout
 	function renderMerchantOffersSummary() {
+	  const txs = loadTransactions();
+	  const benefits = loadMerchantBenefits();
+	  const merchantState = computeMerchantState(txs, benefits);
+	  const el = document.getElementById("merchantOffersSummary");
+	  if (!el) return;
+	
+	  const todayDate = parseISODateLocal(formatTodayISO());
+	  const activeRows = [];
+	
+	  const benefitsSorted = [...benefits].sort((a, b) => {
+		const nameA = (a.merchant || "").toLowerCase();
+		const nameB = (b.merchant || "").toLowerCase();
+		if (merchantOffersSortMode === "category") {
+		  const catA = (getDisplayCategoryForMerchantBenefit(a) || "").toLowerCase();
+		  const catB = (getDisplayCategoryForMerchantBenefit(b) || "").toLowerCase();
+		  if (catA !== catB) return catA.localeCompare(catB);
+		}
+		if (nameA !== nameB) return nameA.localeCompare(nameB);
+	
+		const endA = parseISODateLocal(a.endDate);
+		const endB = parseISODateLocal(b.endDate);
+		const timeA = endA ? endA.getTime() : Infinity;
+		const timeB = endB ? endB.getTime() : Infinity;
+		return timeA - timeB;
+	  });
+	
+	  for (const benefit of benefitsSorted) {
+		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+		const used = Number(ms.used || 0);
+		const txCount = Number(ms.txCount || 0);
+	
+		let { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
+	
+		let exhaustedByTx = false;
+		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
+		  const maxTx = Number(benefit.maxTransactions);
+		  if (maxTx >= 0 && txCount >= maxTx) {
+			exhaustedByTx = true;
+		  }
+		}
+	
+		const hasTotalCap =
+		  benefit.limitType === "total" &&
+		  benefit.limitValue != null &&
+		  !isNaN(benefit.limitValue);
+	
+		const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
+		const fullyUsed =
+		  (hasTotalCap && totalLimit != null && used >= totalLimit) ||
+		  exhaustedByTx;
+	
+		if (expired || fullyUsed) {
+		  continue;
+		}
+	
+		const filterKey = getMerchantOfferSummaryFilterKey(benefit);
+	
+		if (merchantOffersFilterMode !== "all") {
+		  if (merchantOffersFilterMode === "expiring") {
+			if (!expiringSoon) continue;
+		  } else if (filterKey !== merchantOffersFilterMode) {
+			continue;
+		  }
+		}
+	
+		let remainingValueText = "";
+		if (hasTotalCap && totalLimit != null) {
+		  remainingValueText = `$${formatUsageAmount(Math.max(0, totalLimit - used))} left`;
+		} else {
+		  remainingValueText = "$0 cap";
+		}
+	
+		activeRows.push({
+		  id: benefit.id,
+		  icon: benefit.icon || getCategoryIcon(getDisplayCategoryForMerchantBenefit(benefit)),
+		  merchant: benefit.merchant || "Merchant offer",
+		  shortDescription: getMerchantOfferShortDescription(benefit),
+		  statusLabel: getMerchantOfferStatusLabel({ expiringSoon }),
+		  statusClass: expiringSoon ? "expiring-soon" : "available",
+		  remainingValueText,
+		  expiringSoon,
+		  filterKey,
+		  expandedDetails: getMerchantOfferExpandedDetails(
+			benefit,
+			used,
+			txCount,
+			totalLimit,
+			fullyUsed,
+			expiringSoon,
+			todayDate
+		  )
+		});
+	  }
+	
+	  const activeCount = activeRows.length;
+	  const expiringCount = activeRows.filter(r => r.expiringSoon).length;
+	
+	  const filters = [
+		{ key: "all", label: "All" },
+		{ key: "expiring", label: "Expiring" },
+		{ key: "dining", label: "Dining" },
+		{ key: "travel", label: "Travel" },
+		{ key: "shopping", label: "Shopping" }
+	  ];
+	
+	  const expiringRows = activeRows.filter(r => r.expiringSoon);
+	  const availableRows = activeRows.filter(r => !r.expiringSoon);
+	
+	  function renderRow(row) {
+		const isExpanded = expandedMerchantOfferId === row.id;
+		return `
+		  <button
+			type="button"
+			class="mo-row"
+			data-mo-row-id="${escapeHtml(row.id || "")}"
+			aria-expanded="${isExpanded ? "true" : "false"}"
+		  >
+			<div class="mo-row-inner">
+			  <div class="mo-icon">${escapeHtml(row.icon || "•")}</div>
+	
+			  <div class="mo-main">
+				<div class="mo-merchant">${escapeHtml(row.merchant || "")}</div>
+				<div class="mo-subline">${escapeHtml(row.shortDescription || "")}</div>
+			  </div>
+	
+			  <div class="mo-right">
+				<div class="mo-value">${escapeHtml(row.remainingValueText || "")}</div>
+				<div class="mo-status-pill ${escapeHtml(row.statusClass || "")}">
+				  ${escapeHtml(row.statusLabel || "")}
+				</div>
+			  </div>
+			</div>
+	
+			${isExpanded ? `
+			  <div class="mo-expanded">
+				${row.expandedDetails.map(item => `
+				  <div class="mo-expanded-item">
+					<div class="mo-expanded-label">${escapeHtml(item.label || "")}</div>
+					<div class="mo-expanded-value">${escapeHtml(item.value || "")}</div>
+				  </div>
+				`).join("")}
+			  </div>
+			` : ""}
+		  </button>
+		`;
+	  }
+	
+	  let html = `
+		<div class="mo-summary-shell">
+		  <div class="mo-summary-topline">
+			<div class="mo-summary-counts">${activeCount} active · ${expiringCount} expiring soon</div>
+			<div class="mo-filter-row">
+			  ${filters.map(filter => `
+				<button
+				  type="button"
+				  class="mo-filter-chip ${merchantOffersFilterMode === filter.key ? "is-active" : ""}"
+				  data-mo-filter="${escapeHtml(filter.key)}"
+				>
+				  ${escapeHtml(filter.label)}
+				</button>
+			  `).join("")}
+			</div>
+		  </div>
+	  `;
+	
+	  if (activeRows.length === 0) {
+		html += `<div class="mo-empty">No active merchant offers match this filter.</div>`;
+	  } else {
+		if (expiringRows.length > 0) {
+		  html += `
+			<div class="mo-group">
+			  <div class="mo-group-header expiring">Expiring soon</div>
+			  <div class="mo-list">
+				${expiringRows.map(renderRow).join("")}
+			  </div>
+			</div>
+		  `;
+		}
+	
+		if (availableRows.length > 0) {
+		  html += `
+			<div class="mo-group">
+			  <div class="mo-group-header">Available</div>
+			  <div class="mo-list">
+				${availableRows.map(renderRow).join("")}
+			  </div>
+			</div>
+		  `;
+		}
+	  }
+	
+	  html += `</div>`;
+	
+	  el.innerHTML = html;
+	
+	  el.querySelectorAll("[data-mo-filter]").forEach(btn => {
+		btn.addEventListener("click", () => {
+		  merchantOffersFilterMode = btn.getAttribute("data-mo-filter") || "all";
+		  expandedMerchantOfferId = null;
+		  renderMerchantOffersSummary();
+		});
+	  });
+	
+	  el.querySelectorAll("[data-mo-row-id]").forEach(btn => {
+		btn.addEventListener("click", () => {
+		  const id = btn.getAttribute("data-mo-row-id");
+		  expandedMerchantOfferId = expandedMerchantOfferId === id ? null : id;
+		  renderMerchantOffersSummary();
+		});
+	  });
+	
+	  updateSummarySortButtonStates();
+	}
+	
+	// old, pre v6.9 merchant offers state summary table (renamed with OLD)
+	function renderMerchantOffersSummaryOLD() {
 	  const txs = loadTransactions();
 	  const benefits = loadMerchantBenefits();
 	  const merchantState = computeMerchantState(txs, benefits);
@@ -9832,7 +10376,7 @@
       updateAdminToggleLabels();
     });
 
-	// Add merchant benefit
+	// Add merchant offer / merchant benefit
 	document.getElementById("btnAddBenefit").addEventListener("click", () => {
 	  if (isAddingBenefit) return;
 	  isAddingBenefit = true;
@@ -9982,6 +10526,9 @@
 		
 			const wasEditing = !!editingBenefitId;
 			exitEditMode();
+			
+			merchantOffersFilterMode = "all";
+			expandedMerchantOfferId = null;
 	
 			// Re-render everything that depends on merchant benefits
 			renderMerchantBenefits();
@@ -10083,6 +10630,10 @@
           showToast("⚠️ Unable to delete — storage full or private mode.");
           return;
         }
+        
+        merchantOffersFilterMode = "all";
+		expandedMerchantOfferId = null;
+        
         renderMerchantBenefits();
         populateCategorySelect();
         renderStateSummary();
@@ -10145,12 +10696,14 @@
 	
 	document.getElementById("btnSortMerchantOffersAlpha").addEventListener("click", () => {
 	  merchantOffersSortMode = "alpha";
+	  expandedMerchantOfferId = null; // new for v6.9 UI
 	  renderMerchantOffersSummary();
 	  updateSummarySortButtonStates();
 	});
 	
 	document.getElementById("btnSortMerchantOffersByCategory").addEventListener("click", () => {
 	  merchantOffersSortMode = "category";
+	  expandedMerchantOfferId = null; // new for 6.9 UI
 	  renderMerchantOffersSummary();
 	  updateSummarySortButtonStates();
 	});
