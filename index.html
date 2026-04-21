@@ -3213,7 +3213,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.9.2b</p>
+<p class="blackmuted"><br>v6.9.2c</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4926,8 +4926,7 @@
 	  airfare: ["airfare", "air fare"],
 	  rideshare: ["rideshare", "ride share", "car service"],
 	  rental_car: ["rental car", "car rental", "rent a car"],
-	  entertainment: ["entertainment", "show", "movie", "theater", "broadway", "concert"],
-	  tickets: ["tickets", "concert tickets", "event tickets"],
+	  entertainment: ["entertainment", "show", "movie", "theater", "broadway", "concert", "tickets", "concert tickets", "event tickets", "comedy", "performance"],
 	  eyewear: ["eyewear", "glasses", "frames", "contacts", "vision", "optical", "sunglasses"],
 	  clothing: ["clothes", "apparel", "shirt", "shirts", "pants", "shorts", "shoes", "clothing"],
 	  pharmacy: ["pharmacy", "drugstore", "rx", "prescription"],
@@ -5314,6 +5313,14 @@
 		},
 	
 		// ---- Entertainment ----
+		entertainment: {
+		  key: "entertainment",
+		  label: "Entertainment - concerts, sports, shows, performances",
+		  icon: "🎫",
+		  group_key: "entertainment",
+		  parent_key: "tickets",
+		},
+	
 		stubhub: {
 		  key: "stubhub",
 		  label: "StubHub / viagogo",
@@ -5342,6 +5349,7 @@
 		  label: "Streaming",
 		  icon: "📺",
 		  group_key: "entertainment",
+		  parent_key: "streaming",
 		},
 		other: {
 		  key: "other",
@@ -5736,7 +5744,7 @@
 		hertz_rentalcar: "travel",
 		national_rentalcar: "travel",
 		ticketmaster: "entertainment",
-		retail: "other",
+		retail: "shopping",
 		other: "other",
 	  },
 	};
