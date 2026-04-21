@@ -9302,6 +9302,7 @@
 	
 	  const rows = Object.entries(state);
 	  const merchantRows = Object.entries(merchantSummary);
+	  const today = new Date();
 	
 	  if (rows.length === 0 && merchantRows.length === 0) {
 		el.innerHTML = `<span class="annual-empty">No annual benefit data yet.</span>`;
