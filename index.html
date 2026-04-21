@@ -3213,7 +3213,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.9.1</p>
+<p class="blackmuted"><br>v6.9.1b</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -8777,18 +8777,15 @@
 	// New helper functions for v6.9 new UI
 	function getMerchantOfferSummaryFilterKey(benefit) {
 	  const category = getDisplayCategoryForMerchantBenefit(benefit) || "";
-	  const c = String(category).toLowerCase();
+	  if (!category || category === "other") return "other";
 	
-	  if (c.includes("dining")) return "dining";
-	  if (c.includes("restaurant")) return "dining";
-	  if (c.includes("travel")) return "travel";
-	  if (c.includes("hotel")) return "travel";
-	  if (c.includes("flight")) return "travel";
-	  if (c.includes("airline")) return "travel";
-	  if (c.includes("shopping")) return "shopping";
-	  if (c.includes("online_shopping")) return "shopping";
-	  if (c.includes("home_goods")) return "shopping";
-	  if (c.includes("clothing")) return "shopping";
+	  // 1) Direct leaf lookup — use the leaf's group_key
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, category);
+	  if (leaf?.group_key) return leaf.group_key;
+	
+	  // 2) summary_sort_category_to_group fallback (handles semantic keys like "hotel", "rental_car")
+	  const mapped = CATEGORY_REGISTRY.summary_sort_category_to_group?.[category];
+	  if (mapped) return mapped;
 	
 	  return "other";
 	}
@@ -8972,7 +8969,6 @@
 	
 	  const filters = [
 		{ key: "all", label: "All" },
-		{ key: "expiring", label: "Expiring" },
 		{ key: "dining", label: "Dining" },
 		{ key: "travel", label: "Travel" },
 		{ key: "shopping", label: "Shopping" }
@@ -9461,7 +9457,7 @@
 		html += `
 		  <div class="annual-merchant-shell">
 			<div class="annual-merchant-header">
-			  <div class="annual-merchant-title">Merchant Offers YTD</div>
+			  <div class="annual-merchant-title">Merchant Offers - ${today.getFullYear()}</div>
 			  <div class="annual-merchant-subtitle">Captured merchant-offer value this calendar year.</div>
 			</div>
 			<div class="annual-merchant-list">
