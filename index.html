@@ -3213,7 +3213,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.9.2c</p>
+<p class="blackmuted"><br>v6.9.2d</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -8178,7 +8178,13 @@
 		return false;
 	  }
 	
-	  // 1) Try CATEGORY_MERCHANTS first (strongest signal)
+	  // 1) Explicit saved category wins if it's a valid registry leaf
+	  if (benefit.category && benefit.category !== "other" &&
+		  getRegistryLeaf(CATEGORY_REGISTRY, benefit.category)) {
+		return benefit.category;
+	  }
+	
+	  // 2) Try CATEGORY_MERCHANTS (inference for unassigned/other offers)
 	  if (typeof CATEGORY_MERCHANTS !== "undefined") {
 		for (const [category, merchants] of Object.entries(CATEGORY_MERCHANTS)) {
 		  if (merchants.some(m => merchantMatches(m, merchant))) {
@@ -8187,7 +8193,7 @@
 		}
 	  }
 	
-	  // 2) Try MERCHANT_HINTS
+	  // 3) Try MERCHANT_HINTS
 	  if (typeof MERCHANT_HINTS !== "undefined") {
 		// first try exact key
 		const exactHints = MERCHANT_HINTS[merchant];
@@ -8817,7 +8823,11 @@
 	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, category);
 	  if (leaf?.group_key) return leaf.group_key;
 	
-	  // 2) summary_sort_category_to_group fallback (handles semantic keys like "hotel", "rental_car")
+	  // 2) Direct group match — category key is itself a group key
+	  const group = getRegistryGroup(CATEGORY_REGISTRY, category);
+	  if (group?.key) return group.key;
+	
+	  // 3) summary_sort_category_to_group fallback
 	  const mapped = CATEGORY_REGISTRY.summary_sort_category_to_group?.[category];
 	  if (mapped) return mapped;
 	
@@ -8915,9 +8925,9 @@
 		const nameA = (a.merchant || "").toLowerCase();
 		const nameB = (b.merchant || "").toLowerCase();
 		if (merchantOffersSortMode === "category") {
-		  const catA = (getDisplayCategoryForMerchantBenefit(a) || "").toLowerCase();
-		  const catB = (getDisplayCategoryForMerchantBenefit(b) || "").toLowerCase();
-		  if (catA !== catB) return catA.localeCompare(catB);
+		  const catA = getMerchantOfferSummaryFilterKey(a);
+		  const catB = getMerchantOfferSummaryFilterKey(b);
+		  if (catA !== catB) return compareSummarySortCategories(catA, catB);
 		}
 		if (nameA !== nameB) return nameA.localeCompare(nameB);
 	
