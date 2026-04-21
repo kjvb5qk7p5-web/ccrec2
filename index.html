@@ -3213,7 +3213,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.9.1b</p>
+<p class="blackmuted"><br>v6.9.2</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5641,7 +5641,7 @@
 		},
 		airbnb: {
 		  key: "airbnb",
-		  label: "Hotel – Airbnb",
+		  label: "Airbnb",
 		  icon: "🏡",
 		  group_key: "travel",
 		  parent_key: "lodging",
@@ -6683,6 +6683,37 @@
 		.map(([tag]) => tag);
 	}
 	
+	function getTaxonomyTagsForCategory(categoryKey) {
+	  // Derives implicit search tags from CATEGORY_REGISTRY for a given category key.
+	  // These supplement explicit searchTags so the scorer sees taxonomy context.
+	  if (!categoryKey || categoryKey === "other") return [];
+	
+	  const tags = new Set();
+	  const addNorm = str => { const n = normalizeSearchText(str); if (n) tags.add(n); };
+	
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, categoryKey);
+	  if (leaf) {
+		addNorm(leaf.label);
+		if (leaf.parent_key) addNorm(leaf.parent_key);
+		if (leaf.group_key) {
+		  addNorm(leaf.group_key);
+		  const group = getRegistryGroup(CATEGORY_REGISTRY, leaf.group_key);
+		  if (group?.label) addNorm(group.label);
+		}
+	  } else {
+		// No direct leaf — try summary_sort_category_to_group fallback
+		addNorm(categoryKey);
+		const mappedGroupKey = CATEGORY_REGISTRY.summary_sort_category_to_group?.[categoryKey];
+		if (mappedGroupKey) {
+		  addNorm(mappedGroupKey);
+		  const group = getRegistryGroup(CATEGORY_REGISTRY, mappedGroupKey);
+		  if (group?.label) addNorm(group.label);
+		}
+	  }
+	
+	  return [...tags];
+	}
+	
 	function enrichMerchantBenefitSearchFields(b) {
 	  const merchant = b?.merchant != null ? String(b.merchant).trim() : "";
 	  const userTagInput = b?.userTagInput != null ? String(b.userTagInput) : "";
@@ -6693,8 +6724,9 @@
 	
 	  const suggested = getSuggestedTagsForMerchant(merchant);
 	  const manual = parseSearchTagsInput(userTagInput);
+	  const taxonomy = getTaxonomyTagsForCategory(b?.category || "");
 	
-	  const searchTags = [...new Set([...suggested, ...manual, ...existing])];
+	  const searchTags = [...new Set([...suggested, ...manual, ...existing, ...taxonomy])];
 	
 	  return {
 		...b,
