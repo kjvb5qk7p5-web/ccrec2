@@ -3213,7 +3213,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.9.2</p>
+<p class="blackmuted"><br>v6.9.2b</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -6337,7 +6337,7 @@
 	  return out;
 	}
 	
-	function getActiveLeafCategoryKeys(registry, txs, benefits, todayDate) {
+	function getActiveLeafCategoryKeys(registry) {
 	  const active = new Set();
 	
 	  // A) Always-active leaves
@@ -6348,12 +6348,6 @@
 	  // B) Card benefit categories (always activate those leaves, if present in registry)
 	  const cardCats = getCardBenefitCategoryKeysFromFile();
 	  for (const c of cardCats) {
-		if (registryHasLeaf(registry, c)) active.add(c);
-	  }
-	
-	  // C) Active merchant offer categories (activate those leaves, if present in registry)
-	  const merchCats = getActiveMerchantOfferCategoryKeys(txs, benefits, todayDate);
-	  for (const c of merchCats) {
 		if (registryHasLeaf(registry, c)) active.add(c);
 	  }
 	
@@ -6382,7 +6376,7 @@
 	//   ...
 	// ]
 	function buildActiveCategoryGroups(registry, txs, benefits, todayDate) {
-	  const activeLeaves = getActiveLeafCategoryKeys(registry, txs, benefits, todayDate);
+	  const activeLeaves = getActiveLeafCategoryKeys(registry);
 	  const activeGroups = getActiveGroupKeysFromActiveLeaves(registry, activeLeaves);
 	
 	  // Build group objects
