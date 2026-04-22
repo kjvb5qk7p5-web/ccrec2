@@ -2198,10 +2198,10 @@
 	
 	  .mo-row-inner {
 		display: grid;
-		grid-template-columns: auto 1fr auto;
-		gap: 10px;
+		grid-template-columns: auto 1fr auto auto;
+		gap: 8px;
 		align-items: center;
-		padding: 11px 12px;
+		padding: 8px 12px;
 	  }
 	
 	  .mo-icon {
@@ -2235,7 +2235,13 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-end;
-		gap: 6px;
+		gap: 3px;
+	  }
+	
+	  .mo-badge-col {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
 	  }
 	
 	  .mo-value {
@@ -2251,9 +2257,9 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 999px;
-		padding: 5px 9px;
-		font-size: 0.73rem;
-		font-weight: 800;
+		padding: 3px 7px;
+		font-size: 0.7rem;
+		font-weight: 700;
 		line-height: 1;
 		border: 1px solid var(--border);
 		white-space: nowrap;
@@ -2307,21 +2313,6 @@
 	  }
 	
 	  @media (max-width: 600px) {
-		.mo-row-inner {
-		  grid-template-columns: auto 1fr;
-		  align-items: start;
-		}
-	
-		.mo-right {
-		  grid-column: 2;
-		  flex-direction: row;
-		  align-items: center;
-		  justify-content: flex-start;
-		  gap: 8px;
-		  text-align: left;
-		  margin-top: 6px;
-		}
-	
 		.mo-expanded {
 		  grid-template-columns: 1fr;
 		}
@@ -2428,10 +2419,10 @@
 	
 	  .cb-row-inner {
 		display: grid;
-		grid-template-columns: auto 1fr auto;
-		gap: 10px;
+		grid-template-columns: auto 1fr auto auto;
+		gap: 8px;
 		align-items: center;
-		padding: 11px 12px;
+		padding: 8px 12px;
 	  }
 	
 	  .cb-icon {
@@ -2465,7 +2456,13 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-end;
-		gap: 6px;
+		gap: 3px;
+	  }
+	
+	  .cb-badge-col {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
 	  }
 	
 	  .cb-value {
@@ -2481,9 +2478,9 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 999px;
-		padding: 5px 9px;
-		font-size: 0.73rem;
-		font-weight: 800;
+		padding: 3px 7px;
+		font-size: 0.7rem;
+		font-weight: 700;
 		line-height: 1;
 		border: 1px solid var(--border);
 		white-space: nowrap;
@@ -2543,21 +2540,6 @@
 	  }
 	
 	  @media (max-width: 600px) {
-		.cb-row-inner {
-		  grid-template-columns: auto 1fr;
-		  align-items: start;
-		}
-	
-		.cb-right {
-		  grid-column: 2;
-		  flex-direction: row;
-		  align-items: center;
-		  justify-content: flex-start;
-		  gap: 8px;
-		  text-align: left;
-		  margin-top: 6px;
-		}
-	
 		.cb-expanded {
 		  grid-template-columns: 1fr;
 		}
@@ -3213,7 +3195,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.9.2d</p>
+<p class="blackmuted"><br>v6.9.3</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -8611,6 +8593,8 @@
 				<div class="cb-value">${escapeHtml(usageText)}</div>
 				<div class="cb-status-pill ${escapeHtml(statusClass)}">${escapeHtml(statusLabel)}</div>
 			  </div>
+	
+			  <div class="cb-badge-col">${renderCardBadge(row.card)}</div>
 			</div>
 	
 			${isExpanded ? `
@@ -9044,6 +9028,8 @@
 				  ${escapeHtml(row.statusLabel || "")}
 				</div>
 			  </div>
+	
+			  <div class="mo-badge-col">${row.card ? renderCardBadge(row.card) : ""}</div>
 			</div>
 	
 			${isExpanded ? `
@@ -10452,10 +10438,10 @@
 	
 	  // Card page
 	  if (!groupedCards.length) {
-		  let message = "No card-benefit matches.";
+		  let message = "No card benefit matches.";
 		
 		  if (query && merchantCount > 0) {
-			message += ` ${merchantCount} merchant-offer match${merchantCount === 1 ? "" : "es"} on the other tab.`;
+			message += `<br><br>${merchantCount} merchant-offer match${merchantCount === 1 ? "" : "es"} on the other tab.`;
 		  }
 		
 		  cardPage.innerHTML = `<div class="category-picker-empty">${escapeHtml(message)}</div>`;
@@ -10475,10 +10461,10 @@
 	
 	  // Merchant page
 	  if (!merchantOffers.length) {
-		  let message = "No merchant-offer matches.";
+		  let message = "No merchant offer matches.";
 		
 		  if (query && cardCount > 0) {
-			message += ` ${cardCount} card-benefit match${cardCount === 1 ? "" : "es"} on the other tab.`;
+			message += `<br><br>${cardCount} card-benefit match${cardCount === 1 ? "" : "es"} on the other tab.`;
 		  }
 		
 		  merchantPage.innerHTML = `<div class="category-picker-empty">${escapeHtml(message)}</div>`;
