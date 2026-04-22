@@ -2243,7 +2243,6 @@
 		align-items: center;
 		flex-shrink: 0;
 		min-width: 32px;
-		background: red;
 	  }
 	
 	  .mo-value {
@@ -2465,6 +2464,7 @@
 		display: flex;
 		align-items: center;
 		flex-shrink: 0;
+		min-width: 32px;
 	  }
 	
 	  .cb-value {
@@ -3197,7 +3197,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.9.3test</p>
+<p class="blackmuted"><br>v6.9.3b</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -8384,12 +8384,12 @@
 	
 	function getCardBenefitUsageDisplay(row) {
 	  if (row.fullyUsed) {
-		return `$${formatUsageAmount(row.usedAmount || 0)} of $${formatUsageAmount(row.limitAmount || 0)} used`;
-	  }
-	  return `$${formatUsageAmount(row.remainingAmount || 0)} left`;
-	}
-	
-	function getCardBenefitExpandedDetails(row) {
+			return `$${formatUsageAmount(row.usedAmount || 0)} of $${formatUsageAmount(row.limitAmount || 0)} used`;
+		  }
+		  return `$${formatUsageAmount(row.remainingAmount || 0)} left`;
+		}
+		
+		function getCardBenefitExpandedDetails(row) {
 	  const details = [];
 	
 	  details.push({
@@ -8399,10 +8399,17 @@
 		  : `$${formatUsageAmount(row.usedAmount || 0)} used`
 	  });
 	
-	  if (row.txCap != null) {
+	  if (!row.fullyUsed && row.daysLeft != null && row.daysLeft >= 0) {
 		details.push({
-		  label: "Transactions",
-		  value: `${row.txCount || 0} of ${row.txCap} used`
+		  label: "Days left",
+		  value: `${row.daysLeft} day${row.daysLeft === 1 ? "" : "s"} left`
+		});
+	  }
+	
+	  if (row.windowExplanation) {
+		details.push({
+		  label: "Time window",
+		  value: row.windowExplanation
 		});
 	  }
 	
@@ -8413,17 +8420,10 @@
 		});
 	  }
 	
-	  if (row.windowExplanation) {
+	  if (row.txCap != null) {
 		details.push({
-		  label: "Window",
-		  value: row.windowExplanation
-		});
-	  }
-	
-	  if (row.daysLeft != null && row.daysLeft >= 0) {
-		details.push({
-		  label: "Days left",
-		  value: `${row.daysLeft} day${row.daysLeft === 1 ? "" : "s"} left`
+		  label: "Transactions",
+		  value: `${row.txCount || 0} of ${row.txCap} used`
 		});
 	  }
 	
@@ -8844,23 +8844,8 @@
 	  return parts.join(" ") || "Offer";
 	}
 	
-	function getMerchantOfferExpandedDetails(benefit, used, txCount, totalLimit, fullyUsed, expiringSoon, todayDate) {
+	function getMerchantOfferExpandedDetails(benefit, used, txCount, totalLimit, fullyUsed, expiringSoon, todayDate, daysLeft) {
 	  const details = [];
-	
-	  details.push({
-		label: "Card",
-		value: CARDS[benefit.card]?.label || benefit.card || ""
-	  });
-	
-	  details.push({
-		label: "Category",
-		value: getDisplayCategoryForMerchantBenefit(benefit) || ""
-	  });
-	
-	  details.push({
-		label: "End date",
-		value: formatBenefitEndDateDisplay(benefit.endDate, todayDate) || benefit.endDate || ""
-	  });
 	
 	  if (benefit.limitType === "total" && totalLimit != null) {
 		details.push({
@@ -8874,24 +8859,34 @@
 		});
 	  }
 	
+	  if (daysLeft != null && daysLeft >= 0) {
+		details.push({
+		  label: "Days left",
+		  value: `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`
+		});
+	  }
+	
+	  details.push({
+		label: "End date",
+		value: formatBenefitEndDateDisplay(benefit.endDate, todayDate) || benefit.endDate || ""
+	  });
+	
+	  details.push({
+		label: "Status",
+		value: fullyUsed ? "Used up" : (expiringSoon ? "Expiring soon" : "Available")
+	  });
+	
+	  details.push({
+		label: "Category",
+		value: getDisplayCategoryForMerchantBenefit(benefit) || ""
+	  });
+	
 	  if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
 		details.push({
 		  label: "Transactions",
 		  value: `${txCount} of ${Number(benefit.maxTransactions)} used`
 		});
 	  }
-	
-	  if (benefit.searchTags && Array.isArray(benefit.searchTags) && benefit.searchTags.length > 0) {
-		details.push({
-		  label: "Tags",
-		  value: benefit.searchTags.join(", ")
-		});
-	  }
-	
-	  details.push({
-		label: "Status",
-		value: fullyUsed ? "Used up" : (expiringSoon ? "Expiring soon" : "Available")
-	  });
 	
 	  return details.filter(item => item.value != null && String(item.value).trim() !== "");
 	}
@@ -8984,14 +8979,20 @@
 		  expiringSoon,
 		  filterKey,
 		  expandedDetails: getMerchantOfferExpandedDetails(
-			benefit,
-			used,
-			txCount,
-			totalLimit,
-			fullyUsed,
-			expiringSoon,
-			todayDate
-		  )
+			  benefit,
+			  used,
+			  txCount,
+			  totalLimit,
+			  fullyUsed,
+			  expiringSoon,
+			  todayDate,
+			  (() => {
+				if (!benefit.endDate) return null;
+				const end = parseISODateLocal(benefit.endDate);
+				if (!end) return null;
+				return Math.max(0, Math.ceil((end.getTime() - todayDate.getTime()) / 86400000));
+			  })()
+			)
 		});
 	  }
 	
