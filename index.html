@@ -8972,6 +8972,7 @@
 	
 		activeRows.push({
 		  id: benefit.id,
+		  card: benefit.card || "",
 		  icon: benefit.icon || getCategoryIcon(getDisplayCategoryForMerchantBenefit(benefit)),
 		  merchant: benefit.merchant || "Merchant offer",
 		  shortDescription: getMerchantOfferShortDescription(benefit),
