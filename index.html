@@ -5773,7 +5773,7 @@
 	};
 	
 	// state variables
-	let showAdminPanel = true; // set to true to show the admin/debug panel
+	let showAdminPanel = false; // set to true to show the admin/debug panel
 	let categorySelectionWasAuto = false;
 	let cardBenefitsSortMode = "card";
 	let merchantOffersSortMode = "alpha";
@@ -12008,6 +12008,13 @@
 	document.addEventListener("keydown", (e) => {
 	  if (e.key === "Escape" && categoryPickerState.open) {
 		closeCategoryPicker();
+	  }
+	});
+	
+	document.addEventListener("keydown", (e) => {
+	  if (e.shiftKey && (e.ctrlKey || e.metaKey) && e.key === "|") {
+		showAdminPanel = !showAdminPanel;
+		renderAdminPanel();
 	  }
 	});
 
