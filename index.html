@@ -2910,7 +2910,7 @@
       <div class="section-title-wrap">
         <div class="section-kicker">At a glance</div>
         <h3 style="margin:0;">Right now</h3>
-        <p class="section-subtitle">Available credits, active offers, recent value captured.</p>
+        <p class="section-subtitle">Available credits, active offers, recent value captured</p>
       </div>
     </div>
     <div id="rightNowGrid"></div>
@@ -2920,9 +2920,9 @@
   <div class="card summary-card-shell">
     <div class="section-header-row">
       <div class="section-title-wrap">
-        <div class="section-kicker">Native credits</div>
+        <div class="section-kicker">Native rewards</div>
         <h3 style="margin:0;">Credit Card Benefits</h3>
-        <p class="section-subtitle">Recurring credits tied to your cards.</p>
+        <p class="section-subtitle">Recurring credits tied to your cards</p>
       </div>
 
       <div class="sort-pill-row">
@@ -2939,7 +2939,7 @@
       <div class="section-title-wrap">
         <div class="section-kicker">Additional time-bound opportunities</div>
         <h3 style="margin:0;">Merchant Offers</h3>
-        <p class="section-subtitle">Statement credits and discounts you've added.</p>
+        <p class="section-subtitle">Statement credits and discounts you've added</p>
       </div>
 
       <div class="sort-pill-row">
@@ -2956,7 +2956,7 @@
       <div class="section-title-wrap">
         <div class="section-kicker">Longer view</div>
         <h3 style="margin:0;">Annual Summaries</h3>
-        <p class="section-subtitle">What your annual fees bought you, and whether the math worked out.</p>
+        <p class="section-subtitle">Your annual fees, and whether the math worked out</p>
       </div>
     </div>
     <div id="rollingAnnualSummary"></div>
@@ -2968,7 +2968,7 @@
       <div class="section-title-wrap">
         <div class="section-kicker">Admin + maintenance</div>
         <h3 style="margin:0;">Manage Merchant Offers</h3>
-        <p class="section-subtitle">Add, edit, or remove offers. Tap to expand.</p>
+        <p class="section-subtitle">Add, edit, or remove offers</p>
       </div>
 
       <button id="toggleBenefitsBtn" class="admin-toggle-btn" type="button">
@@ -3098,7 +3098,7 @@
       <div class="section-title-wrap">
         <div class="section-kicker">History + audit</div>
         <h3 style="margin:0;">Logged Purchases</h3>
-        <p class="section-subtitle">Your transaction log. Export or import backups.</p>
+        <p class="section-subtitle">Your transaction log; Export or import backups</p>
       </div>
 
       <button id="toggleLogBtn" class="admin-toggle-btn" type="button">
@@ -3233,7 +3233,7 @@
     </div>
   </div>
 	
-<p class="blackmuted"><br>v6.9.4c</p>
+<p class="blackmuted"><br>v6.9.5</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -8372,19 +8372,19 @@
 	
 	  const items = [
 		{
-		  label: "Native credits open",
+		  label: "Native card benefits available",
 		  value: `${availableNative} active`,
-		  meta: `$${formatUsageAmount(nativeRemainingTotal)} still available across current windows`,
+		  meta: `$${formatUsageAmount(nativeRemainingTotal)} still available across current time windows`,
 		  className: availableNative > 0 ? "is-success" : ""
 		},
 		{
-		  label: "Merchant offers live",
+		  label: "Merchant offers available",
 		  value: `${activeMerchantCount} live`,
 		  meta: nextExpiringText,
 		  className: nextExpiring ? "is-warning" : ""
 		},
 		{
-		  label: "Recent captured value",
+		  label: "Recent value captured",
 		  value: `$${formatUsageAmount(recentSavings)}`,
 		  meta: latestTxs.length > 0
 			? `Across your ${latestTxs.length} most recent logged purchases`
@@ -8444,7 +8444,7 @@
 	
 	  if (!row.fullyUsed && row.daysLeft != null && row.daysLeft >= 0) {
 		details.push({
-		  label: "Days left",
+		  label: "Time remaining",
 		  value: `${row.daysLeft} day${row.daysLeft === 1 ? "" : "s"} left`
 		});
 	  }
@@ -8510,13 +8510,13 @@
 	
 		let windowExplanation = "";
 		if (benefit.cadence === "monthly") {
-		  windowExplanation = "Monthly benefit window";
+		  windowExplanation = "Monthly";
 		} else if (benefit.cadence === "semiannual") {
 		  windowExplanation = getSemiannualLabel(today);
 		} else if (benefit.cadence === "annual") {
 		  windowExplanation = benefit.cadence_type === "card_anniversary"
-			? "Cardmember year benefit window"
-			: "Annual (calendar year) benefit window";
+			? "Annual from cardmember anniversary"
+			: "Annual (calendar year)";
 		} else {
 		  windowExplanation = getBenefitStateTimeLabel(benefit, today);
 		}
@@ -8897,7 +8897,7 @@
 	
 	  if (daysLeft != null && daysLeft >= 0) {
 		details.push({
-		  label: "Days left",
+		  label: "Time remaining",
 		  value: `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`
 		});
 	  }
@@ -9549,7 +9549,7 @@
 		  <div class="annual-merchant-shell">
 			<div class="annual-merchant-header">
 			  <div class="annual-merchant-title">Merchant Offers - ${today.getFullYear()}</div>
-			  <div class="annual-merchant-subtitle">Captured merchant-offer value this calendar year.</div>
+			  <div class="annual-merchant-subtitle">Captured merchant offer value this calendar year</div>
 			</div>
 			<div class="annual-merchant-list">
 				${merchantRows.map(([card, summary]) => `
