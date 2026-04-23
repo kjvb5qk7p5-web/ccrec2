@@ -41,8 +41,7 @@
     }
 
     .new-purchase-card {
-      border-color: #0b6efd;
-      border-width: 2px;
+      border-color: var(--primary-line);
     }
   
     .new-purchase-card label {
@@ -1514,14 +1513,21 @@
     border-color: #a7c4ff;
     box-shadow: 0 0 0 4px rgba(43, 111, 243, 0.10);
   }
-
-  .new-purchase-card {
-    background:
-      radial-gradient(circle at top right, rgba(255, 243, 220, 0.85), transparent 34%),
-      linear-gradient(180deg, #ffffff 0%, #fdfaf5 100%);
+  
+  .hero-info-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fdfaf5 100%);
     border: 1px solid #e9dcc7;
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+  }
+
+  .new-purchase-card {
+    background: linear-gradient(180deg, #f0f6ff 0%, #ffffff 40%);
+    border: 1px solid var(--primary-line);
+    border-top: 3px solid var(--primary);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(43, 111, 243, 0.10);
     padding-top: 18px;
   }
 
@@ -2839,14 +2845,16 @@
 <body>
   <div id="globalStatus" style="margin-bottom:10px;"></div>
 
-  <div class="card new-purchase-card">
+  <div class="card hero-info-card">
     <div class="section-kicker"></div>
     <h2 class="card-reward-title">Card Value Maximizer</h2>
 
     <div style="display:flex; justify-content:center;">
       <div id="activeCardsSummary" class="active-cards-strip"></div>
     </div>
+  </div>
 
+  <div class="card new-purchase-card">
     <div class="section-header-row" style="margin-top: 2px; margin-bottom: 12px;">
       <div class="section-title-wrap">
         <div class="section-kicker">Instant card recommendation</div>
