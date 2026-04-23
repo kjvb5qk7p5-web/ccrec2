@@ -1251,6 +1251,13 @@
 	  padding: 12px 2px;
 	}
 	
+	.category-picker-empty-hint {
+	  margin-top: 10px;
+	  font-size: 0.85rem;
+	  color: var(--text-soft);
+	  padding: 0 4px;
+	}
+	
 	.merchant-offer-row {
 	  padding-top: 8px;
 	  padding-bottom: 2px;
@@ -2595,6 +2602,17 @@
 		margin-top: 2px;
 		margin-bottom: 10px;
 	  }
+	  
+	  .annual-totals-panel {
+		border-top: 2px solid var(--border-strong);
+		background: #f9f9f7;
+	  }
+	
+	  .annual-merchant-totals-row {
+		border-top: 2px solid var(--border-strong);
+		font-weight: 700;
+		background: #f9f9f7;
+	  }
 	
 	  .annual-pct-line {
 		display: flex;
@@ -3197,7 +3215,7 @@
 	  </div>
 	</div>
 	
-<p class="blackmuted"><br>v6.9.3b</p>
+<p class="blackmuted"><br>v6.9.4</p>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -7149,10 +7167,10 @@
       stubhub_platform: "on StubHub / viagogo",
       instacart_platform: "on Instacart",
       peloton_platform: "on the Peloton site / app",
-      resy: "via Resy (book on Resy)",
+      resy: "using this card directly at the restaurant; book on Resy in advance",
       doordash: "in the DoorDash app",
       doordash_groceries_platform: "in the DoorDash app",
-      opentable_platform: "via OpenTable",
+      opentable_platform: "using this card directly at the restaurant; book on OpenTable in advance",
       amex_travel: "American Express Travel",
     };
 
@@ -8878,7 +8896,7 @@
 	
 	  details.push({
 		label: "Category",
-		value: getDisplayCategoryForMerchantBenefit(benefit) || ""
+		value: getCategoryLabel(getDisplayCategoryForMerchantBenefit(benefit)) || ""
 	  });
 	
 	  if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
@@ -9486,6 +9504,26 @@
 		`;
 	  }
 	
+	  // CB totals panel
+	  if (rows.length > 1) {
+		const grandTotal = rows.reduce((sum, [, d]) => sum + Number(d.totalUsed || 0), 0);
+		html += `
+		  <div class="annual-card-panel annual-totals-panel">
+			<div class="annual-card-main">
+			  <div class="annual-card-top">
+				<div class="annual-card-name">All Cards</div>
+			  </div>
+			  <div class="annual-metrics">
+				<div class="annual-metric">
+				  <div class="annual-metric-label">Total benefits used</div>
+				  <div class="annual-metric-value">$${formatMoneyWhole(grandTotal)}</div>
+				</div>
+			  </div>
+			</div>
+		  </div>
+		`;
+	  }
+	
 	  html += `</div>`;
 	
 	  if (merchantRows.length > 0) {
@@ -9496,17 +9534,26 @@
 			  <div class="annual-merchant-subtitle">Captured merchant-offer value this calendar year.</div>
 			</div>
 			<div class="annual-merchant-list">
-			  ${merchantRows.map(([card, summary]) => `
-				<div class="annual-merchant-row">
-				  <div class="annual-merchant-card">
-					${renderCardBadge(card)}
-					<span>${escapeHtml(CARDS[card]?.label || card)}</span>
+				${merchantRows.map(([card, summary]) => `
+				  <div class="annual-merchant-row">
+					<div class="annual-merchant-card">
+					  ${renderCardBadge(card)}
+					  <span>${escapeHtml(CARDS[card]?.label || card)}</span>
+					</div>
+					<div class="annual-merchant-uses">${Number(summary.uses || 0)} use${Number(summary.uses || 0) === 1 ? "" : "s"}</div>
+					<div class="annual-merchant-total">$${formatMoneyWhole(summary.total || 0)}</div>
 				  </div>
-				  <div class="annual-merchant-uses">${Number(summary.uses || 0)} use${Number(summary.uses || 0) === 1 ? "" : "s"}</div>
-				  <div class="annual-merchant-total">$${formatMoneyWhole(summary.total || 0)}</div>
-				</div>
-			  `).join("")}
-			</div>
+				`).join("")}
+				${merchantRows.length > 1 ? `
+				  <div class="annual-merchant-row annual-merchant-totals-row">
+					<div class="annual-merchant-card"><strong>All cards</strong></div>
+					<div class="annual-merchant-uses">
+					  ${merchantRows.reduce((sum, [, s]) => sum + Number(s.uses || 0), 0)} use${merchantRows.reduce((sum, [, s]) => sum + Number(s.uses || 0), 0) === 1 ? "" : "s"}
+					</div>
+					<div class="annual-merchant-total">$${formatMoneyWhole(merchantRows.reduce((sum, [, s]) => sum + Number(s.total || 0), 0))}</div>
+				  </div>
+				` : ""}
+			  </div>
 		  </div>
 		`;
 	  }
@@ -10442,13 +10489,10 @@
 	
 	  // Card page
 	  if (!groupedCards.length) {
-		  let message = "No card benefit matches.";
-		
-		  if (query && merchantCount > 0) {
-			message += `<br><br>${merchantCount} merchant-offer match${merchantCount === 1 ? "" : "es"} on the other tab.`;
-		  }
-		
-		  cardPage.innerHTML = `<div class="category-picker-empty">${escapeHtml(message)}</div>`;
+		  const hint = (query && merchantCount > 0)
+			? `<div class="category-picker-empty-hint">${merchantCount} merchant-offer match${merchantCount === 1 ? "" : "es"} on the other tab.</div>`
+			: "";
+		  cardPage.innerHTML = `<div class="category-picker-empty">No card-benefit matches.</div>${hint}`;
 		} else {
 		cardPage.innerHTML = groupedCards.map(group => `
 		  <div class="category-picker-group">
@@ -10465,13 +10509,10 @@
 	
 	  // Merchant page
 	  if (!merchantOffers.length) {
-		  let message = "No merchant offer matches.";
-		
-		  if (query && cardCount > 0) {
-			message += `<br><br>${cardCount} card-benefit match${cardCount === 1 ? "" : "es"} on the other tab.`;
-		  }
-		
-		  merchantPage.innerHTML = `<div class="category-picker-empty">${escapeHtml(message)}</div>`;
+		  const hint = (query && cardCount > 0)
+			? `<div class="category-picker-empty-hint">${cardCount} card-benefit match${cardCount === 1 ? "" : "es"} on the other tab.</div>`
+			: "";
+		  merchantPage.innerHTML = `<div class="category-picker-empty">No merchant-offer matches.</div>${hint}`;
 		} else {
 		merchantPage.innerHTML = merchantOffers.map(item => renderCategoryPickerRow({
 		  value: item.value,
