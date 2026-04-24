@@ -435,7 +435,7 @@
 	  border: none;
 	  cursor: pointer;
 	  display: block;
-	  margin: 8px auto;
+	  margin: 8px 0;
 	  padding: 4px 8px;
 	  border-radius: 6px;
 	}
@@ -11373,6 +11373,76 @@
 	  syncChannelDropdownVisibility();
 	}
 
+	function getCurrentPurchaseFromForm() {
+	  const amount = document.getElementById("amount").value;
+	  const date = document.getElementById("date").value;
+	  const categoryValue = getSelectedCategory();
+	
+	  if (!amount || !date) return null;
+	
+	  const benefits = loadMerchantBenefits();
+	
+	  if (categoryValue.startsWith("mb:")) {
+		const id = categoryValue.slice(3);
+		const benefit = findBenefitById(id, benefits);
+		if (!benefit) return null;
+	
+		return {
+		  amount: String(amount),
+		  date,
+		  category: benefit.category,
+		  merchantBenefitId: id,
+		};
+	  }
+	
+	  return {
+		amount: String(amount),
+		date,
+		category: categoryValue,
+		merchantBenefitId: null,
+	  };
+	}
+	
+	function purchaseMatchesLastRecommendation(currentPurchase, lastPurchase) {
+	  if (!currentPurchase || !lastPurchase) return false;
+	
+	  return (
+		Number(currentPurchase.amount) === Number(lastPurchase.amount) &&
+		String(currentPurchase.date) === String(lastPurchase.date) &&
+		String(currentPurchase.category) === String(lastPurchase.category) &&
+		String(currentPurchase.merchantBenefitId || "") === String(lastPurchase.merchantBenefitId || "")
+	  );
+	}
+
+	// 6.7 helper to reset default category for purchase window
+	function setDefaultPurchaseCategory() {
+	  const select = document.getElementById("category");
+	  if (!select) {
+		setSelectedCategory("");
+		return;
+	  }
+	
+	  const diningOption = select.querySelector('option[value="dining"]');
+	  if (diningOption) {
+		setSelectedCategory("dining");
+		return;
+	  }
+	
+	  const firstCardBenefitOption = Array.from(select.options).find(
+		opt => opt.value && !String(opt.value).startsWith("mb:")
+	  );
+	  if (firstCardBenefitOption) {
+		setSelectedCategory(firstCardBenefitOption.value);
+		return;
+	  }
+	
+	  if (select.options.length > 0) {
+		setSelectedCategory(select.options[0].value);
+	  } else {
+		setSelectedCategory("");
+	  }
+	}
+
     // Recommend button
     document.getElementById("btnRecommend").addEventListener("click", () => {
       const amount = document.getElementById("amount").value;
@@ -11457,77 +11527,8 @@
 		  }
 	
 		  syncChannelDropdownVisibility();
+		  renderAdminPanel();
 		});
-
-	function getCurrentPurchaseFromForm() {
-	  const amount = document.getElementById("amount").value;
-	  const date = document.getElementById("date").value;
-	  const categoryValue = getSelectedCategory();
-	
-	  if (!amount || !date) return null;
-	
-	  const benefits = loadMerchantBenefits();
-	
-	  if (categoryValue.startsWith("mb:")) {
-		const id = categoryValue.slice(3);
-		const benefit = findBenefitById(id, benefits);
-		if (!benefit) return null;
-	
-		return {
-		  amount: String(amount),
-		  date,
-		  category: benefit.category,
-		  merchantBenefitId: id,
-		};
-	  }
-	
-	  return {
-		amount: String(amount),
-		date,
-		category: categoryValue,
-		merchantBenefitId: null,
-	  };
-	}
-	
-	function purchaseMatchesLastRecommendation(currentPurchase, lastPurchase) {
-	  if (!currentPurchase || !lastPurchase) return false;
-	
-	  return (
-		Number(currentPurchase.amount) === Number(lastPurchase.amount) &&
-		String(currentPurchase.date) === String(lastPurchase.date) &&
-		String(currentPurchase.category) === String(lastPurchase.category) &&
-		String(currentPurchase.merchantBenefitId || "") === String(lastPurchase.merchantBenefitId || "")
-	  );
-	}
-
-	// 6.7 helper to reset default category for purchase window
-	function setDefaultPurchaseCategory() {
-	  const select = document.getElementById("category");
-	  if (!select) {
-		setSelectedCategory("");
-		return;
-	  }
-	
-	  const diningOption = select.querySelector('option[value="dining"]');
-	  if (diningOption) {
-		setSelectedCategory("dining");
-		return;
-	  }
-	
-	  const firstCardBenefitOption = Array.from(select.options).find(
-		opt => opt.value && !String(opt.value).startsWith("mb:")
-	  );
-	  if (firstCardBenefitOption) {
-		setSelectedCategory(firstCardBenefitOption.value);
-		return;
-	  }
-	
-	  if (select.options.length > 0) {
-		setSelectedCategory(select.options[0].value);
-	  } else {
-		setSelectedCategory("");
-	  }
-	}
 
 	// Save transaction
 	function savePurchase() {
@@ -12165,6 +12166,7 @@
 	  }
 	});
 	
+	//shortcut key for toggling the admin panel
 	document.addEventListener("keydown", (e) => {
 	  if (e.shiftKey && (e.ctrlKey || e.metaKey) && e.key === "Q") {
 		showAdminPanel = !showAdminPanel;
