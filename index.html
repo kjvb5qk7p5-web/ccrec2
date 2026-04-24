@@ -429,6 +429,20 @@
       color: #000;
       font-size: 0.8rem;
     }
+    
+    .version-toggle-btn {
+	  background: none;
+	  border: none;
+	  cursor: pointer;
+	  display: block;
+	  margin: 8px auto;
+	  padding: 4px 8px;
+	  border-radius: 6px;
+	}
+	
+	.version-toggle-btn:hover {
+	  background: rgba(0,0,0,0.05);
+	}
 
     .credit-met {
       color: green;
@@ -3233,7 +3247,7 @@
     </div>
   </div>
 	
-<p class="blackmuted"><br>v6.9.5</p>
+<button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.0.0</button>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -3290,11 +3304,20 @@
 		sort_order: 10,
 	
 		points_currency: "UR",
-		transferable_points: true,
-		is_active: true
-	  },
-	
-	  AG: {
+	  transferable_points: true,
+	  is_active: true,
+	  pointValue: 0.02,
+	  earningRules: [
+		{ rate: 10, channel: null,           matchLeaves: ["peloton"] },
+		{ rate: 8,  channel: "chase_travel", matchGroups: ["travel"] },
+		{ rate: 5,  channel: "lyft_app",     matchLeaves: ["lyft"] },
+		{ rate: 4,  channel: null,           matchParents: ["flights", "lodging"] },
+		{ rate: 3,  channel: null,           matchGroups: ["dining"] },
+		{ rate: 1,  isBase: true }
+	  ]
+	},
+
+	AG: {
 		code: "AG",
 		short: "AG",
 		label: "American Express Gold",
@@ -3313,11 +3336,19 @@
 		sort_order: 20,
 	
 		points_currency: "MR",
-		transferable_points: true,
-		is_active: true
-	  },
-	
-	  UQ: {
+	  transferable_points: true,
+	  is_active: true,
+	  pointValue: 0.02,
+	  earningRules: [
+		{ rate: 4, channel: null,           matchGroups: ["dining"] },
+		{ rate: 4, channel: null,           matchGroups: ["groceries"] },
+		{ rate: 3, channel: null,           matchParents: ["flights"] },
+		{ rate: 2, channel: "amex_travel",  matchParents: ["lodging", "rental_car"] },
+		{ rate: 1, isBase: true }
+	  ]
+	},
+
+	UQ: {
 		code: "UQ",
 		short: "UQ",
 		label: "United Quest",
@@ -3336,11 +3367,21 @@
 		sort_order: 30,
 	
 		points_currency: "UA",
-		transferable_points: false,
-		is_active: true
-	  },
-	
-	  MB: {
+	  transferable_points: false,
+	  is_active: true,
+	  pointValue: 0.02,
+	  earningRules: [
+		{ rate: 5, channel: "chase_travel", matchLeaves: ["renowned_hotel"] },
+		{ rate: 3, channel: null,           matchLeaves: ["united_flight"] },
+		{ rate: 2, channel: null,           matchGroups: ["dining"] },
+		{ rate: 2, channel: null,           matchLeaves: ["streaming"] },
+		{ rate: 2, channel: null,           matchGroups: ["travel", "rideshare"],
+		                                    excludeLeaves: ["renowned_hotel", "united_flight"] },
+		{ rate: 1, isBase: true }
+	  ]
+	},
+
+	MB: {
 		code: "MB",
 		short: "MB",
 		label: "Marriott Bonvoy Brilliant",
@@ -3359,11 +3400,18 @@
 		sort_order: 40,
 	
 		points_currency: "Bonvoy",
-		transferable_points: false,
-		is_active: true
-	  },
-	
-	  DG: {
+	  transferable_points: false,
+	  is_active: true,
+	  pointValue: 0.02,
+	  earningRules: [
+		{ rate: 6, channel: null, matchLeaves: ["marriott_hotel"] },
+		{ rate: 3, channel: null, matchParents: ["flights"] },
+		{ rate: 3, channel: null, matchGroups: ["dining"] },
+		{ rate: 2, isBase: true }
+	  ]
+	},
+
+	DG: {
 		code: "DG",
 		short: "DG",
 		label: "Delta SkyMiles Amex Gold",
@@ -3382,9 +3430,16 @@
 		sort_order: 50,
 	
 		points_currency: "SkyMiles",
-		transferable_points: false,
-		is_active: true
-	  }
+		  transferable_points: false,
+		  is_active: true,
+		  pointValue: 0.02,
+		  earningRules: [
+			{ rate: 2, channel: null, matchGroups: ["dining"] },
+			{ rate: 2, channel: null, matchGroups: ["groceries"] },
+			{ rate: 2, channel: null, matchLeaves: ["delta_flight_threshold", "delta_stays"] },
+			{ rate: 1, isBase: true }
+		  ]
+		}
 	};
 	
 	const CARD_BENEFITS = [
@@ -5798,6 +5853,53 @@
 	  const el = document.getElementById("adminDebugPanel");
 	  if (!el) return;
 	  el.style.display = showAdminPanel ? "" : "none";
+	  if (!showAdminPanel) return;
+	
+	  const category = getSelectedCategory();
+	  const content = document.getElementById("adminDebugContent");
+	  if (!content) return;
+	
+	  if (!category) {
+		content.innerHTML = `<p class="section-subtitle">Select a category in the picker to see card rankings.</p>`;
+		return;
+	  }
+	
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, category);
+	  const categoryLabel = leaf?.label || category;
+	  const ranking = computeEarningRanking(category);
+	
+	  const rows = ranking.map((r, i) => {
+		const channelText = r.channel
+		  ? `<span style="color:var(--text-soft);font-size:0.8rem;"> via ${CHANNEL_LABELS[r.channel] || r.channel}</span>`
+		  : "";
+		const badge = renderCardBadge(r.card);
+		return `
+		  <tr style="${i === 0 ? "font-weight:700;" : ""}">
+			<td style="padding:6px 8px;">${i + 1}</td>
+			<td style="padding:6px 8px;">${badge}</td>
+			<td style="padding:6px 8px;">${escapeHtml(r.cardLabel)}</td>
+			<td style="padding:6px 8px;">${r.rate}x${channelText}</td>
+			<td style="padding:6px 8px;">${r.effectivePct.toFixed(1)}%</td>
+		  </tr>`;
+	  }).join("");
+	
+	  content.innerHTML = `
+		<p style="margin:0 0 10px 0;font-size:0.9rem;color:var(--text-soft);">
+		  Card ranking for: <strong>${escapeHtml(categoryLabel)}</strong>
+		  &nbsp;·&nbsp; point value: $0.02/pt assumed for all cards
+		</p>
+		<table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+		  <thead>
+			<tr style="color:var(--text-soft);border-bottom:1px solid var(--border);">
+			  <th style="padding:4px 8px;text-align:left;">#</th>
+			  <th style="padding:4px 8px;text-align:left;">Card</th>
+			  <th style="padding:4px 8px;text-align:left;">Name</th>
+			  <th style="padding:4px 8px;text-align:left;">Earn rate</th>
+			  <th style="padding:4px 8px;text-align:left;">Eff. %</th>
+			</tr>
+		  </thead>
+		  <tbody>${rows}</tbody>
+		</table>`;
 	}
 	
 	function renderActiveCardsSummary() {
@@ -8276,6 +8378,7 @@
 	
 	  renderCardBenefitsSummary();
 	  renderMerchantOffersSummary();
+	  renderAdminPanel();
 	}
 	
 	function renderRightNowStrip() {
@@ -9811,25 +9914,86 @@
 
 	}
 
-	// 5.0 Build base fallback from registry (replaces recommendCardBase)
+	// 7.0 Fallback from logic based on card point multipliers
 	function getBaseFallbackRecommendation(category) {
-	  const fallback =
-		BASE_CATEGORY_FALLBACKS[category] ||
-		BASE_CATEGORY_FALLBACKS.other;
+	  const ranking = computeEarningRanking(category);
 	
-	  if (!fallback) {
-		return {
-		  card: "CSR",
-		  channel: "direct",
-		  reason: "Default to Chase Sapphire for flexible points."
-		};
+	  if (!ranking.length) {
+		return { card: "CSR", channel: null,
+		  reason: "Default to Chase Sapphire for flexible points." };
+	  }
+	
+	  const winner = ranking[0];
+	  const runnerUp = ranking[1]?.rate > 1 &&
+		ranking[1].effectivePct < winner.effectivePct
+		? ranking[1] : null;
+	
+	  const channelSuffix = winner.channel
+		? ` ${CHANNEL_LABELS[winner.channel] || winner.channel}`
+		: "";
+	
+	  let reason = `${CARDS[winner.card]?.label} earns ${winner.rate}x points`
+		+ ` (${winner.effectivePct.toFixed(1)}% back)${channelSuffix}.`;
+	
+	  if (runnerUp) {
+		const ruChannelSuffix = runnerUp.channel
+		  ? ` ${CHANNEL_LABELS[runnerUp.channel] || runnerUp.channel}`
+		  : "";
+		reason += ` ${CARDS[runnerUp.card]?.label} earns ${runnerUp.rate}x`
+		  + ` (${runnerUp.effectivePct.toFixed(1)}% back)${ruChannelSuffix}.`;
 	  }
 	
 	  return {
-		card: fallback.card,
-		channel: fallback.channel,
-		reason: fallback.reason
+		card: winner.card,
+		channel: winner.channel || null,
+		reason
 	  };
+	}
+	
+	function getBestEarningRuleForCategory(card, categoryKey) {
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, categoryKey);
+	  const groupKey = leaf?.group_key || "";
+	  const parentKey = leaf?.parent_key || "";
+	  const rules = card.earningRules || [];
+	  let best = null;
+	
+	  for (const rule of rules) {
+		if (rule.isBase) continue;
+		const excluded = rule.excludeLeaves?.includes(categoryKey);
+		if (excluded) continue;
+		const matchesLeaf   = rule.matchLeaves?.includes(categoryKey);
+		const matchesParent = rule.matchParents?.includes(parentKey);
+		const matchesGroup  = rule.matchGroups?.includes(groupKey);
+		if (matchesLeaf || matchesParent || matchesGroup) {
+		  if (!best || rule.rate > best.rate) best = rule;
+		}
+	  }
+	
+	  if (!best) best = rules.find(r => r.isBase) || { rate: 1, isBase: true };
+	  return best;
+	}
+	
+	function computeEarningRanking(categoryKey) {
+	  if (!categoryKey) return [];
+	  const results = [];
+	
+	  for (const card of Object.values(CARDS)) {
+		if (card.is_active === false) continue;
+		const rule = getBestEarningRuleForCategory(card, categoryKey);
+		const rate = rule.rate || 1;
+		const pointValue = card.pointValue || 0.02;
+		const effectivePct = rate * pointValue * 100;
+		results.push({
+		  card: card.code,
+		  cardLabel: card.label,
+		  rate,
+		  channel: rule.channel || null,
+		  pointValue,
+		  effectivePct
+		});
+	  }
+	
+	  return results.sort((a, b) => b.effectivePct - a.effectivePct);
 	}
     
     // 5.0 Build recommendation from a winning benefit (one formatter for benefit-based recs)
@@ -12002,9 +12166,17 @@
 	});
 	
 	document.addEventListener("keydown", (e) => {
-	  if (e.shiftKey && (e.ctrlKey || e.metaKey) && e.key === "A") {
+	  if (e.shiftKey && (e.ctrlKey || e.metaKey) && e.key === "Q") {
 		showAdminPanel = !showAdminPanel;
 		renderAdminPanel();
+	  }
+	});
+	
+	document.getElementById("btnVersionToggle")?.addEventListener("click", () => {
+	  showAdminPanel = !showAdminPanel;
+	  renderAdminPanel();
+	  if (showAdminPanel) {
+		document.getElementById("adminDebugPanel")?.scrollIntoView({ behavior: "smooth", block: "start" });
 	  }
 	});
 
