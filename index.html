@@ -5991,7 +5991,7 @@
 	  const benefitAnalysisHtml = renderBenefitAnalysisTable();
 	
 	  // --- Section 2: Fallback ranking ---
-	  const rankingCategory = category || lastRecommendation?.purchase?.category || "";
+	  const rankingCategory = lastRecommendation?.purchase?.category || category || "";
 	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, rankingCategory);
 	  const categoryLabel = leaf?.label || rankingCategory;
 	  const ranking = computeEarningRanking(rankingCategory);
