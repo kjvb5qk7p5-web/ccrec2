@@ -449,11 +449,6 @@
       font-weight: 600;
     }
   
-    .inline {
-      display: inline-block;
-      margin-right: 12px;
-    }
-  
     /* Make split summary text black instead of muted grey */
 	#cardBenefitsSummary,
 	#merchantOffersSummary {
@@ -1027,13 +1022,6 @@
 	  font-weight: 700;
 	}
 	
-	.category-picker-trigger-chevron {
-	  color: #666;
-	  font-size: 1.25rem;
-	  line-height: 1;
-	  margin-left: 10px;
-	}
-
 	/* =========================
 	   Category picker overlay
 	   ========================= */
@@ -1225,13 +1213,6 @@
 	  color: #666;
 	  margin-top: 1px;
 	  line-height: 1.1;
-	}
-	
-	.category-picker-row-arrow {
-	  color: #9ca3af;
-	  font-size: 1.15rem;
-	  line-height: 1;
-	  padding-top: 2px;
 	}
 	
 	.category-picker-row.selected {
@@ -3284,7 +3265,7 @@
 	  showGlobalDebug(msg);
 	});
 	
-	const CARDS = {
+	const CARDS = { // categories that exist here for fallback calculations based on points multipliers must also exist as leaves in CATEGORY_REGISTRY
 	  CSR: {
 		code: "CSR",
 		short: "CS",
@@ -3442,7 +3423,7 @@
 		}
 	};
 	
-	const CARD_BENEFITS = [
+	const CARD_BENEFITS = [ // for any benefit that needs a new category, that category must also be added as a leaf in CATEGORY_REGISTRY and maybe also in CARDS if points multipliers exist
 	
 	  /* =========================
 		 CHASE SAPPHIRE RESERVE
@@ -3463,10 +3444,10 @@
 		icon: "✈️🏨",
 	
 		categories: [
-		  // "united_flight",
-		  // "delta_flight_threshold",
+		  // "united_flight", created in UQ benefit
+		  // "delta_flight_threshold", created in DG benefit
 		  "other_flight",
-		  // "american_flight",        // ← new: same MCC 4511, CSR covers all airlines
+		  // "american_flight", would presumably be created if an American card was added (for now covered by other_flight)
 		  // "theedit_hotel",
 		  // "marriott_hotel",
 		  // "renowned_hotel",
@@ -8944,138 +8925,6 @@
 	  updateSummarySortButtonStates();
 	}
 	
-	// pre v6.9 UI credit card benefits summary function (tabular form), preserved with "OLD"
-	function renderCardBenefitsSummaryOLD() {
-	  const txs = loadTransactions();
-	  const el = document.getElementById("cardBenefitsSummary");
-	  if (!el) return;
-	
-	  const today = new Date();
-	
-	  // ---------- CREDIT CARD BENEFITS TABLE ROWS ----------
-	  const ccRows = [];
-	
-	  // Build all real card-native benefit rows from CARD_BENEFITS
-	  const sortedBenefits = [...CARD_BENEFITS]
-		.filter(benefit => CARDS[benefit.card]?.is_active !== false && !benefit.non_monetary) // filter out non-monetary card benefits
-		.sort((a, b) => (Number(a.display_order ?? 999) - Number(b.display_order ?? 999)));
-	
-	  for (const benefit of sortedBenefits) {
-		const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
-	
-		const limit = Number(benefit.cap_amount || 0);
-		const used = limit > 0 ? Math.min(usage.used, limit) : usage.used;
-	
-		const txCap =
-		  benefit.tx_cap != null && !isNaN(benefit.tx_cap)
-			? Number(benefit.tx_cap)
-			: null;
-	
-		const fullyUsed =
-		  (limit > 0 && used >= limit) ||
-		  (txCap != null && usage.txCount >= txCap);
-	
-		ccRows.push({
-		  label: benefit.state_label || benefit.label || benefit.id,
-		  labelHtml: benefit.state_labelHtml || null,
-		  icon: benefit.icon || "",
-		  card: benefit.card,
-		  cardSortOrder: Number(CARDS[benefit.card]?.sort_order ?? 999),
-		  sortCategory: (CATEGORY_REGISTRY.summary_sort_category_to_group &&
-			  CATEGORY_REGISTRY.summary_sort_category_to_group[benefit.summary_sort_category])
-			  || benefit.summary_sort_category
-			  || "other",
-		  benefitDisplayOrder: Number(benefit.display_order ?? 999),
-		  time: getBenefitStateTimeLabel(benefit, today),
-		  usage: limit > 0
-		    ? `$${formatUsageAmount(used)} of $${formatUsageAmount(limit)}`
-		    : `$${formatUsageAmount(used)} used`,
-		  usageHtml: limit > 0
-		    ? `$${formatUsageAmount(used)}<br>of $${formatUsageAmount(limit)}`
-		    : `$${formatUsageAmount(used)} used`,
-		  fullyUsed,
-		  hasPositiveUsage: used > 0 && !fullyUsed,
-		});
-	  }
-	
-	  if (cardBenefitsSortMode === "category") {
-		  ccRows.sort((a, b) =>
-			compareSummarySortCategories(a.sortCategory || "", b.sortCategory || "") ||
-			Number(a.cardSortOrder ?? 999) - Number(b.cardSortOrder ?? 999) ||
-			Number(a.benefitDisplayOrder ?? 999) - Number(b.benefitDisplayOrder ?? 999) ||
-			String(a.label || "").localeCompare(String(b.label || ""))
-		  );
-		} else {
-		  ccRows.sort((a, b) =>
-			Number(a.cardSortOrder ?? 999) - Number(b.cardSortOrder ?? 999) ||
-			Number(a.benefitDisplayOrder ?? 999) - Number(b.benefitDisplayOrder ?? 999) ||
-			String(a.label || "").localeCompare(String(b.label || ""))
-		  );
-		}
-	
-	  let displayRows = ccRows;
-	
-	  if (cardBenefitsSortMode === "category") {
-		displayRows = addGroupHeaderRows(
-		  ccRows,
-		  row => row.sortCategory || "other",
-		  groupKey => getSummarySortCategoryLabel(groupKey)
-		);
-	  } else {
-		displayRows = addGroupHeaderRows(
-		  ccRows,
-		  row => row.card || "",
-		  groupKey => CARDS[groupKey]?.label || groupKey
-		);
-	  }
-	
-	  if (ccRows.length === 0) {
-		el.innerHTML = `<span class="muted">No credit card benefit data yet.</span>`;
-		return;
-	  }
-	
-	  const html = `
-		<div class="state-table-wrapper summary-table-wrap">
-		  <table class="state-table">
-			<thead>
-			  <tr>
-				<th>Benefit</th>
-				<th>Card</th>
-				<th>Timing</th>
-				<th>Usage</th>
-			  </tr>
-			</thead>
-			<tbody>
-			  ${displayRows.map((row) => {
-				if (row._isGroupHeader) {
-				  const cardMeta = CARDS[row.groupKey];
-				  const headerBg = cardMeta?.badgeBg ? `background:${cardMeta.badgeBg};` : "";
-				  const headerBorder = cardMeta?.badgeBorder ? `border-top-color:${cardMeta.badgeBorder};` : "";
-				  return `
-					<tr class="group-header-row" data-group-key="${escapeHtml(row.groupKey || "")}">
-					  <td class="group-header-cell" colspan="4" style="${headerBg}${headerBorder}">${escapeHtml(row.groupLabel || "")}</td>
-					</tr>
-				  `;
-				}
-	
-				return `
-				  <tr class="${row.fullyUsed ? "credit-met-row" : ""}">
-					<td>${renderBenefitCellHtml(row.icon, row.labelHtml, row.label)}</td>
-					<td>${renderCardBadge(row.card)}</td>
-					<td>${escapeHtml(row.time || "")}</td>
-					<td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${row.usageHtml || escapeHtml(row.usage || "")}</td>
-				  </tr>
-				`;
-			  }).join("")}
-			</tbody>
-		  </table>
-		</div>
-	  `;
-	
-	  el.innerHTML = html;
-	  updateSummarySortButtonStates();
-	}
-	
 	// New helper functions for v6.9 new UI
 	function getMerchantOfferSummaryFilterKey(benefit) {
 	  const category = getDisplayCategoryForMerchantBenefit(benefit) || "";
@@ -9419,189 +9268,6 @@
 	  updateSummarySortButtonStates();
 	}
 	
-	// old, pre v6.9 merchant offers state summary table (renamed with OLD)
-	function renderMerchantOffersSummaryOLD() {
-	  const txs = loadTransactions();
-	  const benefits = loadMerchantBenefits();
-	  const merchantState = computeMerchantState(txs, benefits);
-	  const el = document.getElementById("merchantOffersSummary");
-	  if (!el) return;
-	
-	  const merchantRows = [];
-	  const todayDate = parseISODateLocal(formatTodayISO());
-	
-	  // Sort benefits by merchant, then end date
-	  const benefitsSorted = [...benefits].sort((a, b) => {
-		const nameA = (a.merchant || "").toLowerCase();
-		const nameB = (b.merchant || "").toLowerCase();
-		if (nameA !== nameB) return nameA.localeCompare(nameB);
-	
-		const endA = parseISODateLocal(a.endDate);
-		const endB = parseISODateLocal(b.endDate);
-		const timeA = endA ? endA.getTime() : Infinity;
-		const timeB = endB ? endB.getTime() : Infinity;
-		return timeA - timeB;
-	  });
-	
-	  for (const benefit of benefitsSorted) {
-		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
-		const used = ms.used || 0;
-		const txCount = ms.txCount || 0;
-	
-		let { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
-		
-		let exhaustedByTx = false;
-		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
-		  const maxTx = Number(benefit.maxTransactions);
-		  if (maxTx >= 0 && txCount >= maxTx) {
-			exhaustedByTx = true;
-		  }
-		}
-	
-		const hasTotalCap =
-		  benefit.limitType === "total" &&
-		  benefit.limitValue != null &&
-		  !isNaN(benefit.limitValue);
-	
-		const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
-		const fullyUsed =
-		  (hasTotalCap && totalLimit != null && used >= totalLimit) ||
-		  exhaustedByTx;
-		  
-		if (fullyUsed) {
-		  expiringSoon = false;
-		}
-	
-		let usageText;
-		const usedStr = formatUsageAmount(used);
-		
-		let usageHtml;
-		
-		if (hasTotalCap && totalLimit != null) {
-		  const limitStr = formatUsageAmount(totalLimit);
-		  usageText = `$${usedStr} of $${limitStr}`;
-		  usageHtml = `$${usedStr}<br>of $${limitStr}`;
-		} else {
-		  usageText = `$${usedStr} used`;
-		  usageHtml = `$${usedStr} used`;
-		}
-		
-		let timeText = formatBenefitEndDateDisplay(benefit.endDate, todayDate);
-		if (expired) {
-		  timeText = timeText ? `${timeText} Expired` : "Expired";
-		}
-		
-		const derivedCategory = getDisplayCategoryForMerchantBenefit(benefit);
-		
-		let discountLabel = "";
-		if (benefit.discountType === "percent") {
-		  discountLabel = `${Number(benefit.discountValue || 0)}%`;
-		} else {
-		  discountLabel = `$${formatUsageAmount(Number(benefit.discountValue || 0))}`;
-		}
-		
-		const merchantName = benefit.merchant || "";
-		const plainLabel = `${merchantName} (${discountLabel})`;
-		const labelHtml = `${escapeHtml(merchantName)} <span class="summary-label-meta"><br>${escapeHtml(discountLabel)}</span>`;
-		
-		merchantRows.push({
-		  label: plainLabel,
-		  labelHtml,
-		  icon: benefit.icon || getCategoryIcon(derivedCategory),
-		  card: benefit.card || "",
-		  category: (CATEGORY_REGISTRY.summary_sort_category_to_group &&
-			  CATEGORY_REGISTRY.summary_sort_category_to_group[derivedCategory])
-			  || (getRegistryLeaf(CATEGORY_REGISTRY, derivedCategory)?.group_key)
-			  || derivedCategory
-			  || "other",
-		  time: timeText,
-		  usage: usageText,
-		  usageHtml,
-		  fullyUsed,
-		  expiringSoon: expiringSoon && !expired,
-		  expired,
-		  usedAmount: used,
-		  hasPositiveUsage: used > 0 && !fullyUsed,
-		});
-	  }
-	  
-	  if (merchantOffersSortMode === "category") {
-		  merchantRows.sort((a, b) =>
-			compareSummarySortCategories(a.category || "", b.category || "") ||
-			String(a.label || "").localeCompare(String(b.label || "")) ||
-			String(a.card || "").localeCompare(String(b.card || ""))
-		  );
-		} else {
-		  merchantRows.sort((a, b) =>
-			String(a.label || "").localeCompare(String(b.label || "")) ||
-			String(a.category || "").localeCompare(String(b.category || "")) ||
-			String(a.card || "").localeCompare(String(b.card || ""))
-		  );
-		}
-		
-		let displayRows = merchantRows;
-		
-		if (merchantOffersSortMode === "category") {
-		  displayRows = addGroupHeaderRows(
-			merchantRows,
-			row => row.category || "other",
-			groupKey => getSummarySortCategoryLabel(groupKey)
-		  );
-		}
-	
-	  if (merchantRows.length === 0) {
-		el.innerHTML = `<span class="muted">No merchant offer data yet.</span>`;
-		return;
-	  }
-	
-	  const html = `
-		<div class="state-table-wrapper summary-table-wrap">
-		  <table class="state-table">
-			<thead>
-			  <tr>
-				<th>Merchant</th>
-				<th>Card</th>
-				<th>Expiry</th>
-				<th>Usage</th>
-			  </tr>
-			</thead>
-			<tbody>
-			  ${displayRows.map((row) => {
-				  if (row._isGroupHeader) {
-					return `
-					  <tr class="group-header-row">
-						<td class="group-header-cell" colspan="4">${escapeHtml(row.groupLabel || "")}</td>
-					  </tr>
-					`;
-				  }
-				
-				  const rowClass =
-					row.expired
-					  ? "expired-row"
-					  : row.expiringSoon
-						? "expiring-soon-row"
-						: row.fullyUsed
-						  ? "credit-met-row"
-						  : "";
-				
-				  return `
-					<tr class="${rowClass}">
-					  <td>${renderBenefitCellHtml(row.icon, row.labelHtml, row.label)}</td>
-					  <td>${renderCardBadge(row.card)}</td>
-					  <td>${escapeHtml(row.time || "")}</td>
-					  <td class="usage-cell ${row.hasPositiveUsage ? "usage-positive" : ""}">${row.usageHtml || escapeHtml(row.usage || "")}</td>
-					</tr>
-				  `;
-				}).join("")}
-			</tbody>
-		  </table>
-		</div>
-	  `;
-	
-	  el.innerHTML = html;
-	  updateSummarySortButtonStates();
-	}
-	
 	// new v6.9 UI rolling annual summary renderer
 	function renderRollingAnnualSummary() {
 	  const txs = loadTransactions();
@@ -9829,228 +9495,6 @@
 	  });
 	}
 	
-	// prior rolling annual summary renderer function before v6.9 UI
-	function renderRollingAnnualSummaryOLD() {
-	  const txs = loadTransactions();
-	  const state = computeRollingAnnualBenefits(txs);
-	  const merchantState = computeMerchantBenefitsYTDFromSavedTxs(txs);
-	  const el = document.getElementById("rollingAnnualSummary");
-	  if (!el) return;
-	
-		const rows = Object.entries(state);
-		const merchantRows = Object.entries(merchantState);
-		
-		if (rows.length === 0 && merchantRows.length === 0) {
-		  el.innerHTML = `<span class="muted">No annual benefit data yet.</span>`;
-		  return;
-		}	
-		
-	  function formatMoneyWhole(n) {
-		return Math.round(Number(n || 0)).toLocaleString();
-	  }
-	
-	  function formatMonthDay(d) {
-		const mm = String(d.getMonth() + 1).padStart(2, "0");
-		const dd = String(d.getDate()).padStart(2, "0");
-		return `${mm}/${dd}`;
-	  }
-	
-	  // Keep cards in your preferred display order
-	  const cardOrder = Object.values(CARDS)
-		  .sort((a, b) => Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999))
-		  .map(c => c.code);
-	  rows.sort((a, b) => {
-		const ia = cardOrder.indexOf(a[0]);
-		const ib = cardOrder.indexOf(b[0]);
-		return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-	  });
-	
-	  let grandUsed = 0;
-	  let grandFees = 0;
-	
-	  let html = `
-		<h3 class="annual-summary-subhead">Card Benefits - usage since anniversary</h3>
-		<table class="rolling-summary-table">
-		  <thead>
-			<tr>
-			  <th>Card</th>
-			  <th>Start Date</th>
-			  <th>Bens Used</th>
-			  <th>Ann. Fee</th>
-			  <th>Fee Recouped</th>
-			  <th>Dtls</th>
-			</tr>
-		  </thead>
-		  <tbody>
-	  `;
-	
-	  for (const [card, d] of rows) {
-		const cardMeta = CARDS[card] || {};
-		const annualFee = Number(cardMeta.annualFee || 0);
-		const totalUsed = Number(d.totalUsed || 0);
-	
-		grandUsed += totalUsed;
-		grandFees += annualFee;
-	
-		// % recouped (cap 0..100). If fee is 0, show 100 if used>0 else 0 (or change if you prefer)
-		let pct = 0;
-		if (annualFee > 0) {
-		  pct = Math.min(100, Math.max(0, (totalUsed / annualFee) * 100));
-		} else {
-		  pct = totalUsed > 0 ? 100 : 0;
-		}
-	
-		const pctLabel = `${Math.round(pct)}%`;
-		const startLabel = d.start ? formatMonthDay(d.start) : "";
-	
-		// Sort breakdown benefits: display_order first, then used desc, then alpha
-		const benefitList = Object.values(d.benefits || {})
-		  .sort((a, b) =>
-			(Number(a.display_order ?? 999) - Number(b.display_order ?? 999)) ||
-			(Number(b.used || 0) - Number(a.used || 0)) ||
-			String(a.label || "").localeCompare(String(b.label || ""))
-		  );
-			
-		// Include all benefits; use labelHtml when available
-		const breakdownRows = benefitList.map((b) => {
-		  const benefitLabelHtml = b.labelHtml || escapeHtml(b.label || "");
-		  return `
-			<tr>
-			  <td>${benefitLabelHtml}</td>
-			  <td>$${formatMoneyWhole(b.used)}</td>
-			</tr>
-		  `;
-		}).join("");
-	
-		const detailsId = `rolling-details-${card}`;
-	
-		html += `
-		  <tr class="rolling-summary-row">
-			<td>${renderCardBadge(card)}</td>
-			<td>${escapeHtml(startLabel)}</td>
-			<td>$${formatMoneyWhole(totalUsed)}</td>
-			<td>$${formatMoneyWhole(annualFee)}</td>
-			<td>
-			  <div class="fee-progress-wrap">
-				<div class="fee-progress" aria-label="${escapeHtml(card)} annual fee recoup progress">
-				  <div class="fee-progress-fill" style="width:${pct.toFixed(1)}%;"></div>
-				</div>
-				<span class="fee-progress-label">${escapeHtml(pctLabel)}</span>
-			  </div>
-			</td>
-			<td>
-			  <details id="${detailsId}">
-				<summary>View</summary>
-			  </details>
-			</td>
-		  </tr>
-	
-		  <tr class="rolling-detail-row">
-			<td colspan="6">
-			  <table class="rolling-breakdown">
-				<thead>
-				  <tr>
-					<th>Benefit</th>
-					<th>Used</th>
-				  </tr>
-				</thead>
-				<tbody>
-				  ${breakdownRows}
-				</tbody>
-			  </table>
-			</td>
-		  </tr>
-		`;
-	  }
-	
-	  // Grand total progress (portfolio-level)
-	  let grandPct = 0;
-	  if (grandFees > 0) {
-		grandPct = Math.min(100, Math.max(0, (grandUsed / grandFees) * 100));
-	  } else {
-		grandPct = grandUsed > 0 ? 100 : 0;
-	  }
-	
-	  html += `
-		  <tr class="rolling-total-row">
-			<td>Total</td>
-			<td>&nbsp;</td>
-			<td>$${formatMoneyWhole(grandUsed)}</td>
-			<td>$${formatMoneyWhole(grandFees)}</td>
-			<td>
-			  <div class="fee-progress-wrap">
-				<div class="fee-progress" aria-label="All cards annual fee recoup progress">
-				  <div class="fee-progress-fill" style="width:${grandPct.toFixed(1)}%;"></div>
-				</div>
-				<span class="fee-progress-label">${Math.round(grandPct)}%</span>
-			  </div>
-			</td>
-			<td></td>
-		  </tr>
-		</tbody>
-		</table>
-	  `;
-		  
-	  const merchantRowsSorted = cardOrder
-	  .filter(card => Number(merchantState[card] || 0) > 0)
-	  .map(card => [card, Number(merchantState[card] || 0)]);
-	
-	let merchantGrandTotal = 0;
-
-	const currentYearLabel = new Date().getFullYear();
-	
-	html += `
-	  <h3 class="annual-summary-subhead" style="margin-top:12px;">Merchant Offers - ${currentYearLabel}</h3>
-	  <table class="merchant-summary-table">
-		<thead>
-		  <tr>
-			<th>Card</th>
-			<th>Value of used Merchant Offers</th>
-		  </tr>
-		</thead>
-		<tbody>
-	`;
-	
-	for (const [card, amount] of merchantRowsSorted) {
-	  merchantGrandTotal += amount;
-	
-	  html += `
-		<tr>
-		  <td>${renderCardBadge(card)}</td>
-		  <td>$${formatMoneyWhole(amount)}</td>
-		</tr>
-	  `;
-	}
-	
-	html += `
-		  <tr class="rolling-total-row">
-			<td>Total</td>
-			<td>$${formatMoneyWhole(merchantGrandTotal)}</td>
-		  </tr>
-		</tbody>
-	  </table>
-	`;
-
-	  el.innerHTML = html;
-	  // Optional behavior tweak:
-	  // hide the detail row unless the <details> in the summary row is open
-	  // (keeps layout compact and gives breakdowns their own row only when expanded)
-	  const summaryRows = el.querySelectorAll(".rolling-summary-row");
-	  summaryRows.forEach((summaryRow) => {
-		const detailRow = summaryRow.nextElementSibling;
-		const details = summaryRow.querySelector("details");
-		if (!detailRow || !details) return;
-	
-		// start collapsed
-		detailRow.style.display = details.open ? "table-row" : "none";
-	
-		details.addEventListener("toggle", () => {
-		  detailRow.style.display = details.open ? "table-row" : "none";
-		});
-	  });
-
-	}
-
 	// 7.0 Fallback from logic based on card point multipliers
 	function getBestEarningRuleNoChannel(card, categoryKey) {
 	  // Returns the best earning rule for this card+category ignoring any channel requirement.
@@ -11255,7 +10699,7 @@
 	
 	  const tags = getSuggestedTagsForMerchant(merchant, 8);
 	  if (!tags.length) {
-		container.innerHTML = "";
+		container.textContent = "";
 		return;
 	  }
 	
