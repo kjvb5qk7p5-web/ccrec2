@@ -9915,38 +9915,65 @@
 	}
 
 	// 7.0 Fallback from logic based on card point multipliers
+	function getBestEarningRuleNoChannel(card, categoryKey) {
+	  // Returns the best earning rule for this card+category ignoring any channel requirement.
+	  // Used to show what the card earns if the user doesn't use the optimal portal.
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, categoryKey);
+	  const groupKey = leaf?.group_key || "";
+	  const parentKey = leaf?.parent_key || "";
+	  const rules = (card.earningRules || []).filter(r => !r.channel);
+	  let best = null;
+	
+	  for (const rule of rules) {
+		if (rule.isBase) continue;
+		const excluded = rule.excludeLeaves?.includes(categoryKey);
+		if (excluded) continue;
+		const matches = rule.matchLeaves?.includes(categoryKey)
+		  || rule.matchParents?.includes(parentKey)
+		  || rule.matchGroups?.includes(groupKey);
+		if (matches && (!best || rule.rate > best.rate)) best = rule;
+	  }
+	
+	  if (!best) best = rules.find(r => r.isBase) || { rate: 1, isBase: true };
+	  return best;
+	}
+	
 	function getBaseFallbackRecommendation(category) {
 	  const ranking = computeEarningRanking(category);
 	
 	  if (!ranking.length) {
-		return { card: "CSR", channel: null,
-		  reason: "Default to Chase Sapphire for flexible points." };
+		return {
+		  card: "CSR", channel: null,
+		  reason: "Default to Chase Sapphire for flexible points.",
+		  earningRanking: [], winnerRateNoChannel: null, runnerUp: null
+		};
 	  }
 	
 	  const winner = ranking[0];
-	  const runnerUp = ranking[1]?.rate > 1 &&
-		ranking[1].effectivePct < winner.effectivePct
-		? ranking[1] : null;
 	
-	  const channelSuffix = winner.channel
+	  // Rate without channel — only relevant if winner requires a portal
+	  const winnerRateNoChannel = winner.channel
+		? getBestEarningRuleNoChannel(CARDS[winner.card], category).rate
+		: null;
+	
+	  // Runner-up: next card with rate > 1 that's strictly worse than winner
+	  const runnerUp = ranking.find(
+		r => r.card !== winner.card && r.rate > 1 && r.effectivePct < winner.effectivePct
+	  ) || null;
+	
+	  const channelText = winner.channel
 		? ` ${CHANNEL_LABELS[winner.channel] || winner.channel}`
 		: "";
 	
-	  let reason = `${CARDS[winner.card]?.label} earns ${winner.rate}x points`
-		+ ` (${winner.effectivePct.toFixed(1)}% back)${channelSuffix}.`;
-	
-	  if (runnerUp) {
-		const ruChannelSuffix = runnerUp.channel
-		  ? ` ${CHANNEL_LABELS[runnerUp.channel] || runnerUp.channel}`
-		  : "";
-		reason += ` ${CARDS[runnerUp.card]?.label} earns ${runnerUp.rate}x`
-		  + ` (${runnerUp.effectivePct.toFixed(1)}% back)${ruChannelSuffix}.`;
-	  }
+	  const reason = `use ${CARDS[winner.card]?.label} to earn ${winner.rate}x points${channelText}.`;
 	
 	  return {
 		card: winner.card,
 		channel: winner.channel || null,
-		reason
+		reason,
+		earningRanking: ranking,
+		winnerRateNoChannel,
+		runnerUp
 	  };
 	}
 	
@@ -10194,7 +10221,10 @@
 		reasonMain: `${prefix}${fallback.reason}`.trim(),
 		reason: `${prefix}${fallback.reason}`.trim(),
 		categoryLabel: null,
-		recommendationSource: "base_fallback"
+		recommendationSource: "base_fallback",
+		earningRanking: fallback.earningRanking || [],
+		winnerRateNoChannel: fallback.winnerRateNoChannel ?? null,
+		runnerUp: fallback.runnerUp ?? null
 	  };
 	}
 
@@ -11263,6 +11293,24 @@
 	
 	  if (rec.channel && CHANNEL_LABELS[rec.channel]) {
 		bullets.push(`Assumes purchase is completed ${CHANNEL_LABELS[rec.channel]}`);
+	  }
+	
+	  if (rec.recommendationSource === "base_fallback") {
+		if (rec.channel && rec.winnerRateNoChannel != null) {
+		  const channelLabel = CHANNEL_LABELS[rec.channel] || rec.channel;
+		  bullets.push(
+			`Purchase will earn ${rec.winnerRateNoChannel}x points if made outside ${channelLabel}`
+		  );
+		}
+		if (rec.runnerUp) {
+		  const ruCard = CARDS[rec.runnerUp.card];
+		  const ruChannelText = rec.runnerUp.channel
+			? ` ${CHANNEL_LABELS[rec.runnerUp.channel] || rec.runnerUp.channel}`
+			: "";
+		  bullets.push(
+			`Next-best option: ${ruCard?.label || rec.runnerUp.card} earns ${rec.runnerUp.rate}x points${ruChannelText}`
+		  );
+		}
 	  }
 	
 	  const bulletsHtml = bullets.length
