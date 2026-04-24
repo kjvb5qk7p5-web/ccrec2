@@ -3247,7 +3247,7 @@
     </div>
   </div>
 	
-<button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.0.0</button>
+<button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.0.00</button>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5849,6 +5849,129 @@
 	  }
 	}
 	
+	function renderBenefitAnalysisTable() {
+	  if (!lastRecommendation) return "<p class='section-subtitle'>No recommendation made yet.</p>";
+	
+	  const { cardAnalysis, merchantDiag, rec } = lastRecommendation;
+	  const category = lastRecommendation.purchase?.category || "";
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, category);
+	  const categoryLabel = leaf?.label || category;
+	
+	  let html = `<p style="margin:0 0 12px 0;font-size:0.9rem;color:var(--text-soft);">
+		Benefit evaluation for: <strong>${escapeHtml(categoryLabel)}</strong>
+		&nbsp;·&nbsp; source: <strong>${escapeHtml(rec.recommendationSource || "")}</strong>
+	  </p>`;
+	
+	  // --- Merchant offer row ---
+	  if (merchantDiag) {
+		const mName = escapeHtml(merchantDiag.benefit?.merchant || "Merchant offer");
+		const mCard = merchantDiag.benefit?.card ? renderCardBadge(merchantDiag.benefit.card) : "";
+		let mStatus, mStatusColor;
+		if (merchantDiag.eligible) {
+		  mStatus = "✓ Won";
+		  mStatusColor = "var(--success)";
+		} else {
+		  const reasons = {
+			expired: "Expired",
+			used_up: "Used up",
+			below_min_spend: `Below min spend ($${formatUsageAmount(merchantDiag.minSpend)})`
+		  };
+		  mStatus = reasons[merchantDiag.reasonType] || merchantDiag.reasonType;
+		  mStatusColor = "var(--danger)";
+		}
+	
+		html += `
+		  <p style="font-size:0.85rem;font-weight:700;color:var(--text-soft);margin:0 0 4px 0;">MERCHANT OFFER</p>
+		  <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-bottom:16px;">
+			<thead>
+			  <tr style="color:var(--text-soft);border-bottom:1px solid var(--border);">
+				<th style="padding:4px 8px;text-align:left;">Offer</th>
+				<th style="padding:4px 8px;text-align:left;">Card</th>
+				<th style="padding:4px 8px;text-align:left;">Result</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td style="padding:6px 8px;">${mName}</td>
+				<td style="padding:6px 8px;">${mCard}</td>
+				<td style="padding:6px 8px;color:${mStatusColor};font-weight:600;">${escapeHtml(mStatus)}</td>
+			  </tr>
+			</tbody>
+		  </table>`;
+	  }
+	
+	  // --- Card benefits table ---
+	  const eligible = cardAnalysis?.eligible || [];
+	  const unavailable = cardAnalysis?.unavailable || [];
+	  const winner = cardAnalysis?.winner || null;
+	
+	  if (eligible.length === 0 && unavailable.length === 0) {
+		html += `<p style="font-size:0.85rem;color:var(--text-soft);">No card benefits matched this category.</p>`;
+		return html;
+	  }
+	
+	  const allRows = [
+		...eligible.map(e => ({ ...e, bucket: "eligible" })),
+		...unavailable.map(u => ({ ...u, bucket: "unavailable" }))
+	  ];
+	
+	  html += `
+		<p style="font-size:0.85rem;font-weight:700;color:var(--text-soft);margin:0 0 4px 0;">CARD BENEFITS</p>
+		<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+		  <thead>
+			<tr style="color:var(--text-soft);border-bottom:1px solid var(--border);">
+			  <th style="padding:4px 8px;text-align:left;">Benefit</th>
+			  <th style="padding:4px 8px;text-align:left;">Card</th>
+			  <th style="padding:4px 8px;text-align:left;">Value</th>
+			  <th style="padding:4px 8px;text-align:left;">Used</th>
+			  <th style="padding:4px 8px;text-align:left;">Result</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			${allRows.map(row => {
+			  const b = row.benefit;
+			  const isWinner = winner && b.id === winner.benefit.id;
+			  const badge = renderCardBadge(b.card);
+			  const label = escapeHtml(b.label || b.id);
+			  const immVal = row.immediateValue != null
+				? `$${formatUsageAmount(row.immediateValue)}`
+				: "—";
+			  const usedText = row.priorUsed > 0
+				? `$${formatUsageAmount(row.priorUsed)}${row.priorTxCount > 0 ? ` (${row.priorTxCount} tx)` : ""}`
+				: row.priorTxCount > 0 ? `${row.priorTxCount} tx` : "—";
+	
+			  let statusText, statusColor;
+			  if (isWinner) {
+				statusText = "✓ Recommended";
+				statusColor = "var(--success)";
+			  } else if (row.bucket === "eligible") {
+				statusText = "Available";
+				statusColor = "var(--text-soft)";
+			  } else {
+				const reasons = {
+				  used_up: "Used up",
+				  tx_cap_reached: "Tx cap reached",
+				  no_window: "No active window"
+				};
+				statusText = reasons[row.reasonType] || row.reasonType || "Unavailable";
+				statusColor = "var(--danger)";
+			  }
+	
+			  return `
+				<tr style="${isWinner ? "font-weight:700;" : ""}">
+				  <td style="padding:6px 8px;">${label}</td>
+				  <td style="padding:6px 8px;">${badge}</td>
+				  <td style="padding:6px 8px;">${immVal}</td>
+				  <td style="padding:6px 8px;color:var(--text-soft);">${usedText}</td>
+				  <td style="padding:6px 8px;color:${statusColor};font-weight:600;">${escapeHtml(statusText)}</td>
+				</tr>`;
+			}).join("")}
+		  </tbody>
+		</table>`;
+	
+	  return html;
+	}
+	
 	function renderAdminPanel() {
 	  const el = document.getElementById("adminDebugPanel");
 	  if (!el) return;
@@ -5859,14 +5982,19 @@
 	  const content = document.getElementById("adminDebugContent");
 	  if (!content) return;
 	
-	  if (!category) {
-		content.innerHTML = `<p class="section-subtitle">Select a category in the picker to see card rankings.</p>`;
+	  if (!category && !lastRecommendation) {
+		content.innerHTML = `<p class="section-subtitle">Get a recommendation to see evaluation details.</p>`;
 		return;
 	  }
 	
-	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, category);
-	  const categoryLabel = leaf?.label || category;
-	  const ranking = computeEarningRanking(category);
+	  // --- Section 1: Benefit evaluation ---
+	  const benefitAnalysisHtml = renderBenefitAnalysisTable();
+	
+	  // --- Section 2: Fallback ranking ---
+	  const rankingCategory = category || lastRecommendation?.purchase?.category || "";
+	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, rankingCategory);
+	  const categoryLabel = leaf?.label || rankingCategory;
+	  const ranking = computeEarningRanking(rankingCategory);
 	
 	  const rows = ranking.map((r, i) => {
 		const channelText = r.channel
@@ -5884,6 +6012,10 @@
 	  }).join("");
 	
 	  content.innerHTML = `
+		<div style="margin-bottom:24px;">
+		  ${benefitAnalysisHtml}
+		</div>
+		<hr style="border:none;border-top:1px solid var(--border);margin:0 0 16px 0;">
 		<p style="margin:0 0 10px 0;font-size:0.9rem;color:var(--text-soft);">
 		  Card ranking for: <strong>${escapeHtml(categoryLabel)}</strong>
 		  &nbsp;·&nbsp; point value: $0.02/pt assumed for all cards
@@ -5982,6 +6114,11 @@
 	  }
 	
 	  return { priorUsed, priorTxCount, window };
+	}
+	
+	// helper for display logic regarding purchases not requiring a specific portal or channel
+	function isNullChannel(ch) {
+	  return !ch || ch === "direct";
 	}
 	
 	// 5.0 small helper that totals usage by benefit id for the current window
@@ -7281,7 +7418,7 @@
 
     // Channel label mapping for human-readable text
     const CHANNEL_LABELS = {
-      direct: "direct with the merchant",
+      // "direct" intentionally omitted — no-portal purchases need no channel label
       chase_travel: "via the Chase Travel portal",
       lyft_app: "in the Lyft app",
       uber_app: "in the Uber app",
@@ -9961,7 +10098,7 @@
 		r => r.card !== winner.card && r.rate > 1 && r.effectivePct < winner.effectivePct
 	  ) || null;
 	
-	  const channelText = winner.channel
+	  const channelText = !isNullChannel(winner.channel)
 		? ` ${CHANNEL_LABELS[winner.channel] || winner.channel}`
 		: "";
 	
@@ -11150,7 +11287,7 @@
 	  const bar = document.getElementById("floatingSaveBar");
 	  const btn = document.getElementById("btnFloatingSave");
 	  if (!bar || !btn) return;
-	  const channelPlain = CHANNEL_LABELS[rec.channel] || rec.channel || "";
+	  const channelPlain = isNullChannel(rec.channel) ? "" : (CHANNEL_LABELS[rec.channel] || rec.channel || "");
 	  btn.innerHTML = `Save &nbsp; ${renderCardBadge(rec.card)} &nbsp; ${escapeHtml(channelPlain)}`;
 	  clearTimeout(floatingSaveTimer);
 	  floatingSaveTimer = setTimeout(() => {
@@ -11208,7 +11345,7 @@
 	  const cardMeta = CARDS[rec.card] || {};
 	  const cardBadgeHtml = renderCardBadge(rec.card);
 	  const cardLabel = escapeHtml(cardMeta.label || rec.card || "");
-	  const channelLabelPlain = CHANNEL_LABELS[rec.channel] || rec.channel || "";
+	  const channelLabelPlain = isNullChannel(rec.channel) ? "" : (CHANNEL_LABELS[rec.channel] || rec.channel || "");
 	  const channelLabelHtml =
 		CHANNEL_LABELS_HTML[rec.channel] ||
 		escapeHtml(channelLabelPlain);
@@ -11291,12 +11428,12 @@
 		bullets.push(`Applies for the first $${formatUsageAmount(rec.spendCap)} of eligible spend`);
 	  }
 	
-	  if (rec.channel && CHANNEL_LABELS[rec.channel]) {
+	  if (!isNullChannel(rec.channel) && CHANNEL_LABELS[rec.channel]) {
 		bullets.push(`Assumes purchase is completed ${CHANNEL_LABELS[rec.channel]}`);
 	  }
 	
 	  if (rec.recommendationSource === "base_fallback") {
-		if (rec.channel && rec.winnerRateNoChannel != null) {
+		if (!isNullChannel(rec.channel) && rec.winnerRateNoChannel != null) {
 		  const channelLabel = CHANNEL_LABELS[rec.channel] || rec.channel;
 		  bullets.push(
 			`Purchase will earn ${rec.winnerRateNoChannel}x points if made outside ${channelLabel}`
@@ -11304,7 +11441,7 @@
 		}
 		if (rec.runnerUp) {
 		  const ruCard = CARDS[rec.runnerUp.card];
-		  const ruChannelText = rec.runnerUp.channel
+		  const ruChannelText = !isNullChannel(rec.runnerUp.channel)
 			? ` ${CHANNEL_LABELS[rec.runnerUp.channel] || rec.runnerUp.channel}`
 			: "";
 		  bullets.push(
@@ -11548,7 +11685,16 @@
 		  alert("Could not generate a recommendation.");
 		  return;
 		}
-      lastRecommendation = { purchase, rec };
+      const _debugTx = { amount, date, category: purchase.category };
+      const _debugTxs = loadTransactions();
+      const _debugBenefits = loadMerchantBenefits();
+      const _debugMerchantState = computeMerchantState(_debugTxs, _debugBenefits);
+      lastRecommendation = {
+        purchase,
+        rec,
+        cardAnalysis: analyzeCardBenefitCandidates(_debugTx, _debugTxs),
+        merchantDiag: diagnoseMerchantOffer(purchase, _debugMerchantState, _debugBenefits)
+      };
     
       // New centralized renderer
       renderRecommendationSection(rec);
