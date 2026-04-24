@@ -11237,7 +11237,7 @@
 		  <div class="rec-main-row">
 			<div class="rec-title-wrap">
 			  <div class="rec-title">${cardBadgeHtml} ${cardLabel}</div>
-			  <div class="rec-subtitle">Use ${channelLabelHtml}</div>
+			  ${channelLabelHtml ? `<div class="rec-subtitle">Use ${channelLabelHtml}</div>` : ""}
 			</div>
 			${valueChipHtml}
 		  </div>
