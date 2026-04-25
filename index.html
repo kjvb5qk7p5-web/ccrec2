@@ -1893,14 +1893,38 @@
     background: linear-gradient(180deg, #ffffff 0%, #fcfbf8 100%);
   }
 
-  .admin-toggle-btn {
-    min-width: 110px;
+  .section-header-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
   }
 
-  .admin-content-shell {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
+  .section-header-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    border-radius: 6px;
+  }
+
+  .section-chevron {
+    font-size: 1.1rem;
+    color: var(--text-soft);
+    transition: transform 0.18s ease;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  .section-collapsed-summary {
+    font-size: 0.8rem;
+    color: var(--text-soft);
+    font-weight: 400;
+    margin-top: 2px;
   }
 
   #floatingSaveBar {
@@ -2913,65 +2937,71 @@
 
   <!-- Current month / year credit usage summary -->
   <div class="card summary-card-shell">
-    <div class="section-header-row">
+    <button class="section-header-btn" onclick="toggleSection('cardBenefits')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Native rewards</div>
         <h3 style="margin:0;">Credit Card Benefits</h3>
         <p class="section-subtitle">Recurring credits tied to your cards</p>
+        <div id="section-summary-cardBenefits" class="section-collapsed-summary"></div>
       </div>
-
-      <div class="sort-pill-row">
+      <span id="section-chevron-cardBenefits" class="section-chevron">›</span>
+    </button>
+    <div id="section-content-cardBenefits" style="display:none;">
+      <div class="sort-pill-row" style="margin-bottom:10px;">
         <button type="button" id="btnSortCardBenefitsByCard">Sort: Card</button>
         <button type="button" id="btnSortCardBenefitsByCategory">Sort: Category</button>
       </div>
+      <div id="cardBenefitsSummary" class="muted"></div>
     </div>
-
-    <div id="cardBenefitsSummary" class="muted"></div>
   </div>
 
   <div class="card summary-card-shell">
-    <div class="section-header-row">
+    <button class="section-header-btn" onclick="toggleSection('merchantOffers')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Additional time-bound opportunities</div>
         <h3 style="margin:0;">Merchant Offers</h3>
         <p class="section-subtitle">Statement credits and discounts you've added</p>
+        <div id="section-summary-merchantOffers" class="section-collapsed-summary"></div>
       </div>
-
-      <div class="sort-pill-row">
+      <span id="section-chevron-merchantOffers" class="section-chevron">›</span>
+    </button>
+    <div id="section-content-merchantOffers" style="display:none;">
+      <div class="sort-pill-row" style="margin-bottom:10px;">
         <button type="button" id="btnSortMerchantOffersAlpha">Sort: A–Z</button>
         <button type="button" id="btnSortMerchantOffersByCategory">Sort: Category</button>
       </div>
+      <div id="merchantOffersSummary" class="muted"></div>
     </div>
-
-    <div id="merchantOffersSummary" class="muted"></div>
   </div>
 
   <div class="card summary-card-shell">
-    <div class="section-header-row">
+    <button class="section-header-btn" onclick="toggleSection('annualSummaries')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Longer view</div>
         <h3 style="margin:0;">Annual Summaries</h3>
         <p class="section-subtitle">Annual fees, and whether the math worked out</p>
+        <div id="section-summary-annualSummaries" class="section-collapsed-summary"></div>
       </div>
+      <span id="section-chevron-annualSummaries" class="section-chevron">›</span>
+    </button>
+    <div id="section-content-annualSummaries" style="display:none;">
+      <div id="rollingAnnualSummary"></div>
     </div>
-    <div id="rollingAnnualSummary"></div>
   </div>
 
   <!-- Merchant Offers Management -->
   <div class="card merch-input admin-card">
-    <div class="section-header-row">
+    <button class="section-header-btn" onclick="toggleSection('manageMerchantOffers')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Admin + maintenance</div>
         <h3 style="margin:0;">Manage Merchant Offers</h3>
         <p class="section-subtitle">Add, edit, or remove offers</p>
+        <div id="section-summary-manageMerchantOffers" class="section-collapsed-summary"></div>
       </div>
-
-      <button id="toggleBenefitsBtn" class="admin-toggle-btn" type="button">
-        Show details
-      </button>
-    </div>
-
-    <div id="benefitsContent" class="admin-content-shell" style="display:none;">
+      <span id="section-chevron-manageMerchantOffers" class="section-chevron">›</span>
+    </button>
+    <div id="section-content-manageMerchantOffers" style="display:none;">
+    <div id="benefitsContent">
     
       <h3 id="benefitFormHeading" style="margin-top:0.8rem;">Add Merchant Offer</h3>
 
@@ -3085,23 +3115,22 @@
         Merchant offers are stored locally. Export to backup your data before clearing browser data.
       </p>
     </div>
+    </div><!-- end section-content-manageMerchantOffers -->
   </div>
 
   <!-- Logged transactions -->
   <div class="card admin-card">
-    <div class="section-header-row">
+    <button class="section-header-btn" onclick="toggleSection('loggedPurchases')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">History + audit</div>
         <h3 style="margin:0;">Logged Purchases</h3>
         <p class="section-subtitle">Review transactions; manage backups</p>
+        <div id="section-summary-loggedPurchases" class="section-collapsed-summary"></div>
       </div>
-
-      <button id="toggleLogBtn" class="admin-toggle-btn" type="button">
-        Show details
-      </button>
-    </div>
-
-    <div id="logContent" class="admin-content-shell" style="display:none;">
+      <span id="section-chevron-loggedPurchases" class="section-chevron">›</span>
+    </button>
+    <div id="section-content-loggedPurchases" style="display:none;">
+    <div id="logContent">
     
       <table id="loggedTable">
         <thead>
@@ -3214,7 +3243,27 @@
 
 	  </div>
 	</div>
-	
+
+    </div><!-- end logContent -->
+    </div><!-- end section-content-loggedPurchases -->
+  </div>
+
+  <!-- Card & Data Management -->
+  <div class="card admin-card">
+    <button class="section-header-btn" onclick="toggleSection('cardDataManagement')" type="button">
+      <div class="section-title-wrap">
+        <div class="section-kicker">Settings</div>
+        <h3 style="margin:0;">Card &amp; Data Management</h3>
+        <p class="section-subtitle">Card settings and data import/export</p>
+        <div id="section-summary-cardDataManagement" class="section-collapsed-summary">User defaults · Import/Export</div>
+      </div>
+      <span id="section-chevron-cardDataManagement" class="section-chevron">›</span>
+    </button>
+    <div id="section-content-cardDataManagement" style="display:none;">
+      <!-- Data management content to be moved here in Phase 3 -->
+    </div>
+  </div>
+
   <div id="adminDebugPanel" class="card admin-card" style="display:none;">
     <div class="section-header-row">
       <div class="section-title-wrap">
@@ -3227,8 +3276,10 @@
       <!-- future content here -->
     </div>
   </div>
-	
-<button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.0.01</button>
+
+  <div style="text-align:left; padding: 8px 16px;">
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.1.0</button>
+  </div>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -5810,6 +5861,31 @@
 	let categorySelectionWasAuto = false;
 	let cardBenefitsSortMode = "card";
 	let merchantOffersSortMode = "alpha";
+	const sectionState = {
+	  cardBenefits: false,
+	  merchantOffers: false,
+	  annualSummaries: false,
+	  manageMerchantOffers: false,
+	  loggedPurchases: false,
+	  cardDataManagement: false,
+	};
+
+	function toggleSection(key) {
+	  sectionState[key] = !sectionState[key];
+	  renderSectionStates();
+	}
+
+	function renderSectionStates() {
+	  Object.entries(sectionState).forEach(([key, open]) => {
+		const content = document.getElementById(`section-content-${key}`);
+		const chevron = document.getElementById(`section-chevron-${key}`);
+		const summary = document.getElementById(`section-summary-${key}`);
+		if (content) content.style.display = open ? "" : "none";
+		if (chevron) chevron.style.transform = open ? "rotate(90deg)" : "rotate(0deg)";
+		if (summary) summary.style.display = open ? "none" : "";
+	  });
+	}
+
 	let merchantOffersFilterMode = "all"; // for 6.9 UI
 	let expandedMerchantOfferId = null; // for 6.9 UI
 	let cardBenefitsFilterMode = "all"; // for 6.9 UI
@@ -5953,6 +6029,94 @@
 	  return html;
 	}
 	
+	function computeSectionSummaries() {
+	  const today = new Date();
+	  const todayDate = parseISODateLocal(formatTodayISO());
+	  const txs = loadTransactions();
+	  const benefits = loadMerchantBenefits();
+	  const merchantState = computeMerchantState(txs, benefits);
+
+	  // Card Benefits
+	  const cbEl = document.getElementById("section-summary-cardBenefits");
+	  if (cbEl) {
+		const totalBenefits = CARD_BENEFITS.filter(
+		  b => CARDS[b.card]?.is_active !== false
+		).length;
+		let cbExpiring = 0;
+		for (const b of CARD_BENEFITS) {
+		  if (CARDS[b.card]?.is_active === false || b.non_monetary) continue;
+		  const window = getBenefitWindowForDate(b, today);
+		  if (!window) continue;
+		  const endStr = window.end?.toISOString().slice(0, 10);
+		  if (!endStr) continue;
+		  const { expiringSoon } = classifyBenefitEnd(endStr, todayDate);
+		  if (expiringSoon) cbExpiring++;
+		}
+		cbEl.textContent = `${totalBenefits} benefits${cbExpiring > 0 ? ` · ${cbExpiring} expiring soon` : ""}`;
+	  }
+
+	  // Merchant Offers
+	  const moEl = document.getElementById("section-summary-merchantOffers");
+	  if (moEl) {
+		let moActive = 0, moExpiring = 0;
+		for (const b of benefits) {
+		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
+		  const { expired, expiringSoon } = classifyBenefitEnd(b.endDate, todayDate);
+		  const exhaustedByTx = b.maxTransactions != null &&
+			Number(ms.txCount || 0) >= Number(b.maxTransactions);
+		  const exhaustedByValue = b.limitType === "total" && b.limitValue != null &&
+			Number(ms.used || 0) >= Number(b.limitValue);
+		  if (!expired && !exhaustedByTx && !exhaustedByValue) {
+			moActive++;
+			if (expiringSoon) moExpiring++;
+		  }
+		}
+		moEl.textContent = `${moActive} active${moExpiring > 0 ? ` · ${moExpiring} expiring soon` : ""}`;
+	  }
+
+	  // Annual Summaries
+	  const asEl = document.getElementById("section-summary-annualSummaries");
+	  if (asEl) {
+		const ninetyDaysAgo = new Date(today);
+		ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+		let total = 0;
+		for (const tx of txs) {
+		  const d = parseISODateLocal(tx.date);
+		  if (!d || d < ninetyDaysAgo) continue;
+		  total += Number(tx.cardBenefitApplied || 0) + Number(tx.merchantBenefitApplied || 0);
+		}
+		asEl.textContent = `$${formatUsageAmount(total)} captured (last 90 days)`;
+	  }
+
+	  // Manage Merchant Offers
+	  const mmEl = document.getElementById("section-summary-manageMerchantOffers");
+	  if (mmEl) {
+		let expired = 0;
+		for (const b of benefits) {
+		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
+		  const { expired: isExpired } = classifyBenefitEnd(b.endDate, todayDate);
+		  const exhaustedByTx = b.maxTransactions != null &&
+			Number(ms.txCount || 0) >= Number(b.maxTransactions);
+		  const exhaustedByValue = b.limitType === "total" && b.limitValue != null &&
+			Number(ms.used || 0) >= Number(b.limitValue);
+		  if (isExpired || exhaustedByTx || exhaustedByValue) expired++;
+		}
+		mmEl.textContent = `${benefits.length} offers${expired > 0 ? ` · ${expired} expired` : ""}`;
+	  }
+
+	  // Logged Purchases
+	  const lpEl = document.getElementById("section-summary-loggedPurchases");
+	  if (lpEl) {
+		const ninetyDaysAgo = new Date(today);
+		ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+		const recentCount = txs.filter(tx => {
+		  const d = parseISODateLocal(tx.date);
+		  return d && d >= ninetyDaysAgo;
+		}).length;
+		lpEl.textContent = `${recentCount} transactions (last 90 days)`;
+	  }
+	}
+
 	function renderAdminPanel() {
 	  const el = document.getElementById("adminDebugPanel");
 	  if (!el) return;
@@ -7340,22 +7504,6 @@
 	  `).join("");
 	}
 	
-	function updateAdminToggleLabels() {
-	  const benefitsContent = document.getElementById("benefitsContent");
-	  const toggleBenefitsBtn = document.getElementById("toggleBenefitsBtn");
-	  if (benefitsContent && toggleBenefitsBtn) {
-		const isOpen = benefitsContent.style.display !== "none" && benefitsContent.style.display !== "";
-		toggleBenefitsBtn.textContent = isOpen ? "Hide details" : "Show details";
-	  }
-	
-	  const logContent = document.getElementById("logContent");
-	  const toggleLogBtn = document.getElementById("toggleLogBtn");
-	  if (logContent && toggleLogBtn) {
-		const isOpen = logContent.style.display !== "none" && logContent.style.display !== "";
-		toggleLogBtn.textContent = isOpen ? "Hide details" : "Show details";
-	  }
-	}
-	
     function showToast(message) {
       const toast = document.createElement('div');
       toast.className = 'toast';
@@ -8499,6 +8647,8 @@
 	  renderCardBenefitsSummary();
 	  renderMerchantOffersSummary();
 	  renderAdminPanel();
+	  computeSectionSummaries();
+	  renderSectionStates();
 	}
 	
 	function renderRightNowStrip() {
@@ -10622,11 +10772,10 @@
 	  document.getElementById("btnAddBenefit").textContent = "Save Changes";
 	  document.getElementById("btnCancelEdit").style.display = "";
 	
-	  // Ensure the form section is open
-	  const content = document.getElementById("benefitsContent");
-	  if (content && content.style.display === "none") {
-		content.style.display = "block";
-		updateAdminToggleLabels();
+	  // Ensure the manage merchant offers section is open
+	  if (!sectionState.manageMerchantOffers) {
+		sectionState.manageMerchantOffers = true;
+		renderSectionStates();
 	  }
 	}
 	
@@ -11296,45 +11445,6 @@
 	  renderMerchantBenefits();
 	});
 
-    // Show/Hide Logged Purchases
-    const logContent = document.getElementById("logContent");
-    const toggleLogBtn = document.getElementById("toggleLogBtn");
-
-    toggleLogBtn.addEventListener("click", () => {
-      const isHidden =
-        logContent.style.display === "none" || logContent.style.display === "";
-
-      if (isHidden) {
-        logContent.style.display = "block";
-        toggleLogBtn.textContent = "Hide";
-      } else {
-        logContent.style.display = "none";
-        toggleLogBtn.textContent = "Show";
-      }
-      
-      updateAdminToggleLabels();
-    });
-
-    // Show/Hide Merchant Benefits
-    const benefitsContent = document.getElementById("benefitsContent");
-    const toggleBenefitsBtn = document.getElementById("toggleBenefitsBtn");
-
-    toggleBenefitsBtn.addEventListener("click", () => {
-      const isHidden =
-        benefitsContent.style.display === "none" ||
-        benefitsContent.style.display === "";
-
-      if (isHidden) {
-        benefitsContent.style.display = "block";
-        toggleBenefitsBtn.textContent = "Hide";
-      } else {
-        benefitsContent.style.display = "none";
-        toggleBenefitsBtn.textContent = "Show";
-      }
-      
-      updateAdminToggleLabels();
-    });
-
 	// Add merchant offer / merchant benefit
 	document.getElementById("btnAddBenefit").addEventListener("click", () => {
 	  if (isAddingBenefit) return;
@@ -11790,7 +11900,8 @@
 	  renderRollingAnnualSummary();
 	  renderMerchantBenefits();
 	  renderTransactions();
-	  updateAdminToggleLabels();
+	  computeSectionSummaries();
+	  renderSectionStates();
 	  updateSummarySortButtonStates();
 	  renderAdminPanel();
 	
