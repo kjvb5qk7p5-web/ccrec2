@@ -2731,282 +2731,205 @@
 		 PHASE 2C — Annual Summaries dashboard panels
 		 ========================================== */
 	
-	  .annual-shell {
-		display: flex;
-		flex-direction: column;
-		gap: 14px;
-	  }
-	
-	  .annual-card-list {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-	  }
-	
-	  .annual-card-panel {
-		border: 1px solid var(--border);
-		border-radius: 18px;
-		background: #fff;
-		overflow: hidden;
-	  }
-	
-	  .annual-card-main {
-		padding: 14px 14px 12px 14px;
-	  }
-	
-	  .annual-card-top {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		flex-wrap: wrap;
-		margin-bottom: 8px;
-	  }
-	
-	  .annual-card-name {
-		font-size: 1rem;
-		font-weight: 800;
-		color: var(--text);
-		line-height: 1.15;
-	  }
-	
-	  .annual-card-subline {
-		font-size: 0.82rem;
-		color: var(--text-soft);
-		margin-top: 2px;
-		margin-bottom: 10px;
-	  }
-	  
-	  .annual-totals-panel {
-		border-top: 2px solid var(--border-strong);
-		background: #f9f9f7;
-	  }
-	
-	  .annual-merchant-totals-row {
-		border-top: 2px solid var(--border-strong);
-		font-weight: 700;
-		background: #f9f9f7;
-	  }
-	
-	  .annual-pct-line {
-		display: flex;
-		align-items: baseline;
-		gap: 8px;
-		margin-bottom: 10px;
-	  }
-	
-	  .annual-pct-value {
-		font-size: 1.55rem;
-		font-weight: 900;
-		line-height: 1;
-		color: var(--text);
-		letter-spacing: -0.03em;
-	  }
-	
-	  .annual-pct-label {
-		font-size: 0.82rem;
-		font-weight: 700;
-		color: var(--text-soft);
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-	  }
-	
-	  .annual-metrics {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 10px;
-		margin-bottom: 10px;
-	  }
-	
-	  .annual-metric {
-		min-width: 0;
-	  }
-	
-	  .annual-metric-label {
-		font-size: 0.72rem;
-		font-weight: 800;
-		color: var(--text-faint);
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-		line-height: 1.1;
-		margin-bottom: 3px;
-	  }
-	
-	  .annual-metric-value {
-		font-size: 0.9rem;
-		font-weight: 800;
-		color: var(--text);
-		line-height: 1.15;
-	  }
-	
-	  .annual-progress-row {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-	  }
-	
-	  .annual-progress {
-		position: relative;
-		flex: 1 1 auto;
-		height: 12px;
-		border-radius: 999px;
-		background: #ece7de;
-		overflow: hidden;
-		border: 1px solid #ddd4c8;
-	  }
-	
-	  .annual-progress-fill {
-		height: 100%;
-		width: 0%;
-		background: linear-gradient(90deg, #2b6ff3 0%, #72a1ff 100%);
-		border-radius: 999px;
-	  }
-	
-	  .annual-progress-fill.over-100 {
-		background: linear-gradient(90deg, #17803d 0%, #56b870 100%);
-		box-shadow: 0 0 0 2px rgba(23, 128, 61, 0.08), 0 0 14px rgba(23, 128, 61, 0.22);
-	  }
-	
-	  .annual-progress-text {
-		flex: 0 0 auto;
-		min-width: 48px;
-		text-align: right;
-		font-size: 0.86rem;
-		font-weight: 800;
-		color: var(--text);
-		font-variant-numeric: tabular-nums;
-	  }
-	
-	  .annual-details-toggle-row {
-		margin-top: 10px;
-	  }
-	
-	  .annual-details-btn {
-		appearance: none;
-		border: 1px solid var(--border);
-		background: #fffdfa;
-		color: var(--text-soft);
-		border-radius: 999px;
-		padding: 6px 11px;
-		font-size: 0.8rem;
-		font-weight: 800;
-		line-height: 1;
-		cursor: pointer;
-	  }
-	
-	  .annual-details-btn:hover,
-	  .annual-details-btn:focus-visible {
-		background: #fff;
-		border-color: #cfd7e3;
-		outline: none;
-	  }
-	
-	  .annual-breakdown-wrap {
-		border-top: 1px dashed var(--border);
-		background: #fcfbf8;
-		padding: 10px 12px 12px 12px;
-	  }
-	
-	  .annual-breakdown-title {
-		font-size: 0.8rem;
-		font-weight: 800;
-		color: var(--text-soft);
-		margin-bottom: 6px;
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-	  }
-	
-	  .annual-merchant-shell {
-		border: 1px solid var(--border);
-		border-radius: 18px;
-		background: #fff;
-		overflow: hidden;
-	  }
-	
-	  .annual-merchant-header {
-		padding: 11px 14px;
-		background: #fbf9f5;
-		border-bottom: 1px solid var(--border);
-	  }
-	
-	  .annual-merchant-title {
-		font-size: 0.95rem;
-		font-weight: 800;
-		color: var(--text);
-	  }
-	
-	  .annual-merchant-subtitle {
-		font-size: 0.8rem;
-		color: var(--text-soft);
-		margin-top: 2px;
-	  }
-	
-	  .annual-merchant-list {
-		display: flex;
-		flex-direction: column;
-	  }
-	
-	  .annual-merchant-row {
-		display: grid;
-		grid-template-columns: 1fr auto auto;
-		gap: 12px;
-		align-items: center;
-		padding: 11px 14px;
-		border-top: 1px solid var(--border);
-	  }
-	
-	  .annual-merchant-row:first-child {
-		border-top: 0;
-	  }
-	
-	  .annual-merchant-card {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		min-width: 0;
-	  }
-	
-	  .annual-merchant-uses {
-		font-size: 0.84rem;
-		font-weight: 700;
-		color: var(--text-soft);
-		white-space: nowrap;
-	  }
-	
-	  .annual-merchant-total {
-		font-size: 0.96rem;
-		font-weight: 800;
-		color: var(--text);
-		white-space: nowrap;
-	  }
-	
-	  .annual-empty {
-		font-size: 0.88rem;
-		color: var(--text-soft);
-		padding: 6px 2px 0 2px;
-	  }
-	
-	  @media (max-width: 600px) {
-		.annual-metrics {
-		  grid-template-columns: 1fr 1fr;
-		  gap: 8px;
-		}
-	
-		.annual-merchant-row {
-		  grid-template-columns: 1fr auto;
-		  gap: 8px 12px;
-		}
-	
-		.annual-merchant-uses {
-		  grid-column: 1;
-		}
-	
-		.annual-merchant-total {
-		  grid-column: 2;
-		  grid-row: 1 / span 2;
-		  align-self: center;
-		}
-	  }
-	  
+  /* ---- Annual Summary — compact table redesign ---- */
+
+  .annual-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .annual-table {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .annual-table-head {
+    display: grid;
+    grid-template-columns: 16px 1fr auto auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 12px;
+    background: #f8f7f4;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .annual-table-head .annual-col-right {
+    text-align: right;
+  }
+
+  .annual-table-row {
+    display: grid;
+    grid-template-columns: 16px 1fr auto auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 9px 12px;
+    border-top: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .annual-table-row:first-of-type {
+    border-top: none;
+  }
+
+  .annual-table-row:hover {
+    background: #faf9f6;
+  }
+
+  .annual-table-row.is-totals {
+    background: #f8f7f4;
+    font-weight: 700;
+    cursor: default;
+    border-top: 2px solid var(--border);
+  }
+
+  .annual-table-row.is-totals:hover {
+    background: #f8f7f4;
+  }
+
+  .annual-chevron {
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    transition: transform 0.15s ease;
+    line-height: 1;
+  }
+
+  .annual-chevron.is-open {
+    transform: rotate(90deg);
+  }
+
+  .annual-card-cell {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .annual-col-right {
+    text-align: right;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .annual-col-muted {
+    text-align: right;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .annual-col-net {
+    text-align: right;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .annual-col-net.is-recouped {
+    color: var(--success);
+  }
+
+  .annual-drill {
+    border-top: 1px dashed var(--border);
+    background: #fcfbf8;
+    padding: 10px 12px 12px 38px;
+  }
+
+  .annual-drill-meta {
+    font-size: 0.78rem;
+    color: var(--text-soft);
+    margin-bottom: 8px;
+  }
+
+  .annual-drill-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .annual-progress {
+    position: relative;
+    flex: 1 1 auto;
+    height: 10px;
+    border-radius: 999px;
+    background: #ece7de;
+    overflow: hidden;
+    border: 1px solid #ddd4c8;
+  }
+
+  .annual-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #2b6ff3 0%, #72a1ff 100%);
+    border-radius: 999px;
+  }
+
+  .annual-progress-fill.over-100 {
+    background: linear-gradient(90deg, #17803d 0%, #56b870 100%);
+    box-shadow: 0 0 0 2px rgba(23,128,61,0.08), 0 0 14px rgba(23,128,61,0.22);
+  }
+
+  .annual-progress-text {
+    flex: 0 0 auto;
+    min-width: 40px;
+    text-align: right;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .annual-drill-breakdown-title {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 5px;
+  }
+
+  .annual-mo-table .annual-table-head,
+  .annual-mo-table .annual-table-row {
+    grid-template-columns: 1fr auto auto;
+  }
+
+  .annual-mo-section-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  .annual-empty {
+    font-size: 0.84rem;
+    color: var(--text-soft);
+    padding: 8px 0;
+  }
+	  	  
   </style>
 </head>
 <body>
@@ -3425,7 +3348,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.1.0</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.1.1</button>
   </div>
 
   <script>
@@ -6041,7 +5964,7 @@
 	let expandedMerchantOfferId = null; // for 6.9 UI
 	let cardBenefitsFilterMode = "all"; // for 6.9 UI
 	let expandedCardBenefitId = null; // for 6.9 UI
-	let expandedAnnualCard = null; // for 6.9 UI
+	let expandedAnnualCards = new Set(); // tracks which card rows are expanded
 	let isAddingBenefit = false;
 	let editingBenefitId = null;
 	let openBenefitPopover = null;
@@ -8340,7 +8263,7 @@
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
 		expandedCardBenefitId = null;
-		expandedAnnualCard = null;
+		expandedAnnualCards = new Set();
 		
 		// Re-render everything
 		renderTransactions();
@@ -9618,227 +9541,210 @@
 	  const merchantSummary = computeMerchantBenefitsYTDSummaryFromSavedTxs(txs);
 	  const el = document.getElementById("rollingAnnualSummary");
 	  if (!el) return;
-	
+
 	  const rows = Object.entries(state);
 	  const merchantRows = Object.entries(merchantSummary);
 	  const today = new Date();
-	
+
 	  if (rows.length === 0 && merchantRows.length === 0) {
 		el.innerHTML = `<span class="annual-empty">No annual benefit data yet.</span>`;
 		return;
 	  }
-	
+
 	  function formatMoneyWhole(n) {
 		return Math.round(Number(n || 0)).toLocaleString();
 	  }
-	
+
 	  function formatMoneyPrecise(n) {
 		return formatUsageAmount(Number(n || 0));
 	  }
-	
+
 	  function formatMonthDay(d) {
 		const mm = String(d.getMonth() + 1).padStart(2, "0");
 		const dd = String(d.getDate()).padStart(2, "0");
 		return `${mm}/${dd}`;
 	  }
-	
+
 	  const cardOrder = Object.values(CARDS)
-		.filter(card => card.is_active !== false)
+		.filter(c => c.is_active !== false)
 		.sort((a, b) => Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999))
 		.map(c => c.code);
-	
+
 	  rows.sort((a, b) => {
 		const ia = cardOrder.indexOf(a[0]);
 		const ib = cardOrder.indexOf(b[0]);
 		return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
 	  });
-	
+
 	  merchantRows.sort((a, b) => {
 		const ia = cardOrder.indexOf(a[0]);
 		const ib = cardOrder.indexOf(b[0]);
 		return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
 	  });
-	
+
 	  function renderBreakdownTable(benefitList) {
 		if (!benefitList.length) {
-		  return `<div class="annual-empty">No captured card-native benefits in this window yet.</div>`;
+		  return `<div class="annual-empty">No captured benefits in this window yet.</div>`;
 		}
-	
 		return `
 		  <table class="rolling-breakdown">
 			<thead>
-			  <tr>
-				<th>Benefit</th>
-				<th>Used</th>
-			  </tr>
+			  <tr><th>Benefit</th><th>Used</th></tr>
 			</thead>
 			<tbody>
-			  ${benefitList.map(benefit => `
+			  ${benefitList.map(b => `
 				<tr>
-				  <td>${benefit.labelHtml || escapeHtml(benefit.label || "")}</td>
-				  <td>$${formatMoneyPrecise(benefit.used || 0)}</td>
+				  <td>${b.labelHtml || escapeHtml(b.label || "")}</td>
+				  <td>$${formatMoneyPrecise(b.used || 0)}</td>
 				</tr>
 			  `).join("")}
 			</tbody>
-		  </table>
-		`;
+		  </table>`;
 	  }
-	
-	  let html = `<div class="annual-shell"><div class="annual-card-list">`;
-	
-	  for (const [card, d] of rows) {
-		const cardMeta = CARDS[card] || {};
-		const annualFee = Number(cardMeta.annualFee || 0);
-		const totalUsed = Number(d.totalUsed || 0);
-	
-		let pctRaw = 0;
-		if (annualFee > 0) {
-		  pctRaw = (totalUsed / annualFee) * 100;
-		} else {
-		  pctRaw = totalUsed > 0 ? 100 : 0;
-		}
-	
-		const pctLabel = `${Math.round(pctRaw)}%`;
-		const pctFill = Math.max(0, Math.min(100, pctRaw));
-		const over100 = pctRaw > 100;
-		const startLabel = d.start ? formatMonthDay(d.start) : "";
-	
-		const benefitList = Object.values(d.benefits || {})
-		  .sort((a, b) =>
-			(Number(a.display_order ?? 999) - Number(b.display_order ?? 999)) ||
-			(Number(b.used || 0) - Number(a.used || 0)) ||
-			String(a.label || "").localeCompare(String(b.label || ""))
-		  )
-		  .filter(benefit => Number(benefit.used || 0) > 0);
-	
-		const isExpanded = expandedAnnualCard === card;
-	
+
+	  let html = `<div class="annual-shell">`;
+
+	  // ---- CB compact table ----
+	  if (rows.length > 0) {
 		html += `
-		  <div class="annual-card-panel">
-			<div class="annual-card-main">
-			  <div class="annual-card-top">
+		  <div class="annual-table">
+			<div class="annual-table-head">
+			  <div></div>
+			  <div>Card</div>
+			  <div class="annual-col-right">Fee</div>
+			  <div class="annual-col-right">Captured</div>
+			  <div class="annual-col-right">Net</div>
+			</div>`;
+
+		for (const [card, d] of rows) {
+		  const cardMeta = CARDS[card] || {};
+		  const annualFee = Number(cardMeta.annualFee || 0);
+		  const totalUsed = Number(d.totalUsed || 0);
+		  const net = totalUsed - annualFee;
+		  const isRecouped = totalUsed >= annualFee;
+		  const isExpanded = expandedAnnualCards.has(card);
+
+		  const pctRaw = annualFee > 0
+			? (totalUsed / annualFee) * 100
+			: (totalUsed > 0 ? 100 : 0);
+		  const pctFill = Math.max(0, Math.min(100, pctRaw));
+		  const over100 = pctRaw > 100;
+		  const pctLabel = `${Math.round(pctRaw)}%`;
+		  const startLabel = d.start ? formatMonthDay(d.start) : "";
+
+		  const benefitList = Object.values(d.benefits || {})
+			.sort((a, b) =>
+			  (Number(a.display_order ?? 999) - Number(b.display_order ?? 999)) ||
+			  (Number(b.used || 0) - Number(a.used || 0)) ||
+			  String(a.label || "").localeCompare(String(b.label || ""))
+			)
+			.filter(b => Number(b.used || 0) > 0);
+
+		  const netSign = net >= 0 ? "+" : "\u2212";
+		  const netAbs = formatMoneyWhole(Math.abs(net));
+
+		  html += `
+			<div class="annual-table-row" data-annual-card="${escapeHtml(card)}">
+			  <div class="annual-chevron${isExpanded ? " is-open" : ""}">&#x203A;</div>
+			  <div class="annual-card-cell">
 				${renderCardBadge(card)}
-				<div class="annual-card-name">${escapeHtml(cardMeta.label || card)}</div>
+				<span>${escapeHtml(cardMeta.label || card)}</span>
 			  </div>
-	
-			  <div class="annual-card-subline">Since ${escapeHtml(startLabel)}</div>
-	
-			  <div class="annual-pct-line">
-				<div class="annual-pct-value">${escapeHtml(pctLabel)}</div>
-				<div class="annual-pct-label">Recouped</div>
-			  </div>
-	
-			  <div class="annual-metrics">
-				<div class="annual-metric">
-				  <div class="annual-metric-label">Benefits used</div>
-				  <div class="annual-metric-value">$${formatMoneyWhole(totalUsed)}</div>
+			  <div class="annual-col-muted">$${formatMoneyWhole(annualFee)}</div>
+			  <div class="annual-col-right">$${formatMoneyWhole(totalUsed)}</div>
+			  <div class="annual-col-net${isRecouped ? " is-recouped" : ""}">${netSign}$${netAbs}</div>
+			</div>`;
+
+		  if (isExpanded) {
+			html += `
+			  <div class="annual-drill">
+				${startLabel ? `<div class="annual-drill-meta">Annual window since ${escapeHtml(startLabel)}</div>` : ""}
+				<div class="annual-drill-progress-row">
+				  <div class="annual-progress">
+					<div class="annual-progress-fill${over100 ? " over-100" : ""}" style="width:${pctFill}%;"></div>
+				  </div>
+				  <div class="annual-progress-text">${escapeHtml(pctLabel)} recouped</div>
 				</div>
-	
-				<div class="annual-metric">
-				  <div class="annual-metric-label">Annual fee</div>
-				  <div class="annual-metric-value">$${formatMoneyWhole(annualFee)}</div>
-				</div>
-			  </div>
-	
-			  <div class="annual-progress-row">
-				<div class="annual-progress">
-				  <div
-					class="annual-progress-fill ${over100 ? "over-100" : ""}"
-					style="width:${pctFill}%;"
-				  ></div>
-				</div>
-				<div class="annual-progress-text">${escapeHtml(pctLabel)}</div>
-			  </div>
-	
-			  <div class="annual-details-toggle-row">
-				<button
-				  type="button"
-				  class="annual-details-btn"
-				  data-annual-card="${escapeHtml(card)}"
-				>
-				  ${isExpanded ? "Hide details" : "Show details"}
-				</button>
-			  </div>
-			</div>
-	
-			${isExpanded ? `
-			  <div class="annual-breakdown-wrap">
-				<div class="annual-breakdown-title">Benefit breakdown</div>
+				<div class="annual-drill-breakdown-title">Benefit breakdown</div>
 				${renderBreakdownTable(benefitList)}
-			  </div>
-			` : ""}
-		  </div>
-		`;
+			  </div>`;
+		  }
+		}
+
+		// Totals row
+		if (rows.length > 1) {
+		  const totalFee = rows.reduce((sum, [c]) => sum + Number(CARDS[c]?.annualFee || 0), 0);
+		  const totalCaptured = rows.reduce((sum, [, d]) => sum + Number(d.totalUsed || 0), 0);
+		  const totalNet = totalCaptured - totalFee;
+		  const totalNetSign = totalNet >= 0 ? "+" : "\u2212";
+		  const totalNetAbs = formatMoneyWhole(Math.abs(totalNet));
+		  const totalRecouped = totalCaptured >= totalFee;
+
+		  html += `
+			<div class="annual-table-row is-totals">
+			  <div></div>
+			  <div class="annual-card-cell">All cards</div>
+			  <div class="annual-col-muted">$${formatMoneyWhole(totalFee)}</div>
+			  <div class="annual-col-right">$${formatMoneyWhole(totalCaptured)}</div>
+			  <div class="annual-col-net${totalRecouped ? " is-recouped" : ""}">${totalNetSign}$${totalNetAbs}</div>
+			</div>`;
+		}
+
+		html += `</div>`;
 	  }
-	
-	  // CB totals panel
-	  if (rows.length > 1) {
-		const grandTotal = rows.reduce((sum, [, d]) => sum + Number(d.totalUsed || 0), 0);
-		html += `
-		  <div class="annual-card-panel annual-totals-panel">
-			<div class="annual-card-main">
-			  <div class="annual-card-top">
-				<div class="annual-card-name">All Cards</div>
-			  </div>
-			  <div class="annual-metrics">
-				<div class="annual-metric">
-				  <div class="annual-metric-label">Total benefits used</div>
-				  <div class="annual-metric-value">$${formatMoneyWhole(grandTotal)}</div>
-				</div>
-			  </div>
-			</div>
-		  </div>
-		`;
-	  }
-	
-	  html += `</div>`;
-	
+
+	  // ---- MO compact table ----
 	  if (merchantRows.length > 0) {
+		const moTotalUses = merchantRows.reduce((sum, [, s]) => sum + Number(s.uses || 0), 0);
+		const moTotalValue = merchantRows.reduce((sum, [, s]) => sum + Number(s.total || 0), 0);
+
 		html += `
-		  <div class="annual-merchant-shell">
-			<div class="annual-merchant-header">
-			  <div class="annual-merchant-title">Merchant Offers - ${today.getFullYear()}</div>
-			  <div class="annual-merchant-subtitle">Captured merchant offer value this calendar year</div>
-			</div>
-			<div class="annual-merchant-list">
-				${merchantRows.map(([card, summary]) => `
-				  <div class="annual-merchant-row">
-					<div class="annual-merchant-card">
-					  ${renderCardBadge(card)}
-					  <span>${escapeHtml(CARDS[card]?.label || card)}</span>
-					</div>
-					<div class="annual-merchant-uses">${Number(summary.uses || 0)} use${Number(summary.uses || 0) === 1 ? "" : "s"}</div>
-					<div class="annual-merchant-total">$${formatMoneyWhole(summary.total || 0)}</div>
-				  </div>
-				`).join("")}
-				${merchantRows.length > 1 ? `
-				  <div class="annual-merchant-row annual-merchant-totals-row">
-					<div class="annual-merchant-card"><strong>All cards</strong></div>
-					<div class="annual-merchant-uses">
-					  ${merchantRows.reduce((sum, [, s]) => sum + Number(s.uses || 0), 0)} use${merchantRows.reduce((sum, [, s]) => sum + Number(s.uses || 0), 0) === 1 ? "" : "s"}
-					</div>
-					<div class="annual-merchant-total">$${formatMoneyWhole(merchantRows.reduce((sum, [, s]) => sum + Number(s.total || 0), 0))}</div>
-				  </div>
-				` : ""}
+		  <div>
+			<div class="annual-mo-section-title">Merchant Offers \u2014 ${today.getFullYear()}</div>
+			<div class="annual-table annual-mo-table">
+			  <div class="annual-table-head">
+				<div>Card</div>
+				<div class="annual-col-right">Uses</div>
+				<div class="annual-col-right">Value</div>
 			  </div>
-		  </div>
-		`;
+			  ${merchantRows.map(([card, summary]) => `
+				<div class="annual-table-row" style="cursor:default;">
+				  <div class="annual-card-cell">
+					${renderCardBadge(card)}
+					<span>${escapeHtml(CARDS[card]?.label || card)}</span>
+				  </div>
+				  <div class="annual-col-muted">${Number(summary.uses || 0)} use${Number(summary.uses || 0) === 1 ? "" : "s"}</div>
+				  <div class="annual-col-right">$${formatMoneyWhole(summary.total || 0)}</div>
+				</div>
+			  `).join("")}
+			  ${merchantRows.length > 1 ? `
+				<div class="annual-table-row is-totals">
+				  <div class="annual-card-cell">All cards</div>
+				  <div class="annual-col-muted">${moTotalUses} use${moTotalUses === 1 ? "" : "s"}</div>
+				  <div class="annual-col-right">$${formatMoneyWhole(moTotalValue)}</div>
+				</div>
+			  ` : ""}
+			</div>
+		  </div>`;
 	  }
-	
+
 	  html += `</div>`;
-	
 	  el.innerHTML = html;
-	
-	  el.querySelectorAll("[data-annual-card]").forEach(btn => {
-		btn.addEventListener("click", () => {
-		  const card = btn.getAttribute("data-annual-card");
-		  expandedAnnualCard = expandedAnnualCard === card ? null : card;
+
+	  el.querySelectorAll("[data-annual-card]").forEach(row => {
+		row.addEventListener("click", () => {
+		  const card = row.getAttribute("data-annual-card");
+		  if (expandedAnnualCards.has(card)) {
+			expandedAnnualCards.delete(card);
+		  } else {
+			expandedAnnualCards.add(card);
+		  }
 		  renderRollingAnnualSummary();
 		});
 	  });
 	}
-	
-	// 7.0 Fallback from logic based on card point multipliers
+
+		// 7.0 Fallback from logic based on card point multipliers
 	function getBestEarningRuleNoChannel(card, categoryKey) {
 	  // Returns the best earning rule for this card+category ignoring any channel requirement.
 	  // Used to show what the card earns if the user doesn't use the optimal portal.
@@ -11605,7 +11511,7 @@
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
 		expandedCardBenefitId = null;
-		expandedAnnualCard = null;
+		expandedAnnualCards = new Set();
 	
 		renderTransactions();
 		renderStateSummary();
@@ -11678,7 +11584,7 @@
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
 		expandedCardBenefitId = null;
-		expandedAnnualCard = null;
+		expandedAnnualCards = new Set();
 	
 	  renderTransactions();
 	  renderStateSummary();
@@ -11843,7 +11749,7 @@
 			merchantOffersFilterMode = "all";
    merchantOffersExpiringOnly = false;
 			expandedMerchantOfferId = null;
-			expandedAnnualCard = null;
+			expandedAnnualCards = new Set();
 	
 			// Re-render everything that depends on merchant benefits
 			renderMerchantBenefits();
@@ -11902,7 +11808,7 @@
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
 		expandedCardBenefitId = null;
-		expandedAnnualCard = null;
+		expandedAnnualCards = new Set();
 		
 		// Re-render everything that depends on txs
 		renderTransactions();
