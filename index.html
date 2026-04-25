@@ -8852,13 +8852,7 @@
 	
 	// helper functions for v6.9 UI for credit card benefits summary
 	function getCardBenefitSummaryFilterKey(row) {
-	  const c = String(row.sortCategory || "").toLowerCase();
-	
-	  if (c.includes("dining")) return "dining";
-	  if (c.includes("travel")) return "travel";
-	  if (c.includes("shopping")) return "shopping";
-	
-	  return "other";
+	  return String(row.sortCategory || "other");
 	}
 	
 	function getCardBenefitStatusLabel(row) {
@@ -9034,13 +9028,25 @@
 		grouped.get(key).push(row);
 	  }
 	
-	  const filters = [
-		{ key: "all", label: "All" },
-		{ key: "dining", label: "Dining" },
-		{ key: "travel", label: "Travel" },
-		{ key: "shopping", label: "Shopping" }
-	  ];
-	
+	  // Build filter chips dynamically from the groups present in current rows
+	  const presentGroupKeys = [...new Set(rows.map(r => getCardBenefitSummaryFilterKey(r)))];
+	  const filters = [{ key: "all", label: "All" }];
+	  presentGroupKeys
+	    .filter(k => k && k !== "other")
+	    .sort((a, b) => compareSummarySortCategories(a, b))
+	    .forEach(k => {
+	      const label = getSummarySortCategoryLabel(k) || k;
+	      filters.push({ key: k, label });
+	    });
+	  if (presentGroupKeys.includes("other")) {
+	    filters.push({ key: "other", label: "Other" });
+	  }
+
+	  // If active filter no longer matches any present group, reset to "all"
+	  if (cardBenefitsFilterMode !== "all" && !presentGroupKeys.includes(cardBenefitsFilterMode)) {
+	    cardBenefitsFilterMode = "all";
+	  }
+
 	  function renderGroupHeader(groupKey) {
 		if (cardBenefitsSortMode === "category") {
 		  return `<div class="cb-group-header">${escapeHtml(getSummarySortCategoryLabel(groupKey) || groupKey)}</div>`;
@@ -9351,13 +9357,30 @@
 	  const activeCount = activeRows.length;
 	  const expiringCount = activeRows.filter(r => r.expiringSoon).length;
 	
-	  const filters = [
-		{ key: "all", label: "All" },
-		{ key: "dining", label: "Dining" },
-		{ key: "travel", label: "Travel" },
-		{ key: "shopping", label: "Shopping" }
-	  ];
-	
+	  // Build filter chips dynamically from groups present in active rows
+	  const presentMoGroupKeys = [...new Set(activeRows.map(r => r.filterKey))];
+	  const filters = [{ key: "all", label: "All" }];
+	  if (activeRows.some(r => r.expiringSoon)) {
+	    filters.push({ key: "expiring", label: "Expiring soon" });
+	  }
+	  presentMoGroupKeys
+	    .filter(k => k && k !== "other" && k !== "expiring")
+	    .sort((a, b) => compareSummarySortCategories(a, b))
+	    .forEach(k => {
+	      const label = getSummarySortCategoryLabel(k) || k;
+	      filters.push({ key: k, label });
+	    });
+	  if (presentMoGroupKeys.includes("other")) {
+	    filters.push({ key: "other", label: "Other" });
+	  }
+
+	  // If active filter no longer matches any present group, reset to "all"
+	  if (merchantOffersFilterMode !== "all" &&
+	      merchantOffersFilterMode !== "expiring" &&
+	      !presentMoGroupKeys.includes(merchantOffersFilterMode)) {
+	    merchantOffersFilterMode = "all";
+	  }
+
 	  const expiringRows = activeRows.filter(r => r.expiringSoon);
 	  const availableRows = activeRows.filter(r => !r.expiringSoon);
 	
