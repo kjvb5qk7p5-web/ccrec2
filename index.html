@@ -862,6 +862,18 @@
       cursor: pointer;
     }
 
+    .logged-table-scroll {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+    }
+
+    .logged-table-scroll #loggedTable {
+      border: none;
+      border-radius: 0;
+    }
+
     #stateSummary a:link,
     #stateSummary a:visited {
       color: inherit;
@@ -3186,33 +3198,23 @@
     </button>
     <div id="section-content-loggedPurchases" style="display:none;">
     <div id="logContent">
-    
-      <table id="loggedTable">
-        <thead>
-			<tr>
-			  <th>Date</th>
-			  <th>Amount</th>
-			  <th>Category</th>
-			  <th>Card Ben Amt</th>
-			  <th>Mrch Offer Amt</th>
-			  <th>Card Used</th>
-			</tr>
-        </thead>
-        <tbody id="txTableBody"></tbody>
-      </table>
-
-      <div style="margin-top:10px;">
-        <button id="btnExportData">Export All Data</button>
-        <button id="btnImportData" style="margin-left:8px;">Import Data</button>
-        <button id="btnClear" style="margin-left:8px;">Clear All Purchases</button>
+      <div class="logged-table-scroll">
+        <table id="loggedTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Category</th>
+              <th>Card Ben Amt</th>
+              <th>Mrch Offer Amt</th>
+              <th>Card Used</th>
+            </tr>
+          </thead>
+          <tbody id="txTableBody"></tbody>
+        </table>
       </div>
-      
-      <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
-
-      <p class="muted">
-        Transactions are stored locally. Export to backup your data before clearing browser data. 
-      </p>
     </div>
+    </div><!-- end section-content-loggedPurchases -->
   </div>
   
 	<div id="floatingSaveBar">
@@ -3315,7 +3317,17 @@
       <span id="section-chevron-cardDataManagement" class="section-chevron">›</span>
     </button>
     <div id="section-content-cardDataManagement" style="display:none;">
-      <!-- Data management content to be moved here in Phase 3 -->
+      <div style="margin-top:4px;">
+        <button id="btnExportData">Export All Data</button>
+        <button id="btnImportData" style="margin-left:8px;">Import Data</button>
+        <button id="btnClear" style="margin-left:8px;">Clear All Purchases</button>
+      </div>
+
+      <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
+
+      <p class="muted" style="margin-top:10px;">
+        All data is stored locally in your browser. Export regularly to back up your transactions and merchant offers.
+      </p>
     </div>
   </div>
 
@@ -8286,11 +8298,16 @@
 
     // ---------- Render transactions ----------
     function renderTransactions() {
-	  const txs = loadTransactions();
+	  const allTxs = loadTransactions();
 	  const tbody = document.getElementById("txTableBody");
 	  tbody.innerHTML = "";
-	
-	  txs.forEach((tx, idx) => {
+
+	  // Sort descending by date so most recent appear first
+	  const txs = [...allTxs]
+		.map((tx, originalIdx) => ({ tx, originalIdx }))
+		.sort((a, b) => String(b.tx.date || "").localeCompare(String(a.tx.date || "")));
+
+	  txs.forEach(({ tx, originalIdx: idx }) => {
 		const tr = document.createElement("tr");
 		const tdDate = document.createElement("td");
 		const tdAmt = document.createElement("td");
