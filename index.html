@@ -7,6 +7,7 @@
   <style>
     body {
 	  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	  font-size: 0.93rem;
 	  margin: 20px;
 	  max-width: 900px;
 	}
@@ -1741,14 +1742,14 @@
     color: var(--text-soft);
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 700;
     margin-bottom: 2px;
   }
 
   .section-subtitle {
     color: var(--text-soft);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin: 0;
   }
 
@@ -1786,31 +1787,31 @@
     background: rgba(255,255,255,0.86);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 12px;
+    padding: 9px;
     min-width: 0;
   }
 
   .right-now-label {
     color: var(--text-soft);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .right-now-value {
     color: var(--text);
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 800;
     line-height: 1.2;
   }
 
   .right-now-meta {
     color: var(--text-soft);
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     line-height: 1.25;
-    margin-top: 5px;
+    margin-top: 4px;
   }
 
   .right-now-item.is-success {
@@ -2302,16 +2303,16 @@
 	  .mo-row-inner {
 		display: grid;
 		grid-template-columns: auto 1fr auto auto;
-		gap: 8px;
+		gap: 6px;
 		align-items: center;
-		padding: 8px 12px;
+		padding: 6px 10px;
 	  }
 	
 	  .mo-icon {
-		width: 1.7rem;
-		min-width: 1.7rem;
+		width: 1.5rem;
+		min-width: 1.5rem;
 		text-align: center;
-		font-size: 1.15rem;
+		font-size: 1.05rem;
 		line-height: 1;
 	  }
 	
@@ -2320,17 +2321,17 @@
 	  }
 	
 	  .mo-merchant {
-		font-size: 0.98rem;
+		font-size: 0.93rem;
 		font-weight: 800;
 		color: var(--text);
 		line-height: 1.15;
 	  }
 	
 	  .mo-subline {
-		font-size: 0.84rem;
+		font-size: 0.8rem;
 		color: var(--text-soft);
 		line-height: 1.15;
-		margin-top: 3px;
+		margin-top: 2px;
 	  }
 	
 	  .mo-right {
@@ -2349,7 +2350,7 @@
 	  }
 	
 	  .mo-value {
-		font-size: 0.96rem;
+		font-size: 0.9rem;
 		font-weight: 800;
 		color: var(--text);
 		line-height: 1;
@@ -2527,16 +2528,16 @@
 	  .cb-row-inner {
 		display: grid;
 		grid-template-columns: auto 1fr auto auto;
-		gap: 8px;
+		gap: 6px;
 		align-items: center;
-		padding: 8px 12px;
+		padding: 6px 10px;
 	  }
 	
 	  .cb-icon {
-		width: 1.7rem;
-		min-width: 1.7rem;
+		width: 1.5rem;
+		min-width: 1.5rem;
 		text-align: center;
-		font-size: 1.15rem;
+		font-size: 1.05rem;
 		line-height: 1;
 	  }
 	
@@ -2545,17 +2546,17 @@
 	  }
 	
 	  .cb-benefit {
-		font-size: 0.98rem;
+		font-size: 0.93rem;
 		font-weight: 800;
 		color: var(--text);
 		line-height: 1.15;
 	  }
 	
 	  .cb-subline {
-		font-size: 0.84rem;
+		font-size: 0.8rem;
 		color: var(--text-soft);
 		line-height: 1.15;
-		margin-top: 3px;
+		margin-top: 2px;
 	  }
 	
 	  .cb-right {
@@ -2574,7 +2575,7 @@
 	  }
 	
 	  .cb-value {
-		font-size: 0.96rem;
+		font-size: 0.9rem;
 		font-weight: 800;
 		color: var(--text);
 		line-height: 1;
@@ -2758,7 +2759,7 @@
 	  }
 	
 	  .annual-metric-value {
-		font-size: 0.96rem;
+		font-size: 0.9rem;
 		font-weight: 800;
 		color: var(--text);
 		line-height: 1.15;
@@ -9388,7 +9389,7 @@
 	    return categoryMatch && expiringMatch;
 	  });
 
-	  const activeCount = displayRows.length;
+	  const activeCount = allMoRows.length;
 	  const expiringCount = allMoRows.filter(r => r.expiringSoon).length;
 
 	  const expiringRows = displayRows.filter(r => r.expiringSoon);
