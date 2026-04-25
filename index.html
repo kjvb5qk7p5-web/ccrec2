@@ -2210,7 +2210,10 @@
 	
 	  .mo-filter-row {
 		display: flex;
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		padding-bottom: 4px;
+		-webkit-overflow-scrolling: touch;
 		gap: 8px;
 	  }
 	
@@ -2439,8 +2442,11 @@
 	
 	  .cb-filter-row {
 		display: flex;
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		gap: 8px;
+		overflow-x: auto;
+		padding-bottom: 4px;
+		-webkit-overflow-scrolling: touch;
 	  }
 	
 	  .cb-filter-chip {
@@ -5930,6 +5936,7 @@
 	let merchantOffersSortMode = "alpha";
 	let manageOffersTab = "list"; // "list" or "form"
 	let moManageFilterKey = "all";
+	let merchantOffersExpiringOnly = false;
 
 	const sectionState = {
 	  cardBenefits: false,
@@ -8255,6 +8262,7 @@
 		}		
 
 		merchantOffersFilterMode = "all";
+  merchantOffersExpiringOnly = false;
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
 		expandedCardBenefitId = null;
@@ -9307,15 +9315,7 @@
 		}
 	
 		const filterKey = getMerchantOfferSummaryFilterKey(benefit);
-	
-		if (merchantOffersFilterMode !== "all") {
-		  if (merchantOffersFilterMode === "expiring") {
-			if (!expiringSoon) continue;
-		  } else if (filterKey !== merchantOffersFilterMode) {
-			continue;
-		  }
-		}
-	
+
 		let remainingValueText = "";
 		if (hasTotalCap && totalLimit != null) {
 		  remainingValueText = `$${formatUsageAmount(Math.max(0, totalLimit - used))} left`;
@@ -9354,13 +9354,13 @@
 		});
 	  }
 	
-	  const activeCount = activeRows.length;
-	  const expiringCount = activeRows.filter(r => r.expiringSoon).length;
-	
-	  // Build filter chips dynamically from groups present in active rows
-	  const presentMoGroupKeys = [...new Set(activeRows.map(r => r.filterKey))];
+	  // allMoRows has every non-expired/non-exhausted row — used for stable chip generation
+	  const allMoRows = activeRows;
+	  const presentMoGroupKeys = [...new Set(allMoRows.map(r => r.filterKey))];
+
+	  // Build filter chips from ALL rows so chips stay stable regardless of active filter
 	  const filters = [{ key: "all", label: "All" }];
-	  if (activeRows.some(r => r.expiringSoon)) {
+	  if (allMoRows.some(r => r.expiringSoon)) {
 	    filters.push({ key: "expiring", label: "Expiring soon" });
 	  }
 	  presentMoGroupKeys
@@ -9376,13 +9376,23 @@
 
 	  // If active filter no longer matches any present group, reset to "all"
 	  if (merchantOffersFilterMode !== "all" &&
-	      merchantOffersFilterMode !== "expiring" &&
 	      !presentMoGroupKeys.includes(merchantOffersFilterMode)) {
 	    merchantOffersFilterMode = "all";
+     merchantOffersExpiringOnly = false;
 	  }
 
-	  const expiringRows = activeRows.filter(r => r.expiringSoon);
-	  const availableRows = activeRows.filter(r => !r.expiringSoon);
+	  // Apply category + expiring filters to produce display rows
+	  const displayRows = allMoRows.filter(r => {
+	    const categoryMatch = merchantOffersFilterMode === "all" || r.filterKey === merchantOffersFilterMode;
+	    const expiringMatch = !merchantOffersExpiringOnly || r.expiringSoon;
+	    return categoryMatch && expiringMatch;
+	  });
+
+	  const activeCount = displayRows.length;
+	  const expiringCount = allMoRows.filter(r => r.expiringSoon).length;
+
+	  const expiringRows = displayRows.filter(r => r.expiringSoon);
+	  const availableRows = displayRows.filter(r => !r.expiringSoon);
 	
 	  function renderRow(row) {
 		const isExpanded = expandedMerchantOfferId === row.id;
@@ -9459,7 +9469,11 @@
 			  ${filters.map(filter => `
 				<button
 				  type="button"
-				  class="mo-filter-chip ${merchantOffersFilterMode === filter.key ? "is-active" : ""}"
+				  class="mo-filter-chip ${
+					filter.key === "expiring"
+					  ? (merchantOffersExpiringOnly ? "is-active" : "")
+					  : (merchantOffersFilterMode === filter.key ? "is-active" : "")
+				  }"
 				  data-mo-filter="${escapeHtml(filter.key)}"
 				>
 				  ${escapeHtml(filter.label)}
@@ -9501,7 +9515,12 @@
 	
 	  el.querySelectorAll("[data-mo-filter]").forEach(btn => {
 		btn.addEventListener("click", () => {
-		  merchantOffersFilterMode = btn.getAttribute("data-mo-filter") || "all";
+		  const filterVal = btn.getAttribute("data-mo-filter") || "all";
+		  if (filterVal === "expiring") {
+			merchantOffersExpiringOnly = !merchantOffersExpiringOnly;
+		  } else {
+			merchantOffersFilterMode = filterVal;
+		  }
 		  expandedMerchantOfferId = null;
 		  renderMerchantOffersSummary();
 		});
@@ -11508,6 +11527,7 @@
 		}
 		
 		merchantOffersFilterMode = "all";
+  merchantOffersExpiringOnly = false;
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
 		expandedCardBenefitId = null;
@@ -11580,6 +11600,7 @@
 	  }
 	  
 		merchantOffersFilterMode = "all";
+  merchantOffersExpiringOnly = false;
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
 		expandedCardBenefitId = null;
@@ -11746,6 +11767,7 @@
 			exitEditMode();
 			
 			merchantOffersFilterMode = "all";
+   merchantOffersExpiringOnly = false;
 			expandedMerchantOfferId = null;
 			expandedAnnualCard = null;
 	
@@ -11802,6 +11824,7 @@
 		}
 		
 		merchantOffersFilterMode = "all";
+  merchantOffersExpiringOnly = false;
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
 		expandedCardBenefitId = null;
@@ -11856,6 +11879,7 @@
         }
         
         merchantOffersFilterMode = "all";
+        merchantOffersExpiringOnly = false;
 		expandedMerchantOfferId = null;
         
         renderMerchantBenefits();
