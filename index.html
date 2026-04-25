@@ -1385,6 +1385,23 @@
     --radius-sm: 10px;
     --radius-md: 16px;
     --radius-lg: 22px;
+
+    /* Section accent tokens */
+    --section-cb-bg:         linear-gradient(180deg, #f5faff 0%, #ffffff 60%);
+    --section-cb-border:     #c8dcf5;
+    --section-cb-accent:     #2b6ff3;
+
+    --section-mo-bg:         linear-gradient(180deg, #f5fff8 0%, #ffffff 60%);
+    --section-mo-border:     #b8e8c8;
+    --section-mo-accent:     #17803d;
+
+    --section-annual-bg:     linear-gradient(180deg, #fdfaf2 0%, #ffffff 60%);
+    --section-annual-border: #e8d9b0;
+    --section-annual-accent: #9a6700;
+
+    --section-admin-bg:      linear-gradient(180deg, #f9f8f7 0%, #ffffff 60%);
+    --section-admin-border:  #ddd8d0;
+    --section-admin-accent:  #5e6a76;
   }
 
   html {
@@ -1833,6 +1850,33 @@
     background: linear-gradient(180deg, #ffffff 0%, #fcfbf8 100%);
   }
 
+  #sectionCardCB {
+    background: var(--section-cb-bg);
+    border-color: var(--section-cb-border);
+  }
+
+  #sectionCardCB .section-kicker {
+    color: var(--section-cb-accent);
+  }
+
+  #sectionCardMO {
+    background: var(--section-mo-bg);
+    border-color: var(--section-mo-border);
+  }
+
+  #sectionCardMO .section-kicker {
+    color: var(--section-mo-accent);
+  }
+
+  #sectionCardAnnual {
+    background: var(--section-annual-bg);
+    border-color: var(--section-annual-border);
+  }
+
+  #sectionCardAnnual .section-kicker {
+    color: var(--section-annual-accent);
+  }
+
   .summary-table-wrap {
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -1903,7 +1947,12 @@
   }
 
   .admin-card {
-    background: linear-gradient(180deg, #ffffff 0%, #fcfbf8 100%);
+    background: var(--section-admin-bg);
+    border-color: var(--section-admin-border);
+  }
+
+  .admin-card .section-kicker {
+    color: var(--section-admin-accent);
   }
 
   .section-header-btn {
@@ -1923,6 +1972,30 @@
   .section-header-btn:focus-visible {
     outline: 2px solid var(--primary);
     border-radius: 6px;
+  }
+
+  #sectionCardCB .section-header-btn:hover,
+  #sectionCardCB .section-header-btn:focus-visible {
+    border-left: 3px solid var(--section-cb-accent);
+    padding-left: 3px;
+  }
+
+  #sectionCardMO .section-header-btn:hover,
+  #sectionCardMO .section-header-btn:focus-visible {
+    border-left: 3px solid var(--section-mo-accent);
+    padding-left: 3px;
+  }
+
+  #sectionCardAnnual .section-header-btn:hover,
+  #sectionCardAnnual .section-header-btn:focus-visible {
+    border-left: 3px solid var(--section-annual-accent);
+    padding-left: 3px;
+  }
+
+  .admin-card .section-header-btn:hover,
+  .admin-card .section-header-btn:focus-visible {
+    border-left: 3px solid var(--section-admin-accent);
+    padding-left: 3px;
   }
 
   .section-chevron {
@@ -3012,7 +3085,7 @@
   </div>
 
   <!-- Current month / year credit usage summary -->
-  <div class="card summary-card-shell">
+  <div class="card summary-card-shell" id="sectionCardCB">
     <button class="section-header-btn" onclick="toggleSection('cardBenefits')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Native rewards</div>
@@ -3031,7 +3104,7 @@
     </div>
   </div>
 
-  <div class="card summary-card-shell">
+  <div class="card summary-card-shell" id="sectionCardMO">
     <button class="section-header-btn" onclick="toggleSection('merchantOffers')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Additional time-bound opportunities</div>
@@ -3050,7 +3123,7 @@
     </div>
   </div>
 
-  <div class="card summary-card-shell">
+  <div class="card summary-card-shell" id="sectionCardAnnual">
     <button class="section-header-btn" onclick="toggleSection('annualSummaries')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Longer view</div>
