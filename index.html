@@ -1927,6 +1927,63 @@
     margin-top: 2px;
   }
 
+  .mo-manage-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 14px;
+  }
+
+  .mo-manage-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+
+  .mo-manage-tab.is-active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  .mo-manage-tab-panel {
+    display: none;
+  }
+
+  .mo-manage-tab-panel.is-active {
+    display: block;
+  }
+
+  .mo-manage-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .mo-manage-filter-chip {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .mo-manage-filter-chip.is-active {
+    background: var(--primary-soft);
+    border-color: var(--primary-line);
+    color: var(--primary);
+  }
+
   #floatingSaveBar {
     border-top: 1px solid var(--border);
     background: rgba(248, 247, 244, 0.94);
@@ -3002,118 +3059,116 @@
     </button>
     <div id="section-content-manageMerchantOffers" style="display:none;">
     <div id="benefitsContent">
-    
-      <h3 id="benefitFormHeading" style="margin-top:0.8rem;">Add Merchant Offer</h3>
 
-      <label>
-        Merchant<br>
-        <input type="text" id="benefitMerchant" placeholder="e.g., Starbucks" />
-      </label>
+      <!-- Tab strip -->
+      <div class="mo-manage-tabs">
+        <button type="button" class="mo-manage-tab is-active" data-mo-tab="list">Offers</button>
+        <button type="button" class="mo-manage-tab" data-mo-tab="form">Add / Edit</button>
+      </div>
 
-      <label>
-        Card<br>
-        <select id="benefitCard"></select>
-      </label>
+      <!-- Tab 1: List -->
+      <div class="mo-manage-tab-panel is-active" id="moManageTabList">
+        <div class="mo-manage-filter-row" id="moManageFilterRow"></div>
+        <h3 style="margin-top:0; margin-bottom:8px;">Saved Merchant Offers</h3>
+        <table id="benefitsTable">
+          <thead>
+            <tr>
+              <th>Merchant</th>
+              <th>Card</th>
+              <th>Discount</th>
+              <th>Limit</th>
+              <th>Category</th>
+              <th>End Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="benefitsTbody"></tbody>
+        </table>
+        <p class="muted">
+          Merchant offers are stored locally. Export to backup your data before clearing browser data.
+        </p>
+      </div>
 
-      <label>
-        Discount type<br>
-        <select id="benefitDiscountType">
-          <option value="percent">Percent (e.g. 10% back)</option>
-          <option value="amount">Fixed amount ($ back)</option>
-        </select>
-      </label>
+      <!-- Tab 2: Add / Edit form -->
+      <div class="mo-manage-tab-panel" id="moManageTabForm">
+        <h3 id="benefitFormHeading" style="margin-top:0;">Add Merchant Offer</h3>
 
-      <label>
-        Discount value<br>
-        <input type="number" id="benefitDiscountValue" min="0" step="0.01" placeholder="e.g. 10 for 10% or $10" />
-      </label>
+        <label>
+          Merchant<br>
+          <input type="text" id="benefitMerchant" placeholder="e.g., Starbucks" />
+        </label>
 
-      <label>
-        Minimum spend per transaction (optional, in $)<br>
-        <input type="number" id="benefitMinSpend" min="0" step="0.01" placeholder="e.g. 50 means $50+ to trigger" />
-      </label>
+        <label>
+          Card<br>
+          <select id="benefitCard"></select>
+        </label>
 
-      <label>
-        Max total benefit type<br>
-        <select id="benefitLimitType">
-          <option value="per_tx">Per transaction</option>
-          <option value="total">Total benefit cap</option>
-        </select>
-      </label>
+        <label>
+          Discount type<br>
+          <select id="benefitDiscountType">
+            <option value="percent">Percent (e.g. 10% back)</option>
+            <option value="amount">Fixed amount ($ back)</option>
+          </select>
+        </label>
 
-      <label>
-        Max total value (optional, in $)<br>
-        <input type="number" id="benefitLimitValue" min="0" step="0.01" placeholder="e.g. 50 means up to $50 total" />
-      </label>
+        <label>
+          Discount value<br>
+          <input type="number" id="benefitDiscountValue" min="0" step="0.01" placeholder="e.g. 10 for 10% or $10" />
+        </label>
 
-      <label>
-        Max number of transactions (optional)<br>
-        <input
-          type="number"
-          id="benefitMaxTx"
-          min="0"
-          step="1"
-          placeholder="e.g. 3 means up to 3 uses"
-        />
-      </label>
+        <label>
+          Minimum spend per transaction (optional, in $)<br>
+          <input type="number" id="benefitMinSpend" min="0" step="0.01" placeholder="e.g. 50 means $50+ to trigger" />
+        </label>
 
-      <label>
-        Offer end date<br>
-        <input type="date" id="benefitEndDate" />
-      </label>
+        <label>
+          Max total benefit type<br>
+          <select id="benefitLimitType">
+            <option value="per_tx">Per transaction</option>
+            <option value="total">Total benefit cap</option>
+          </select>
+        </label>
 
-      <label>
-        Category (for card recommendation logic)<br>
-        <select id="benefitCategorySelect" style="font-family: system-ui, emoji;"></select>
-      </label>
-      
-      <label>
-		  Search tags (optional)<br>
-		  <input
-			type="text"
-			id="benefitSearchTags"
-			placeholder="e.g. gas, fuel, takeout, coffee"
-		  />
-		</label>
-		
-		<div id="benefitSuggestedTags" class="muted" style="margin-top:6px;"></div>
+        <label>
+          Max total value (optional, in $)<br>
+          <input type="number" id="benefitLimitValue" min="0" step="0.01" placeholder="e.g. 50 means up to $50 total" />
+        </label>
 
-      <label>
-        Custom icon (optional)<br>
-        <input
-          type="text"
-          id="benefitIcon"
-          placeholder="e.g. 🍕"
-          style="width: 5em; font-family: system-ui, emoji;"
-        />
-      </label>
+        <label>
+          Max number of transactions (optional)<br>
+          <input type="number" id="benefitMaxTx" min="0" step="1" placeholder="e.g. 3 means up to 3 uses" />
+        </label>
 
-      <button id="btnAddBenefit" class="primary" style="margin-top:8px;">
-        Add Merchant Offer
-      </button>
-      <button id="btnCancelEdit" type="button" style="margin-top:8px; margin-left:8px; display:none;">
-        Cancel
-      </button>
+        <label>
+          Offer end date<br>
+          <input type="date" id="benefitEndDate" />
+        </label>
 
-      <h3 style="margin-top:0.8rem;">Saved Merchant Offers</h3>
-      <table id="benefitsTable">
-        <thead>
-          <tr>
-            <th>Merchant</th>
-            <th>Card</th>
-            <th>Discount</th>
-            <th>Limit</th>
-            <th>Category</th>
-            <th>End Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="benefitsTbody"></tbody>
-      </table>
+        <label>
+          Category (for card recommendation logic)<br>
+          <select id="benefitCategorySelect" style="font-family: system-ui, emoji;"></select>
+        </label>
 
-      <p class="muted">
-        Merchant offers are stored locally. Export to backup your data before clearing browser data.
-      </p>
+        <label>
+          Search tags (optional)<br>
+          <input type="text" id="benefitSearchTags" placeholder="e.g. gas, fuel, takeout, coffee" />
+        </label>
+
+        <div id="benefitSuggestedTags" class="muted" style="margin-top:6px;"></div>
+
+        <label>
+          Custom icon (optional)<br>
+          <input type="text" id="benefitIcon" placeholder="e.g. 🍕" style="width: 5em; font-family: system-ui, emoji;" />
+        </label>
+
+        <button id="btnAddBenefit" class="primary" style="margin-top:8px;">
+          Add Merchant Offer
+        </button>
+        <button id="btnCancelEdit" type="button" style="margin-top:8px; margin-left:8px; display:none;">
+          Cancel
+        </button>
+      </div>
+
     </div>
     </div><!-- end section-content-manageMerchantOffers -->
   </div>
@@ -5861,6 +5916,9 @@
 	let categorySelectionWasAuto = false;
 	let cardBenefitsSortMode = "card";
 	let merchantOffersSortMode = "alpha";
+	let manageOffersTab = "list"; // "list" or "form"
+	let moManageFilterKey = "all";
+
 	const sectionState = {
 	  cardBenefits: false,
 	  merchantOffers: false,
@@ -10623,6 +10681,47 @@
 	}
 
     // ---------- Merchant benefits UI ----------
+	function switchManageOffersTab(tab) {
+	  manageOffersTab = tab;
+	  document.querySelectorAll(".mo-manage-tab").forEach(btn => {
+		btn.classList.toggle("is-active", btn.getAttribute("data-mo-tab") === tab);
+	  });
+	  const listPanel = document.getElementById("moManageTabList");
+	  const formPanel = document.getElementById("moManageTabForm");
+	  if (listPanel) listPanel.classList.toggle("is-active", tab === "list");
+	  if (formPanel) formPanel.classList.toggle("is-active", tab === "form");
+	}
+
+	function renderMerchantManageFilterChips(benefits) {
+	  const row = document.getElementById("moManageFilterRow");
+	  if (!row) return;
+
+	  const today = parseISODateLocal(formatTodayISO());
+	  const merchantState = computeMerchantState(loadTransactions(), benefits);
+
+	  const hasExpired = benefits.some(b => {
+		const ms = merchantState[b.id] || { used: 0, txCount: 0 };
+		const { expired } = classifyBenefitEnd(b.endDate, today);
+		const exhaustedByTx = b.maxTransactions != null && Number(ms.txCount || 0) >= Number(b.maxTransactions);
+		const exhaustedByValue = b.limitType === "total" && b.limitValue != null && Number(ms.used || 0) >= Number(b.limitValue);
+		return expired || exhaustedByTx || exhaustedByValue;
+	  });
+
+	  const hasExpiring = benefits.some(b => {
+		const { expiringSoon } = classifyBenefitEnd(b.endDate, today);
+		return expiringSoon;
+	  });
+
+	  const chips = [{ key: "all", label: "All" }];
+	  if (hasExpiring) chips.push({ key: "expiring", label: "Expiring soon" });
+	  if (hasExpired) chips.push({ key: "expired", label: "Expired / used up" });
+
+	  row.innerHTML = chips.map(c => `
+		<button type="button" class="mo-manage-filter-chip${moManageFilterKey === c.key ? " is-active" : ""}"
+		  data-mo-manage-filter="${escapeHtml(c.key)}">${escapeHtml(c.label)}</button>
+	  `).join("");
+	}
+
     function renderMerchantBenefits() {
       const benefits = loadMerchantBenefits();
       const txs = loadTransactions();
@@ -10721,6 +10820,13 @@
           // If we hit tx cap or total cap, don't also show "expiring soon"
           expiringSoon = false;
         }
+
+        // Apply management table filter
+        const matchesFilter =
+          moManageFilterKey === "all" ||
+          (moManageFilterKey === "expired" && expired) ||
+          (moManageFilterKey === "expiring" && expiringSoon && !expired);
+        if (!matchesFilter) return;
           
         tr.innerHTML = `
           <td>${b.merchant ? `<strong>${escapeHtml(b.merchant)}</strong>` : "<em>(unnamed)</em>"}</td>
@@ -10748,6 +10854,7 @@
     
         tbody.appendChild(tr);
       });
+      renderMerchantManageFilterChips(benefits);
     }
     
     function populateFormForEdit(benefit) {
@@ -10772,11 +10879,12 @@
 	  document.getElementById("btnAddBenefit").textContent = "Save Changes";
 	  document.getElementById("btnCancelEdit").style.display = "";
 	
-	  // Ensure the manage merchant offers section is open
+	  // Ensure the manage merchant offers section is open and on the form tab
 	  if (!sectionState.manageMerchantOffers) {
 		sectionState.manageMerchantOffers = true;
 		renderSectionStates();
 	  }
+	  switchManageOffersTab("form");
 	}
 	
 	function exitEditMode() {
@@ -10784,7 +10892,8 @@
 	  document.getElementById("benefitFormHeading").textContent = "Add Merchant Offer";
 	  document.getElementById("btnAddBenefit").textContent = "Add Benefit";
 	  document.getElementById("btnCancelEdit").style.display = "none";
-	
+	  switchManageOffersTab("list");
+
 	  // Clear all fields
 	  document.getElementById("benefitMerchant").value = "";
 	  document.getElementById("benefitCard").value = "";
@@ -11690,7 +11799,6 @@
         if (!benefit) { showToast("Offer not found."); return; }
         populateFormForEdit(benefit);
         enterEditMode(benefitId);
-        document.getElementById("benefitMerchant").scrollIntoView({ behavior: "smooth", block: "center" });
       });
 
       popover.querySelector(".benefit-delete-btn").addEventListener("click", () => {
@@ -11789,6 +11897,21 @@
 	document.getElementById("btnCancelEdit").addEventListener("click", () => {
 		exitEditMode();
 	  });
+
+	// Manage offers tab switching and filter chip delegation
+	document.getElementById("benefitsContent")?.addEventListener("click", (e) => {
+	  const tabBtn = e.target.closest(".mo-manage-tab");
+	  if (tabBtn) {
+		switchManageOffersTab(tabBtn.getAttribute("data-mo-tab"));
+		return;
+	  }
+
+	  const filterChip = e.target.closest(".mo-manage-filter-chip");
+	  if (filterChip) {
+		moManageFilterKey = filterChip.getAttribute("data-mo-manage-filter") || "all";
+		renderMerchantBenefits();
+	  }
+	});
 
 	/* =========================
 	   Category picker event wiring
