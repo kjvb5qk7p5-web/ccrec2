@@ -3228,7 +3228,7 @@
     </div>
   </div>
 	
-<button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.0.00</button>
+<button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.0.01</button>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
@@ -4137,7 +4137,7 @@
 		priority: 10,
 		channel: "direct",
 	
-		eligible_fn: (tx) => tx.category === "marriott_hotel",
+		eligible_fn: (tx) => tx.category === "dining",
 		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
 	    reason_yes:
@@ -4260,7 +4260,7 @@
 	
 		priority: 50,
 		display_order: 200,
-		channel: "direct",
+		channel: null,
 	
 		eligible_fn: (tx) =>
 		  tx.category === "rideshare_other" || tx.category === "lyft",
@@ -6150,6 +6150,9 @@
 	  for (const benefit of CARD_BENEFITS) {
 		if (CARDS[benefit.card]?.is_active === false) continue;
 		if (tx.cardUsed && tx.cardUsed !== benefit.card) continue;
+		// channel_allowed is a secondary channel option shown in the UI (always "direct")
+		// that lets the user record a non-portal purchase. If they chose it,
+		// the benefit credit doesn't apply — skip this benefit.
 		if (benefit.channel_allowed && tx.channel === benefit.channel_allowed) continue;
 	
 		let matches = false;
@@ -7545,7 +7548,6 @@
 	}
 	
 	function startOfSemiannualPeriod(d) {
-	  // Jan–Jun or Jul–Dec (same as computeState’s logic)
 	  return d.getMonth() < 6
 		? new Date(d.getFullYear(), 0, 1)
 		: new Date(d.getFullYear(), 6, 1);
@@ -9714,20 +9716,8 @@
 		remaining = Math.max(0, totalLimit - ms.used);
 	  }
 	
-	  let merchantChannel = null;
-	  for (const cb of CARD_BENEFITS) {
-		if (
-		  cb.card === benefit.card &&
-		  Array.isArray(cb.categories) &&
-		  cb.categories.includes(benefit.category)
-		) {
-		  merchantChannel = cb.channel;
-		  break;
-		}
-	  }
-	  if (!merchantChannel) {
-		merchantChannel = getBaseFallbackRecommendation(benefit.category).channel;
-	  }
+	  // Merchant offers are always paid directly at the merchant — no portal channel needed.
+	  const merchantChannel = null;
 	
 	  return {
 		card: benefit.card,
@@ -10262,8 +10252,10 @@
 					${subtitle ? `<div class="category-picker-row-subtitle">${subtitle}</div>` : ""}
 				  </div>
 				</div>
-		</button>
-	  `;
+				${badgeHtml}
+			  </div>
+			</button>
+		  `;
 	}
 	
 	function renderCategoryPicker() {
@@ -10316,36 +10308,6 @@
 		  rowClass: "merchant-offer-row"
 		})).join("");
 	  }
-	
-	  // All page
-	  // const allCardsHtml = groupedCards.length
-		// ? groupedCards.map(group => `
-			// <div class="category-picker-group">
-			  // <div class="category-picker-group-title">${escapeHtml(group.groupName)}</div>
-			  // ${group.items.map(item => renderCategoryPickerRow({
-				// value: item.value,
-				// title: escapeHtml(item.label),
-				// selected: item.selected
-			  // })).join("")}
-			// </div>
-		  // `).join("")
-		// : `<div class="category-picker-empty">No card-benefit matches.</div>`;
-	
-	  // const allMerchantHtml = merchantOffers.length
-		// ? merchantOffers.map(item => renderCategoryPickerRow({
-			// value: item.value,
-			// title: escapeHtml(item.title),
-			// subtitle: escapeHtml(item.subtitle),
-			// selected: item.selected
-		  // })).join("")
-		// : `<div class="category-picker-empty">No merchant-offer matches.</div>`;
-	
-	  // allPage.innerHTML = `
-		// <div class="category-picker-section-title">💳 Card benefits</div>
-		// ${allCardsHtml}
-		// <div class="category-picker-section-title">🏪 Merchant offers</div>
-		// ${allMerchantHtml}
-	  //`;
 	}
 
     // ---------- New Purchase Category select population ----------
@@ -10662,10 +10624,9 @@
 	
 	  // Ensure the form section is open
 	  const content = document.getElementById("benefitsContent");
-	  const toggleBtn = document.getElementById("toggleBenefitsBtn");
 	  if (content && content.style.display === "none") {
 		content.style.display = "block";
-		if (toggleBtn) toggleBtn.textContent = "Hide";
+		updateAdminToggleLabels();
 	  }
 	}
 	
@@ -11129,15 +11090,13 @@
 		  alert("Could not generate a recommendation.");
 		  return;
 		}
-      const _debugTx = { amount, date, category: purchase.category };
-      const _debugTxs = loadTransactions();
-      const _debugBenefits = loadMerchantBenefits();
-      const _debugMerchantState = computeMerchantState(_debugTxs, _debugBenefits);
       lastRecommendation = {
         purchase,
         rec,
-        cardAnalysis: analyzeCardBenefitCandidates(_debugTx, _debugTxs),
-        merchantDiag: diagnoseMerchantOffer(purchase, _debugMerchantState, _debugBenefits)
+        cardAnalysis: analyzeCardBenefitCandidates(
+          { amount, date, category: purchase.category }, txs
+        ),
+        merchantDiag: diagnoseMerchantOffer(purchase, merchantState, benefits)
       };
     
       // New centralized renderer
