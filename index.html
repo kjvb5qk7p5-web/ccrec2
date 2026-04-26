@@ -1964,6 +1964,66 @@
   .admin-card .section-kicker {
     color: var(--section-admin-accent);
   }
+  
+  .card-settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .card-setting-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+  }
+
+  .card-setting-active {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 auto;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 0;
+  }
+
+  .card-setting-anniv {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    white-space: nowrap;
+  }
+
+  .card-setting-anniv-input {
+    width: 72px;
+    font-size: 0.82rem;
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .card-setting-error {
+    font-size: 0.82rem;
+    color: var(--danger);
+    margin-top: 6px;
+    display: none;
+  }
+
+  .card-data-btn {
+    width: 140px;
+    display: block;
+    margin-bottom: 6px;
+  }
 
   .section-header-btn {
     display: flex;
@@ -3340,11 +3400,21 @@
       <span id="section-chevron-cardDataManagement" class="section-chevron">›</span>
     </button>
     <div id="section-content-cardDataManagement" style="display:none;">
-      <div style="margin-top:4px;">
-        <button id="btnExportData">Export All Data</button>
-        <button id="btnImportData" style="margin-left:8px;">Import Data</button>
-        <button id="btnClear" style="margin-left:8px;">Clear All Purchases</button>
+
+      <!-- Card settings -->
+      <div id="userCardSettingsPanel" style="margin-bottom:16px;">
+        <p style="font-size:0.82rem;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px 0;">Your Cards</p>
+        <div class="card-settings-list" id="cardSettingsList"></div>
+        <button id="btnSaveCardSettings" type="button">Save All</button>
+        <div class="card-setting-error" id="cardSettingsError"></div>
       </div>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:0 0 14px 0;">
+
+      <!-- Data management buttons -->
+      <button id="btnExportData" class="card-data-btn">Export All Data</button>
+      <button id="btnImportData" class="card-data-btn">Import Data</button>
+      <button id="btnClear" class="card-data-btn">Clear All Purchases</button>
 
       <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
 
@@ -3368,12 +3438,13 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.1.2c</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.2.0</button>
   </div>
 
   <script>
     const STORAGE_KEY = "cardAdvisorTxsV1";
     const MERCHANT_BENEFITS_KEY = "cardAdvisorMerchantBenefitsV1";
+    const USER_CARD_SETTINGS_KEY = "cardAdvisorUserCardSettingsV1";
 	const SEARCH_SCHEMA_VERSION = "2.0";
 	
 	function showGlobalDebug(message) {
@@ -5968,6 +6039,9 @@
 	function toggleSection(key) {
 	  sectionState[key] = !sectionState[key];
 	  renderSectionStates();
+	  if (key === "cardDataManagement" && sectionState[key]) {
+		renderCardSettingsPanel();
+	  }
 	}
 
 	function renderSectionStates() {
@@ -6272,6 +6346,98 @@
 		  </thead>
 		  <tbody>${rows}</tbody>
 		</table>`;
+	}
+	
+	function renderCardSettingsPanel() {
+	  const list = document.getElementById("cardSettingsList");
+	  if (!list) return;
+	
+	  const settings = loadUserCardSettings();
+	  const cards = Object.values(CARDS)
+		.sort((a, b) => Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999));
+	
+	  list.innerHTML = cards.map(card => {
+		const override = settings[card.code] || {};
+		// is_active: use saved override if present, else fall back to registry default
+		const isActive = typeof override.is_active === "boolean"
+		  ? override.is_active
+		  : (card.is_active !== false);
+		// anniversary: use saved MM-DD if present, else extract from registry full date
+		let anniversaryVal = override.anniversary_start || "";
+		if (!anniversaryVal && card.anniversary_start) {
+		  const parts = String(card.anniversary_start).split("-");
+		  if (parts.length >= 3) anniversaryVal = `${parts[1]}-${parts[2]}`;
+		}
+	
+		return `
+		  <div class="card-setting-row">
+			<label class="card-setting-active">
+			  <input type="checkbox" class="card-setting-checkbox"
+				data-card-code="${escapeHtml(card.code)}"
+				${isActive ? "checked" : ""}>
+			  ${renderCardBadge(card.code)}
+			  <span>${escapeHtml(card.label || card.code)}</span>
+			</label>
+			<div class="card-setting-anniv">
+			  <span>Anniversary</span>
+			  <input type="text" class="card-setting-anniv-input"
+				data-card-anniv="${escapeHtml(card.code)}"
+				placeholder="MM-DD"
+				value="${escapeHtml(anniversaryVal)}"
+				maxlength="5">
+			</div>
+		  </div>`;
+	  }).join("");
+	
+	  document.getElementById("btnSaveCardSettings")
+		?.addEventListener("click", handleSaveCardSettings);
+	}
+	
+	function handleSaveCardSettings() {
+	  const errorEl = document.getElementById("cardSettingsError");
+	  errorEl.style.display = "none";
+	  errorEl.textContent = "";
+	
+	  const newSettings = {};
+	  const errors = [];
+	
+	  document.querySelectorAll(".card-setting-checkbox").forEach(cb => {
+		const code = cb.getAttribute("data-card-code");
+		if (!code) return;
+		newSettings[code] = newSettings[code] || {};
+		newSettings[code].is_active = cb.checked;
+	  });
+	
+	  document.querySelectorAll(".card-setting-anniv-input").forEach(input => {
+		const code = input.getAttribute("data-card-anniv");
+		if (!code) return;
+		const val = input.value.trim();
+		if (!val) return; // empty = no override, use registry default
+	
+		// Validate MM-DD format
+		const match = val.match(/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/);
+		if (!match) {
+		  errors.push(`${CARDS[code]?.label || code}: "${val}" is not a valid MM-DD date`);
+		  return;
+		}
+		newSettings[code] = newSettings[code] || {};
+		newSettings[code].anniversary_start = val;
+	  });
+	
+	  if (errors.length > 0) {
+		errorEl.textContent = errors.join(" · ");
+		errorEl.style.display = "block";
+		return;
+	  }
+	
+	  const ok = saveUserCardSettings(newSettings);
+	  if (!ok) {
+		errorEl.textContent = "Save failed — localStorage may be full.";
+		errorEl.style.display = "block";
+		return;
+	  }
+	
+	  window.location.reload();
 	}
 	
 	function renderActiveCardsSummary() {
@@ -8013,6 +8179,20 @@
 	  }
 	
 	  return out;
+	}
+	
+	function loadUserCardSettings() {
+	  try {
+		const raw = localStorage.getItem(USER_CARD_SETTINGS_KEY);
+		return raw ? JSON.parse(raw) : {};
+	  } catch { return {}; }
+	}
+	
+	function saveUserCardSettings(settings) {
+	  try {
+		localStorage.setItem(USER_CARD_SETTINGS_KEY, JSON.stringify(settings));
+		return true;
+	  } catch { return false; }
 	}
 
     // ---------- Transactions storage ----------
@@ -11123,6 +11303,20 @@
     // ---------- UI wiring ----------
 
     let lastRecommendation = null;
+    
+    function applyUserCardSettingsToRegistry() {
+	  const settings = loadUserCardSettings();
+	  for (const [code, overrides] of Object.entries(settings)) {
+		if (!CARDS[code]) continue;
+		if (typeof overrides.is_active === "boolean") {
+		  CARDS[code].is_active = overrides.is_active;
+		}
+		if (overrides.anniversary_start) {
+		  // Store as MM-DD, expand to full date for registry compatibility
+		  CARDS[code].anniversary_start = `2000-${overrides.anniversary_start}`;
+		}
+	  }
+	}
 
     function initFormDefaults() {
       const dateInput = document.getElementById("date");
@@ -12156,6 +12350,7 @@
 
 	// Init on load
 	try {
+	  applyUserCardSettingsToRegistry();   // picks up user's cards and their attributes
 	  initFormDefaults();               // sets date to today
 	  populateCategorySelect();         // build Merchant Offers + Card Benefits
 	  populateMerchantBenefitCategorySelect();
@@ -12169,6 +12364,7 @@
 	  renderSectionStates();
 	  updateSummarySortButtonStates();
 	  renderAdminPanel();
+	  renderCardSettingsPanel();
 	
 	  document.getElementById("benefitMerchant")
 		?.addEventListener("input", renderBenefitSuggestedTags);
