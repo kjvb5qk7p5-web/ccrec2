@@ -2766,7 +2766,7 @@
 
   .annual-table-head {
     display: grid;
-    grid-template-columns: 16px 1fr auto auto auto;
+    grid-template-columns: 16px 1fr auto auto;
     gap: 10px;
     align-items: center;
     padding: 7px 12px;
@@ -2785,7 +2785,7 @@
 
   .annual-table-row {
     display: grid;
-    grid-template-columns: 16px 1fr auto auto auto;
+    grid-template-columns: 16px 1fr auto auto;
     gap: 10px;
     align-items: center;
     padding: 9px 12px;
@@ -3368,7 +3368,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.1.2</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.1.2c</button>
   </div>
 
   <script>
@@ -9233,6 +9233,9 @@
 			cardBenefitsAvailableOnly = !cardBenefitsAvailableOnly;
 		  } else {
 			cardBenefitsFilterMode = filterVal;
+			if (filterVal !== "all") {
+			  cardBenefitsSortMode = "category";
+			}
 		  }
 		  expandedCardBenefitId = null;
 		  renderCardBenefitsSummary();
@@ -9609,6 +9612,9 @@
 			merchantOffersExpiringOnly = !merchantOffersExpiringOnly;
 		  } else {
 			merchantOffersFilterMode = filterVal;
+			if (filterVal !== "all") {
+			  merchantOffersSortMode = "alpha";
+			}
 		  }
 		  expandedMerchantOfferId = null;
 		  renderMerchantOffersSummary();
@@ -9705,7 +9711,6 @@
 			  <div>Card</div>
 			  <div class="annual-col-right">Fee</div>
 			  <div class="annual-col-right">Captured</div>
-			  <div class="annual-col-right">Net</div>
 			</div>`;
 
 		for (const [card, d] of rows) {
@@ -9744,8 +9749,7 @@
 			  </div>
 			  <div class="annual-col-muted">$${formatMoneyWhole(annualFee)}</div>
 			  <div class="annual-col-right">$${formatMoneyWhole(totalUsed)}</div>
-			  <div class="annual-col-net${isRecouped ? " is-recouped" : ""}">${netSign}$${netAbs}</div>
-			</div>`;
+			  </div>`;
 
 		  if (isExpanded) {
 			html += `
@@ -9778,8 +9782,7 @@
 			  <div class="annual-card-cell">All cards</div>
 			  <div class="annual-col-muted">$${formatMoneyWhole(totalFee)}</div>
 			  <div class="annual-col-right">$${formatMoneyWhole(totalCaptured)}</div>
-			  <div class="annual-col-net${totalRecouped ? " is-recouped" : ""}">${totalNetSign}$${totalNetAbs}</div>
-			</div>`;
+			  </div>`;
 		}
 
 		html += `</div>`;
