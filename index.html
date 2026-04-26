@@ -6389,8 +6389,12 @@
 		  </div>`;
 	  }).join("");
 	
-	  document.getElementById("btnSaveCardSettings")
-		?.addEventListener("click", handleSaveCardSettings);
+	  const saveBtn = document.getElementById("btnSaveCardSettings");
+	  if (saveBtn) {
+		saveBtn.replaceWith(saveBtn.cloneNode(true));
+		document.getElementById("btnSaveCardSettings")
+		  .addEventListener("click", handleSaveCardSettings);
+	  }
 	}
 	
 	function handleSaveCardSettings() {
