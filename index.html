@@ -3438,7 +3438,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.2.0</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.2.1</button>
   </div>
 
   <script>
@@ -6364,9 +6364,12 @@
 		  : (card.is_active !== false);
 		// anniversary: use saved MM-DD if present, else extract from registry full date
 		let anniversaryVal = override.anniversary_start || "";
-		if (!anniversaryVal && card.anniversary_start) {
-		  const parts = String(card.anniversary_start).split("-");
-		  if (parts.length >= 3) anniversaryVal = `${parts[1]}-${parts[2]}`;
+		if (!anniversaryVal) {
+		  const rawDefault = CARDS_REGISTRY_DEFAULTS[card.code]?.anniversary_start || "";
+		  if (rawDefault) {
+			const parts = String(rawDefault).split("-");
+			if (parts.length >= 3) anniversaryVal = `${parts[1]}-${parts[2]}`;
+		  }
 		}
 	
 		return `
@@ -6961,6 +6964,7 @@
 	  const out = new Set();
 	
 	  for (const b of cardBenefits) {
+		if (CARDS[b.card]?.is_active === false) continue; 
 		const cats = b && Array.isArray(b.categories) ? b.categories : [];
 		for (const c of cats) {
 		  if (c) out.add(String(c));
@@ -8242,11 +8246,12 @@
 	  const merchantBenefits = loadMerchantBenefits().map(normalizeImportedMerchantBenefit);
 	
 	  const data = {
-		version: "2.0",
-		exportDate: new Date().toISOString(),
-		transactions: loadTransactions(),
-		merchantBenefits
-	  };
+	  version: "2.0",
+	  exportDate: new Date().toISOString(),
+	  transactions: loadTransactions(),
+	  merchantBenefits,
+	  userCardSettings: loadUserCardSettings()
+	};
 	
 	  const dataStr = JSON.stringify(data, null, 2);
 	  const blob = new Blob([dataStr], { type: 'application/json' });
@@ -8461,7 +8466,14 @@
 			showToast("⚠️ Import failed — merchant offers could not be saved. No changes were applied.");
 		  }
 		  return;
-		}		
+		}
+		
+		if (data.userCardSettings && typeof data.userCardSettings === "object") {
+		  saveUserCardSettings(data.userCardSettings);
+		}
+		
+		applyUserCardSettingsToRegistry();
+		renderCardSettingsPanel();		
 
 		merchantOffersFilterMode = "all";
 		  merchantOffersExpiringOnly = false;
@@ -11308,15 +11320,25 @@
 
     let lastRecommendation = null;
     
-    function applyUserCardSettingsToRegistry() {
+    const CARDS_REGISTRY_DEFAULTS = {};
+	
+	function applyUserCardSettingsToRegistry() {
 	  const settings = loadUserCardSettings();
+	
+	  // Snapshot raw registry defaults before any mutation
+	  for (const [code, card] of Object.entries(CARDS)) {
+		CARDS_REGISTRY_DEFAULTS[code] = {
+		  is_active: card.is_active,
+		  anniversary_start: card.anniversary_start
+		};
+	  }
+	
 	  for (const [code, overrides] of Object.entries(settings)) {
 		if (!CARDS[code]) continue;
 		if (typeof overrides.is_active === "boolean") {
 		  CARDS[code].is_active = overrides.is_active;
 		}
 		if (overrides.anniversary_start) {
-		  // Store as MM-DD, expand to full date for registry compatibility
 		  CARDS[code].anniversary_start = `2000-${overrides.anniversary_start}`;
 		}
 	  }
