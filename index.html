@@ -1845,6 +1845,16 @@
     background: var(--danger-soft);
     border-color: #f3c6c0;
   }
+  
+  .right-now-item.is-clickable {
+    cursor: pointer;
+  }
+
+  .right-now-item.is-clickable:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
 
   .summary-card-shell {
     background: linear-gradient(180deg, #ffffff 0%, #fcfbf8 100%);
@@ -2280,6 +2290,14 @@
 		font-size: 0.9rem;
 		color: var(--text-soft);
 		font-weight: 600;
+	  }
+	  
+	  .summary-count-line {
+		font-size: 0.85rem;
+		color: var(--text-soft);
+		font-weight: 600;
+		margin-bottom: 8px;
+		min-height: 1em;
 	  }
 	
 	  .mo-filter-row {
@@ -3019,6 +3037,7 @@
       <span id="section-chevron-cardBenefits" class="section-chevron">›</span>
     </button>
     <div id="section-content-cardBenefits" style="display:none;">
+      <div id="cbCountLine" class="summary-count-line"></div>
       <div class="sort-pill-row" style="margin-bottom:10px;">
         <button type="button" id="btnSortCardBenefitsByCard">Sort: Card</button>
         <button type="button" id="btnSortCardBenefitsByCategory">Sort: Category</button>
@@ -3038,6 +3057,7 @@
       <span id="section-chevron-merchantOffers" class="section-chevron">›</span>
     </button>
     <div id="section-content-merchantOffers" style="display:none;">
+      <div id="moCountLine" class="summary-count-line"></div>
       <div class="sort-pill-row" style="margin-bottom:10px;">
         <button type="button" id="btnSortMerchantOffersAlpha">Sort: A–Z</button>
         <button type="button" id="btnSortMerchantOffersByCategory">Sort: Category</button>
@@ -3348,7 +3368,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.1.1</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.1.2</button>
   </div>
 
   <script>
@@ -5934,6 +5954,7 @@
 	let manageOffersTab = "list"; // "list" or "form"
 	let moManageFilterKey = "all";
 	let merchantOffersExpiringOnly = false;
+	let cardBenefitsAvailableOnly = false;
 
 	const sectionState = {
 	  cardBenefits: false,
@@ -8259,9 +8280,10 @@
 		}		
 
 		merchantOffersFilterMode = "all";
-  merchantOffersExpiringOnly = false;
+		  merchantOffersExpiringOnly = false;
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
+		cardBenefitsAvailableOnly = false; 
 		expandedCardBenefitId = null;
 		expandedAnnualCards = new Set();
 		
@@ -8740,58 +8762,64 @@
 	  const merchantState = computeMerchantState(txs, benefits);
 	  const today = new Date();
 	  const todayDate = parseISODateLocal(formatTodayISO());
+	  const sevenDaysAgo = new Date(today);
+	  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 	
+	  // --- Native card benefits ---
 	  let availableNative = 0;
 	  let nativeRemainingTotal = 0;
+	  let nativeNewThisWeek = 0;
+	  let nativeExpiringSoon = 0;
 	
 	  for (const benefit of CARD_BENEFITS) {
 		if (CARDS[benefit.card]?.is_active === false) continue;
 		if (benefit.non_monetary) continue;
-
+	
 		const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
 		const limit = Number(benefit.cap_amount || 0);
 		if (!(limit > 0)) continue;
 	
 		const used = Math.min(Number(usage.used || 0), limit);
-	
-		const txCap =
-		  benefit.tx_cap != null && !isNaN(benefit.tx_cap)
-			? Number(benefit.tx_cap)
-			: null;
-	
-		const fullyUsed =
-		  used >= limit ||
+		const txCap = benefit.tx_cap != null && !isNaN(benefit.tx_cap)
+		  ? Number(benefit.tx_cap) : null;
+		const fullyUsed = used >= limit ||
 		  (txCap != null && Number(usage.txCount || 0) >= txCap);
 	
 		if (!fullyUsed) {
 		  availableNative += 1;
 		  nativeRemainingTotal += Math.max(0, limit - used);
+	
+		  // Expiring soon
+		  const window = getBenefitWindowForDate(benefit, today);
+		  if (window?.end) {
+			const endStr = window.end.toISOString().slice(0, 10);
+			const { expiringSoon } = classifyBenefitEnd(endStr, todayDate);
+			if (expiringSoon) nativeExpiringSoon++;
+		  }
+	
+		  // New this week: window started within last 7 days
+		  if (window?.start && window.start >= sevenDaysAgo) {
+			nativeNewThisWeek++;
+		  }
 		}
 	  }
 	
+	  // --- Merchant offers ---
 	  const expiringSoonOffers = [];
 	  let activeMerchantCount = 0;
 	
 	  for (const benefit of benefits) {
 		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
 		const txCount = Number(ms.txCount || 0);
-	
 		const { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
 		if (expired) continue;
 	
-		let exhaustedByTx = false;
-		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
-		  exhaustedByTx = txCount >= Number(benefit.maxTransactions);
-		}
-	
-		let exhaustedByValue = false;
-		if (
-		  benefit.limitType === "total" &&
-		  benefit.limitValue != null &&
-		  !isNaN(benefit.limitValue)
-		) {
-		  exhaustedByValue = Number(ms.used || 0) >= Number(benefit.limitValue);
-		}
+		const exhaustedByTx = benefit.maxTransactions != null &&
+		  !isNaN(benefit.maxTransactions) &&
+		  txCount >= Number(benefit.maxTransactions);
+		const exhaustedByValue = benefit.limitType === "total" &&
+		  benefit.limitValue != null && !isNaN(benefit.limitValue) &&
+		  Number(ms.used || 0) >= Number(benefit.limitValue);
 	
 		if (!exhaustedByTx && !exhaustedByValue) {
 		  activeMerchantCount += 1;
@@ -8802,57 +8830,85 @@
 		}
 	  }
 	
+	  // Sort expiring by date
 	  expiringSoonOffers.sort((a, b) => {
 		const aTime = parseISODateLocal(a.endDate)?.getTime() ?? Infinity;
 		const bTime = parseISODateLocal(b.endDate)?.getTime() ?? Infinity;
 		return aTime - bTime;
 	  });
 	
-	  const nextExpiring = expiringSoonOffers[0] || null;
+	  // Find next expiry date and count offers on that date
+	  let moMetaLines = [];
+	  if (expiringSoonOffers.length > 0) {
+		moMetaLines.push(`${expiringSoonOffers.length} expiring soon`);
+	  }
+	  if (expiringSoonOffers.length > 0) {
+		const nextDate = expiringSoonOffers[0].endDate;
+		const offersOnNextDate = expiringSoonOffers.filter(b => b.endDate === nextDate);
+		const dateLabel = formatDisplayDateShort(nextDate);
+		if (offersOnNextDate.length === 1) {
+		  moMetaLines.push(`${escapeHtml(offersOnNextDate[0].merchant || "Offer")} expires ${escapeHtml(dateLabel)}`);
+		} else {
+		  moMetaLines.push(`${offersOnNextDate.length} offers expire on ${escapeHtml(dateLabel)}`);
+		}
+	  } else {
+		moMetaLines.push("No active expiring-soon offers right now");
+	  }
 	
+	  // Native meta lines
+	  let nativeMetaLines = [];
+	  nativeMetaLines.push(`$${formatUsageAmount(nativeRemainingTotal)} still available across current time windows`);
+	  if (nativeNewThisWeek > 0) {
+		nativeMetaLines.push(`${nativeNewThisWeek} recurring benefit${nativeNewThisWeek === 1 ? "" : "s"} became available in the last week`);
+	  }
+	  if (nativeExpiringSoon > 0) {
+		nativeMetaLines.push(`${nativeExpiringSoon} expiring soon`);
+	  }
+	
+	  // Recent savings
 	  const latestTxs = [...txs]
 		.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
 		.slice(0, 5);
-	
 	  let recentSavings = 0;
 	  for (const tx of latestTxs) {
 		recentSavings += Number(tx.cardBenefitApplied || 0) + Number(tx.merchantBenefitApplied || 0);
 	  }
 	
-	    const nextExpiringText = nextExpiring
-		? `${escapeHtml(nextExpiring.merchant || "Offer")} expires ${escapeHtml(formatDisplayDateShort(nextExpiring.endDate))}`
-		: "No active expiring-soon offers right now";
-	
-	  const items = [
-		{
-		  label: "Native card benefits available",
-		  value: `${availableNative} active`,
-		  meta: `$${formatUsageAmount(nativeRemainingTotal)} still available across current time windows`,
-		  className: availableNative > 0 ? "is-success" : ""
-		},
-		{
-		  label: "Merchant offers available",
-		  value: `${activeMerchantCount} live`,
-		  meta: nextExpiringText,
-		  className: nextExpiring ? "is-warning" : ""
-		},
-		{
-		  label: "Recent value captured",
-		  value: `$${formatUsageAmount(recentSavings)}`,
-		  meta: latestTxs.length > 0
-			? `Across your ${latestTxs.length} most recent logged purchases`
-			: "Log purchases to see captured value here",
-		  className: recentSavings > 0 ? "is-success" : ""
-		}
-	  ];
-	
-	  el.innerHTML = items.map(item => `
-		<div class="right-now-item ${item.className || ""}">
-		  <div class="right-now-label">${escapeHtml(item.label)}</div>
-		  <div class="right-now-value">${item.value}</div>
-		  <div class="right-now-meta">${item.meta}</div>
+	  el.innerHTML = `
+		<div class="right-now-item ${availableNative > 0 ? "is-success" : ""} is-clickable" data-rightnow-action="cardBenefits">
+		  <div class="right-now-label">Native card benefits available</div>
+		  <div class="right-now-value">${availableNative} active</div>
+		  ${nativeMetaLines.map(line => `<div class="right-now-meta">${line}</div>`).join("")}
 		</div>
-	  `).join("");
+		<div class="right-now-item ${expiringSoonOffers.length > 0 ? "is-warning" : ""} is-clickable" data-rightnow-action="merchantOffers">
+		  <div class="right-now-label">Merchant offers available</div>
+		  <div class="right-now-value">${activeMerchantCount} live</div>
+		  ${moMetaLines.map(line => `<div class="right-now-meta">${line}</div>`).join("")}
+		</div>
+		<div class="right-now-item ${recentSavings > 0 ? "is-success" : ""}">
+		  <div class="right-now-label">Recent value captured</div>
+		  <div class="right-now-value">$${formatUsageAmount(recentSavings)}</div>
+		  <div class="right-now-meta">${latestTxs.length > 0
+			? `Across your ${latestTxs.length} most recent logged purchases`
+			: "Log purchases to see captured value here"
+		  }</div>
+		</div>
+	  `;
+	
+	  el.querySelectorAll("[data-rightnow-action]").forEach(item => {
+		item.addEventListener("click", () => {
+		  const key = item.getAttribute("data-rightnow-action");
+		  if (!sectionState[key]) {
+			sectionState[key] = true;
+			renderSectionStates();
+			computeSectionSummaries();
+		  }
+		  const contentEl = document.getElementById(`section-content-${key}`);
+		  if (contentEl) {
+			contentEl.scrollIntoView({ behavior: "smooth", block: "start" });
+		  }
+		});
+	  });
 	}
 	
 	// helper functions for v6.9 UI for credit card benefits summary
@@ -8900,6 +8956,13 @@
 		details.push({
 		  label: "Time window",
 		  value: row.windowExplanation
+		});
+	  }
+	
+	  if (row.channelRequirement && !isNullChannel(row.channelRequirement)) {
+		details.push({
+		  label: "Platform",
+		  value: row.channelRequirement
 		});
 	  }
 	
@@ -9001,6 +9064,7 @@
 	  }
 	
 	  let filteredRows = rows.filter(row => {
+		if (cardBenefitsAvailableOnly && row.fullyUsed) return false;
 		if (cardBenefitsFilterMode === "all") return true;
 		return getCardBenefitSummaryFilterKey(row) === cardBenefitsFilterMode;
 	  });
@@ -9035,7 +9099,10 @@
 	
 	  // Build filter chips dynamically from the groups present in current rows
 	  const presentGroupKeys = [...new Set(rows.map(r => getCardBenefitSummaryFilterKey(r)))];
-	  const filters = [{ key: "all", label: "All" }];
+	  const filters = [
+		{ key: "all", label: "All" },
+		{ key: "available", label: "Available" },
+	  ];
 	  presentGroupKeys
 	    .filter(k => k && k !== "other")
 	    .sort((a, b) => compareSummarySortCategories(a, b))
@@ -9050,6 +9117,7 @@
 	  // If active filter no longer matches any present group, reset to "all"
 	  if (cardBenefitsFilterMode !== "all" && !presentGroupKeys.includes(cardBenefitsFilterMode)) {
 	    cardBenefitsFilterMode = "all";
+	    cardBenefitsAvailableOnly = false;
 	  }
 
 	  function renderGroupHeader(groupKey) {
@@ -9108,6 +9176,13 @@
 		`;
 	  }
 	
+	  const cbTotal = rows.length;
+	  const cbExpiring = rows.filter(r => !r.fullyUsed && r.daysLeft != null && r.daysLeft <= 7).length;
+	  const cbCountLineEl = document.getElementById("cbCountLine");
+	  if (cbCountLineEl) {
+		cbCountLineEl.textContent = `${cbTotal} benefits${cbExpiring > 0 ? ` · ${cbExpiring} expiring soon` : ""}`;
+	  }
+	
 	  let html = `
 		<div class="cb-summary-shell">
 		  <div class="cb-summary-topline">
@@ -9115,7 +9190,11 @@
 			  ${filters.map(filter => `
 				<button
 				  type="button"
-				  class="cb-filter-chip ${cardBenefitsFilterMode === filter.key ? "is-active" : ""}"
+				  class="cb-filter-chip ${
+					filter.key === "available"
+					  ? (cardBenefitsAvailableOnly ? "is-active" : "")
+					  : (cardBenefitsFilterMode === filter.key ? "is-active" : "")
+				  }"
 				  data-cb-filter="${escapeHtml(filter.key)}"
 				>
 				  ${escapeHtml(filter.label)}
@@ -9142,11 +9221,19 @@
 	
 	  html += `</div>`;
 	
+	  const _cbFilterScroll = el.querySelector(".cb-filter-row")?.scrollLeft || 0;
 	  el.innerHTML = html;
+	  const _cbFilterRowNew = el.querySelector(".cb-filter-row");
+	  if (_cbFilterRowNew && _cbFilterScroll) _cbFilterRowNew.scrollLeft = _cbFilterScroll;
 	
 	  el.querySelectorAll("[data-cb-filter]").forEach(btn => {
 		btn.addEventListener("click", () => {
-		  cardBenefitsFilterMode = btn.getAttribute("data-cb-filter") || "all";
+		  const filterVal = btn.getAttribute("data-cb-filter") || "all";
+		  if (filterVal === "available") {
+			cardBenefitsAvailableOnly = !cardBenefitsAvailableOnly;
+		  } else {
+			cardBenefitsFilterMode = filterVal;
+		  }
 		  expandedCardBenefitId = null;
 		  renderCardBenefitsSummary();
 		});
@@ -9458,10 +9545,12 @@
 		return html;
 	  }
 	
+	  const countLineEl = document.getElementById("moCountLine");
+	  if (countLineEl) countLineEl.textContent = `${activeCount} active · ${expiringCount} expiring soon`;
+	
 	  let html = `
 		<div class="mo-summary-shell">
 		  <div class="mo-summary-topline">
-			<div class="mo-summary-counts">${activeCount} active · ${expiringCount} expiring soon</div>
 			<div class="mo-filter-row">
 			  ${filters.map(filter => `
 				<button
@@ -9508,7 +9597,10 @@
 	
 	  html += `</div>`;
 	
+	  const _moFilterScroll = el.querySelector(".mo-filter-row")?.scrollLeft || 0;
 	  el.innerHTML = html;
+	  const _moFilterRowNew = el.querySelector(".mo-filter-row");
+	  if (_moFilterRowNew && _moFilterScroll) _moFilterRowNew.scrollLeft = _moFilterScroll;
 	
 	  el.querySelectorAll("[data-mo-filter]").forEach(btn => {
 		btn.addEventListener("click", () => {
@@ -11507,9 +11599,10 @@
 		}
 		
 		merchantOffersFilterMode = "all";
-  merchantOffersExpiringOnly = false;
+	  merchantOffersExpiringOnly = false;
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
+		cardBenefitsAvailableOnly = false;
 		expandedCardBenefitId = null;
 		expandedAnnualCards = new Set();
 	
@@ -11580,9 +11673,10 @@
 	  }
 	  
 		merchantOffersFilterMode = "all";
-  merchantOffersExpiringOnly = false;
+	  merchantOffersExpiringOnly = false;
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
+		cardBenefitsAvailableOnly = false;
 		expandedCardBenefitId = null;
 		expandedAnnualCards = new Set();
 	
@@ -11804,9 +11898,10 @@
 		}
 		
 		merchantOffersFilterMode = "all";
-  merchantOffersExpiringOnly = false;
+	  merchantOffersExpiringOnly = false;
 		expandedMerchantOfferId = null;
 		cardBenefitsFilterMode = "all";
+		cardBenefitsAvailableOnly = false;
 		expandedCardBenefitId = null;
 		expandedAnnualCards = new Set();
 		
