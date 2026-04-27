@@ -3438,7 +3438,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.2.2a</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v7.2.2b</button>
   </div>
 
   <script>
@@ -3479,6 +3479,39 @@
 	
 	const CARDS = { // categories that exist here for fallback calculations based on points multipliers must also exist as leaves in CATEGORY_REGISTRY
 
+	CSP: {
+	  code: "CSP",
+	  short: "CP",
+	  label: "Chase Sapphire Preferred",
+	  label_long: "Chase Sapphire Preferred Visa",
+	
+	  issuer: "Chase",
+	  network: "Visa",
+	
+	  badgeClass: "csp",
+	  badgeBg: "#e0ecff",
+	  badgeBorder: "#4d8fcc",
+	  badgeText: "#4d8fcc",
+	
+	  anniversary_start: "2025-01-01",
+	  annualFee: 95,
+	  sort_order: 70,
+	
+	  points_currency: "UR",
+	  transferable_points: true,
+	  is_active: true,
+	  pointValue: 0.02,
+	  earningRules: [
+		{ rate: 5, channel: "chase_travel", matchGroups: ["travel"] },
+		{ rate: 5, channel: "lyft_app",     matchLeaves: ["lyft"] },
+		{ rate: 3, channel: null,           matchGroups: ["dining"] },
+		{ rate: 3, channel: null,           matchLeaves: ["streaming"] },
+		{ rate: 3, channel: null,           matchLeaves: ["instacart", "doordash_groceries", "online_grocery"] },
+		{ rate: 2, channel: null,           matchGroups: ["travel"] },
+		{ rate: 1, isBase: true }
+	  ]
+	},
+
 	VX: {
 	  code: "VX",
 	  short: "VX",
@@ -3490,7 +3523,7 @@
 	
 	  badgeClass: "vx",
 	  badgeBg: "#fff0f0",
-	  badgeBorder: "#cc0000",
+	  badgeBorder: "#2596be",
 	  badgeText: "#cc0000",
 	
 	  anniversary_start: "2025-01-01",
@@ -3669,6 +3702,319 @@
 	};
 	
 	const CARD_BENEFITS = [ // for any benefit that needs a new category, that category must also be added as a leaf in CATEGORY_REGISTRY and maybe also in CARDS if points multipliers exist
+
+	/* =========================
+	   CHASE SAPPHIRE PREFERRED
+	   ========================= */
+	
+	{
+	  id: "csp_hotel",
+	  card: "CSP",
+	  purchaseCategories: ["hotel", "lodging", "travel"],
+	  intentTags: ["hotel", "lodging", "trip"],
+	  merchantKeywords: ["marriott", "hilton", "hyatt", "airbnb", "chase travel"],
+	  searchAliases: ["hotel credit", "hotel booking"],
+	
+	  label: "Chase Travel hotel credit",
+	  labelHtml:
+		'<a href="https://www.chase.com/travel" target="_blank" rel="noopener noreferrer">Chase Travel</a> hotel credit',
+	  state_label: "Chase Travel hotel credit",
+	  state_labelHtml:
+		'<a href="https://www.chase.com/travel" target="_blank" rel="noopener noreferrer">Chase Travel</a> hotel credit',
+	  icon: "🏨",
+	
+	  categories: [
+		"other_hotel",
+		// "marriott_hotel", "theedit_hotel", "hotelcollection_hotel",
+		// "renowned_hotel", "delta_stays", "hilton_hotel", "hyatt_hotel", "airbnb"
+	  ],
+	  summary_sort_category: "travel",
+	
+	  cadence: "annual",
+	  cadence_type: "card_anniversary",
+	  start_date: "2025-01-01",
+	  cap_amount: 50,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  priority: 99,
+	  display_order: 600,
+	  channel: "chase_travel",
+	
+	  // csp_hotel: remember to add new lodging leaves as new hotel cards are added
+	  eligible_fn: (tx) => new Set([
+		"marriott_hotel",
+		"theedit_hotel",
+		"hotelcollection_hotel",
+		"renowned_hotel",
+		"delta_stays",
+		"other_hotel",
+		"hilton_hotel",
+		"hyatt_hotel",
+		"airbnb",
+	  ]).has(tx.category),
+	
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+	  reason_yes:
+		"Book a hotel through Chase Travel to apply the $50 annual hotel credit. Note: the credited $50 does not earn points.",
+	  reason_no:
+		"Chase Sapphire Preferred annual hotel credit is used up; ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+	
+	{
+	  id: "csp_doordash",
+	  card: "CSP",
+	  purchaseCategories: ["groceries"],
+	  intentTags: ["groceries", "delivery", "food", "doordash"],
+	  merchantKeywords: ["doordash"],
+	  searchAliases: ["grocery delivery", "doordash groceries"],
+	
+	  label: "DoorDash non-restaurant",
+	  labelHtml:
+		'<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> non-restaurant',
+	  state_label: "DoorDash non-restaurant",
+	  state_labelHtml:
+		'<a href="https://www.doordash.com" target="_blank" rel="noopener noreferrer">DoorDash</a> non-restaurant',
+	  icon: "🛒",
+	
+	  categories: ["doordash_groceries"],
+	  summary_sort_category: "groceries",
+	
+	  cadence: "monthly",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 10,
+	  tx_cap: 1,
+	  per_tx_cap: null,
+	
+	  priority: 10,
+	  display_order: 610,
+	  channel: "doordash_groceries_platform",
+	
+	  eligible_fn: (tx) => tx.category === "doordash_groceries",
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+	
+	  reason_yes:
+		"Use Chase Sapphire Preferred on DoorDash non-restaurant orders (groceries, convenience, etc.) to claim the $10 monthly discount. Must select from promotion wallet at checkout; one order per month, remainder forfeited if unused.",
+	  reason_no:
+		"DoorDash non-restaurant monthly discount is used up; ",
+	
+	  allow_fallback: false,
+	  counts_toward_annual_roi: true
+	},
+	
+	{
+	  id: "csp_lyft_points",
+	  card: "CSP",
+	  purchaseCategories: ["rideshare"],
+	  intentTags: ["rideshare", "car service", "ride"],
+	  merchantKeywords: ["lyft"],
+	  searchAliases: ["ride share"],
+	
+	  label: "Lyft",
+	  labelHtml:
+		'<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+	  state_label: "Lyft",
+	  state_labelHtml:
+		'<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
+	  icon: "🚗",
+	
+	  categories: ["lyft"],
+	  summary_sort_category: "rideshare",
+	
+	  cadence: "annual",
+	  cadence_type: "card_anniversary",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	
+	  priority: 100,
+	  display_order: 620,
+	  channel: "lyft_app",
+	
+	  eligible_fn: (tx) => tx.category === "lyft",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Use Chase Sapphire Preferred in the Lyft app to earn 5X points (through 09/30/2027).",
+	  reason_no:
+		"This reason should not fire (csp_lyft_points); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
+	
+	{
+	  id: "csp_peloton",
+	  card: "CSP",
+	  purchaseCategories: ["retail"],
+	  intentTags: ["fitness", "exercise bike"],
+	  merchantKeywords: ["peloton"],
+	  searchAliases: ["exercise equipment"],
+	
+	  label: "Peloton equipment",
+	  labelHtml: "Peloton equipment",
+	  state_label: "Peloton equipment",
+	  state_labelHtml: "Peloton equipment",
+	  icon: "🚲",
+	
+	  categories: ["peloton"],
+	  summary_sort_category: "health",
+	
+	  cadence: "annual",
+	  cadence_type: "card_anniversary",
+	  start_date: null,
+	  cap_amount: 5000,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	
+	  priority: 10,
+	  display_order: 630,
+	  channel: "peloton_platform",
+	
+	  eligible_fn: (tx) => tx.category === "peloton",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Use Chase Sapphire Preferred on Peloton equipment and accessories (purchases over $150) to earn 5X points (through 12/31/2027).",
+	  reason_no:
+		"Peloton 5X points boost is used up; ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
+	
+	{
+	  id: "csp_dining",
+	  card: "CSP",
+	  purchaseCategories: ["dining"],
+	  intentTags: ["restaurant", "dining", "takeout", "delivery"],
+	  merchantKeywords: [],
+	  searchAliases: ["restaurant"],
+	
+	  label: "Dining – restaurants",
+	  labelHtml: "Dining – restaurants",
+	  icon: "🍔",
+	
+	  categories: ["dining"],
+	  summary_sort_category: "dining",
+	
+	  cadence: "annual",
+	  cadence_type: "card_anniversary",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	
+	  priority: 10,
+	  display_order: 640,
+	  channel: "direct",
+	
+	  eligible_fn: (tx) => tx.category === "dining",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Use Chase Sapphire Preferred for 3X points on dining.",
+	  reason_no:
+		"This reason should not fire (csp_dining); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
+	
+	{
+	  id: "csp_online_grocery",
+	  card: "CSP",
+	  purchaseCategories: ["groceries"],
+	  intentTags: ["groceries", "delivery", "food", "online grocery"],
+	  merchantKeywords: ["instacart", "peapod", "freshdirect", "amazon fresh"],
+	  searchAliases: ["grocery delivery", "online groceries"],
+	
+	  label: "Online grocery (3X)",
+	  labelHtml: "Online grocery (3X)",
+	  icon: "🛒",
+	
+	  categories: ["instacart", "doordash_groceries", "online_grocery"],
+	  summary_sort_category: "groceries",
+	
+	  cadence: "annual",
+	  cadence_type: "card_anniversary",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	
+	  priority: 10,
+	  display_order: 650,
+	  channel: "direct",
+	
+	  eligible_fn: (tx) =>
+		tx.category === "instacart" ||
+		tx.category === "doordash_groceries" ||
+		tx.category === "online_grocery",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Use Chase Sapphire Preferred for 3X points on online grocery orders (Instacart, DoorDash Groceries, Peapod, FreshDirect, etc.). Note: Target, Walmart and wholesale clubs are excluded.",
+	  reason_no:
+		"This reason should not fire (csp_online_grocery); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
+	
+	{
+	  id: "csp_streaming",
+	  card: "CSP",
+	  purchaseCategories: ["entertainment"],
+	  intentTags: ["streaming", "netflix", "hulu", "spotify"],
+	  merchantKeywords: [],
+	  searchAliases: ["streaming services"],
+	
+	  label: "Streaming services (3X)",
+	  labelHtml: "Streaming services (3X)",
+	  icon: "📺",
+	
+	  categories: ["streaming"],
+	  summary_sort_category: "entertainment",
+	
+	  cadence: "annual",
+	  cadence_type: "card_anniversary",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	
+	  priority: 10,
+	  display_order: 660,
+	  channel: "direct",
+	
+	  eligible_fn: (tx) => tx.category === "streaming",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Use Chase Sapphire Preferred for 3X points on select streaming services.",
+	  reason_no:
+		"This reason should not fire (csp_streaming); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
 
 	/* =========================
 	   CAPITAL ONE VENTURE X
@@ -5195,6 +5541,12 @@
 		channel: "instacart_platform",
 		reason: "Default back to Chase Sapphire for flexible points."
 	  },
+	  
+	  online_grocery: {
+		  card: "CSP",
+		  channel: "direct",
+		  reason: "Use Chase Sapphire Preferred for 3X points on online grocery orders."
+		},
 	
 	  lyft: {
 		card: "CSR",
@@ -5421,6 +5773,10 @@
 	  "telecharge": ["entertainment", "tickets"],
 	  "airbnb": ["airbnb"],
 	  "capital one entertainment": ["entertainment", "tickets"],
+	  "peapod":       ["groceries", "delivery"],
+		"freshdirect":  ["groceries", "delivery"],
+		"amazon fresh": ["groceries", "delivery"],
+		"good eggs":    ["groceries", "delivery"],
 	  "turo": ["car rental"]
 
 	};
@@ -5434,6 +5790,7 @@
 	  groceries: ["instacart", "whole foods", "trader joe s", "kroger", "safeway", "acme", "shoprite",
 		"wegmans", "publix", "h-e-b", "stop & shop", "aldi", "lidl", "sprouts", "harris teeter", "meijer"  // ← new
 	  ],
+	  online_grocery: ["peapod", "freshdirect", "amazon fresh", "good eggs"],
 	  other_hotel: ["marriott", "hyatt", "hilton", "ihg", "sheraton", "worldhotels", "wyndham", "best western", "radisson", "four seasons", "ritz-carlton", "kimpton", "autograph collection"  // ← new
 	  ],
 	  flights: ["delta", "united", "american airlines", "jetblue", "southwest", "alaska airlines", "spirit", "frontier", "british airways", "air france", "lufthansa", "emirates", "klm"  // ← new
@@ -5643,7 +6000,7 @@
 		},
 		doordash_groceries: {
 		  key: "doordash_groceries",
-		  label: "Groceries – DoorDash",
+		  label: "Groceries etc. – DoorDash",
 		  icon: "🛒",
 		  group_key: "groceries",
 		  parent_key: "2groceries",
@@ -5651,6 +6008,13 @@
 		instacart: {
 		  key: "instacart",
 		  label: "Groceries – Instacart",
+		  icon: "🛒",
+		  group_key: "groceries",
+		  parent_key: "2groceries",
+		},
+		online_grocery: {
+		  key: "online_grocery",
+		  label: "Groceries – other online",
 		  icon: "🛒",
 		  group_key: "groceries",
 		  parent_key: "2groceries",
@@ -6170,6 +6534,7 @@
 		coffee: "dining",
 		takeout: "dining",
 		groceries: "groceries",
+		online_grocery: "groceries",
 		rideshare: "rideshare",
 		travel: "travel",
 		hotel: "travel",        // “hotel” demoted; hotels live under Travel
