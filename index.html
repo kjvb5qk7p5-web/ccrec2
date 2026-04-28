@@ -12228,10 +12228,6 @@
 		}
 	  }
 	
-	  const bulletsHtml = bullets.length
-		? `<ul class="rec-bullets">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-		: "";
-	
 	  // Build secondary recommendation cards
 	  const allScores = rec.allCardScores || [];
 	  const topTotal = allScores[0]?.total ?? 0;
