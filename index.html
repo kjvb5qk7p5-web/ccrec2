@@ -12528,8 +12528,10 @@
       lastRecommendation = {
         purchase: { ...purchase, categoryKey: purchase.category },
         rec: { ...rec, categoryKey: purchase.category, merchantBenefitId: purchase.merchantBenefitId },
-        cardAnalysis: ...,
-        merchantDiag: ...
+        cardAnalysis: analyzeCardBenefitCandidates(
+          { amount, date, category: purchase.category }, txs
+        ),
+        merchantDiag: diagnoseMerchantOffer(purchase, merchantState, benefits)
       };
     
       // New centralized renderer
