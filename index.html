@@ -3514,7 +3514,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.00</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.01</button>
   </div>
 
   <script>
@@ -7485,10 +7485,9 @@
 		return rec.channel ? [rec.channel] : ["direct"];
 	  }
 	
-	  // Base fallback: use the fallback registry for this category
+	  // Base fallback: channel already resolved in rec from computeCardValueScore
 	  if (rec.recommendationSource === "base_fallback") {
-		const fallback = getBaseFallbackRecommendation(purchase.category);
-		return fallback?.channel ? [fallback.channel] : ["direct"];
+		return rec.channel && !isNullChannel(rec.channel) ? [rec.channel] : ["direct"];
 	  }
 	
 	  return rec.channel ? [rec.channel] : ["direct"];
@@ -7524,10 +7523,10 @@
 		}
 	  });
 	
-	  // 2) Add the fallback channel only if this selected card is the fallback card for the category
-	  const fallback = getBaseFallbackRecommendation(purchase.category);
-	  if (fallback && fallback.card === selectedCard && fallback.channel) {
-		channels.add(fallback.channel);
+	  // 2) Add the best channel for this card from allCardScores if available
+	  const cardScore = rec.allCardScores?.find(s => s.card === selectedCard);
+	  if (cardScore?.channel && !isNullChannel(cardScore.channel)) {
+		channels.add(cardScore.channel);
 	  }
 	
 	  // 3) Final fallback
