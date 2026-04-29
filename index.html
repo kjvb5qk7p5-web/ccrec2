@@ -10942,18 +10942,9 @@
 		const b = score.cbCandidate.benefit;
 		return b.reason_yes || b.label || "";
 	  }
-		const b = score.moCandidate.benefit;
-		const discountLabel = b.discountType === "percent"
-		  ? `${Number(b.discountValue || 0)}%`
-		  : `$${Number(b.discountValue || 0).toFixed(2)}`;
-		return `Merchant offer at ${b.merchant} — ${discountLabel} back.`;
-	  }
+	  
 	  // Pure fallback — use earning rate reason
-	  const effectiveChannel = score.part1 > 0
-		? (score.cbCandidate?.benefit?.channel || null)
-		: score.part0 > 0
-		  ? null
-		  : score.channel;
+	  const effectiveChannel = score.channel;
 	  const channelText = !isNullChannel(effectiveChannel)
 		? ` ${CHANNEL_LABELS[effectiveChannel] || effectiveChannel}`
 		: "";
