@@ -3514,7 +3514,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.05</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.06</button>
   </div>
 
   <script>
@@ -7527,8 +7527,9 @@
 		  Array.isArray(benefit.categories) &&
 		  benefit.categories.includes(purchase.category);
 	
-		if (benefit.card === selectedCard && matchesCategory && benefit.channel) {
-		  channels.add(benefit.channel);
+		if (benefit.card === selectedCard && matchesCategory) {
+		  if (benefit.channel) channels.add(benefit.channel);
+		  if (benefit.channel_allowed) channels.add(benefit.channel_allowed);
 		}
 	  });
 	
@@ -10944,8 +10945,13 @@
 		return `Merchant offer at ${b.merchant} — ${discountLabel} back.`;
 	  }
 	  // Pure fallback — use earning rate reason
-	  const channelText = !isNullChannel(score.channel)
-		? ` ${CHANNEL_LABELS[score.channel] || score.channel}`
+	  const effectiveChannel = score.part1 > 0
+		? (score.cbCandidate?.benefit?.channel || null)
+		: score.part0 > 0
+		  ? null
+		  : score.channel;
+	  const channelText = !isNullChannel(effectiveChannel)
+		? ` ${CHANNEL_LABELS[effectiveChannel] || effectiveChannel}`
 		: "";
 	  return `Use ${CARDS[score.card]?.label} to earn ${score.rate}x points${channelText}.`;
 	}
@@ -11096,9 +11102,17 @@
       const cb = winner.cbCandidate;
       const cbBenefit = cb?.benefit;
 
+      // Channel: for CB wins use the benefit's own channel requirement;
+      // for MO wins no portal needed; for pure fallback use earning rule channel
+      const displayChannel = recommendationSource === "card_benefit"
+        ? (cbBenefit?.channel || null)
+        : recommendationSource === "merchant_offer"
+          ? null
+          : winner.channel;
+
       return {
         card: winner.card,
-        channel: winner.channel,
+        channel: displayChannel,
         reasonMain,
         reason: reasonMain,
         reasonMainHtml: cbBenefit?.reason_yesHtml || null,
@@ -12218,6 +12232,18 @@
 	if (!isNullChannel(rec.channel) && CHANNEL_LABELS[rec.channel]) {
 		bullets.push(`Assumes purchase is completed ${CHANNEL_LABELS[rec.channel]}`);
 	  }
+	  
+	  // MO contribution — when both a CB and MO apply to the winning card
+	  const winnerScore = rec.allCardScores?.[0];
+	  if (winnerScore?.part0 > 0 && winnerScore?.part1 > 0 && winnerScore?.moCandidate?.benefit) {
+		const mob = winnerScore.moCandidate.benefit;
+		const moDiscountLabel = mob.discountType === "percent"
+		  ? `${Number(mob.discountValue || 0)}% back`
+		  : `$${Number(mob.discountValue || 0).toFixed(2)} back`;
+		bullets.push(
+		  `Also: ${mob.merchant} merchant offer adds ${moDiscountLabel} on this purchase`
+		);
+	  }
 	
 	  // MO ineligibility notice 
 	  const moD = lastRecommendation?.merchantDiag;
@@ -12284,29 +12310,44 @@
 	  let alsoSectionHtml = "";
 	  if (secondaryScores.length > 0) {
 		const alsoCards = secondaryScores.map(score => {
-		  const isEqual = score.total === topTotal;
+		  const isEqual = Math.abs(score.total - topTotal) < 0.0001;
 		  const toplineLabel = isEqual ? "Equally good option" : "Also available";
 		  const toplineCls = isEqual ? "is-equal" : "";
 		  const cardMeta = CARDS[score.card] || {};
-		  const alsoChannelText = !isNullChannel(score.channel)
-			? ` ${CHANNEL_LABELS[score.channel] || score.channel}`
+		  const alsoDisplayChannel = score.part1 > 0
+			? (score.cbCandidate?.benefit?.channel || null)
+			: score.part0 > 0
+			  ? null
+			  : score.channel;
+		  const alsoChannelText = !isNullChannel(alsoDisplayChannel)
+			? ` via ${CHANNEL_LABELS[alsoDisplayChannel] || alsoDisplayChannel}`
 			: "";
 	
-		  // Value chip
+		// Value chip — show CB remaining if available, else MO offer value
 		  let alsoChipHtml = "";
 		  if (score.part1 > 0 && score.cbCandidate?.remainingAmount != null) {
 			alsoChipHtml = `<span class="rec-also-value-chip">$${formatUsageAmount(score.cbCandidate.remainingAmount)} remaining</span>`;
 		  } else if (score.part0 > 0) {
 			alsoChipHtml = `<span class="rec-also-value-chip">$${formatUsageAmount(score.part0)} offer</span>`;
 		  }
-	
+
 		  // Reason text
 		  const alsoReason = escapeHtml(buildScoreReasonText(score, { amount: rec.amount, date: rec.date, category: rec.categoryKey, merchantBenefitId: rec.merchantBenefitId }));
-	
-		  // Non-monetary bullet
-		  const alsoBullets = score.nonMonetaryBenefits.map(b =>
-			`<li>Also note: ${escapeHtml(b.reason_yes || b.label || "")}</li>`
-		  ).join("");
+
+		  // Bullets: non-monetary notes + MO contribution when both CB and MO apply
+		  const alsoExtraBullets = [];
+		  score.nonMonetaryBenefits.forEach(b => {
+			alsoExtraBullets.push(`Also note: ${escapeHtml(b.reason_yes || b.label || "")}`);
+		  });
+		  if (score.part0 > 0 && score.part1 > 0 && score.moCandidate?.benefit) {
+			const mob = score.moCandidate.benefit;
+			alsoExtraBullets.push(
+			  `Also: ${escapeHtml(mob.merchant)} merchant offer adds $${formatUsageAmount(score.part0)} back on this purchase`
+			);
+		  }
+		  const alsoBullets = alsoExtraBullets
+			.map(b => `<li>${b}</li>`)
+			.join("");
 	
 		  return `
 			<div class="rec-also-card">
