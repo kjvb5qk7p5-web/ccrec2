@@ -3514,7 +3514,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.01</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.02</button>
   </div>
 
   <script>
@@ -6741,8 +6741,10 @@
 		const mCard = merchantDiag.benefit?.card ? renderCardBadge(merchantDiag.benefit.card) : "";
 		let mStatus, mStatusColor;
 		if (merchantDiag.eligible) {
-		  mStatus = "✓ Won";
-		  mStatusColor = "var(--success)";
+		  const moActuallyWon = rec.recommendationSource === "merchant_offer" &&
+			rec.card === merchantDiag.benefit?.card;
+		  mStatus = moActuallyWon ? "✓ Won" : "✓ Available";
+		  mStatusColor = moActuallyWon ? "var(--success)" : "var(--text-soft)";
 		} else {
 		  const reasons = {
 			expired: "Expired",
@@ -6776,7 +6778,10 @@
 	  // --- Card benefits table ---
 	  const eligible = cardAnalysis?.eligible || [];
 	  const unavailable = cardAnalysis?.unavailable || [];
-	  const winner = cardAnalysis?.winner || null;
+	  // Use new scoring engine's winner, not old priority-based winner
+	  const topScore = rec.allCardScores?.[0] || null;
+	  const winningBenefitId = topScore?.cbCandidate?.benefit?.id || null;
+	  const winningCard = topScore?.card || null;
 	
 	  if (eligible.length === 0 && unavailable.length === 0) {
 		html += `<p style="font-size:0.85rem;color:var(--text-soft);">No card benefits matched this category.</p>`;
@@ -6803,7 +6808,9 @@
 		  <tbody>
 			${allRows.map(row => {
 			  const b = row.benefit;
-			  const isWinner = winner && b.id === winner.benefit.id;
+			  const isWinner = winningBenefitId
+				? b.id === winningBenefitId
+				: (!b.non_monetary && b.card === winningCard && row.bucket === "eligible");
 			  const badge = renderCardBadge(b.card);
 			  const label = escapeHtml(b.label || b.id);
 			  const immVal = row.immediateValue != null
@@ -6952,7 +6959,7 @@
 	  const benefitAnalysisHtml = renderBenefitAnalysisTable();
 	  
 	  // --- Section 1b: Full score breakdown ---
-	  const scoreCategory = lastRecommendation?.purchase?.category || rankingCategory;
+	  const scoreCategory = lastRecommendation?.purchase?.category || category || "";
 	  let scoreTableHtml = "";
 	  if (scoreCategory && lastRecommendation?.rec?.allCardScores?.length) {
 		const scores = lastRecommendation.rec.allCardScores;
