@@ -3514,7 +3514,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.02</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.03</button>
   </div>
 
   <script>
@@ -7007,7 +7007,7 @@
 		const badge = renderCardBadge(r.card);
 		return `
 		  <tr style="${i === 0 ? "font-weight:700;" : ""}">
-			<td style="padding:6px 8px;">${i + 1}</td>
+			<td style="padding:6px 8px;width:20px;">${i + 1}</td>
 			<td style="padding:6px 8px;">${badge}</td>
 			<td style="padding:6px 8px;">${escapeHtml(r.cardLabel)}</td>
 			<td style="padding:6px 8px;">${r.rate}x${channelText}</td>
@@ -7028,7 +7028,7 @@
 		<table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
 		  <thead>
 			<tr style="color:var(--text-soft);border-bottom:1px solid var(--border);">
-			  <th style="padding:4px 8px;text-align:left;">#</th>
+			  <th style="padding:4px 8px;text-align:left;width:20px;">#</th>
 			  <th style="padding:4px 8px;text-align:left;">Card</th>
 			  <th style="padding:4px 8px;text-align:left;">Name</th>
 			  <th style="padding:4px 8px;text-align:left;">Earn rate</th>
@@ -11086,19 +11086,25 @@
       if (winner.part1 > 0) recommendationSource = "card_benefit";
       else if (winner.part0 > 0) recommendationSource = "merchant_offer";
 
+      const cb = winner.cbCandidate;
+      const cbBenefit = cb?.benefit;
+
       return {
         card: winner.card,
         channel: winner.channel,
         reasonMain,
         reason: reasonMain,
-        reasonMainHtml: null,
-        remainingAmount: winner.cbCandidate ? winner.cbCandidate.remainingAmount : null,
-        totalCapAmount: winner.cbCandidate?.benefit?.non_monetary ? null : (Number(winner.cbCandidate?.benefit?.cap_amount) || null),
-        spendCap: null,
-        cardBenefitId: winner.cbCandidate?.benefit?.id || null,
+        reasonMainHtml: cbBenefit?.reason_yesHtml || null,
+        remainingAmount: cb && !cbBenefit?.non_monetary ? cb.remainingAmount : null,
+        totalCapAmount: cb && !cbBenefit?.non_monetary ? (Number(cbBenefit?.cap_amount) || null) : null,
+        spendCap: (cbBenefit?.non_monetary && cbBenefit?.cap_amount != null)
+          ? Number(cbBenefit.cap_amount) : null,
+        usedAmount: cb?.priorUsed ?? null,
+        txCount: cb?.priorTxCount ?? null,
+        txCap: cbBenefit?.tx_cap ?? null,
+        cardBenefitId: cbBenefit?.id || null,
         recommendationSource,
         allCardScores,
-        // legacy fields
         earningRanking: [],
         winnerRateNoChannel: null,
         runnerUp: null
@@ -12213,8 +12219,27 @@
 		bullets.push(`Applies for the first $${formatUsageAmount(rec.spendCap)} of eligible spend`);
 	  }
 	
-	  if (!isNullChannel(rec.channel) && CHANNEL_LABELS[rec.channel]) {
+	if (!isNullChannel(rec.channel) && CHANNEL_LABELS[rec.channel]) {
 		bullets.push(`Assumes purchase is completed ${CHANNEL_LABELS[rec.channel]}`);
+	  }
+	
+	  // CB ineligibility notice — show reason_no from first unavailable benefit
+	  const firstUnavail = lastRecommendation?.cardAnalysis?.firstUnavailable;
+	  if (firstUnavail?.benefit?.reason_no) {
+		bullets.push(firstUnavail.benefit.reason_no);
+	  }
+	
+	  // MO ineligibility notice
+	  const moD = lastRecommendation?.merchantDiag;
+	  if (moD && !moD.eligible) {
+		const merchantName = moD.benefit?.merchant || "This offer";
+		if (moD.reasonType === "below_min_spend" && moD.minSpend != null) {
+		  bullets.push(`${merchantName} offer requires at least $${Number(moD.minSpend).toFixed(2)} — minimum not met`);
+		} else if (moD.reasonType === "used_up") {
+		  bullets.push(`${merchantName} offer is already used up`);
+		} else if (moD.reasonType === "expired") {
+		  bullets.push(`${merchantName} offer has expired`);
+		}
 	  }
 	
 	  if (rec.recommendationSource === "base_fallback") {
@@ -12240,9 +12265,20 @@
 	  const topTotal = allScores[0]?.total ?? 0;
 	
 	  // Cards with Part 0 or Part 1 > 0, excluding winner
-	  const secondaryScores = allScores.slice(1).filter(s =>
-		s.card !== rec.card && (s.part0 > 0 || s.part1 > 0)
-	  );
+	  const isPureFallback = allScores.every(s => s.part0 === 0 && s.part1 === 0);
+	
+	  const secondaryScores = isPureFallback
+		// Pure fallback: only show cards with the same effective earning rate as the winner
+		? allScores.slice(1).filter(s => {
+			const amount = Number(lastRecommendation?.purchase?.amount) || 1;
+			const winnerRate = allScores[0].part2 / amount;
+			const thisRate = s.part2 / amount;
+			return s.card !== rec.card && Math.abs(thisRate - winnerRate) < 0.0001;
+		  })
+		// Benefit path: show cards with applicable benefits
+		: allScores.slice(1).filter(s =>
+			s.card !== rec.card && (s.part0 > 0 || s.part1 > 0)
+		  );
 	
 	  let alsoSectionHtml = "";
 	  if (secondaryScores.length > 0) {
