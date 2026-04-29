@@ -6968,7 +6968,7 @@
 		  <table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin-bottom:16px;">
 			<thead>
 			  <tr style="color:var(--text-soft);border-bottom:1px solid var(--border);">
-				<th style="padding:4px 6px;text-align:left;">#</th>
+				<th style="padding:4px 6px;text-align:left;width:20px;">#</th>
 				<th style="padding:4px 6px;text-align:left;">Card</th>
 				<th style="padding:4px 6px;text-align:right;">Part 0<br><span style="font-weight:400">(MO)</span></th>
 				<th style="padding:4px 6px;text-align:right;">Part 1<br><span style="font-weight:400">(CB)</span></th>
@@ -6980,7 +6980,7 @@
 			<tbody>
 			  ${scores.map((s, i) => `
 				<tr style="${i === 0 ? "font-weight:700;" : ""}border-top:1px solid var(--border);">
-				  <td style="padding:5px 6px;">${i + 1}</td>
+				  <td style="padding:5px 6px;width:20px;">${i + 1}</td>
 				  <td style="padding:5px 6px;">${renderCardBadge(s.card)}</td>
 				  <td style="padding:5px 6px;text-align:right;">${s.part0 > 0 ? "$" + formatUsageAmount(s.part0) : "—"}</td>
 				  <td style="padding:5px 6px;text-align:right;">${s.part1 > 0 ? "$" + formatUsageAmount(s.part1) : "—"}</td>
