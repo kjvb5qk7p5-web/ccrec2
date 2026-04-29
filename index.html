@@ -3514,7 +3514,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.06</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.07</button>
   </div>
 
   <script>
@@ -10933,11 +10933,15 @@
 	}
 	
 	function buildScoreReasonText(score, purchase) {
+	  // When both MO and CB apply, MO is the main reason
+	  if (score.part0 > 0 && score.moCandidate) {
+		const b = score.moCandidate.benefit;
+		return `Merchant offer at ${b.merchant} — $${formatUsageAmount(score.part0)} back on this purchase.`;
+	  }
 	  if (score.part1 > 0 && score.cbCandidate) {
 		const b = score.cbCandidate.benefit;
 		return b.reason_yes || b.label || "";
 	  }
-	  if (score.part0 > 0 && score.moCandidate) {
 		const b = score.moCandidate.benefit;
 		const discountLabel = b.discountType === "percent"
 		  ? `${Number(b.discountValue || 0)}%`
@@ -11124,6 +11128,7 @@
         txCount: cb?.priorTxCount ?? null,
         txCap: cbBenefit?.tx_cap ?? null,
         cardBenefitId: cbBenefit?.id || null,
+        moImmediateValue: winner.part0 > 0 ? winner.part0 : null,
         recommendationSource,
         allCardScores,
         earningRanking: [],
@@ -12170,11 +12175,28 @@
 			<span>$${formatUsageAmount(rec.expectedValue)}</span>
 		  </div>
 		`;
+	  } else if (rec.moImmediateValue != null && !isNaN(rec.moImmediateValue) &&
+				 rec.remainingAmount != null && !isNaN(rec.remainingAmount)) {
+		// Combined MO + CB: MO is primary reason, show MO value in chip
+		valueChipHtml = `
+		  <div class="rec-value-chip">
+			Merchant offer value
+			<span>$${formatUsageAmount(rec.moImmediateValue)}</span>
+		  </div>
+		`;
 	  } else if (rec.remainingAmount != null && !isNaN(rec.remainingAmount)) {
 		valueChipHtml = `
 		  <div class="rec-value-chip">
 			Remaining benefit
 			<span>$${formatUsageAmount(rec.remainingAmount)}</span>
+		  </div>
+		`;
+	  } else if (rec.moImmediateValue != null && !isNaN(rec.moImmediateValue)) {
+		// MO only (no CB)
+		valueChipHtml = `
+		  <div class="rec-value-chip">
+			Merchant offer value
+			<span>$${formatUsageAmount(rec.moImmediateValue)}</span>
 		  </div>
 		`;
 	  }
@@ -12233,16 +12255,11 @@
 		bullets.push(`Assumes purchase is completed ${CHANNEL_LABELS[rec.channel]}`);
 	  }
 	  
-	  // MO contribution — when both a CB and MO apply to the winning card
+	  // CB contribution — when both MO and CB apply, CB becomes the additive bullet
 	  const winnerScore = rec.allCardScores?.[0];
-	  if (winnerScore?.part0 > 0 && winnerScore?.part1 > 0 && winnerScore?.moCandidate?.benefit) {
-		const mob = winnerScore.moCandidate.benefit;
-		const moDiscountLabel = mob.discountType === "percent"
-		  ? `${Number(mob.discountValue || 0)}% back`
-		  : `$${Number(mob.discountValue || 0).toFixed(2)} back`;
-		bullets.push(
-		  `Also: ${mob.merchant} merchant offer adds ${moDiscountLabel} on this purchase`
-		);
+	  if (winnerScore?.part0 > 0 && winnerScore?.part1 > 0 && winnerScore?.cbCandidate?.benefit) {
+		const cbb = winnerScore.cbCandidate.benefit;
+		bullets.push(cbb.reason_yes || cbb.label || "");
 	  }
 	
 	  // MO ineligibility notice 
@@ -12339,11 +12356,9 @@
 		  score.nonMonetaryBenefits.forEach(b => {
 			alsoExtraBullets.push(`Also note: ${escapeHtml(b.reason_yes || b.label || "")}`);
 		  });
-		  if (score.part0 > 0 && score.part1 > 0 && score.moCandidate?.benefit) {
-			const mob = score.moCandidate.benefit;
-			alsoExtraBullets.push(
-			  `Also: ${escapeHtml(mob.merchant)} merchant offer adds $${formatUsageAmount(score.part0)} back on this purchase`
-			);
+		  if (score.part0 > 0 && score.part1 > 0 && score.cbCandidate?.benefit) {
+			const cbb = score.cbCandidate.benefit;
+			alsoExtraBullets.push(escapeHtml(cbb.reason_yes || cbb.label || ""));
 		  }
 		  const alsoBullets = alsoExtraBullets
 			.map(b => `<li>${b}</li>`)
