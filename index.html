@@ -3514,7 +3514,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.04</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.05</button>
   </div>
 
   <script>
@@ -3836,7 +3836,7 @@
 	  reason_yes:
 		"Book a hotel through Chase Travel to apply the $50 annual hotel credit. Note: the credited $50 does not earn points.",
 	  reason_no:
-		"Chase Sapphire Preferred annual hotel credit is used up; ",
+		"Chase Sapphire Preferred annual hotel credit is used up ",
 	
 	  allow_fallback: true,
 	  counts_toward_annual_roi: true
@@ -3878,7 +3878,7 @@
 	  reason_yes:
 		"Use Chase Sapphire Preferred on DoorDash non-restaurant orders (groceries, convenience, etc.) to claim the $10 monthly discount. Must select from promotion wallet at checkout; one order per month, remainder forfeited if unused.",
 	  reason_no:
-		"DoorDash non-restaurant monthly discount is used up; ",
+		"DoorDash non-restaurant monthly discount is used up ",
 	
 	  allow_fallback: false,
 	  counts_toward_annual_roi: true
@@ -3964,7 +3964,7 @@
 	  reason_yes:
 		"Use Chase Sapphire Preferred on Peloton equipment and accessories (purchases over $150) to earn 5X points (through 12/31/2027).",
 	  reason_no:
-		"Peloton 5X points boost is used up; ",
+		"Peloton 5X points boost is used up ",
 	
 	  allow_fallback: true,
 	  counts_toward_annual_roi: false
@@ -4159,7 +4159,7 @@
 	  reason_yes:
 		"Book through Capital One Travel to apply the $300 annual travel credit. Note: miles are not earned on the credited portion.",
 	  reason_no:
-		"Venture X annual travel credit is used up; ",
+		"Venture X annual travel credit is used up ",
 	
 	  allow_fallback: false,
 	  counts_toward_annual_roi: true
@@ -4243,7 +4243,7 @@
 	  reason_yes:
 		"Use Venture X to cover your TSA PreCheck ($85) or Global Entry ($120) application fee. Note: NEXUS is not covered on Venture X.",
 	  reason_no:
-		"Venture X Trusted Traveler fee credit is already used this year; ",
+		"Venture X Trusted Traveler fee credit is already used this year ",
 	
 	  allow_fallback: true,
 	  counts_toward_annual_roi: true
@@ -4325,7 +4325,7 @@
         reason_yes:
               "Use Chase Sapphire Reserve to use the $300 annual travel credit.",
         reason_no:
-            "Chase Sapphire Reserve annual travel credit is used up; ",
+            "Chase Sapphire Reserve annual travel credit is used up ",
 
 		allow_fallback: false,
 		counts_toward_annual_roi: true
@@ -4363,7 +4363,7 @@
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
 	
 		reason_yes: "Use Chase Sapphire Reserve to cover your TSA PreCheck ($85), Global Entry ($120), or NEXUS ($50) application fee.",
-		reason_no: "Chase Sapphire Reserve Trusted Traveler fee credit is already used this year; ",
+		reason_no: "Chase Sapphire Reserve Trusted Traveler fee credit is already used this year ",
 	
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -4405,7 +4405,7 @@
         reason_yes:
               "Use Chase Sapphire first to use the $5 monthly DoorDash restaurant delivery credit.",
         reason_no:
-            "DoorDash monthly credit is used up; ",
+            "DoorDash monthly credit is used up ",
 
 		allow_fallback: false,
 		counts_toward_annual_roi: true
@@ -4448,7 +4448,7 @@
         reason_yes:
               "Use Chase Sapphire Reserve on DoorDash Groceries to tap your 2 × $10 monthly grocery credits (up to $20 total per month).",
         reason_no:
-            "You’ve already used your 2 × $10 DoorDash Groceries credits this month; ",
+            "You’ve already used your 2 × $10 DoorDash Groceries credits this month ",
 
 		allow_fallback: false,
 		counts_toward_annual_roi: true
@@ -4490,7 +4490,7 @@
         reason_yes:
               "Use Chase Sapphire in the Lyft app to earn your $10 monthly Lyft credit and boosted points.",
         reason_no:
-              "Lyft monthly credit on Sapphire Reserve is used up; ",
+              "Lyft monthly credit on Sapphire Reserve is used up ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -4576,7 +4576,7 @@
         reason_yes:
               "Use Chase Sapphire on your Peloton equipment and accessories to earn 10X points.",
         reason_no:
-            "Peloton 10X points boost is used up; ",
+            "Peloton 10X points boost is used up ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: false
@@ -4618,7 +4618,7 @@
         reason_yes:
                 "Use Chase Sapphire Reserve with OpenTable dining partners to use your $150 semi-annual OpenTable dining credit.",
         reason_no:
-                "Your OpenTable partner credit is used; ",
+                "Your OpenTable partner credit is used up ",
 	
 		allow_fallback: false,
 		counts_toward_annual_roi: true
@@ -4661,7 +4661,7 @@
 		reason_yes:
 				"Book via the Chase Travel portal to earn the $250 semi-annual credit, $100 property credit per stay, daily breakfast for 2 and other benefits. Minimum of 2-night stay.",
 		reason_no:
-			  "Semi-annual credit is used up but still book via the Chase Travel portal to earn 8X points.",
+			  "Semi-annual credit for The Edit hotels is used up ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -4703,7 +4703,7 @@
         reason_yes:
               "Use Chase Sapphire on StubHub/viagogo/soccer.com to earn towards the $150 semi-annual credit.",
         reason_no:
-            "StubHub semi-annual credit is used up; ",
+            "StubHub semi-annual credit is used up ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -4749,7 +4749,7 @@
         reason_yes:
               "Use AmEx Gold on concessions purchases at The Venue Collection venues to receive a 10% credit.",
         reason_no:
-            "The Venue Collection 10% credit is used up; ",
+            "The Venue Collection 10% credit is used up ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -4794,7 +4794,7 @@
         reason_yes:
               "Use Amex Gold on Uber / Uber Eats to use your $10 monthly Uber Cash.",
         reason_no:
-            "Uber Cash for this month is used up; ",
+            "Uber Cash for this month is used up ",
 	
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -4847,7 +4847,7 @@
 		reason_yes:
             "Use Amex Gold with eligible partners (Grubhub/Seamless, Cheesecake Factory, Goldbelly, Wine.com, Five Guys) to use the $10 monthly dining-partner credit.",
         reason_no:
-            "Your Amex Gold dining partner credit is used up; ",
+            "Your Amex Gold dining partner credit is used up ",
 	
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -4887,7 +4887,7 @@
         reason_yes:
               "Use Amex Gold at Dunkin to use the $7 monthly Dunkin credit (on top of 4X points on dining).",
         reason_no:
-            "Your Dunkin monthly credit is used; ",
+            "Your Dunkin monthly credit is used up ",
 
 		allow_fallback: false,
 		counts_toward_annual_roi: true
@@ -4929,7 +4929,7 @@
         reason_yes:
               "Use Amex Gold via Resy to burn your $50 semi-annual Resy dining credit.",
         reason_no:
-              "Your Resy credit is used; ",
+              "Your Resy credit is used up this period ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -5095,7 +5095,7 @@
         reason_yes:
               "Use United Quest for rideshare rides to earn the $8 monthly credit.",
         reason_no:
-            "United Quest monthly rideshare credit is used up; ",
+            "United Quest monthly rideshare credit is used up ",
 
 		allow_fallback: false,
 		counts_toward_annual_roi: true
@@ -5137,7 +5137,7 @@
         reason_yes:
               "Use United Quest for Instacart to earn the $15 monthly credit before defaulting to Chase Sapphire.",
         reason_no:
-            "Instacart monthly credit is used up; ",
+            "Instacart monthly credit is used up ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -5178,7 +5178,7 @@
 	    reason_yes:
 	            "Renowned Hotels booking – use United Quest on the Chase Travel platform to trigger the $150 Renowned credit and boosted United earn.",
         reason_no:
-            "Renowned Hotel annual credit is used up; ",
+            "Renowned Hotel annual credit is used up ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -5226,7 +5226,7 @@
         reason_yes:
               "Use United Quest at cars.united.com to tap your 2 × $40 annual United cash benefit (up to $80 total per year).",
         reason_no:
-            "You’ve already used your 2 × $40 annual benefit this year; ",
+            "You’ve already used your 2 × $40 annual benefit this year ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -5305,7 +5305,7 @@
 	    reason_yes:
 	            "JSX flight booking – use United Quest at JSX to trigger the $150 annual credit.",
         reason_no:
-            "JSX flight annual credit is used up; ",
+            "JSX flight annual credit is used up ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -5343,7 +5343,7 @@
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
 	
 		reason_yes: "Use United Quest to cover your TSA PreCheck ($85), Global Entry ($120), or NEXUS ($50) application fee.",
-		reason_no: "United Quest Trusted Traveler fee credit is already used this year; ",
+		reason_no: "United Quest Trusted Traveler fee credit is already used this year ",
 	
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -5390,7 +5390,7 @@
         reason_yes:
               "Use Delta Gold at Delta Stays until you’ve used the $100 annual Delta Stays credit.",
         reason_no:
-            "Delta Stays annual credit is used up; ",
+            "Delta Stays annual credit is used up ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -5473,7 +5473,7 @@
         reason_yes:
               "Use Bonvoy Brilliant first to use the $25 monthly dining.",
         reason_no:
-            "Bonvoy Brilliant monthly dining credit is used up; ",
+            "Bonvoy Brilliant monthly dining credit is used up ",
 	
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -5511,7 +5511,7 @@
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
 	
 		reason_yes: "Use Marriott Bonvoy Brilliant to cover your TSA PreCheck ($85) or Global Entry ($120) application fee. Note: NEXUS is not covered.",
-		reason_no: "Marriott Bonvoy Brilliant Trusted Traveler fee credit is already used this year; ",
+		reason_no: "Marriott Bonvoy Brilliant Trusted Traveler fee credit is already used this year ",
 	
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -12219,12 +12219,6 @@
 		bullets.push(`Assumes purchase is completed ${CHANNEL_LABELS[rec.channel]}`);
 	  }
 	
-	  // CB ineligibility notice — show reason_no from first unavailable benefit
-	  const firstUnavail = lastRecommendation?.cardAnalysis?.firstUnavailable;
-	  if (firstUnavail?.benefit?.reason_no) {
-		bullets.push(firstUnavail.benefit.reason_no);
-	  }
-	
 	  // MO ineligibility notice 
 	  const moD = lastRecommendation?.merchantDiag;
 	  if (moD && !moD.eligible) {
@@ -12235,6 +12229,17 @@
 		  bullets.push(`${merchantName} offer is already used up`);
 		} else if (moD.reasonType === "expired") {
 		  bullets.push(`${merchantName} offer has expired`);
+		}
+	  }
+	
+	  // CB ineligibility notices — show reason_no for all unavailable benefits
+	  const unavailableBenefits = lastRecommendation?.cardAnalysis?.unavailable || [];
+	  const seenReasonNo = new Set();
+	  for (const candidate of unavailableBenefits) {
+		const reasonNo = candidate.benefit?.reason_no;
+		if (reasonNo && !seenReasonNo.has(reasonNo)) {
+		  seenReasonNo.add(reasonNo);
+		  bullets.push(reasonNo);
 		}
 	  }
 	
