@@ -4248,48 +4248,6 @@
 	  },
 	
 	  {
-		id: "csr_peloton",
-		card: "CSR",
-		purchaseCategories: ["retail"],
-		  intentTags: ["fitness", "exercise bike"],
-		  merchantKeywords: ["peloton"],
-		  searchAliases: ["exercise equipment"],
-	
-		label: "Peloton equipment",
-		labelHtml: "Peloton equipment",
-		state_label: "Peloton equipment",
-		state_labelHtml: "Peloton equipment",
-		icon: "🚲",
-		
-		categories: ["peloton"],
-		summary_sort_category: "health",
-	
-		cadence: "monthly",
-		cadence_type: "calendar",
-		start_date: null,
-		cap_amount: 5000,
-		tx_cap: null,
-		per_tx_cap: null,
-		
-		non_monetary: true, // also remember to set value_fn: () => 0
-	
-		priority: 10,
-		display_order: 80,
-		channel: "peloton_platform",
-	
-		eligible_fn: (tx) => tx.category === "peloton",
-		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-        reason_yes:
-              "Use Chase Sapphire on your Peloton equipment and accessories to earn 10X points.",
-        reason_no:
-            "Peloton 10X points boost is used up ",
-
-		allow_fallback: true,
-		counts_toward_annual_roi: false
-	  },
-	
-	  {
 		id: "csr_opentable",
 		card: "CSR",
 		purchaseCategories: ["dining"],
