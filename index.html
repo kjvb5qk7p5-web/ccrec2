@@ -3579,6 +3579,7 @@
 	  pointValue: 0.02,
 	  earningRules: [
 		{ rate: 5, channel: "chase_travel", matchGroups: ["travel"] },
+		{ rate: 5, channel: null,           matchLeaves: ["peloton"] },
 		{ rate: 5, channel: "lyft_app",     matchLeaves: ["lyft"] },
 		{ rate: 3, channel: null,           matchGroups: ["dining"] },
 		{ rate: 3, channel: null,           matchLeaves: ["streaming"] },
@@ -3647,7 +3648,7 @@
 		{ rate: 8,  channel: "chase_travel", matchGroups: ["travel"],
 		                                    excludeLeaves: ["airbnb", "trusted_traveler"] },
 		{ rate: 5,  channel: "lyft_app",     matchLeaves: ["lyft"] },
-		{ rate: 4,  channel: null,           matchParents: ["flights", "lodging"] },
+		{ rate: 4,  channel: null,           matchParents: ["flights", "lodging"]  },
 		{ rate: 3,  channel: null,           matchGroups: ["dining"] },
 		{ rate: 1,  isBase: true }
 	  ]
@@ -3676,8 +3677,10 @@
 	  is_active: true,
 	  pointValue: 0.02,
 	  earningRules: [
-		{ rate: 4, channel: null,           matchGroups: ["dining"] },
-		{ rate: 4, channel: null,           matchGroups: ["groceries"] },
+		{ rate: 4, channel: null,           matchGroups: ["dining"],
+		                                    excludeLeaves: ["doordash", "uber_eats"] },
+		{ rate: 4, channel: null,           matchGroups: ["groceries"],
+											excludeLeaves: ["wholesale_clubs", "doordash_groceries", "instacart"] },
 		{ rate: 3, channel: null,           matchParents: ["flights"] },
 		{ rate: 2, channel: "amex_travel",  matchParents: ["lodging", "rental_car"] },
 		{ rate: 1, isBase: true }
@@ -3708,7 +3711,7 @@
 	  pointValue: 0.02,
 	  earningRules: [
 		{ rate: 5, channel: "chase_travel", matchLeaves: ["renowned_hotel"] },
-		{ rate: 3, channel: null,           matchLeaves: ["united_flight"] },
+		{ rate: 3, channel: null,           matchLeaves: ["united_flight", "united_events"] },
 		{ rate: 2, channel: null,           matchGroups: ["dining"] },
 		{ rate: 2, channel: null,           matchLeaves: ["streaming"] },
 		{ rate: 2, channel: null,           matchGroups: ["travel", "rideshare"],
@@ -3884,215 +3887,6 @@
 	  counts_toward_annual_roi: true
 	},
 	
-	{
-	  id: "csp_lyft_points",
-	  card: "CSP",
-	  purchaseCategories: ["rideshare"],
-	  intentTags: ["rideshare", "car service", "ride"],
-	  merchantKeywords: ["lyft"],
-	  searchAliases: ["ride share"],
-	
-	  label: "Lyft",
-	  labelHtml:
-		'<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
-	  state_label: "Lyft",
-	  state_labelHtml:
-		'<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
-	  icon: "🚗",
-	
-	  categories: ["lyft"],
-	  summary_sort_category: "rideshare",
-	
-	  cadence: "annual",
-	  cadence_type: "card_anniversary",
-	  start_date: null,
-	  cap_amount: null,
-	  tx_cap: null,
-	  per_tx_cap: null,
-	
-	  non_monetary: true, // also remember to set value_fn: () => 0
-	
-	  priority: 100,
-	  display_order: 620,
-	  channel: "lyft_app",
-	
-	  eligible_fn: (tx) => tx.category === "lyft",
-	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-	  reason_yes:
-		"Use Chase Sapphire Preferred in the Lyft app to earn 5X points (through 09/30/2027).",
-	  reason_no:
-		"This reason should not fire (csp_lyft_points); ",
-	
-	  allow_fallback: true,
-	  counts_toward_annual_roi: false
-	},
-	
-	{
-	  id: "csp_peloton",
-	  card: "CSP",
-	  purchaseCategories: ["retail"],
-	  intentTags: ["fitness", "exercise bike"],
-	  merchantKeywords: ["peloton"],
-	  searchAliases: ["exercise equipment"],
-	
-	  label: "Peloton equipment",
-	  labelHtml: "Peloton equipment",
-	  state_label: "Peloton equipment",
-	  state_labelHtml: "Peloton equipment",
-	  icon: "🚲",
-	
-	  categories: ["peloton"],
-	  summary_sort_category: "health",
-	
-	  cadence: "annual",
-	  cadence_type: "card_anniversary",
-	  start_date: null,
-	  cap_amount: 5000,
-	  tx_cap: null,
-	  per_tx_cap: null,
-	
-	  non_monetary: true, // also remember to set value_fn: () => 0
-	
-	  priority: 10,
-	  display_order: 630,
-	  channel: "peloton_platform",
-	
-	  eligible_fn: (tx) => tx.category === "peloton",
-	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-	  reason_yes:
-		"Use Chase Sapphire Preferred on Peloton equipment and accessories (purchases over $150) to earn 5X points (through 12/31/2027).",
-	  reason_no:
-		"Peloton 5X points boost is used up ",
-	
-	  allow_fallback: true,
-	  counts_toward_annual_roi: false
-	},
-	
-	{
-	  id: "csp_dining",
-	  card: "CSP",
-	  purchaseCategories: ["dining"],
-	  intentTags: ["restaurant", "dining", "takeout", "delivery"],
-	  merchantKeywords: [],
-	  searchAliases: ["restaurant"],
-	
-	  label: "Dining – restaurants",
-	  labelHtml: "Dining – restaurants",
-	  icon: "🍔",
-	
-	  categories: ["dining"],
-	  summary_sort_category: "dining",
-	
-	  cadence: "annual",
-	  cadence_type: "card_anniversary",
-	  start_date: null,
-	  cap_amount: null,
-	  tx_cap: null,
-	  per_tx_cap: null,
-	
-	  non_monetary: true, // also remember to set value_fn: () => 0
-	
-	  priority: 10,
-	  display_order: 640,
-	  channel: "direct",
-	
-	  eligible_fn: (tx) => tx.category === "dining",
-	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-	  reason_yes:
-		"Use Chase Sapphire Preferred for 3X points on dining.",
-	  reason_no:
-		"This reason should not fire (csp_dining); ",
-	
-	  allow_fallback: true,
-	  counts_toward_annual_roi: false
-	},
-	
-	{
-	  id: "csp_online_grocery",
-	  card: "CSP",
-	  purchaseCategories: ["groceries"],
-	  intentTags: ["groceries", "delivery", "food", "online grocery"],
-	  merchantKeywords: ["instacart", "peapod", "freshdirect", "amazon fresh"],
-	  searchAliases: ["grocery delivery", "online groceries"],
-	
-	  label: "Online grocery (3X)",
-	  labelHtml: "Online grocery (3X)",
-	  icon: "🛒",
-	
-	  categories: ["instacart", "doordash_groceries", "online_grocery"],
-	  summary_sort_category: "groceries",
-	
-	  cadence: "annual",
-	  cadence_type: "card_anniversary",
-	  start_date: null,
-	  cap_amount: null,
-	  tx_cap: null,
-	  per_tx_cap: null,
-	
-	  non_monetary: true, // also remember to set value_fn: () => 0
-	
-	  priority: 10,
-	  display_order: 650,
-	  channel: "direct",
-	
-	  eligible_fn: (tx) =>
-		tx.category === "instacart" ||
-		tx.category === "doordash_groceries" ||
-		tx.category === "online_grocery",
-	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-	  reason_yes:
-		"Use Chase Sapphire Preferred for 3X points on online grocery orders (Instacart, DoorDash Groceries, Peapod, FreshDirect, etc.). Note: Target, Walmart and wholesale clubs are excluded.",
-	  reason_no:
-		"This reason should not fire (csp_online_grocery); ",
-	
-	  allow_fallback: true,
-	  counts_toward_annual_roi: false
-	},
-	
-	{
-	  id: "csp_streaming",
-	  card: "CSP",
-	  purchaseCategories: ["entertainment"],
-	  intentTags: ["streaming", "netflix", "hulu", "spotify"],
-	  merchantKeywords: [],
-	  searchAliases: ["streaming services"],
-	
-	  label: "Streaming services (3X)",
-	  labelHtml: "Streaming services (3X)",
-	  icon: "📺",
-	
-	  categories: ["streaming"],
-	  summary_sort_category: "entertainment",
-	
-	  cadence: "annual",
-	  cadence_type: "card_anniversary",
-	  start_date: null,
-	  cap_amount: null,
-	  tx_cap: null,
-	  per_tx_cap: null,
-	
-	  non_monetary: true, // also remember to set value_fn: () => 0
-	
-	  priority: 10,
-	  display_order: 660,
-	  channel: "direct",
-	
-	  eligible_fn: (tx) => tx.category === "streaming",
-	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-	  reason_yes:
-		"Use Chase Sapphire Preferred for 3X points on select streaming services.",
-	  reason_no:
-		"This reason should not fire (csp_streaming); ",
-	
-	  allow_fallback: true,
-	  counts_toward_annual_roi: false
-	},
-
 	/* =========================
 	   CAPITAL ONE VENTURE X
 	   ========================= */
@@ -4163,50 +3957,6 @@
 	
 	  allow_fallback: false,
 	  counts_toward_annual_roi: true
-	},
-	
-	{
-	  id: "vx_entertainment",
-	  card: "VX",
-	  purchaseCategories: ["entertainment", "tickets"],
-	  intentTags: ["concert", "sports", "tickets", "show", "capital one entertainment"],
-	  merchantKeywords: ["capital one entertainment", "capital one arena", "capital one hall"],
-	  searchAliases: ["event tickets", "capital one entertainment"],
-	
-	  label: "Capital One Entertainment",
-	  labelHtml:
-		'<a href="https://entertainment.capitalone.com" target="_blank" rel="noopener noreferrer">Capital One Entertainment</a>',
-	  state_label: "Capital One Entertainment",
-	  state_labelHtml:
-		'<a href="https://entertainment.capitalone.com" target="_blank" rel="noopener noreferrer">Capital One Entertainment</a>',
-	  icon: "🎫",
-	
-	  categories: ["capital_one_entertainment"],
-	  summary_sort_category: "entertainment",
-	
-	  cadence: "annual",
-	  cadence_type: "card_anniversary",
-	  start_date: "2025-01-01",
-	  cap_amount: null,
-	  tx_cap: null,
-	  per_tx_cap: null,
-	
-	  non_monetary: true, // also remember to set value_fn: () => 0
-	
-	  priority: 10,
-	  display_order: 510,
-	  channel: "capital_one_entertainment_platform",
-	
-	  eligible_fn: (tx) => tx.category === "capital_one_entertainment",
-	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-	  reason_yes:
-		"Use Venture X on the Capital One Entertainment platform to earn 5X miles on event tickets.",
-	  reason_no:
-		"This reason should not fire (vx_entertainment); ",
-	
-	  allow_fallback: true,
-	  counts_toward_annual_roi: false
 	},
 	
 	{
@@ -4295,7 +4045,8 @@
 	
 		priority: 99,
 		display_order: 10,
-		channel: "direct",
+		channel: "chase_travel",
+		channel_allowed: "direct",
 	
 		// for csr_travel, remember to add new travel categories that get created when needed for additional travel cards (e.g. airline cards, hotel cards)
 		eligible_fn: (tx) => new Set([
@@ -4491,50 +4242,6 @@
               "Use Chase Sapphire in the Lyft app to earn your $10 monthly Lyft credit and boosted points.",
         reason_no:
               "Lyft monthly credit on Sapphire Reserve is used up ",
-
-		allow_fallback: true,
-		counts_toward_annual_roi: true
-	  },
-	
-	  {
-		id: "csr_lyft_points",
-		card: "CSR",
-		purchaseCategories: ["rideshare"],
-		  intentTags: ["rideshare", "car service", "ride"],
-		  merchantKeywords: ["lyft"],
-		  searchAliases: ["ride share"],
-	
-		label: "Lyft",
-		labelHtml:
-		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
-		state_label: "Lyft",
-		state_labelHtml:
-		  '<a href="https://www.lyft.com" target="_blank" rel="noopener noreferrer">Lyft</a>',
-		icon: "🚗",
-	
-		categories: ["lyft"],
-		summary_sort_category: "rideshare",
-	
-		cadence: "monthly",
-		cadence_type: "calendar",
-		start_date: null,
-		cap_amount: null,
-		tx_cap: null,
-		per_tx_cap: null,
-		
-		non_monetary: true, // also remember to set value_fn: () => 0
-	
-		priority: 100,
-		display_order: 50,
-		channel: "lyft_app",
-	
-		eligible_fn: (tx) => tx.category === "lyft",
-		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-        reason_yes:
-              "Use Chase Sapphire in the Lyft app to earn 5X points.",
-        reason_no:
-              "This reason should not fire (csr_lyft_points); ",
 
 		allow_fallback: true,
 		counts_toward_annual_roi: true
@@ -4936,84 +4643,6 @@
 	  },
 	  
 	  {
-		id: "ag_dining",
-		card: "AG",
-		purchaseCategories: ["dining"],
-		  intentTags: ["restaurant", "reservation", "dining", "rez"],
-		  merchantKeywords: [],
-		  searchAliases: ["restaurant booking"],
-	
-		label: "Dining - Restaurants",
-		labelHtml: "Dining - Restaurants",
-		icon: "🍔",
-	
-		categories: ["dining"],
-		summary_sort_category: "dining",
-	
-		cadence: "annual",
-		cadence_type: "card_anniversary",
-		start_date: null,
-		cap_amount: null,
-		tx_cap: null,
-		per_tx_cap: null,
-		
-		non_monetary: true, // also remember to set value_fn: () => 0
-	
-		priority: 10,
-		channel: "direct",
-	
-		eligible_fn: (tx) => tx.category === "dining",
-		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-	    reason_yes:
-	            "Use Amex Gold for 4X points on dining.",
-        reason_no:
-            "This reason should not fire (ag_dining); ",
-
-		allow_fallback: true,
-		counts_toward_annual_roi: false
-	  },	
-		
-	  {
-		id: "ag_groceries",
-		card: "AG",
-		purchaseCategories: ["groceries"],
-		  intentTags: ["food", "grocery"],
-		  merchantKeywords: [],
-		  searchAliases: ["supermarket"],
-	
-		label: "Groceries – grocery store",
-		labelHtml: "Groceries – grocery store",
-		icon: "🛒",
-	
-		categories: ["groceries"],
-		summary_sort_category: "groceries",
-	
-		cadence: "annual",
-		cadence_type: "card_anniversary",
-		start_date: null,
-		cap_amount: null,
-		tx_cap: null,
-		per_tx_cap: null,
-		
-		non_monetary: true, // also remember to set value_fn: () => 0
-	
-		priority: 10,
-		channel: "direct",
-	
-		eligible_fn: (tx) => tx.category === "groceries",
-		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
-	
-	    reason_yes:
-	            "Use Amex Gold for 4X points on groceries.",
-        reason_no:
-            "This reason should not fire (ag_groceries); ",
-
-		allow_fallback: true,
-		counts_toward_annual_roi: false
-	  },	
-		
-	  {
 		id: "ag_hotelcollection",
 		card: "AG",
 		purchaseCategories: ["hotel", "lodging", "travel"],
@@ -5263,7 +4892,7 @@
 		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
 	    reason_yes:
-	            "United Airlines flight booking – Use United Quest for United flights to earn miles and airline-specific perks.",
+	            "United Airlines flight booking – Use United Quest for United flights to earn airline-specific perks.",
         reason_no:
             "This reason should not fire (uq_united); ",
 
@@ -5427,7 +5056,7 @@
 		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
 	    reason_yes:
-	            "Delta Airlines flight booking – Use Delta SkyMiles AmEx Gold for Delta flights to earn miles and airline-specific perks.",
+	            "Delta Airlines flight booking – Use Delta SkyMiles AmEx Gold for Delta flights to earn airline-specific perks.",
         reason_no:
             "This reason should not fire (dg_delta); ",
 
@@ -5549,7 +5178,7 @@
 		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
 	    reason_yes:
-	            "Marriott family hotels booking – Use Bonvoy Brilliant for Marriott stays to earn bonus points and hotel perks such as the $100 property credit for certain bookings.",
+	            "Marriott family hotels booking – Use Bonvoy Brilliant for Marriott stays to earn hotel perks such as the $100 property credit for certain bookings.",
         reason_no:
             "This reason should not fire (mb_marriott); ",
 
@@ -12318,7 +11947,7 @@
 	  let alsoSectionHtml = "";
 	  if (secondaryScores.length > 0) {
 		const alsoCards = secondaryScores.map(score => {
-		  const isEqual = Math.abs(score.total - topTotal) < 0.0001;
+		  const isEqual = Math.abs(score.total - topTotal) < 1.00;
 		  const toplineLabel = isEqual ? "Equally good option" : "Also available";
 		  const toplineCls = isEqual ? "is-equal" : "";
 		  const cardMeta = CARDS[score.card] || {};
