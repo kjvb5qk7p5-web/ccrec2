@@ -3617,7 +3617,7 @@
 		{ rate: 10, channel: "capital_one_travel", matchParents: ["rental_car"]  },
 		{ rate: 5,  channel: null,                 matchLeaves: ["capital_one_entertainment"] },
 		{ rate: 5,  channel: "capital_one_travel", matchParents: ["flights"]     },
-		{ rate: 5,  channel: "capital_one_travel", matchLeaves: ["airbnb"]       },
+		{ rate: 5,  channel: "capital_one_travel", matchLeaves: ["vacation_rentals"]       },
 		{ rate: 2,  isBase: true }
 	  ],
 	  earningRule_categories: ["capital_one_entertainment", "airbnb", "other_flight", "other_hotel", "other_rentalcar"]
@@ -5764,7 +5764,16 @@
 		  icon: "🏡",
 		  group_key: "travel",
 		  parent_key: "lodging",
-		  sort_order: 999,
+		  sort_order: 998,
+		  // Codes MCC 7011 (Hotels) but widely excluded from hotel bonuses by issuers — needs explicit handling
+		},
+		vacation_rentals: {
+		  key: "vacation_rentals",
+		  label: "Vacation rentals on Capital One",
+		  icon: "🏡",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		  sort_order: 998,
 		  // Codes MCC 7011 (Hotels) but widely excluded from hotel bonuses by issuers — needs explicit handling
 		},
 		other_hotel: {
@@ -5773,7 +5782,7 @@
 		  icon: "🏨",
 		  group_key: "travel",
 		  parent_key: "lodging",
-		  sort_order: 998,
+		  sort_order: 997,
 		},
 	
 		avis_rentalcar: {
