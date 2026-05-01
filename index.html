@@ -5758,13 +5758,22 @@
 		  group_key: "travel",
 		  parent_key: "lodging",
 		},
+		airbnb: {
+		  key: "airbnb",
+		  label: "Airbnb",
+		  icon: "🏡",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		  sort_order: 999,
+		  // Codes MCC 7011 (Hotels) but widely excluded from hotel bonuses by issuers — needs explicit handling
+		},
 		other_hotel: {
 		  key: "other_hotel",
 		  label: "Other lodging - hotel, B&B, motel",
 		  icon: "🏨",
 		  group_key: "travel",
 		  parent_key: "lodging",
-		  sort_order: 999,
+		  sort_order: 998,
 		},
 	
 		avis_rentalcar: {
@@ -6171,14 +6180,6 @@
 		  group_key: "travel",
 		  parent_key: "lodging",
 		  // Chase World of Hyatt card gives 4x at Hyatt; outsized points value
-		},
-		airbnb: {
-		  key: "airbnb",
-		  label: "Airbnb",
-		  icon: "🏡",
-		  group_key: "travel",
-		  parent_key: "lodging",
-		  // Codes MCC 7011 (Hotels) but widely excluded from hotel bonuses by issuers — needs explicit handling
 		},
 		
 		// ---- Travel – Rental Cars (new brands) ----
