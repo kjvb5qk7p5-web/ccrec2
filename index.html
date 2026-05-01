@@ -3620,7 +3620,7 @@
 		{ rate: 5,  channel: "capital_one_travel", matchLeaves: ["vacation_rentals"]       },
 		{ rate: 2,  isBase: true }
 	  ],
-	  earningRule_categories: ["capital_one_entertainment", "airbnb", "other_flight", "other_hotel", "other_rentalcar"]
+	  earningRule_categories: ["capital_one_entertainment", "airbnb", "other_flight", "other_hotel", "other_rentalcar", "vacation_rentals"]
 	},
 	
 	  CSR: {
@@ -4075,7 +4075,9 @@
 		  "national_rentalcar",     // ← new: CSR covers all rental car companies
 		  "avis_rentalcar",
 		  "budget_rentalcar",
-		  "other_rentalcar"
+		  "other_rentalcar",
+		  "cruise",
+		  "tour"		  
 		]).has(tx.category),
 	
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
@@ -12046,6 +12048,12 @@
 	}
 	
 	function wireRecommendationControlsAfterRender() {
+	  // Strip stale event listeners by replacing elements before re-wiring
+	  const oldCardSelect = document.getElementById("cardUsedSelect");
+	  const oldSaveBtn = document.getElementById("btnSaveTx");
+	  if (oldCardSelect) oldCardSelect.replaceWith(oldCardSelect.cloneNode(true));
+	  if (oldSaveBtn) oldSaveBtn.replaceWith(oldSaveBtn.cloneNode(true));
+	
 	  const cardUsedSelect = document.getElementById("cardUsedSelect");
 	  const channelUsedSelect = document.getElementById("channelUsedSelect");
 	  const saveBtn = document.getElementById("btnSaveTx");
