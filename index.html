@@ -3514,7 +3514,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.07</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.08</button>
   </div>
 
   <script>
@@ -3586,7 +3586,8 @@
 		{ rate: 3, channel: null,           matchLeaves: ["instacart", "doordash_groceries", "online_grocery"] },
 		{ rate: 2, channel: null,           matchGroups: ["travel"] },
 		{ rate: 1, isBase: true }
-	  ]
+	  ],
+	  earningRule_categories: ["lyft", "peloton", "dining", "instacart", "doordash_groceries", "online_grocery", "streaming", "other_flight", "other_hotel", "other_rentalcar", "cruise", "tour"]
 	},
 
 	VX: {
@@ -3618,7 +3619,8 @@
 		{ rate: 5,  channel: "capital_one_travel", matchParents: ["flights"]     },
 		{ rate: 5,  channel: "capital_one_travel", matchLeaves: ["airbnb"]       },
 		{ rate: 2,  isBase: true }
-	  ]
+	  ],
+	  earningRule_categories: ["capital_one_entertainment", "airbnb", "other_flight", "other_hotel", "other_rentalcar"]
 	},
 	
 	  CSR: {
@@ -3651,7 +3653,8 @@
 		{ rate: 4,  channel: null,           matchParents: ["flights", "lodging"]  },
 		{ rate: 3,  channel: null,           matchGroups: ["dining"] },
 		{ rate: 1,  isBase: true }
-	  ]
+	  ],
+	  earningRule_categories: ["lyft", "peloton", "dining", "other_flight", "other_hotel", "other_rentalcar", "cruise", "tour"]
 	},
 
 	AG: {
@@ -3684,7 +3687,8 @@
 		{ rate: 3, channel: null,           matchParents: ["flights"] },
 		{ rate: 2, channel: "amex_travel",  matchParents: ["lodging", "rental_car"] },
 		{ rate: 1, isBase: true }
-	  ]
+	  ],
+	  earningRule_categories: ["dining", "groceries", "hotelcollection_hotel", "other_flight", "other_hotel", "other_rentalcar"]
 	},
 
 	UQ: {
@@ -3717,7 +3721,8 @@
 		{ rate: 2, channel: null,           matchGroups: ["travel", "rideshare"],
 		                                    excludeLeaves: ["renowned_hotel", "united_flight"] },
 		{ rate: 1, isBase: true }
-	  ]
+	  ],
+	  earningRule_categories: ["united_flight", "renowned_hotel", "united_events", "dining", "streaming"]
 	},
 
 	MB: {
@@ -3747,7 +3752,8 @@
 		{ rate: 3, channel: null, matchParents: ["flights"] },
 		{ rate: 3, channel: null, matchGroups: ["dining"] },
 		{ rate: 2, isBase: true }
-	  ]
+	  ],
+	  earningRule_categories: ["marriott_hotel", "dining", "other_flight"]
 	},
 
 	DG: {
@@ -3777,7 +3783,8 @@
 			{ rate: 2, channel: null, matchGroups: ["groceries"] },
 			{ rate: 2, channel: null, matchLeaves: ["delta_flight_threshold", "delta_stays"] },
 			{ rate: 1, isBase: true }
-		  ]
+		  ],
+	  earningRule_categories: ["delta_flight_threshold", "dining", "groceries", "delta_stays"]
 		}
 	};
 	
@@ -5783,6 +5790,20 @@
 		  group_key: "travel",
 		  parent_key: "rental_car",
 		},
+		cruise: {
+		  key: "cruise",
+		  label: "Cruise",
+		  icon: "🛳️",
+		  group_key: "travel",
+		  parent_key: "cruise",
+		},
+		tour: {
+		  key: "tour",
+		  label: "Tours & travel activities",
+		  icon: "🧭",
+		  group_key: "travel",
+		  parent_key: "tour",
+		},
 		trusted_traveler: {
 		  key: "trusted_traveler",
 		  label: "Trusted Traveler – TSA PreCheck / Global Entry / NEXUS",
@@ -7236,7 +7257,7 @@
 	
 	// --- Active category rules ---
 	// Active leaf if ANY of:
-	//  • Active merchant offer exists in that category (date valid, cap/maxTx not exhausted)
+	//  • A card earns points multipliers on specific categories
 	//  • Any card benefit uses that category
 	// Active group if it has >= 1 active leaf
 	
@@ -7244,10 +7265,21 @@
 	  const out = new Set();
 	
 	  for (const b of cardBenefits) {
-		if (CARDS[b.card]?.is_active === false) continue; 
+		if (CARDS[b.card]?.is_active === false) continue;
 		const cats = b && Array.isArray(b.categories) ? b.categories : [];
 		for (const c of cats) {
 		  if (c) out.add(String(c));
+		}
+	  }
+	
+	  // Also include earningRule_categories from each active card
+	  for (const card of Object.values(CARDS)) {
+		if (card.is_active === false) continue;
+		const extra = card.earningRule_categories;
+		if (Array.isArray(extra)) {
+		  for (const c of extra) {
+			if (c) out.add(String(c));
+		  }
 		}
 	  }
 	
