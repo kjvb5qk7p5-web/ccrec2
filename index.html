@@ -1793,6 +1793,40 @@
     margin-top: 3px;
   }
 
+  .rec-section-header {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 10px 0 4px 0;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .rec-section-header:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .rec-section-bullets {
+    margin: 0 0 4px 0;
+    padding-left: 16px;
+    color: var(--text-soft);
+    font-size: 0.85rem;
+  }
+
+  .rec-section-bullets li + li {
+    margin-top: 3px;
+  }
+
+  .rec-points-statement {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
   .rec-save-zone {
     margin-top: 12px;
     padding-top: 12px;
@@ -3514,7 +3548,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.08</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.09</button>
   </div>
 
   <script>
@@ -10550,7 +10584,8 @@
 		channel, rate,
 		cbCandidate, moCandidate,
 		nonMonetaryBenefits,
-		earningRule
+		earningRule,
+		cardAnalysis
 	  };
 	}
 	
@@ -11773,6 +11808,132 @@
       dateInput.value = formatTodayISO();
     }
 
+	function buildWhyThisWinsHtml(score, purchase, cardAnalysisOverride) {
+	  const sections = [];
+	  const cardMeta = CARDS[score.card] || {};
+	  const analysis = cardAnalysisOverride || score.cardAnalysis;
+
+	  // --- MO section ---
+	  const moD = score.moCandidate;
+	  const isPrimaryWinner = score === (lastRecommendation?.rec?.allCardScores?.[0]);
+	  const moIneligDiag = isPrimaryWinner ? lastRecommendation?.merchantDiag : null;
+
+	  if (moD?.benefit || (moIneligDiag && !moIneligDiag.eligible)) {
+		const merchantName = moD?.benefit?.merchant || moIneligDiag?.benefit?.merchant || "Merchant offer";
+		const moBullets = [];
+
+		if (moD?.eligible && score.part0 > 0) {
+		  moBullets.push(`$${formatUsageAmount(score.part0)} back on this purchase`);
+		}
+		if (moIneligDiag && !moIneligDiag.eligible) {
+		  if (moIneligDiag.reasonType === "below_min_spend" && moIneligDiag.minSpend != null) {
+			moBullets.push(`Requires at least $${formatUsageAmount(moIneligDiag.minSpend)} \u2014 minimum not met`);
+		  } else if (moIneligDiag.reasonType === "used_up") {
+			moBullets.push("Offer is already used up");
+		  } else if (moIneligDiag.reasonType === "expired") {
+			moBullets.push("Offer has expired");
+		  }
+		}
+
+		if (moBullets.length > 0) {
+		  sections.push(
+			`<div class="rec-section-header">Merchant offer at ${escapeHtml(merchantName)}:</div>` +
+			`<ul class="rec-section-bullets">${moBullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+		  );
+		}
+	  }
+
+	  // --- CB section ---
+	  const cbApplied = score.cbCandidate;
+	  const cbUnavailable = analysis?.unavailable || [];
+	  const cbHasContent = cbApplied || cbUnavailable.length > 0 || (score.nonMonetaryBenefits?.length > 0);
+
+	  if (cbHasContent) {
+		const cbSectionParts = [];
+
+		// Applied CB
+		if (cbApplied) {
+		  const b = cbApplied.benefit;
+		  const cbBullets = [];
+
+		  if (!b.non_monetary && cbApplied.remainingAmount != null && b.cap_amount != null) {
+			cbBullets.push(`$${formatUsageAmount(cbApplied.remainingAmount)} remaining of $${formatUsageAmount(b.cap_amount)}`);
+		  }
+		  if (cbApplied.priorTxCount != null && b.tx_cap != null) {
+			cbBullets.push(`${cbApplied.priorTxCount} of ${b.tx_cap} qualifying uses already used`);
+		  }
+		  if (b.cap_amount != null && b.non_monetary) {
+			cbBullets.push(`Applies for the first $${formatUsageAmount(b.cap_amount)} of eligible spend`);
+		  }
+		  if (!isNullChannel(b.channel) && CHANNEL_LABELS[b.channel]) {
+			cbBullets.push(`Assumes purchase is completed ${CHANNEL_LABELS[b.channel]}`);
+		  }
+
+		  cbSectionParts.push(
+			`<div class="rec-section-header">${escapeHtml(b.label || b.id)}:</div>` +
+			(cbBullets.length > 0
+			  ? `<ul class="rec-section-bullets">${cbBullets.map(bb => `<li>${escapeHtml(bb)}</li>`).join("")}</ul>`
+			  : "")
+		  );
+		}
+
+		// Non-monetary benefits
+		if (score.nonMonetaryBenefits?.length > 0) {
+		  score.nonMonetaryBenefits.forEach(b => {
+			cbSectionParts.push(
+			  `<div class="rec-section-header">Also note:</div>` +
+			  `<ul class="rec-section-bullets"><li>${escapeHtml(b.reason_yes || b.label || "")}</li></ul>`
+			);
+		  });
+		}
+
+		// Unavailable CBs considered
+		if (cbUnavailable.length > 0) {
+		  const seenReasonNo = new Set();
+		  const unavailBullets = [];
+		  cbUnavailable.forEach(candidate => {
+			const reasonNo = candidate.benefit?.reason_no;
+			if (reasonNo && !seenReasonNo.has(reasonNo)) {
+			  seenReasonNo.add(reasonNo);
+			  unavailBullets.push(reasonNo);
+			}
+		  });
+		  if (unavailBullets.length > 0) {
+			cbSectionParts.push(
+			  `<div class="rec-section-header">Other card benefits considered:</div>` +
+			  `<ul class="rec-section-bullets">${unavailBullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+			);
+		  }
+		}
+
+		if (cbSectionParts.length > 0) {
+		  sections.push(cbSectionParts.join(""));
+		}
+	  }
+
+	  // --- Points statement ---
+	  const effectiveChannel = score.part1 > 0
+		? (score.cbCandidate?.benefit?.channel || null)
+		: score.channel;
+	  const pointsChannelText = !isNullChannel(effectiveChannel)
+		? ` ${CHANNEL_LABELS[effectiveChannel] || effectiveChannel}`
+		: "";
+	  const noChannelRule = !isNullChannel(effectiveChannel)
+		? getBestEarningRuleNoChannel(CARDS[score.card], purchase?.category || "")
+		: null;
+	  const outsideSuffix = noChannelRule && noChannelRule.rate !== score.rate
+		? ` (${noChannelRule.rate}x if made outside ${CHANNEL_LABELS[effectiveChannel] || effectiveChannel})`
+		: "";
+
+	  sections.push(
+		`<div class="rec-points-statement">` +
+		escapeHtml(`${cardMeta.label || score.card} earns ${score.rate}x points${pointsChannelText} on this purchase${outsideSuffix}.`) +
+		`</div>`
+	  );
+
+	  return sections.join("");
+	}
+
     function renderRecommendationSection(rec) {
 	  const recommendationBox = document.getElementById("recommendationBox");
 	  const reasonBox = document.getElementById("reasonBox");
@@ -11847,107 +12008,23 @@
 		mainReasonHtml = escapeHtml(mainReason);
 	  }
 	
-	  const bullets = [];
-	
-	  if (
-		rec.remainingAmount != null &&
-		!isNaN(rec.remainingAmount) &&
-		rec.totalCapAmount != null &&
-		!isNaN(rec.totalCapAmount)
-	  ) {
-		bullets.push(
-		  `$${formatUsageAmount(rec.remainingAmount)} remaining of $${formatUsageAmount(rec.totalCapAmount)}`
-		);
-	  }
-	
-	  if (
-		rec.txCount != null &&
-		!isNaN(rec.txCount) &&
-		rec.txCap != null &&
-		!isNaN(rec.txCap)
-	  ) {
-		bullets.push(
-		  `${rec.txCount} of ${rec.txCap} qualifying uses already used`
-		);
-	  }
-	
-	  if (rec.spendCap != null && !isNaN(rec.spendCap)) {
-		bullets.push(`Applies for the first $${formatUsageAmount(rec.spendCap)} of eligible spend`);
-	  }
-	
-	if (!isNullChannel(rec.channel) && CHANNEL_LABELS[rec.channel]) {
-		bullets.push(`Assumes purchase is completed ${CHANNEL_LABELS[rec.channel]}`);
-	  }
-	  
-	  // CB contribution — when both MO and CB apply, CB becomes the additive bullet
-	  const winnerScore = rec.allCardScores?.[0];
-	  if (winnerScore?.part0 > 0 && winnerScore?.part1 > 0 && winnerScore?.cbCandidate?.benefit) {
-		const cbb = winnerScore.cbCandidate.benefit;
-		bullets.push(cbb.reason_yes || cbb.label || "");
-	  }
-	
-	  // MO ineligibility notice 
-	  const moD = lastRecommendation?.merchantDiag;
-	  if (moD && !moD.eligible) {
-		const merchantName = moD.benefit?.merchant || "This offer";
-		if (moD.reasonType === "below_min_spend" && moD.minSpend != null) {
-		  bullets.push(`${merchantName} offer requires at least $${formatUsageAmount(moD.minSpend)} — minimum not met`);
-		} else if (moD.reasonType === "used_up") {
-		  bullets.push(`${merchantName} offer is already used up`);
-		} else if (moD.reasonType === "expired") {
-		  bullets.push(`${merchantName} offer has expired`);
-		}
-	  }
-	
-	  // CB ineligibility notices — show reason_no for all unavailable benefits
-	  const unavailableBenefits = lastRecommendation?.cardAnalysis?.unavailable || [];
-	  const seenReasonNo = new Set();
-	  for (const candidate of unavailableBenefits) {
-		const reasonNo = candidate.benefit?.reason_no;
-		if (reasonNo && !seenReasonNo.has(reasonNo)) {
-		  seenReasonNo.add(reasonNo);
-		  bullets.push(reasonNo);
-		}
-	  }
-	
-	  if (rec.recommendationSource === "base_fallback") {
-		if (!isNullChannel(rec.channel) && rec.winnerRateNoChannel != null) {
-		  const channelLabel = CHANNEL_LABELS[rec.channel] || rec.channel;
-		  bullets.push(
-			`Purchase will earn ${rec.winnerRateNoChannel}x points if made outside ${channelLabel}`
-		  );
-		}
-		if (rec.runnerUp) {
-		  const ruCard = CARDS[rec.runnerUp.card];
-		  const ruChannelText = !isNullChannel(rec.runnerUp.channel)
-			? ` ${CHANNEL_LABELS[rec.runnerUp.channel] || rec.runnerUp.channel}`
-			: "";
-		  bullets.push(
-			`Next-best option: ${ruCard?.label || rec.runnerUp.card} earns ${rec.runnerUp.rate}x points${ruChannelText}`
-		  );
-		}
-	  }
-	
 	  // Build secondary recommendation cards
 	  const allScores = rec.allCardScores || [];
 	  const topTotal = allScores[0]?.total ?? 0;
-	
-	  // Cards with Part 0 or Part 1 > 0, excluding winner
+
 	  const isPureFallback = allScores.every(s => s.part0 === 0 && s.part1 === 0);
-	
+
 	  const secondaryScores = isPureFallback
-		// Pure fallback: only show cards with the same effective earning rate as the winner
 		? allScores.slice(1).filter(s => {
 			const amount = Number(lastRecommendation?.purchase?.amount) || 1;
 			const winnerRate = allScores[0].part2 / amount;
 			const thisRate = s.part2 / amount;
 			return s.card !== rec.card && Math.abs(thisRate - winnerRate) < 0.0001;
 		  })
-		// Benefit path: show cards with applicable benefits
 		: allScores.slice(1).filter(s =>
 			s.card !== rec.card && (s.part0 > 0 || s.part1 > 0)
 		  );
-	
+
 	  let alsoSectionHtml = "";
 	  if (secondaryScores.length > 0) {
 		const alsoCards = secondaryScores.map(score => {
@@ -11955,16 +12032,7 @@
 		  const toplineLabel = isEqual ? "Equally good option" : "Also available";
 		  const toplineCls = isEqual ? "is-equal" : "";
 		  const cardMeta = CARDS[score.card] || {};
-		  const alsoDisplayChannel = score.part1 > 0
-			? (score.cbCandidate?.benefit?.channel || null)
-			: score.part0 > 0
-			  ? null
-			  : score.channel;
-		  const alsoChannelText = !isNullChannel(alsoDisplayChannel)
-			? ` via ${CHANNEL_LABELS[alsoDisplayChannel] || alsoDisplayChannel}`
-			: "";
-	
-		// Value chip — show CB remaining if available, else MO offer value
+
 		  let alsoChipHtml = "";
 		  if (score.part1 > 0 && score.cbCandidate?.remainingAmount != null) {
 			alsoChipHtml = `<span class="rec-also-value-chip">$${formatUsageAmount(score.cbCandidate.remainingAmount)} remaining</span>`;
@@ -11972,22 +12040,8 @@
 			alsoChipHtml = `<span class="rec-also-value-chip">$${formatUsageAmount(score.part0)} offer</span>`;
 		  }
 
-		  // Reason text
-		  const alsoReason = escapeHtml(buildScoreReasonText(score, { amount: rec.amount, date: rec.date, category: rec.categoryKey, merchantBenefitId: rec.merchantBenefitId }));
+		  const alsoWhyHtml = buildWhyThisWinsHtml(score, lastRecommendation?.purchase, score.cardAnalysis);
 
-		  // Bullets: non-monetary notes + MO contribution when both CB and MO apply
-		  const alsoExtraBullets = [];
-		  score.nonMonetaryBenefits.forEach(b => {
-			alsoExtraBullets.push(`Also note: ${escapeHtml(b.reason_yes || b.label || "")}`);
-		  });
-		  if (score.part0 > 0 && score.part1 > 0 && score.cbCandidate?.benefit) {
-			const cbb = score.cbCandidate.benefit;
-			alsoExtraBullets.push(escapeHtml(cbb.reason_yes || cbb.label || ""));
-		  }
-		  const alsoBullets = alsoExtraBullets
-			.map(b => `<li>${b}</li>`)
-			.join("");
-	
 		  return `
 			<div class="rec-also-card">
 			  <div class="rec-also-topline ${toplineCls}">${toplineLabel}</div>
@@ -11998,25 +12052,18 @@
 				</div>
 				${alsoChipHtml}
 			  </div>
-			  ${alsoChannelText ? `<div style="font-size:0.82rem;color:var(--text-soft);margin-bottom:4px;">${escapeHtml(alsoChannelText)}</div>` : ""}
-			  <div class="rec-also-reason">${alsoReason}</div>
-			  ${alsoBullets ? `<ul class="rec-also-bullets">${alsoBullets}</ul>` : ""}
+			  ${alsoWhyHtml}
 			</div>`;
 		}).join("");
-	
+
 		alsoSectionHtml = `<div class="rec-also-section">${alsoCards}</div>`;
 	  }
-	
-	  // Add non-monetary bullet to primary rec
-	  const primaryNonMonetary = (rec.allCardScores?.[0]?.nonMonetaryBenefits || []);
-	  primaryNonMonetary.forEach(b => {
-		bullets.push(`Also note: ${b.reason_yes || b.label || ""}`);
-	  });
-	
-	  const bulletsHtml = bullets.length
-		? `<ul class="rec-bullets">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+
+	  const winnerScore = allScores[0];
+	  const bulletsHtml = winnerScore
+		? buildWhyThisWinsHtml(winnerScore, lastRecommendation?.purchase, lastRecommendation?.cardAnalysis)
 		: "";
-	
+
 	  reasonBox.innerHTML = `
 		<div class="rec-reason-card">
 		  <div class="rec-reason-heading">Why this wins</div>
