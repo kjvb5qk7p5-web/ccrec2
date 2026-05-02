@@ -7025,9 +7025,17 @@
 		const capAmount = (benefit.non_monetary && benefit.cap_amount == null)
 		  ? null
 		  : (Number(benefit.cap_amount) || 0);
-		const remainingAmount = capAmount == null
+		const rawRemaining = capAmount == null
 		  ? null
 		  : Math.max(0, capAmount - priorUsed);
+
+		// Cap remaining by realistic tx potential: txsLeft × per_tx_cap
+		let remainingAmount = rawRemaining;
+		if (remainingAmount != null && benefit.tx_cap != null && benefit.per_tx_cap != null) {
+		  const txsLeft = Math.max(0, Number(benefit.tx_cap) - priorTxCount);
+		  const realisticMax = txsLeft * Number(benefit.per_tx_cap);
+		  remainingAmount = Math.min(remainingAmount, realisticMax);
+		}
 	
 		if (!benefit.non_monetary && remainingAmount <= 0) {
 		  unavailable.push({
@@ -8265,11 +8273,11 @@
       stubhub_platform: "on StubHub / viagogo",
       instacart_platform: "on Instacart",
       peloton_platform: "on the Peloton site / app",
-      resy: "using this card directly at the restaurant; book on Resy in advance",
-      doordash: "in the DoorDash app",
+      resy: "book on Resy",
+      doordash: "on DoorDash",
       doordash_groceries_platform: "in the DoorDash app",
-      opentable_platform: "using this card directly at the restaurant; book on OpenTable in advance",
-      amex_travel: "American Express Travel",
+      opentable_platform: "book on OpenTable",
+      amex_travel: "via American Express Travel",
       capital_one_travel: "via Capital One Travel",
     };
 
@@ -10964,6 +10972,8 @@
 	
 	  const active = benefits.filter((b) => {
 		if (!b.endDate) return false;
+		
+		if (CARDS[b.card]?.is_active === false) return false;
 	
 		const { expired } = classifyBenefitEnd(b.endDate, today);
 		if (expired) return false;
