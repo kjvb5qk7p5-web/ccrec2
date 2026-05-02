@@ -6594,7 +6594,7 @@
 	  const cbEl = document.getElementById("section-summary-cardBenefits");
 	  if (cbEl) {
 		const totalBenefits = CARD_BENEFITS.filter(
-		  b => CARDS[b.card]?.is_active !== false
+		  b => CARDS[b.card]?.is_active !== false && !b.non_monetary
 		).length;
 		let cbExpiring = 0;
 		for (const b of CARD_BENEFITS) {
