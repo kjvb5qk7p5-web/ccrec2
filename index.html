@@ -3621,7 +3621,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.11</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.12</button>
   </div>
 
   <script>
@@ -6599,12 +6599,8 @@
 		let cbExpiring = 0;
 		for (const b of CARD_BENEFITS) {
 		  if (CARDS[b.card]?.is_active === false || b.non_monetary) continue;
-		  const window = getBenefitWindowForDate(b, today);
-		  if (!window) continue;
-		  const endStr = window.end?.toISOString().slice(0, 10);
-		  if (!endStr) continue;
-		  const { expiringSoon } = classifyBenefitEnd(endStr, todayDate);
-		  if (expiringSoon) cbExpiring++;
+		  const state = getCardBenefitUsageState(b, today, txs);
+		  if (!state.fullyUsed && state.daysLeft != null && state.daysLeft <= 7) cbExpiring++;
 		}
 		cbEl.textContent = `${totalBenefits} benefits${cbExpiring > 0 ? ` · ${cbExpiring} expiring soon` : ""}`;
 	  }
@@ -6612,20 +6608,9 @@
 	  // Merchant Offers
 	  const moEl = document.getElementById("section-summary-merchantOffers");
 	  if (moEl) {
-		let moActive = 0, moExpiring = 0;
-		for (const b of benefits) {
-		  if (CARDS[b.card]?.is_active === false) continue;
-		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
-		  const { expired, expiringSoon } = classifyBenefitEnd(b.endDate, todayDate);
-		  const exhaustedByTx = b.maxTransactions != null &&
-			Number(ms.txCount || 0) >= Number(b.maxTransactions);
-		  const exhaustedByValue = b.limitType === "total" && b.limitValue != null &&
-			Number(ms.used || 0) >= Number(b.limitValue);
-		  if (!expired && !exhaustedByTx && !exhaustedByValue) {
-			moActive++;
-			if (expiringSoon) moExpiring++;
-		  }
-		}
+		const moStates = getMerchantOfferStates(benefits, txs, todayDate);
+		const moActive = moStates.filter(s => s.active).length;
+		const moExpiring = moStates.filter(s => s.active && s.expiringSoon).length;
 		moEl.textContent = `${moActive} active${moExpiring > 0 ? ` · ${moExpiring} expiring soon` : ""}`;
 	  }
 
@@ -6646,17 +6631,11 @@
 	  // Manage Merchant Offers
 	  const mmEl = document.getElementById("section-summary-manageMerchantOffers");
 	  if (mmEl) {
-		let expired = 0;
-		for (const b of benefits) {
-		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
-		  const { expired: isExpired } = classifyBenefitEnd(b.endDate, todayDate);
-		  const exhaustedByTx = b.maxTransactions != null &&
-			Number(ms.txCount || 0) >= Number(b.maxTransactions);
-		  const exhaustedByValue = b.limitType === "total" && b.limitValue != null &&
-			Number(ms.used || 0) >= Number(b.limitValue);
-		  if (isExpired || exhaustedByTx || exhaustedByValue) expired++;
-		}
-		mmEl.textContent = `${benefits.length} offers${expired > 0 ? ` · ${expired} expired` : ""}`;
+		const allMoStates = benefits.map(b =>
+		  getMerchantOfferState(b, merchantState, todayDate)
+		);
+		const expiredCount = allMoStates.filter(s => s.expired || s.fullyUsed).length;
+		mmEl.textContent = `${benefits.length} offers${expiredCount > 0 ? ` · ${expiredCount} expired` : ""}`;
 	  }
 
 	  // Logged Purchases
@@ -6962,6 +6941,101 @@
 		return Math.min(raw, txsLeft * Number(benefit.per_tx_cap));
 	  }
 	  return raw;
+	}
+
+	function getMerchantOfferState(benefit, merchantState, todayDate) {
+	  const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
+	  const used = Number(ms.used || 0);
+	  const txCount = Number(ms.txCount || 0);
+
+	  const { expired, expiringSoon: rawExpiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
+
+	  const maxTx = benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)
+		? Number(benefit.maxTransactions)
+		: null;
+
+	  const exhaustedByTx = maxTx != null && maxTx >= 0 && txCount >= maxTx;
+
+	  const hasTotalCap = benefit.limitType === "total" &&
+		benefit.limitValue != null && !isNaN(benefit.limitValue);
+
+	  const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
+	  const exhaustedByValue = hasTotalCap && totalLimit != null && used >= totalLimit;
+
+	  const fullyUsed = exhaustedByTx || exhaustedByValue;
+	  const active = !expired && !fullyUsed;
+
+	  // Suppress expiringSoon when already exhausted by tx or cap
+	  const expiringSoon = (exhaustedByTx || exhaustedByValue) ? false : rawExpiringSoon;
+
+	  return {
+		benefit,
+		ms,
+		used,
+		txCount,
+		expired,
+		expiringSoon,
+		exhaustedByTx,
+		exhaustedByValue,
+		fullyUsed,
+		active,
+		totalLimit,
+		remainingValue: hasTotalCap && totalLimit != null
+		  ? Math.max(0, totalLimit - used)
+		  : null
+	  };
+	}
+
+	function getMerchantOfferStates(benefits, txs, todayDate) {
+	  const resolvedTxs = txs || loadTransactions();
+	  const merchantState = computeMerchantState(resolvedTxs, benefits);
+	  return benefits
+		.filter(b => CARDS[b.card]?.is_active !== false)
+		.map(b => getMerchantOfferState(b, merchantState, todayDate));
+	}
+
+	function getCardBenefitUsageState(benefit, today, txs) {
+	  const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
+
+	  const limitAmount = Number(benefit.cap_amount || 0);
+	  const usedAmount = limitAmount > 0
+		? Math.min(Number(usage.used || 0), limitAmount)
+		: Number(usage.used || 0);
+
+	  const txCap = benefit.tx_cap != null && !isNaN(benefit.tx_cap)
+		? Number(benefit.tx_cap)
+		: null;
+	  const txCount = Number(usage.txCount || 0);
+
+	  const fullyUsed = (limitAmount > 0 && usedAmount >= limitAmount) ||
+		(txCap != null && txCount >= txCap);
+
+	  const remainingAmount = limitAmount > 0
+		? computeBenefitRemainingAmount(benefit, usedAmount, txCount)
+		: null;
+
+	  let daysLeft = null;
+	  if (usage.window?.end) {
+		const msPerDay = 24 * 60 * 60 * 1000;
+		daysLeft = Math.max(0, Math.ceil(
+		  (usage.window.end.getTime() - today.getTime()) / msPerDay
+		));
+	  }
+
+	  return {
+		benefit,
+		usage,
+		limitAmount,
+		usedAmount,
+		remainingAmount,
+		txCap,
+		txCount,
+		fullyUsed,
+		available: !fullyUsed,
+		daysLeft,
+		window: usage.window,
+		timeLabel: getBenefitStateTimeLabel(benefit, today)
+	  };
 	}
 
 	function isNullChannel(ch) {
@@ -9421,62 +9495,28 @@
 	  for (const benefit of CARD_BENEFITS) {
 		if (CARDS[benefit.card]?.is_active === false) continue;
 		if (benefit.non_monetary) continue;
+		if (!(Number(benefit.cap_amount || 0) > 0)) continue;
 	
-		const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
-		const limit = Number(benefit.cap_amount || 0);
-		if (!(limit > 0)) continue;
+		const state = getCardBenefitUsageState(benefit, today, txs);
 	
-		const used = Math.min(Number(usage.used || 0), limit);
-		const txCap = benefit.tx_cap != null && !isNaN(benefit.tx_cap)
-		  ? Number(benefit.tx_cap) : null;
-		const fullyUsed = used >= limit ||
-		  (txCap != null && Number(usage.txCount || 0) >= txCap);
-	
-		if (!fullyUsed) {
+		if (!state.fullyUsed) {
 		  availableNative += 1;
-		  nativeRemainingTotal += Math.max(0, limit - used);
+		  nativeRemainingTotal += state.remainingAmount ?? 0;
 	
-		  // Expiring soon
-		  const window = getBenefitWindowForDate(benefit, today);
-		  if (window?.end) {
-			const endStr = window.end.toISOString().slice(0, 10);
-			const { expiringSoon } = classifyBenefitEnd(endStr, todayDate);
-			if (expiringSoon) nativeExpiringSoon++;
-		  }
+		  if (state.daysLeft != null && state.daysLeft <= 7) nativeExpiringSoon++;
 	
-		  // New this week: window started within last 7 days
-		  if (window?.start && window.start >= sevenDaysAgo) {
+		  if (state.window?.start && state.window.start >= sevenDaysAgo) {
 			nativeNewThisWeek++;
 		  }
 		}
 	  }
 	
 	  // --- Merchant offers ---
-	  const expiringSoonOffers = [];
-	  let activeMerchantCount = 0;
-	
-	  for (const benefit of benefits) {
-		if (CARDS[benefit.card]?.is_active === false) continue;
-		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
-		const txCount = Number(ms.txCount || 0);
-		const { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
-		if (expired) continue;
-	
-		const exhaustedByTx = benefit.maxTransactions != null &&
-		  !isNaN(benefit.maxTransactions) &&
-		  txCount >= Number(benefit.maxTransactions);
-		const exhaustedByValue = benefit.limitType === "total" &&
-		  benefit.limitValue != null && !isNaN(benefit.limitValue) &&
-		  Number(ms.used || 0) >= Number(benefit.limitValue);
-	
-		if (!exhaustedByTx && !exhaustedByValue) {
-		  activeMerchantCount += 1;
-		}
-	
-		if (expiringSoon && !exhaustedByTx && !exhaustedByValue) {
-		  expiringSoonOffers.push(benefit);
-		}
-	  }
+	  const moStates = getMerchantOfferStates(benefits, txs, todayDate);
+	  const activeMerchantCount = moStates.filter(s => s.active).length;
+	  const expiringSoonOffers = moStates
+		.filter(s => s.active && s.expiringSoon)
+		.map(s => s.benefit);
 	
 	  // Sort expiring by date
 	  expiringSoonOffers.sort((a, b) => {
@@ -9639,27 +9679,10 @@
 		.sort((a, b) => (Number(a.display_order ?? 999) - Number(b.display_order ?? 999)));
 	
 	  for (const benefit of sortedBenefits) {
-		const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
-	
-		const limit = Number(benefit.cap_amount || 0);
-		const used = limit > 0 ? Math.min(usage.used, limit) : usage.used;
-	
-		const txCap =
-		  benefit.tx_cap != null && !isNaN(benefit.tx_cap)
-			? Number(benefit.tx_cap)
-			: null;
-	
-		const fullyUsed =
-		  (limit > 0 && used >= limit) ||
-		  (txCap != null && usage.txCount >= txCap);
-	
-		const window = usage.window;
-		let daysLeft = null;
-		if (window?.end) {
-		  const msPerDay = 24 * 60 * 60 * 1000;
-		  const raw = Math.ceil((window.end.getTime() - today.getTime()) / msPerDay);
-		  daysLeft = Math.max(0, raw);
-		}
+		const state = getCardBenefitUsageState(benefit, today, txs);
+		const { usedAmount: used, limitAmount: limit, txCap, txCount,
+				fullyUsed, remainingAmount, daysLeft, window } = state;
+		const usage = state.usage;
 	
 		let channelRequirement = "";
 		if (benefit.channel && CHANNEL_LABELS[benefit.channel]) {
@@ -9696,9 +9719,9 @@
 		  fullyUsed,
 		  usedAmount: used,
 		  limitAmount: limit,
-		  remainingAmount: limit > 0 ? computeBenefitRemainingAmount(benefit, used, usage.txCount || 0) : 0,
+		  remainingAmount: remainingAmount ?? 0,
 		  txCap,
-		  txCount: usage.txCount || 0,
+		  txCount,
 		  hasPositiveUsage: used > 0 && !fullyUsed,
 		  daysLeft,
 		  channelRequirement,
@@ -10022,45 +10045,20 @@
 	
 	  for (const benefit of benefitsSorted) {
 		if (CARDS[benefit.card]?.is_active === false) continue;
-		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
-		const used = Number(ms.used || 0);
-		const txCount = Number(ms.txCount || 0);
-	
-		let { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
-	
-		let exhaustedByTx = false;
-		if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
-		  const maxTx = Number(benefit.maxTransactions);
-		  if (maxTx >= 0 && txCount >= maxTx) {
-			exhaustedByTx = true;
-		  }
-		}
-	
-		const hasTotalCap =
-		  benefit.limitType === "total" &&
-		  benefit.limitValue != null &&
-		  !isNaN(benefit.limitValue);
-	
-		const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
-		const fullyUsed =
-		  (hasTotalCap && totalLimit != null && used >= totalLimit) ||
-		  exhaustedByTx;
-	
-		if (expired || fullyUsed) {
-		  continue;
-		}
-	
+		const s = getMerchantOfferState(benefit, merchantState, todayDate);
+		if (s.expired || s.fullyUsed) continue;
+
+		const { used, txCount, expiringSoon, totalLimit } = s;
+		const hasTotalCap = totalLimit != null;
 		const filterKey = getMerchantOfferSummaryFilterKey(benefit);
 
 		let remainingValueText = "";
-		if (hasTotalCap && totalLimit != null) {
-		  remainingValueText = `$${formatUsageAmount(Math.max(0, totalLimit - used))} left`;
+		if (hasTotalCap) {
+		  remainingValueText = `$${formatUsageAmount(s.remainingValue ?? 0)} left`;
 		} else if (benefit.limitType === "per_tx" && benefit.limitValue != null) {
-		remainingValueText = `$${formatUsageAmount(benefit.limitValue)} / tx`;
-		  } else {
-			remainingValueText = "";
-		  }
-	
+		  remainingValueText = `$${formatUsageAmount(benefit.limitValue)} / tx`;
+		}
+
 		activeRows.push({
 		  id: benefit.id,
 		  card: benefit.card || "",
@@ -10077,7 +10075,7 @@
 			  used,
 			  txCount,
 			  totalLimit,
-			  fullyUsed,
+			  s.fullyUsed,
 			  expiringSoon,
 			  todayDate,
 			  (() => {
@@ -10089,7 +10087,7 @@
 			)
 		});
 	  }
-	
+
 	  // allMoRows has every non-expired/non-exhausted row — used for stable chip generation
 	  const allMoRows = activeRows;
 	  const presentMoGroupKeys = [...new Set(allMoRows.map(r => r.filterKey))];
@@ -11663,42 +11661,10 @@
         const categoryText = b.category || "";
         const endDateText = formatBenefitEndDateDisplay(b.endDate, today);
     
-        // usage / tx-count state
-        const ms = merchantState[b.id] || { used: 0, limit: null, txCount: 0 };
-        const used = ms.used || 0;
-        const txCount = ms.txCount || 0;
-        
-        // normalize maxTransactions
-        const maxTx =
-          b.maxTransactions != null && !isNaN(b.maxTransactions)
-            ? Number(b.maxTransactions)
-            : null;
-        
-        // Date-based expiry (inclusive end date, shared logic)
-        let { expired: expiredByDate, expiringSoon } = classifyBenefitEnd(b.endDate, today);
-        
-        // Transaction-count based expiry
-        const expiredByTx = maxTx != null && txCount >= maxTx;
-        
-        // Total-cap-based expiry (only for limitType === "total")
-        let expiredByCap = false;
-        if (
-          b.limitType === "total" &&
-          b.limitValue != null &&
-          !isNaN(b.limitValue)
-        ) {
-          const totalCap = Number(b.limitValue);
-          if (totalCap > 0 && used >= totalCap) {
-            expiredByCap = true;
-          }
-        }
-        
-        // Final flags
-        const expired = expiredByDate || expiredByTx || expiredByCap;
-        if (expiredByTx || expiredByCap) {
-          // If we hit tx cap or total cap, don't also show "expiring soon"
-          expiringSoon = false;
-        }
+        const moState = getMerchantOfferState(b, merchantState, today);
+        const { used, txCount, expired,
+                exhaustedByTx: expiredByTx, exhaustedByValue: expiredByCap } = moState;
+        let { expiringSoon } = moState;
 
         // Apply management table filter
         const matchesFilter =
