@@ -1827,6 +1827,75 @@
     border-top: 1px solid var(--border);
   }
 
+  .rec-value-table {
+    display: grid;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0 8px 0;
+    font-size: 0.78rem;
+  }
+
+  .rec-value-table-header {
+    display: grid;
+    background: #f8f7f4;
+  }
+
+  .rec-value-table-header.has-mo {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .rec-value-table-header.no-mo {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .rec-value-table-row {
+    display: grid;
+    border-top: 1px solid var(--border);
+  }
+
+  .rec-value-table-row.has-mo {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .rec-value-table-row.no-mo {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .rec-value-col {
+    padding: 5px 8px;
+    border-right: 1px solid var(--border);
+    text-align: right;
+  }
+
+  .rec-value-col:last-child {
+    border-right: none;
+  }
+
+  .rec-value-col-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-soft);
+    line-height: 1.2;
+  }
+
+  .rec-value-col-amount {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rec-value-col-amount.is-zero {
+    color: var(--text-faint, #bbb);
+    font-weight: 600;
+  }
+
+  .rec-value-col.is-total {
+    background: #f8f7f4;
+  }
+
   .rec-save-zone {
     margin-top: 12px;
     padding-top: 12px;
@@ -3548,7 +3617,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.09</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.10</button>
   </div>
 
   <script>
@@ -11808,6 +11877,43 @@
       dateInput.value = formatTodayISO();
     }
 
+	function buildValueTableHtml(score, showMoColumn) {
+	  const mo = showMoColumn ? formatUsageAmount(score.part0) : null;
+	  const cb = formatUsageAmount(score.part1);
+	  const pts = formatUsageAmount(score.part2);
+	  const total = formatUsageAmount(score.total);
+
+	  const moIsZero = score.part0 === 0;
+	  const cbIsZero = score.part1 === 0;
+	  const ptsIsZero = score.part2 === 0;
+
+	  const gridClass = showMoColumn ? "has-mo" : "no-mo";
+
+	  const moHeaderCol = showMoColumn
+		? `<div class="rec-value-col"><div class="rec-value-col-label">Merchant Offer</div></div>`
+		: "";
+
+	  const moValueCol = showMoColumn
+		? `<div class="rec-value-col"><div class="rec-value-col-amount${moIsZero ? " is-zero" : ""}">$${mo}</div></div>`
+		: "";
+
+	  return `
+		<div class="rec-value-table">
+		  <div class="rec-value-table-header ${gridClass}">
+			${moHeaderCol}
+			<div class="rec-value-col"><div class="rec-value-col-label">Card Benefit</div></div>
+			<div class="rec-value-col"><div class="rec-value-col-label">Points Value</div></div>
+			<div class="rec-value-col is-total"><div class="rec-value-col-label">Total Value</div></div>
+		  </div>
+		  <div class="rec-value-table-row ${gridClass}">
+			${moValueCol}
+			<div class="rec-value-col"><div class="rec-value-col-amount${cbIsZero ? " is-zero" : ""}">$${cb}</div></div>
+			<div class="rec-value-col"><div class="rec-value-col-amount${ptsIsZero ? " is-zero" : ""}">$${pts}</div></div>
+			<div class="rec-value-col is-total"><div class="rec-value-col-amount">$${total}</div></div>
+		  </div>
+		</div>`;
+	}
+
 	function buildWhyThisWinsHtml(score, purchase, cardAnalysisOverride) {
 	  const sections = [];
 	  const cardMeta = CARDS[score.card] || {};
@@ -11952,62 +12058,30 @@
 		CHANNEL_LABELS_HTML[rec.channel] ||
 		escapeHtml(channelLabelPlain);
 	
-	  let valueChipHtml = "";
-	  if (rec.expectedValue != null && !isNaN(rec.expectedValue)) {
-		valueChipHtml = `
-		  <div class="rec-value-chip">
-			Estimated value
-			<span>$${formatUsageAmount(rec.expectedValue)}</span>
-		  </div>
-		`;
-	  } else if (rec.moImmediateValue != null && !isNaN(rec.moImmediateValue) &&
-				 rec.remainingAmount != null && !isNaN(rec.remainingAmount)) {
-		// Combined MO + CB: MO is primary reason, show MO value in chip
-		valueChipHtml = `
-		  <div class="rec-value-chip">
-			Merchant offer value
-			<span>$${formatUsageAmount(rec.moImmediateValue)}</span>
-		  </div>
-		`;
-	  } else if (rec.remainingAmount != null && !isNaN(rec.remainingAmount)) {
-		valueChipHtml = `
-		  <div class="rec-value-chip">
-			Remaining benefit
-			<span>$${formatUsageAmount(rec.remainingAmount)}</span>
-		  </div>
-		`;
-	  } else if (rec.moImmediateValue != null && !isNaN(rec.moImmediateValue)) {
-		// MO only (no CB)
-		valueChipHtml = `
-		  <div class="rec-value-chip">
-			Merchant offer value
-			<span>$${formatUsageAmount(rec.moImmediateValue)}</span>
-		  </div>
-		`;
-	  }
-	
+	  const winnerScoreForChip = rec.allCardScores?.[0];
+	  const totalValueForChip = winnerScoreForChip?.total ?? 0;
+	  const valueChipHtml = `
+		<div class="rec-value-chip">
+		  Total value
+		  <span>$${formatUsageAmount(totalValueForChip)}</span>
+		</div>`;
+
+	  const showMoColumn = (rec.allCardScores || []).some(s => s.part0 > 0);
+	  const primaryTableHtml = winnerScoreForChip
+		? buildValueTableHtml(winnerScoreForChip, showMoColumn)
+		: "";
+
 	  recommendationBox.innerHTML = `
 		<div class="rec-card-shell">
 		  <div class="rec-topline">Recommended card</div>
-	
-		  <div class="rec-main-row">
-			<div class="rec-title-wrap">
-			  <div class="rec-title">${cardBadgeHtml} ${cardLabel}</div>
-			  ${channelLabelHtml ? `<div class="rec-subtitle">Use ${channelLabelHtml}</div>` : ""}
-			</div>
-			${valueChipHtml}
-		  </div>
+		  <div class="rec-title">${cardBadgeHtml} ${cardLabel}</div>
+		  ${channelLabelHtml ? `<div class="rec-subtitle">Use ${channelLabelHtml}</div>` : ""}
+		  ${valueChipHtml}
 		</div>
 	  `;
-	
-	  let mainReasonHtml;
-	  if (rec.reasonMainHtml) {
-		mainReasonHtml = rec.reasonMainHtml;
-	  } else {
-		const mainReason = rec.reasonMain || rec.reason || "";
-		mainReasonHtml = escapeHtml(mainReason);
-	  }
-	
+
+	  const mainReasonHtml = "";
+
 	  // Build secondary recommendation cards
 	  const allScores = rec.allCardScores || [];
 	  const topTotal = allScores[0]?.total ?? 0;
@@ -12033,25 +12107,21 @@
 		  const toplineCls = isEqual ? "is-equal" : "";
 		  const cardMeta = CARDS[score.card] || {};
 
-		  let alsoChipHtml = "";
-		  if (score.part1 > 0 && score.cbCandidate?.remainingAmount != null) {
-			alsoChipHtml = `<span class="rec-also-value-chip">$${formatUsageAmount(score.cbCandidate.remainingAmount)} remaining</span>`;
-		  } else if (score.part0 > 0) {
-			alsoChipHtml = `<span class="rec-also-value-chip">$${formatUsageAmount(score.part0)} offer</span>`;
-		  }
+		  const alsoChipHtml = `
+			<span class="rec-also-value-chip">Total value $${formatUsageAmount(score.total)}</span>`;
 
+		  const alsoTableHtml = buildValueTableHtml(score, showMoColumn);
 		  const alsoWhyHtml = buildWhyThisWinsHtml(score, lastRecommendation?.purchase, score.cardAnalysis);
 
 		  return `
 			<div class="rec-also-card">
 			  <div class="rec-also-topline ${toplineCls}">${toplineLabel}</div>
-			  <div class="rec-also-main-row">
-				<div class="rec-also-title">
-				  ${renderCardBadge(score.card)}
-				  ${escapeHtml(cardMeta.label || score.card)}
-				</div>
-				${alsoChipHtml}
+			  <div class="rec-also-title">
+				${renderCardBadge(score.card)}
+				${escapeHtml(cardMeta.label || score.card)}
 			  </div>
+			  ${alsoChipHtml}
+			  ${alsoTableHtml}
 			  ${alsoWhyHtml}
 			</div>`;
 		}).join("");
@@ -12067,7 +12137,7 @@
 	  reasonBox.innerHTML = `
 		<div class="rec-reason-card">
 		  <div class="rec-reason-heading">Why this wins</div>
-		  <div class="rec-main-reason">${mainReasonHtml}</div>
+		  ${primaryTableHtml}
 		  ${bulletsHtml}
 	
 		  <div class="rec-save-zone">
