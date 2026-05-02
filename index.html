@@ -9456,6 +9456,7 @@
 	  let activeMerchantCount = 0;
 	
 	  for (const benefit of benefits) {
+		if (CARDS[benefit.card]?.is_active === false) continue;
 		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
 		const txCount = Number(ms.txCount || 0);
 		const { expired, expiringSoon } = classifyBenefitEnd(benefit.endDate, todayDate);
