@@ -3621,7 +3621,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.10</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.11</button>
   </div>
 
   <script>
@@ -6614,6 +6614,7 @@
 	  if (moEl) {
 		let moActive = 0, moExpiring = 0;
 		for (const b of benefits) {
+		  if (CARDS[b.card]?.is_active === false) continue;
 		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
 		  const { expired, expiringSoon } = classifyBenefitEnd(b.endDate, todayDate);
 		  const exhaustedByTx = b.maxTransactions != null &&
@@ -6952,6 +6953,17 @@
 	}
 	
 	// helper for display logic regarding purchases not requiring a specific portal or channel
+	function computeBenefitRemainingAmount(benefit, priorUsed, priorTxCount) {
+	  const capAmount = Number(benefit.cap_amount) || 0;
+	  if (capAmount <= 0) return 0;
+	  const raw = Math.max(0, capAmount - priorUsed);
+	  if (benefit.tx_cap != null && benefit.per_tx_cap != null) {
+		const txsLeft = Math.max(0, Number(benefit.tx_cap) - priorTxCount);
+		return Math.min(raw, txsLeft * Number(benefit.per_tx_cap));
+	  }
+	  return raw;
+	}
+
 	function isNullChannel(ch) {
 	  return !ch || ch === "direct";
 	}
@@ -7025,17 +7037,9 @@
 		const capAmount = (benefit.non_monetary && benefit.cap_amount == null)
 		  ? null
 		  : (Number(benefit.cap_amount) || 0);
-		const rawRemaining = capAmount == null
+		const remainingAmount = capAmount == null
 		  ? null
-		  : Math.max(0, capAmount - priorUsed);
-
-		// Cap remaining by realistic tx potential: txsLeft × per_tx_cap
-		let remainingAmount = rawRemaining;
-		if (remainingAmount != null && benefit.tx_cap != null && benefit.per_tx_cap != null) {
-		  const txsLeft = Math.max(0, Number(benefit.tx_cap) - priorTxCount);
-		  const realisticMax = txsLeft * Number(benefit.per_tx_cap);
-		  remainingAmount = Math.min(remainingAmount, realisticMax);
-		}
+		  : computeBenefitRemainingAmount(benefit, priorUsed, priorTxCount);
 	
 		if (!benefit.non_monetary && remainingAmount <= 0) {
 		  unavailable.push({
@@ -9691,7 +9695,7 @@
 		  fullyUsed,
 		  usedAmount: used,
 		  limitAmount: limit,
-		  remainingAmount: limit > 0 ? Math.max(0, limit - used) : 0,
+		  remainingAmount: limit > 0 ? computeBenefitRemainingAmount(benefit, used, usage.txCount || 0) : 0,
 		  txCap,
 		  txCount: usage.txCount || 0,
 		  hasPositiveUsage: used > 0 && !fullyUsed,
@@ -10016,6 +10020,7 @@
 	  });
 	
 	  for (const benefit of benefitsSorted) {
+		if (CARDS[benefit.card]?.is_active === false) continue;
 		const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
 		const used = Number(ms.used || 0);
 		const txCount = Number(ms.txCount || 0);
@@ -11624,6 +11629,7 @@
       });
     
       benefitsWithIndex.forEach(({ b, idx }) => {
+        if (CARDS[b.card]?.is_active === false) return;
         const tr = document.createElement("tr");
     
         const discountText =
