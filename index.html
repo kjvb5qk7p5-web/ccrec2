@@ -3621,7 +3621,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.13b</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.14</button>
   </div>
 
   <script>
@@ -4091,8 +4091,7 @@
 	  categories: ["trusted_traveler"],
 	  summary_sort_category: "travel",
 	
-	  cadence: "annual",
-	  cadence_type: "card_anniversary",
+	  cadence: "quadrennial",
 	  start_date: "2025-01-01",
 	  cap_amount: 120,
 	  tx_cap: 1,
@@ -4216,8 +4215,7 @@
 		categories: ["trusted_traveler"],
 		summary_sort_category: "travel",
 	
-		cadence: "annual",
-		cadence_type: "card_anniversary",
+		cadence: "quadrennial",
 		start_date: "2025-12-01",
 		cap_amount: 120,
 		tx_cap: 1,
@@ -5039,8 +5037,7 @@
 		categories: ["trusted_traveler"],
 		summary_sort_category: "travel",
 	
-		cadence: "annual",
-		cadence_type: "card_anniversary",
+		cadence: "quadrennial",
 		start_date: "2025-02-01",
 		cap_amount: 120,
 		tx_cap: 1,
@@ -5207,8 +5204,7 @@
 		categories: ["trusted_traveler"],
 		summary_sort_category: "travel",
 	
-		cadence: "annual",
-		cadence_type: "card_anniversary",
+		cadence: "quadrennial",
 		start_date: "2025-04-11",
 		cap_amount: 120,
 		tx_cap: 1,
@@ -7086,6 +7082,8 @@
 		if (benefit.cadence_type === "card_anniversary") return "Annual";
 		return "Annual (YTD)";
 	  }
+	  
+	  if (benefit.cadence === "quadrennial") return "Every 4 years";
 	
 	  return "";
 	}
@@ -8502,6 +8500,12 @@
 		: new Date(d.getFullYear(), 6, 1);
 	}
 	
+	function startOfCalendarQuarter(date) {
+	  const month = date.getMonth();
+	  const quarterStartMonth = month - (month % 3);
+	  return new Date(date.getFullYear(), quarterStartMonth, 1);
+	}
+	
 	function addMonths(d, n) {
 	  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 	  x.setMonth(x.getMonth() + n);
@@ -8519,6 +8523,20 @@
 	  if (cadence === "semiannual") {
 		const start = startOfSemiannualPeriod(txDate);
 		const end = addMonths(start, 6);
+		return { start, end };
+	  }
+	  
+	  if (cadence === "quarter") {
+		const start = startOfCalendarQuarter(txDate);
+		const end = addMonths(start, 3);
+		return { start, end };
+	  }
+	  
+	  if (cadence === "quadrennial") {
+		const start = new Date(txDate);
+		start.setFullYear(start.getFullYear() - 4);
+		const end = new Date(start);
+		end.setFullYear(end.getFullYear() + 4);
 		return { start, end };
 	  }
 	
@@ -9703,8 +9721,14 @@
 		let windowExplanation = "";
 		if (benefit.cadence === "monthly") {
 		  windowExplanation = "Monthly";
+		} else if (benefit.cadence === "quarter") {
+		  windowExplanation = benefit.cadence_type === "card_anniversary"
+			? "Quarterly from cardmember anniversary"
+			: "Quarterly";
 		} else if (benefit.cadence === "semiannual") {
 		  windowExplanation = getSemiannualLabel(today);
+		} else if (benefit.cadence === "quadrennial") {
+		  windowExplanation = "Every 4 years";
 		} else if (benefit.cadence === "annual") {
 		  windowExplanation = benefit.cadence_type === "card_anniversary"
 			? "Annual from cardmember anniversary"
@@ -10755,26 +10779,10 @@
 	  if (!benefit) return null;
 	
 	  const purchaseDate = parseISODateLocal(purchase.date);
-	  const { expired } = classifyBenefitEnd(benefit.endDate, purchaseDate);
+	  const state = getMerchantOfferState(benefit, merchantState, purchaseDate);
 	
-	  const ms = merchantState[benefit.id] || { used: 0, limit: null, txCount: 0 };
-	
-	  const hasTotalCap =
-		benefit.limitType === "total" &&
-		benefit.limitValue != null &&
-		!isNaN(benefit.limitValue);
-	
-	  const totalLimit = hasTotalCap ? Number(benefit.limitValue) : null;
-	  const exhaustedByTotal =
-		hasTotalCap && totalLimit != null && ms.used >= totalLimit;
-	
-	  let exhaustedByTx = false;
-	  if (benefit.maxTransactions != null && !isNaN(benefit.maxTransactions)) {
-		const maxTx = Number(benefit.maxTransactions);
-		if (maxTx >= 0 && ms.txCount >= maxTx) {
-		  exhaustedByTx = true;
-		}
-	  }
+	  const ms = state.ms;
+	  const totalLimit = state.totalLimit;
 	
 	  const amount = Number(purchase.amount) || 0;
 	  const minSpend =
@@ -10784,10 +10792,10 @@
 	
 	  const belowMinSpend = minSpend != null && amount < minSpend;
 	
-	  if (expired) {
+	  if (state.expired) {
 		return { eligible: false, benefit, reasonType: "expired" };
 	  }
-	  if (exhaustedByTotal || exhaustedByTx) {
+	  if (state.fullyUsed) {
 		return { eligible: false, benefit, reasonType: "used_up" };
 	  }
 	  if (belowMinSpend) {
