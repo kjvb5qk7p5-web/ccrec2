@@ -3826,7 +3826,7 @@
 		{ rate: 2, channel: null,           matchGroups: ["dining"] },
 		{ rate: 2, channel: null,           matchLeaves: ["streaming"] },
 		{ rate: 2, channel: null,           matchGroups: ["travel", "rideshare"],
-		                                    excludeLeaves: ["renowned_hotel", "united_flight"] },
+		                                    excludeLeaves: ["renowned_hotel", "united_flight", "trusted_traveler"] },
 		{ rate: 1, isBase: true }
 	  ],
 	  earningRule_categories: ["united_flight", "renowned_hotel", "united_events", "dining", "streaming"]
@@ -7026,6 +7026,9 @@
 		));
 	  }
 
+	  // Quadrennial benefits use a floating window — "expiring soon" is not meaningful
+	  const effectiveDaysLeft = benefit.cadence === "quadrennial" ? null : daysLeft;
+	
 	  return {
 		benefit,
 		usage,
@@ -7036,7 +7039,7 @@
 		txCount,
 		fullyUsed,
 		available: !fullyUsed,
-		daysLeft,
+		daysLeft: effectiveDaysLeft,
 		window: usage.window,
 		timeLabel: getBenefitStateTimeLabel(benefit, today)
 	  };
