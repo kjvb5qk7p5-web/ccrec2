@@ -3630,6 +3630,7 @@
     const USER_CARD_SETTINGS_KEY = "cardAdvisorUserCardSettingsV1";
 	const SEARCH_SCHEMA_VERSION = "2.0";
 	
+	const DEFAULT_POINT_VALUE = 0.02;
 	const EXPIRING_SOON_DAYS = 7;
 	
 	function isExpiringSoon(daysLeft) {
@@ -3707,7 +3708,7 @@
 	  points_currency: "UR",
 	  transferable_points: true,
 	  is_active: true,
-	  pointValue: 0.02,
+	  pointValue: 0.0205,
 	  earningRules: [
 		{ rate: 5, channel: "chase_travel", matchGroups: ["travel"], excludeLeaves: ["airbnb", "trusted_traveler"] },
 		{ rate: 5, channel: null,           matchLeaves: ["peloton"] },
@@ -3742,7 +3743,7 @@
 	  points_currency: "C1 Miles",
 	  transferable_points: true,
 	  is_active: true,
-	  pointValue: 0.02,
+	  pointValue: 0.0185,
 	  earningRules: [
 		{ rate: 10, channel: "capital_one_travel", matchParents: ["lodging"],    excludeLeaves: ["airbnb"] },
 		{ rate: 10, channel: "capital_one_travel", matchParents: ["rental_car"]  },
@@ -3775,7 +3776,7 @@
 		points_currency: "UR",
 	  transferable_points: true,
 	  is_active: true,
-	  pointValue: 0.02,
+	  pointValue: 0.0205,
 	  earningRules: [
 		{ rate: 10, channel: null,           matchLeaves: ["peloton"] },
 		{ rate: 8,  channel: "chase_travel", matchGroups: ["travel"],
@@ -3809,7 +3810,7 @@
 		points_currency: "MR",
 	  transferable_points: true,
 	  is_active: true,
-	  pointValue: 0.02,
+	  pointValue: 0.0200,
 	  earningRules: [
 		{ rate: 4, channel: null,           matchGroups: ["dining"],
 		                                    excludeLeaves: ["doordash", "uber_eats"] },
@@ -3843,7 +3844,7 @@
 		points_currency: "UA",
 	  transferable_points: false,
 	  is_active: true,
-	  pointValue: 0.02,
+	  pointValue: 0.0135,
 	  earningRules: [
 		{ rate: 5, channel: "chase_travel", matchLeaves: ["renowned_hotel"] },
 		{ rate: 3, channel: null,           matchLeaves: ["united_flight", "united_events"] },
@@ -3877,7 +3878,7 @@
 		points_currency: "Bonvoy",
 	  transferable_points: false,
 	  is_active: true,
-	  pointValue: 0.02,
+	  pointValue: 0.0080,
 	  earningRules: [
 		{ rate: 6, channel: null, matchLeaves: ["marriott_hotel"] },
 		{ rate: 3, channel: null, matchParents: ["flights"] },
@@ -3908,7 +3909,7 @@
 		points_currency: "SkyMiles",
 		  transferable_points: false,
 		  is_active: true,
-		  pointValue: 0.02,
+		  pointValue: 0.0120,
 		  earningRules: [
 			{ rate: 2, channel: null, matchGroups: ["dining"] },
 			{ rate: 2, channel: null, matchGroups: ["groceries"] },
@@ -6764,7 +6765,7 @@
 		${scoreTableHtml}
 		<p style="margin:0 0 10px 0;font-size:0.9rem;color:var(--text-soft);">
 		  Card ranking for: <strong>${escapeHtml(categoryLabel)}</strong>
-		  &nbsp;·&nbsp; point value: $0.02/pt assumed for all cards
+		  &nbsp;·&nbsp; point value determined per card
 		</p>
 		<table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
 		  <thead>
@@ -10663,7 +10664,7 @@
 		if (card.is_active === false) continue;
 		const rule = getBestEarningRuleForCategory(card, categoryKey);
 		const rate = rule.rate || 1;
-		const pointValue = card.pointValue || 0.02;
+		const pointValue = card.pointValue || DEFAULT_POINT_VALUE;
 		const effectivePct = rate * pointValue * 100;
 		results.push({
 		  card: card.code,
@@ -10688,7 +10689,7 @@
 	  const earningRule = getBestEarningRuleForCategory(card, purchase.category);
 	  const rate = earningRule.rate || 1;
 	  const channel = earningRule.channel || null;
-	  const pointValue = card.pointValue || 0.02;
+	  const pointValue = card.pointValue || DEFAULT_POINT_VALUE;
 	  const part2 = amount * rate * pointValue;
 	
 	  // Part 0: merchant offer value for this card
