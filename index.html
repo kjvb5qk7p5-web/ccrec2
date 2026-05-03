@@ -3621,7 +3621,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.15</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.16</button>
   </div>
 
   <script>
@@ -6983,7 +6983,8 @@
 	  const exhaustedByValue = hasTotalCap && totalLimit != null && used >= totalLimit;
 
 	  const fullyUsed = exhaustedByTx || exhaustedByValue;
-	  const active = !expired && !fullyUsed;
+	  const cardActive = isCardActive(benefit.card);
+	  const active = cardActive && !expired && !fullyUsed;
 
 	  // Suppress expiringSoon when already exhausted by tx or cap
 	  const expiringSoon = (exhaustedByTx || exhaustedByValue) ? false : rawExpiringSoon;
@@ -6998,6 +6999,7 @@
 		exhaustedByTx,
 		exhaustedByValue,
 		fullyUsed,
+		cardActive,
 		active,
 		totalLimit,
 		remainingValue: hasTotalCap && totalLimit != null
@@ -7045,6 +7047,8 @@
 	  // Quadrennial benefits use a floating window — "expiring soon" is not meaningful
 	  const effectiveDaysLeft = benefit.cadence === "quadrennial" ? null : daysLeft;
 	
+	  const cardActive = isCardActive(benefit.card);
+	  
 	  return {
 		benefit,
 		usage,
@@ -7054,7 +7058,8 @@
 		txCap,
 		txCount,
 		fullyUsed,
-		available: !fullyUsed,
+		cardActive,
+		available: cardActive && !fullyUsed,
 		daysLeft: effectiveDaysLeft,
 		window: usage.window,
 		timeLabel: getBenefitStateTimeLabel(benefit, today)
@@ -11011,29 +11016,11 @@
 	function getActiveMerchantBenefitsForPicker() {
 	  const benefits = loadMerchantBenefits();
 	  const txs = loadTransactions();
-	  const merchantState = computeMerchantState(txs, benefits);
-	  const today = parseISODateLocal(formatTodayISO());
+	  const todayDate = parseISODateLocal(formatTodayISO());
 	
-	  const active = benefits.filter((b) => {
-		if (!b.endDate) return false;
-		
-		if (!isCardActive(b.card)) return false;
-	
-		const { expired } = classifyBenefitEnd(b.endDate, today);
-		if (expired) return false;
-	
-		if (b.limitType === "total" && b.limitValue != null && !isNaN(b.limitValue)) {
-		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
-		  if (ms.used >= Number(b.limitValue)) return false;
-		}
-	
-		if (b.maxTransactions != null && !isNaN(b.maxTransactions)) {
-		  const ms = merchantState[b.id] || { used: 0, txCount: 0 };
-		  if (ms.txCount >= Number(b.maxTransactions)) return false;
-		}
-	
-		return true;
-	  });
+	  const active = getMerchantOfferStates(benefits, txs, todayDate)
+		.filter(s => s.active)
+		.map(s => s.benefit);
 	
 	  active.sort((a, b) => {
 		const nameA = normalizeSearchText(a.merchant || "");
@@ -11042,7 +11029,7 @@
 	  });
 	
 	  return active;
-	}
+	}	
 	
 	function getCardCategorySearchMatches(query) {
 	  const raw = String(query || "").trim();
