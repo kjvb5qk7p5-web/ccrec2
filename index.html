@@ -3621,7 +3621,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.14</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.15</button>
   </div>
 
   <script>
@@ -3629,6 +3629,20 @@
     const MERCHANT_BENEFITS_KEY = "cardAdvisorMerchantBenefitsV1";
     const USER_CARD_SETTINGS_KEY = "cardAdvisorUserCardSettingsV1";
 	const SEARCH_SCHEMA_VERSION = "2.0";
+	
+	const EXPIRING_SOON_DAYS = 7;
+	
+	function isExpiringSoon(daysLeft) {
+	  return daysLeft != null && daysLeft <= EXPIRING_SOON_DAYS;
+	}
+	
+	function getTransactionCapturedValue(tx) {
+	  return Number(tx.cardBenefitApplied || 0) + Number(tx.merchantBenefitApplied || 0);
+	}
+	
+	function isCardActive(cardCode) {
+	  return CARDS[cardCode]?.is_active !== false;
+	}
 	
 	function showGlobalDebug(message) {
 	  const el = document.getElementById("globalStatus");
@@ -6598,15 +6612,17 @@
 	  const cbEl = document.getElementById("section-summary-cardBenefits");
 	  if (cbEl) {
 		const totalBenefits = CARD_BENEFITS.filter(
-		  b => CARDS[b.card]?.is_active !== false && !b.non_monetary
+		  b => isCardActive(b.card) && !b.non_monetary
 		).length;
 		let cbExpiring = 0;
+		let cbAvailable = 0;
 		for (const b of CARD_BENEFITS) {
-		  if (CARDS[b.card]?.is_active === false || b.non_monetary) continue;
+		  if (!isCardActive(b.card) || b.non_monetary) continue;
 		  const state = getCardBenefitUsageState(b, today, txs);
-		  if (!state.fullyUsed && state.daysLeft != null && state.daysLeft <= 7) cbExpiring++;
+		  if (!state.fullyUsed) cbAvailable++;
+		  if (!state.fullyUsed && isExpiringSoon(state.daysLeft)) cbExpiring++;
 		}
-		cbEl.textContent = `${totalBenefits} benefits${cbExpiring > 0 ? ` · ${cbExpiring} expiring soon` : ""}`;
+		cbEl.textContent = `${totalBenefits} benefits / ${cbAvailable} available${cbExpiring > 0 ? ` · ${cbExpiring} expiring soon` : ""}`;
 	  }
 
 	  // Merchant Offers
@@ -6627,7 +6643,7 @@
 		for (const tx of txs) {
 		  const d = parseISODateLocal(tx.date);
 		  if (!d || d < ninetyDaysAgo) continue;
-		  total += Number(tx.cardBenefitApplied || 0) + Number(tx.merchantBenefitApplied || 0);
+		  total += getTransactionCapturedValue(tx);
 		}
 		asEl.textContent = `$${formatUsageAmount(total)} captured (last 90 days)`;
 	  }
@@ -6994,7 +7010,7 @@
 	  const resolvedTxs = txs || loadTransactions();
 	  const merchantState = computeMerchantState(resolvedTxs, benefits);
 	  return benefits
-		.filter(b => CARDS[b.card]?.is_active !== false)
+		.filter(b => isCardActive(b.card))
 		.map(b => getMerchantOfferState(b, merchantState, todayDate));
 	}
 
@@ -7097,7 +7113,7 @@
 	  const unavailable = [];
 	
 	  for (const benefit of CARD_BENEFITS) {
-		if (CARDS[benefit.card]?.is_active === false) continue;
+		if (!isCardActive(benefit.card)) continue;
 		if (tx.cardUsed && tx.cardUsed !== benefit.card) continue;
 		// channel_allowed is a secondary channel option shown in the UI (always "direct")
 		// that lets the user record a non-portal purchase. If they chose it,
@@ -7481,7 +7497,7 @@
 	  const out = new Set();
 	
 	  for (const b of cardBenefits) {
-		if (CARDS[b.card]?.is_active === false) continue;
+		if (!isCardActive(b.card)) continue;
 		const cats = b && Array.isArray(b.categories) ? b.categories : [];
 		for (const c of cats) {
 		  if (c) out.add(String(c));
@@ -8464,7 +8480,7 @@
       let expiringSoon = false;
       if (!expired) {
         const soonCutoff = new Date(today);
-        soonCutoff.setDate(soonCutoff.getDate() + 7); // 7-day window
+        soonCutoff.setDate(soonCutoff.getDate() + EXPIRING_SOON_DAYS);
         expiringSoon = end >= today && end <= soonCutoff;
       }
     
@@ -8624,7 +8640,7 @@
 	
 	  // Init per card from CARDS registry
 	  for (const card of Object.keys(CARDS)) {
-		  if (CARDS[card]?.is_active === false) continue;
+		  if (!isCardActive(card)) continue;
 		  const win = getRollingBenefitYear(card, today);
 		  if (!win) continue;
 	
@@ -9522,7 +9538,7 @@
 	  let nativeExpiringSoon = 0;
 	
 	  for (const benefit of CARD_BENEFITS) {
-		if (CARDS[benefit.card]?.is_active === false) continue;
+		if (!isCardActive(benefit.card)) continue;
 		if (benefit.non_monetary) continue;
 		if (!(Number(benefit.cap_amount || 0) > 0)) continue;
 	
@@ -9532,7 +9548,7 @@
 		  availableNative += 1;
 		  nativeRemainingTotal += state.remainingAmount ?? 0;
 	
-		  if (state.daysLeft != null && state.daysLeft <= 7) nativeExpiringSoon++;
+		  if (isExpiringSoon(state.daysLeft)) nativeExpiringSoon++;
 	
 		  if (state.window?.start && state.window.start >= sevenDaysAgo) {
 			nativeNewThisWeek++;
@@ -9588,13 +9604,13 @@
 		.slice(0, 5);
 	  let recentSavings = 0;
 	  for (const tx of latestTxs) {
-		recentSavings += Number(tx.cardBenefitApplied || 0) + Number(tx.merchantBenefitApplied || 0);
+		recentSavings += getTransactionCapturedValue(tx);
 	  }
 	
 	  el.innerHTML = `
 		<div class="right-now-item ${availableNative > 0 ? "is-success" : ""} is-clickable" data-rightnow-action="cardBenefits">
 		  <div class="right-now-label">Native card benefits available</div>
-		  <div class="right-now-value">${availableNative} active</div>
+		  <div class="right-now-value">${availableNative} available</div>
 		  ${nativeMetaLines.map(line => `<div class="right-now-meta">${line}</div>`).join("")}
 		</div>
 		<div class="right-now-item ${expiringSoonOffers.length > 0 ? "is-warning" : ""} is-clickable" data-rightnow-action="merchantOffers">
@@ -9635,13 +9651,13 @@
 	
 	function getCardBenefitStatusLabel(row) {
 	  if (row.fullyUsed) return "Used up";
-	  if (row.daysLeft != null && row.daysLeft <= 7) return "Expiring soon";
+	  if (isExpiringSoon(row.daysLeft)) return "Expiring soon";
 	  return "Available";
 	}
 	
 	function getCardBenefitStatusClass(row) {
 	  if (row.fullyUsed) return "used-up";
-	  if (row.daysLeft != null && row.daysLeft <= 7) return "expiring-soon";
+	  if (isExpiringSoon(row.daysLeft)) return "expiring-soon";
 	  return "available";
 	}
 	
@@ -9707,7 +9723,7 @@
 	  const rows = [];
 	
 	  const sortedBenefits = [...CARD_BENEFITS]
-		.filter(benefit => CARDS[benefit.card]?.is_active !== false && !benefit.non_monetary)
+		.filter(benefit => isCardActive(benefit.card) && !benefit.non_monetary)
 		.sort((a, b) => (Number(a.display_order ?? 999) - Number(b.display_order ?? 999)));
 	
 	  for (const benefit of sortedBenefits) {
@@ -9887,10 +9903,11 @@
 	  }
 	
 	  const cbTotal = rows.length;
-	  const cbExpiring = rows.filter(r => !r.fullyUsed && r.daysLeft != null && r.daysLeft <= 7).length;
+	  const cbAvailable = rows.filter(r => !r.fullyUsed).length;
+	  const cbExpiring = rows.filter(r => !r.fullyUsed && isExpiringSoon(r.daysLeft)).length;
 	  const cbCountLineEl = document.getElementById("cbCountLine");
 	  if (cbCountLineEl) {
-		cbCountLineEl.textContent = `${cbTotal} benefits${cbExpiring > 0 ? ` · ${cbExpiring} expiring soon` : ""}`;
+		cbCountLineEl.textContent = `${cbTotal} benefits / ${cbAvailable} available${cbExpiring > 0 ? ` · ${cbExpiring} expiring soon` : ""}`;
 	  }
 	
 	  let html = `
@@ -10083,7 +10100,7 @@
 	  });
 	
 	  for (const benefit of benefitsSorted) {
-		if (CARDS[benefit.card]?.is_active === false) continue;
+		if (!isCardActive(benefit.card)) continue;
 		const s = getMerchantOfferState(benefit, merchantState, todayDate);
 		if (s.expired || s.fullyUsed) continue;
 
@@ -11000,7 +11017,7 @@
 	  const active = benefits.filter((b) => {
 		if (!b.endDate) return false;
 		
-		if (CARDS[b.card]?.is_active === false) return false;
+		if (!isCardActive(b.card)) return false;
 	
 		const { expired } = classifyBenefitEnd(b.endDate, today);
 		if (expired) return false;
