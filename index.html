@@ -3621,7 +3621,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.13</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.13b</button>
   </div>
 
   <script>
@@ -3685,7 +3685,7 @@
 	  is_active: true,
 	  pointValue: 0.02,
 	  earningRules: [
-		{ rate: 5, channel: "chase_travel", matchGroups: ["travel"] },
+		{ rate: 5, channel: "chase_travel", matchGroups: ["travel"], excludeLeaves: ["airbnb", "trusted_traveler"] },
 		{ rate: 5, channel: null,           matchLeaves: ["peloton"] },
 		{ rate: 5, channel: "lyft_app",     matchLeaves: ["lyft"] },
 		{ rate: 3, channel: null,           matchGroups: ["dining"] },
@@ -3934,6 +3934,7 @@
 	  priority: 99,
 	  display_order: 600,
 	  channel: "chase_travel",
+		channel_allowed: "direct",
 	
 	  // csp_hotel: remember to add new lodging leaves as new hotel cards are added
 	  eligible_fn: (tx) => new Set([
@@ -4038,6 +4039,7 @@
 	  priority: 99,
 	  display_order: 500,
 	  channel: "capital_one_travel",
+		channel_allowed: "direct",
 	
 	  // vx_travel: remember to add new travel leaves to this Set as new travel cards are added
 	  eligible_fn: (tx) => new Set([
@@ -4054,7 +4056,6 @@
 		"other_hotel",
 		"hilton_hotel",
 		"hyatt_hotel",
-		"airbnb",
 		"avis_rentalcar",
 		"budget_rentalcar",
 		"hertz_rentalcar",
@@ -4819,9 +4820,9 @@
 		label: "Instacart",
 		labelHtml:
 		  '<a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
-		state_label: "Instacart",
+		state_label: "Instacart ($10, $5)",
 		state_labelHtml:
-		  '<a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a>',
+		  '<a href="https://www.instacart.com" target="_blank" rel="noopener noreferrer">Instacart</a> ($10, $5)',
 		icon: "🛒",
 	
 		categories: ["instacart"],
@@ -4831,7 +4832,7 @@
 		cadence_type: "calendar",
 		start_date: null,
 		cap_amount: 15,
-		tx_cap: null,
+		tx_cap: 2,
 		per_tx_cap: null,
 	
 		priority: 10,
@@ -4845,7 +4846,7 @@
 		},
 	
         reason_yes:
-              "Use United Quest for Instacart to earn the $15 monthly credit before defaulting to Chase Sapphire.",
+              "Use United Quest for Instacart to earn the $15 monthly credit ($10 first purchase, $5 second).",
         reason_no:
             "Instacart monthly credit is used up ",
 
