@@ -3621,7 +3621,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.16</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.16b</button>
   </div>
 
   <script>
@@ -3636,12 +3636,22 @@
 	  return daysLeft != null && daysLeft <= EXPIRING_SOON_DAYS;
 	}
 	
+	function getTodayDate() {
+	  return parseISODateLocal(formatTodayISO());
+	}
+	
 	function getTransactionCapturedValue(tx) {
 	  return Number(tx.cardBenefitApplied || 0) + Number(tx.merchantBenefitApplied || 0);
 	}
 	
 	function isCardActive(cardCode) {
 	  return CARDS[cardCode]?.is_active !== false;
+	}
+	
+	function daysUntil(endDate, fromDate) {
+	  if (!endDate || !fromDate) return null;
+	  const msPerDay = 24 * 60 * 60 * 1000;
+	  return Math.max(0, Math.ceil((endDate.getTime() - fromDate.getTime()) / msPerDay));
 	}
 	
 	function showGlobalDebug(message) {
@@ -6603,7 +6613,7 @@
 	
 	function computeSectionSummaries() {
 	  const today = new Date();
-	  const todayDate = parseISODateLocal(formatTodayISO());
+	  const todayDate = getTodayDate();
 	  const txs = loadTransactions();
 	  const benefits = loadMerchantBenefits();
 	  const merchantState = computeMerchantState(txs, benefits);
@@ -7036,13 +7046,7 @@
 		? computeBenefitRemainingAmount(benefit, usedAmount, txCount)
 		: null;
 
-	  let daysLeft = null;
-	  if (usage.window?.end) {
-		const msPerDay = 24 * 60 * 60 * 1000;
-		daysLeft = Math.max(0, Math.ceil(
-		  (usage.window.end.getTime() - today.getTime()) / msPerDay
-		));
-	  }
+	  const daysLeft = daysUntil(usage.window?.end ?? null, today);
 
 	  // Quadrennial benefits use a floating window — "expiring soon" is not meaningful
 	  const effectiveDaysLeft = benefit.cadence === "quadrennial" ? null : daysLeft;
@@ -7669,7 +7673,7 @@
 	  const d = parseISODateLocal(endDateStr);
 	  if (!d) return endDateStr; // fallback if malformed
 	
-	  const today = todayDate || parseISODateLocal(formatTodayISO());
+	  const today = todayDate || getTodayDate();
 	  const currentYear = today ? today.getFullYear() : new Date().getFullYear();
 	
 	  const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -8470,7 +8474,7 @@
     };
 
     function classifyBenefitEnd(endDateStr, todayDate) {
-      const today = todayDate || parseISODateLocal(formatTodayISO());
+      const today = todayDate || getTodayDate();
       const end = parseISODateLocal(endDateStr);
     
       if (!today || !end) {
@@ -9532,7 +9536,7 @@
 	  const benefits = loadMerchantBenefits();
 	  const merchantState = computeMerchantState(txs, benefits);
 	  const today = new Date();
-	  const todayDate = parseISODateLocal(formatTodayISO());
+	  const todayDate = getTodayDate();
 	  const sevenDaysAgo = new Date(today);
 	  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 	
@@ -10029,7 +10033,7 @@
 	  return parts.join(" ") || "Offer";
 	}
 	
-	function getMerchantOfferExpandedDetails(benefit, used, txCount, totalLimit, fullyUsed, expiringSoon, todayDate, daysLeft) {
+	function getMerchantOfferExpandedDetails({ benefit, used, txCount, totalLimit, fullyUsed, expiringSoon, todayDate, daysLeft }) {
 	  const details = [];
 	
 	  if (benefit.limitType === "total" && totalLimit != null) {
@@ -10084,7 +10088,7 @@
 	  const el = document.getElementById("merchantOffersSummary");
 	  if (!el) return;
 	
-	  const todayDate = parseISODateLocal(formatTodayISO());
+	  const todayDate = getTodayDate();
 	  const activeRows = [];
 	
 	  const benefitsSorted = [...benefits].sort((a, b) => {
@@ -10131,21 +10135,16 @@
 		  remainingValueText,
 		  expiringSoon,
 		  filterKey,
-		  expandedDetails: getMerchantOfferExpandedDetails(
+		  expandedDetails: getMerchantOfferExpandedDetails({
 			  benefit,
 			  used,
 			  txCount,
 			  totalLimit,
-			  s.fullyUsed,
+			  fullyUsed: s.fullyUsed,
 			  expiringSoon,
 			  todayDate,
-			  (() => {
-				if (!benefit.endDate) return null;
-				const end = parseISODateLocal(benefit.endDate);
-				if (!end) return null;
-				return Math.max(0, Math.ceil((end.getTime() - todayDate.getTime()) / 86400000));
-			  })()
-			)
+			  daysLeft: daysUntil(parseISODateLocal(benefit.endDate), todayDate)
+			})
 		});
 	  }
 
@@ -11016,7 +11015,7 @@
 	function getActiveMerchantBenefitsForPicker() {
 	  const benefits = loadMerchantBenefits();
 	  const txs = loadTransactions();
-	  const todayDate = parseISODateLocal(formatTodayISO());
+	  const todayDate = getTodayDate();
 	
 	  const active = getMerchantOfferStates(benefits, txs, todayDate)
 		.filter(s => s.active)
@@ -11116,7 +11115,7 @@
 	  const txs = loadTransactions();
 	  const benefits = loadMerchantBenefits();
 	  const today = (typeof parseISODateLocal === "function")
-		? parseISODateLocal(formatTodayISO())
+		? getTodayDate()
 		: new Date();
 	
 	  // Build active groups/leaves from CATEGORY_REGISTRY + your rules
@@ -11165,7 +11164,7 @@
 			  ? `${b.discountValue}% off`
 			  : `$${Number(b.discountValue || 0).toFixed(2)} off`;
 	
-		  const expiryText = b.endDate ? formatBenefitEndDateDisplay(b.endDate, parseISODateLocal(formatTodayISO())) : "";
+		  const expiryText = b.endDate ? formatBenefitEndDateDisplay(b.endDate, getTodayDate()) : "";
 		  const subtitleParts = [
 			discountText,
 			expiryText
@@ -11434,7 +11433,7 @@
       const txs = loadTransactions();
       const merchantState = computeMerchantState(txs, benefits);
     
-      const today = parseISODateLocal(formatTodayISO());
+      const today = getTodayDate();
       
       // Active merchant offers:
       // - not expired (inclusive end date)
@@ -11599,7 +11598,7 @@
 	  const row = document.getElementById("moManageFilterRow");
 	  if (!row) return;
 
-	  const today = parseISODateLocal(formatTodayISO());
+	  const today = getTodayDate();
 	  const merchantState = computeMerchantState(loadTransactions(), benefits);
 
 	  const hasExpired = benefits.some(b => {
@@ -11634,7 +11633,7 @@
     
       tbody.innerHTML = "";
     
-      const today = parseISODateLocal(formatTodayISO());
+      const today = getTodayDate();
     
       // Keep track of original index so delete still works correctly
       const benefitsWithIndex = benefits.map((b, idx) => ({ b, idx }));
