@@ -3621,7 +3621,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.12</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.13</button>
   </div>
 
   <script>
@@ -4793,10 +4793,14 @@
 		eligible_fn: (tx) =>
 		  tx.category === "rideshare_other" || tx.category === "lyft",
 	
-		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+		value_fn: (tx, remaining) => {
+		  const month = new Date(tx.date).getMonth() + 1;
+		  const cap = month === 12 ? 12 : 8;
+		  return Math.min(Number(tx.amount) || 0, cap, remaining);
+		},
 	
         reason_yes:
-              "Use United Quest for rideshare rides to earn the $8 monthly credit.",
+              "Use United Quest for rideshare rides to earn the $8 monthly credit ($12 in December).",
         reason_no:
             "United Quest monthly rideshare credit is used up ",
 
@@ -4835,7 +4839,10 @@
 		channel: "instacart_platform",
 	
 		eligible_fn: (tx) => tx.category === "instacart",
-		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+		value_fn: (tx, remaining, priorTxCount) => {
+		  const cap = priorTxCount === 0 ? 10 : 5;
+		  return Math.min(Number(tx.amount) || 0, cap, remaining);
+		},
 	
         reason_yes:
               "Use United Quest for Instacart to earn the $15 monthly credit before defaulting to Chase Sapphire.",
@@ -7139,7 +7146,7 @@
 	
 		let immediateValue;
 		if (typeof benefit.value_fn === "function") {
-		  immediateValue = Number(benefit.value_fn(tx, remainingAmount)) || 0;
+		  immediateValue = Number(benefit.value_fn(tx, remainingAmount, priorTxCount)) || 0;
 		} else {
 		  immediateValue = Math.min(amount, remainingAmount);
 		}
@@ -9626,10 +9633,13 @@
 		function getCardBenefitExpandedDetails(row) {
 	  const details = [];
 	
+	  const capLabel = (row.txCap != null && row.perTxCap != null)
+		? `$${formatUsageAmount(row.limitAmount || 0)} (${row.txCap} x $${formatUsageAmount(row.perTxCap)})`
+		: `$${formatUsageAmount(row.limitAmount || 0)}`;
 	  details.push({
 		label: "Cap",
 		value: row.limitAmount > 0
-		  ? `$${formatUsageAmount(row.usedAmount || 0)} of $${formatUsageAmount(row.limitAmount || 0)} used`
+		  ? `$${formatUsageAmount(row.usedAmount || 0)} of ${capLabel} used`
 		  : `$${formatUsageAmount(row.usedAmount || 0)} used`
 	  });
 	
@@ -9721,6 +9731,7 @@
 		  limitAmount: limit,
 		  remainingAmount: remainingAmount ?? 0,
 		  txCap,
+		  perTxCap: benefit.per_tx_cap != null ? Number(benefit.per_tx_cap) : null,
 		  txCount,
 		  hasPositiveUsage: used > 0 && !fullyUsed,
 		  daysLeft,
@@ -11628,7 +11639,6 @@
       });
     
       benefitsWithIndex.forEach(({ b, idx }) => {
-        if (CARDS[b.card]?.is_active === false) return;
         const tr = document.createElement("tr");
     
         const discountText =
@@ -11950,7 +11960,10 @@
 		  const cbBullets = [];
 
 		  if (!b.non_monetary && cbApplied.remainingAmount != null && b.cap_amount != null) {
-			cbBullets.push(`$${formatUsageAmount(cbApplied.remainingAmount)} remaining of $${formatUsageAmount(b.cap_amount)}`);
+			const capLabel = (b.tx_cap != null && b.per_tx_cap != null)
+			  ? `$${formatUsageAmount(b.cap_amount)} (${b.tx_cap} x $${formatUsageAmount(b.per_tx_cap)})`
+			  : `$${formatUsageAmount(b.cap_amount)}`;
+			cbBullets.push(`$${formatUsageAmount(cbApplied.remainingAmount)} remaining of ${capLabel}`);
 		  }
 		  if (cbApplied.priorTxCount != null && b.tx_cap != null) {
 			cbBullets.push(`${cbApplied.priorTxCount} of ${b.tx_cap} qualifying uses already used`);
