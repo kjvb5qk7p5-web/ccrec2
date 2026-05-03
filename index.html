@@ -3621,7 +3621,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.16b</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.17</button>
   </div>
 
   <script>
@@ -6744,15 +6744,17 @@
 	
 	  const rows = ranking.map((r, i) => {
 		const channelText = r.channel
-		  ? `<span style="color:var(--text-soft);font-size:0.8rem;"> via ${CHANNEL_LABELS[r.channel] || r.channel}</span>`
+		  ? `<span style="color:var(--text-soft);font-size:0.8rem;"> ${CHANNEL_LABELS[r.channel] || r.channel}</span>`
 		  : "";
+		const pointsValueCents = ((r.pointValue || DEFAULT_POINT_VALUE) * 100).toFixed(2);
+		const pointValueText = `<span style="color:var(--text-soft);font-size:0.8rem;"> @ ${pointsValueCents}¢</span>`;
 		const badge = renderCardBadge(r.card);
 		return `
 		  <tr style="${i === 0 ? "font-weight:700;" : ""}">
 			<td style="padding:6px 8px;width:20px;">${i + 1}</td>
 			<td style="padding:6px 8px;">${badge}</td>
 			<td style="padding:6px 8px;">${escapeHtml(r.cardLabel)}</td>
-			<td style="padding:6px 8px;">${r.rate}x${channelText}</td>
+			<td style="padding:6px 8px;">${r.rate}x${channelText}${pointValueText}</td>
 			<td style="padding:6px 8px;">${r.effectivePct.toFixed(1)}%</td>
 		  </tr>`;
 	  }).join("");
