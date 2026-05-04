@@ -2259,6 +2259,24 @@
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
   }
+  
+  .cs-card-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    line-height: 1.15;
+  }
+
+  .cs-card-cell .card-badge {
+    display: inline-block;
+    align-self: flex-start;
+  }
+
+  .cs-card-name {
+    display: block;
+    font-weight: 700;
+  }  
 
   .cs-details-table tr.is-inactive td {
     opacity: 0.4;
@@ -7037,7 +7055,12 @@
 
 		return `
 		  <tr class="${isActive ? "" : "is-inactive"}" data-card-code="${escapeHtml(card.code)}">
-			<td>${renderCardBadge(card.code)} ${escapeHtml(card.label || card.code)}</td>
+			<td>
+			  <div class="cs-card-cell">
+				${renderCardBadge(card.code)}
+				<span class="cs-card-name">${escapeHtml(card.label || card.code)}</span>
+			  </div>
+			</td>
 			<td>
 			  <input type="text" class="cs-details-input card-setting-anniv-input"
 				data-card-anniv="${escapeHtml(card.code)}"
