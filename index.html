@@ -3787,7 +3787,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.2b</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.3</button>
   </div>
 
   <script>
@@ -3807,12 +3807,19 @@
 	  return parseISODateLocal(formatTodayISO());
 	}
 	
+	function isValidISODate(str) {
+	  if (!str || typeof str !== "string") return false;
+	  const d = parseISODateLocal(str);
+	  return d instanceof Date && !isNaN(d.getTime());
+	}
+	
 	function getTransactionCapturedValue(tx) {
 	  return Number(tx.cardBenefitApplied || 0) + Number(tx.merchantBenefitApplied || 0);
 	}
 	
 	function isCardActive(cardCode) {
-	  return CARDS[cardCode]?.is_active !== false;
+	  if (!cardCode || !CARDS[cardCode]) return false;
+	  return CARDS[cardCode].is_active !== false;
 	}
 	
 	function daysUntil(endDate, fromDate) {
@@ -7368,6 +7375,7 @@
 		const priorDate = parseISODateLocal(priorTx.date);
 		if (!priorDate) continue;
 		if (priorDate < window.start || priorDate >= window.end) continue;
+		if (priorDate > txDate) continue; // exclude future-dated prior transactions
 	
 		const applied = Number(priorTx.cardBenefitApplied) || 0;
 		priorUsed += applied;
@@ -7548,12 +7556,7 @@
 		// the benefit credit doesn't apply — skip this benefit.
 		if (benefit.channel_allowed && tx.channel === benefit.channel_allowed) continue;
 	
-		let matches = false;
-		if (typeof benefit.eligible_fn === "function") {
-		  matches = !!benefit.eligible_fn(tx);
-		} else if (Array.isArray(benefit.categories)) {
-		  matches = benefit.categories.includes(tx.category);
-		}
+		const matches = cardBenefitMatchesPurchase(benefit, tx);
 	
 		if (!matches) continue;
 	
@@ -7791,11 +7794,7 @@
 	
 	  // 1) Add any card-benefit channels for this selected card + purchase category
 	  CARD_BENEFITS.forEach((benefit) => {
-		const matchesCategory =
-		  Array.isArray(benefit.categories) &&
-		  benefit.categories.includes(purchase.category);
-	
-		if (benefit.card === selectedCard && matchesCategory) {
+		if (benefit.card === selectedCard && cardBenefitMatchesPurchase(benefit, purchase)) {
 		  if (benefit.channel) channels.add(benefit.channel);
 		  if (benefit.channel_allowed) channels.add(benefit.channel_allowed);
 		}
@@ -7824,6 +7823,14 @@
 	
 	  const validChannels = getValidChannelsForSelectedCard(purchase, rec, selectedCard);
 	  return validChannels[0] || "direct";
+	}
+	
+	function cardBenefitMatchesPurchase(benefit, tx) {
+	  if (typeof benefit.eligible_fn === "function") {
+		return !!benefit.eligible_fn(tx);
+	  }
+	  return Array.isArray(benefit.categories) &&
+		benefit.categories.includes(tx.category);
 	}
 	
 	// ============================
@@ -8090,7 +8097,7 @@
 	  if (!endDateStr) return "";
 	
 	  const d = parseISODateLocal(endDateStr);
-	  if (!d) return endDateStr; // fallback if malformed
+	  if (!d) return escapeHtml(endDateStr); // escape fallback for malformed dates
 	
 	  const today = todayDate || getTodayDate();
 	  const currentYear = today ? today.getFullYear() : new Date().getFullYear();
@@ -9424,8 +9431,15 @@
 	  });
 	}
 
+    const MAX_IMPORT_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
     // Import data from JSON file
     function importDataFromFile(file) {
+      if (file.size > MAX_IMPORT_FILE_SIZE) {
+        showToast(`⚠️ File is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum import size is 5 MB.`);
+        return;
+      }
+
       const reader = new FileReader();
       
       reader.onload = function(e) {
@@ -9465,7 +9479,14 @@
 		const oldBenefits = loadMerchantBenefits();
 		
 		// 1. Normalize transactions first
-		let normalizedTxs = data.transactions.map(normalizeImportedTransaction);
+		let normalizedTxs = data.transactions
+		  .map(normalizeImportedTransaction)
+		  .filter(tx =>
+			isValidISODate(tx.date) &&
+			Number(tx.amount) > 0 &&
+			tx.category &&
+			(!tx.cardUsed || CARDS[tx.cardUsed])
+		  );
 		
 		// 2. Normalize + validate merchant offers
 		let normalizedBenefits = data.merchantBenefits
@@ -9473,8 +9494,10 @@
 		  .filter(b =>
 			b.merchant &&
 			b.card &&
-			b.endDate &&
+			CARDS[b.card] &&
+			isValidISODate(b.endDate) &&
 			b.category &&
+			getRegistryLeaf(CATEGORY_REGISTRY, b.category) != null &&
 			b.discountValue > 0 &&
 			(b.maxTransactions == null || b.maxTransactions > 0) &&
 			(b.limitValue == null || b.limitValue > 0) &&
@@ -9559,6 +9582,9 @@
 		computeSectionSummaries();
 		renderSectionStates();
 		renderAdminPanel();
+		lastRecommendation = null;
+		hideFloatingSaveBar();
+		document.getElementById("recommendationSection").style.display = "none";
 		
 		const importedTxCount = normalizedTxs.length;
 		const importedBenefitCount = normalizedBenefits.length;
@@ -9651,6 +9677,11 @@
     }
 
     // ---------- Merchant benefits usage state ----------
+    // NOTE: merchantBenefitApplied values on transactions are considered historical truth —
+	// they represent what the offer was worth at save time and are not recomputed from
+	// current offer rules. This function sums those frozen values to track cumulative usage.
+	// calculateMerchantBenefitApplied() uses the same values when computing new transactions.
+	// The only divergence risk is externally-edited import data with incorrect applied values.
     function computeMerchantState(txs, benefits, now) {
       const nowDate = now || new Date();
       const state = {};
@@ -9800,6 +9831,9 @@
 	  for (const priorTx of txsBeforeSave) {
 		if (!priorTx.merchantBenefitId) continue;
 		if (priorTx.merchantBenefitId !== benefit.id) continue;
+	
+		const priorDate = parseISODateLocal(priorTx.date);
+		if (priorDate && priorDate > txDate) continue; // exclude future-dated prior transactions
 	
 		used += Number(priorTx.merchantBenefitApplied) || 0;
 	
@@ -13320,7 +13354,7 @@
 			exitEditMode();
 			
 			merchantOffersFilterMode = "all";
-   merchantOffersExpiringOnly = false;
+   			merchantOffersExpiringOnly = false;
 			expandedMerchantOfferId = null;
 			expandedAnnualCards = new Set();
 	
