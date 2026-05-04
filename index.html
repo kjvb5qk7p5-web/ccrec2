@@ -2241,6 +2241,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 0.82rem;
+    table-layout: fixed;
   }
 
   .cs-details-table th {
@@ -2283,8 +2284,6 @@
     border-radius: 6px;
     width: 42px;
     max-width: 42px;
-    -webkit-appearance: none;
-    appearance: none;
     text-align: center;
   }
 
@@ -3710,11 +3709,11 @@
           <table class="cs-details-table" id="cardSettingsTab2Table">
             <thead>
               <tr>
-                <th>Card</th>
-                <th>Anniversary</th>
-                <th>Display Order</th>
-                <th>Default Points Values</th>
-                <th>Override Points Values</th>
+                <th style="width:28%;">Card</th>
+                <th style="width:18%;">Anniversary</th>
+                <th style="width:12%;">Display Order</th>
+                <th style="width:18%;">Default Points Values</th>
+                <th style="width:24%;">Override Points Values</th>
               </tr>
             </thead>
             <tbody id="cardSettingsTab2Body"></tbody>
