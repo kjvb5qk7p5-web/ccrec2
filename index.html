@@ -3787,7 +3787,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.1b</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.2a</button>
   </div>
 
   <script>
@@ -6987,6 +6987,7 @@
 		  if (!code) return;
 		  workingCardSettings[code] = workingCardSettings[code] || {};
 		  workingCardSettings[code].is_active = cb.checked;
+		  syncCardSettingsTab2InputsToWorking();
 		  renderCardSettingsTab2();
 		});
 	  });
@@ -7047,9 +7048,11 @@
 		const defaultPvCents = (defaultPv * 100).toFixed(2);
 
 		// Override points value — stored as decimal, displayed as cents
-		const overridePv = override.pointValue != null
-		  ? (override.pointValue * 100).toFixed(2)
-		  : "";
+		const overridePv = override.pointValuePending != null
+		  ? override.pointValuePending
+		  : override.pointValue != null
+			? (override.pointValue * 100).toFixed(2)
+			: "";
 
 		return `
 		  <tr class="${isActive ? "" : "is-inactive"}" data-card-code="${escapeHtml(card.code)}">
@@ -7103,6 +7106,7 @@
 
 		  workingCardSettings[code] = workingCardSettings[code] || {};
 		  workingCardSettings[code].sort_order = newVal;
+		  syncCardSettingsTab2InputsToWorking();
 		  renderCardSettingsTab2();
 		});
 	  });
@@ -7138,9 +7142,21 @@
 	  [errorEl1, errorEl2].forEach(el => {
 		if (el) { el.style.display = "none"; el.textContent = ""; }
 	  });
-
+	
+	  // Normalize sort orders before save — strip duplicates and out-of-range values
+	  normalizeWorkingCardSortOrders();
+	
+	  // Guard: at least one card must be active
+	  if (getActiveCardCountFromWorking() === 0) {
+		const msg = "At least one card must be active.";
+		[errorEl1, errorEl2].forEach(el => {
+		  if (el) { el.textContent = msg; el.style.display = "block"; }
+		});
+		return;
+	  }
+	
 	  const errors = [];
-
+	
 	  // Read anniversary values from Tab 2
 	  document.querySelectorAll(".card-setting-anniv-input").forEach(input => {
 		const code = input.getAttribute("data-card-anniv");
@@ -7150,8 +7166,7 @@
 		  if (workingCardSettings[code]) delete workingCardSettings[code].anniversary_start;
 		  return;
 		}
-		const match = val.match(/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/);
-		if (!match) {
+		if (!isValidMonthDay(val)) {
 		  errors.push(`${CARDS[code]?.label || code}: "${val}" is not a valid MM-DD date`);
 		  return;
 		}
@@ -7159,17 +7174,32 @@
 		workingCardSettings[code].anniversary_start = val;
 	  });
 
-	  // Read override points value from Tab 2
-	  document.querySelectorAll(".card-setting-pv-input").forEach(input => {
-		const code = input.getAttribute("data-card-pv");
+	  // Read override points value — prefer live DOM if Tab 2 is rendered, else working copy
+	  const pvSources = document.querySelectorAll(".card-setting-pv-input").length > 0
+		? [...document.querySelectorAll(".card-setting-pv-input")].map(input => ({
+			code: input.getAttribute("data-card-pv"),
+			val: input.value.trim()
+		  }))
+		: Object.entries(workingCardSettings)
+			.filter(([, v]) => v.pointValuePending != null || v.pointValue != null)
+			.map(([code, v]) => ({
+			  code,
+			  val: v.pointValuePending ?? (v.pointValue != null ? (v.pointValue * 100).toFixed(2) : "")
+			}));
+	
+	  pvSources.forEach(({ code, val }) => {
 		if (!code) return;
-		const val = input.value.trim();
 		if (!val) {
 		  if (workingCardSettings[code]) delete workingCardSettings[code].pointValue;
 		  return;
 		}
-		const num = parseFloat(val);
-		if (isNaN(num) || num < 0 || num > 10) {
+		const match = val.match(/^(?:\d+|\d*\.\d{1,4})$/);
+		if (!match) {
+		  errors.push(`${CARDS[code]?.label || code}: points value "${val}¢" must be a number between 0 and 10¢`);
+		  return;
+		}
+		const num = Number(val);
+		if (num < 0 || num > 10) {
 		  errors.push(`${CARDS[code]?.label || code}: points value "${val}¢" must be between 0 and 10¢`);
 		  return;
 		}
@@ -7195,6 +7225,14 @@
 	  }
 
 	  window.location.reload();
+	}
+	
+	function isValidMonthDay(mmdd) {
+	  const match = String(mmdd || "").match(/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/);
+	  if (!match) return false;
+	  const [mm, dd] = mmdd.split("-").map(Number);
+	  const d = new Date(2000, mm - 1, dd);
+	  return d.getMonth() === mm - 1 && d.getDate() === dd;
 	}
 
 		function renderActiveCardsSummary() {
@@ -9098,6 +9136,60 @@
 		localStorage.setItem(USER_CARD_SETTINGS_KEY, JSON.stringify(settings));
 		return true;
 	  } catch { return false; }
+	}
+	
+	function syncCardSettingsTab2InputsToWorking() {
+	  document.querySelectorAll(".card-setting-anniv-input").forEach(input => {
+		const code = input.getAttribute("data-card-anniv");
+		if (!code) return;
+		workingCardSettings[code] = workingCardSettings[code] || {};
+		const val = input.value.trim();
+		if (val) workingCardSettings[code].anniversary_start = val;
+		else delete workingCardSettings[code].anniversary_start;
+	  });
+	  document.querySelectorAll(".card-setting-pv-input").forEach(input => {
+		const code = input.getAttribute("data-card-pv");
+		if (!code) return;
+		workingCardSettings[code] = workingCardSettings[code] || {};
+		const val = input.value.trim();
+		if (val) workingCardSettings[code].pointValuePending = val;
+		else {
+		  delete workingCardSettings[code].pointValuePending;
+		  delete workingCardSettings[code].pointValue;
+		}
+	  });
+	}
+	
+	function normalizeWorkingCardSortOrders() {
+	  // Collect active cards that have a user-set sort_order
+	  const activeCodesWithOrder = Object.values(CARDS)
+		.filter(card => {
+		  const override = workingCardSettings[card.code] || {};
+		  const isActive = typeof override.is_active === "boolean"
+			? override.is_active
+			: (CARDS_REGISTRY_DEFAULTS[card.code]?.is_active !== false);
+		  return isActive && workingCardSettings[card.code]?.sort_order != null;
+		})
+		.map(card => card.code);
+	
+	  const activeCount = getActiveCardCountFromWorking();
+	
+	  // Find duplicates and out-of-range values
+	  const seen = new Set();
+	  const toStrip = [];
+	  for (const code of activeCodesWithOrder) {
+		const val = workingCardSettings[code].sort_order;
+		if (val < 1 || val > activeCount || seen.has(val)) {
+		  toStrip.push(code);
+		} else {
+		  seen.add(val);
+		}
+	  }
+	
+	  // Strip invalid values — affected cards fall back to registry sort_order
+	  for (const code of toStrip) {
+		delete workingCardSettings[code].sort_order;
+	  }
 	}
 
     // ---------- Transactions storage ----------
@@ -11214,10 +11306,7 @@
     function recommendFromRegistries(purchase, txs, merchantState, benefits) {
       const allCardScores = computeAllCardScores(purchase, txs, merchantState, benefits);
 
-      if (!allCardScores.length) {
-        const fb = getBaseFallbackRecommendation_OLD(purchase.category);
-        return { ...fb, allCardScores: [], recommendationSource: "base_fallback" };
-      }
+      if (!allCardScores.length) return null;
 
       const winner = allCardScores[0];
       const reasonMain = buildScoreReasonText(winner, purchase);
@@ -12155,6 +12244,7 @@
 	  const bar = document.getElementById("floatingSaveBar");
 	  const btn = document.getElementById("btnFloatingSave");
 	  if (!bar || !btn) return;
+	  if (!rec) { btn.style.display = "none"; bar.style.display = "none"; return; }
 	  const channelPlain = isNullChannel(rec.channel) ? "" : (CHANNEL_LABELS[rec.channel] || rec.channel || "");
 	  btn.innerHTML = `Save &nbsp; ${renderCardBadge(rec.card)} &nbsp; ${escapeHtml(channelPlain)}`;
 	  clearTimeout(floatingSaveTimer);
@@ -12740,7 +12830,12 @@
     
       const rec = recommendFromRegistries(purchase, txs, merchantState, benefits);
       if (!rec) {
-		  alert("Could not generate a recommendation.");
+		  document.getElementById("recommendationBox").innerHTML = "";
+		  document.getElementById("reasonBox").innerHTML =
+			`<div class="rec-reason-card" style="color:var(--danger);">
+			  No active cards available. Activate at least one card in Card &amp; Data Management.
+			</div>`;
+		  showFloatingSaveBar(null);
 		  return;
 		}
       lastRecommendation = {
