@@ -2202,6 +2202,106 @@
     display: none;
   }
 
+  .cs-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .cs-tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-soft);
+    cursor: pointer;
+    border-radius: 0;
+    width: auto;
+  }
+
+  .cs-tab-btn.is-active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .cs-tab-content {
+    display: none;
+  }
+
+  .cs-tab-content.is-active {
+    display: block;
+  }
+
+  .cs-details-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .cs-details-table th {
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-soft);
+    padding: 4px 8px 8px 8px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .cs-details-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .cs-details-table tr.is-inactive td {
+    opacity: 0.4;
+  }
+
+  .cs-details-input {
+    font-size: 0.82rem;
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 72px;
+    text-align: center;
+  }
+
+  .cs-details-input--wide {
+    width: 80px;
+  }
+
+  .cs-details-select {
+    font-size: 0.82rem;
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .cs-tab1-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .cs-tab1-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
   .card-data-btn {
     width: 140px;
     display: block;
@@ -3584,26 +3684,53 @@
     </button>
     <div id="section-content-cardDataManagement" style="display:none;">
 
-      <!-- Card settings -->
+      <!-- Card & Data Management tabs -->
       <div id="userCardSettingsPanel" style="margin-bottom:16px;">
-        <p style="font-size:0.82rem;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px 0;">Your Cards</p>
-        <div class="card-settings-list" id="cardSettingsList"></div>
-        <button id="btnSaveCardSettings" type="button">Save All</button>
-        <div class="card-setting-error" id="cardSettingsError"></div>
+        <div class="cs-tabs">
+          <button class="cs-tab-btn is-active" data-cs-tab="tab1">Your Cards</button>
+          <button class="cs-tab-btn" data-cs-tab="tab2">Card Details</button>
+          <button class="cs-tab-btn" data-cs-tab="tab3">Data Management</button>
+        </div>
+
+        <!-- Tab 1: Your Cards -->
+        <div class="cs-tab-content is-active" id="cs-tab1">
+          <div class="cs-tab1-list" id="cardSettingsTab1List"></div>
+          <button id="btnSaveCardSettings" type="button">Save All</button>
+          <div class="card-setting-error" id="cardSettingsError"></div>
+        </div>
+
+        <!-- Tab 2: Card Details -->
+        <div class="cs-tab-content" id="cs-tab2">
+          <table class="cs-details-table" id="cardSettingsTab2Table">
+            <thead>
+              <tr>
+                <th>Card</th>
+                <th>Anniversary</th>
+                <th>Display Order</th>
+                <th>Default Points Values</th>
+                <th>Override Points Values</th>
+              </tr>
+            </thead>
+            <tbody id="cardSettingsTab2Body"></tbody>
+          </table>
+          <div style="margin-top:10px;">
+            <button id="btnSaveCardSettings2" type="button">Save All</button>
+          </div>
+          <div class="card-setting-error" id="cardSettingsError2"></div>
+        </div>
+
+        <!-- Tab 3: Data Management -->
+        <div class="cs-tab-content" id="cs-tab3">
+          <button id="btnExportData" class="card-data-btn">Export All Data</button>
+          <button id="btnImportData" class="card-data-btn">Import Data</button>
+          <button id="btnClear" class="card-data-btn">Clear All Purchases</button>
+          <p class="muted" style="margin-top:10px;">
+            All data is stored locally in your browser. Export regularly to back up your transactions and merchant offers.
+          </p>
+        </div>
       </div>
 
-      <hr style="border:none;border-top:1px solid var(--border);margin:0 0 14px 0;">
-
-      <!-- Data management buttons -->
-      <button id="btnExportData" class="card-data-btn">Export All Data</button>
-      <button id="btnImportData" class="card-data-btn">Import Data</button>
-      <button id="btnClear" class="card-data-btn">Clear All Purchases</button>
-
       <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
-
-      <p class="muted" style="margin-top:10px;">
-        All data is stored locally in your browser. Export regularly to back up your transactions and merchant offers.
-      </p>
     </div>
   </div>
 
@@ -3621,7 +3748,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.0.17</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.0</button>
   </div>
 
   <script>
@@ -6784,20 +6911,82 @@
 	}
 	
 	function renderCardSettingsPanel() {
-	  const list = document.getElementById("cardSettingsList");
+	  initWorkingCardSettings();
+	  renderCardSettingsTab1();
+	  renderCardSettingsTab2();
+	  wireCardSettingsTabs();
+	  wireCardSettingsSaveButtons();
+	}
+
+	function renderCardSettingsTab1() {
+	  const list = document.getElementById("cardSettingsTab1List");
 	  if (!list) return;
-	
-	  const settings = loadUserCardSettings();
+
 	  const cards = Object.values(CARDS)
 		.sort((a, b) => Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999));
-	
+
 	  list.innerHTML = cards.map(card => {
-		const override = settings[card.code] || {};
-		// is_active: use saved override if present, else fall back to registry default
+		const override = workingCardSettings[card.code] || {};
 		const isActive = typeof override.is_active === "boolean"
 		  ? override.is_active
-		  : (card.is_active !== false);
-		// anniversary: use saved MM-DD if present, else extract from registry full date
+		  : (CARDS_REGISTRY_DEFAULTS[card.code]?.is_active !== false);
+
+		return `
+		  <label class="cs-tab1-row">
+			<input type="checkbox" class="card-setting-checkbox"
+			  data-card-code="${escapeHtml(card.code)}"
+			  ${isActive ? "checked" : ""}>
+			${renderCardBadge(card.code)}
+			<span>${escapeHtml(card.label || card.code)}</span>
+		  </label>`;
+	  }).join("");
+
+	  // Live-update workingCardSettings and re-render Tab 2 when checkboxes change
+	  list.querySelectorAll(".card-setting-checkbox").forEach(cb => {
+		cb.addEventListener("change", () => {
+		  const code = cb.getAttribute("data-card-code");
+		  if (!code) return;
+		  workingCardSettings[code] = workingCardSettings[code] || {};
+		  workingCardSettings[code].is_active = cb.checked;
+		  renderCardSettingsTab2();
+		});
+	  });
+	}
+
+	function getActiveCardCountFromWorking() {
+	  return Object.values(CARDS).filter(card => {
+		const override = workingCardSettings[card.code] || {};
+		return typeof override.is_active === "boolean"
+		  ? override.is_active
+		  : (CARDS_REGISTRY_DEFAULTS[card.code]?.is_active !== false);
+	  }).length;
+	}
+
+	function renderCardSettingsTab2() {
+	  const tbody = document.getElementById("cardSettingsTab2Body");
+	  if (!tbody) return;
+
+	  const activeCount = getActiveCardCountFromWorking();
+
+	  // Sort: user-ordered cards first, then unset by registry sort_order
+	  const cards = Object.values(CARDS);
+	  const withUserOrder = cards
+		.filter(c => workingCardSettings[c.code]?.sort_order != null)
+		.sort((a, b) =>
+		  Number(workingCardSettings[a.code].sort_order) -
+		  Number(workingCardSettings[b.code].sort_order));
+	  const withoutUserOrder = cards
+		.filter(c => workingCardSettings[c.code]?.sort_order == null)
+		.sort((a, b) => Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999));
+	  const sorted = [...withUserOrder, ...withoutUserOrder];
+
+	  tbody.innerHTML = sorted.map(card => {
+		const override = workingCardSettings[card.code] || {};
+		const isActive = typeof override.is_active === "boolean"
+		  ? override.is_active
+		  : (CARDS_REGISTRY_DEFAULTS[card.code]?.is_active !== false);
+
+		// Anniversary value
 		let anniversaryVal = override.anniversary_start || "";
 		if (!anniversaryVal) {
 		  const rawDefault = CARDS_REGISTRY_DEFAULTS[card.code]?.anniversary_start || "";
@@ -6806,83 +6995,165 @@
 			if (parts.length >= 3) anniversaryVal = `${parts[1]}-${parts[2]}`;
 		  }
 		}
-	
+
+		// Display order dropdown
+		const currentOrder = override.sort_order != null ? Number(override.sort_order) : "";
+		const orderOptions = `<option value="">—</option>` +
+		  Array.from({ length: activeCount }, (_, i) => i + 1)
+			.map(n => `<option value="${n}" ${currentOrder === n ? "selected" : ""}>${n}</option>`)
+			.join("");
+
+		// Default points value from registry defaults
+		const defaultPv = CARDS_REGISTRY_DEFAULTS[card.code]?.pointValue ?? DEFAULT_POINT_VALUE;
+		const defaultPvCents = (defaultPv * 100).toFixed(2);
+
+		// Override points value — stored as decimal, displayed as cents
+		const overridePv = override.pointValue != null
+		  ? (override.pointValue * 100).toFixed(2)
+		  : "";
+
 		return `
-		  <div class="card-setting-row">
-			<label class="card-setting-active">
-			  <input type="checkbox" class="card-setting-checkbox"
-				data-card-code="${escapeHtml(card.code)}"
-				${isActive ? "checked" : ""}>
-			  ${renderCardBadge(card.code)}
-			  <span>${escapeHtml(card.label || card.code)}</span>
-			</label>
-			<div class="card-setting-anniv">
-			  <span>Anniversary (MM-DD)</span>
-			  <input type="text" class="card-setting-anniv-input"
+		  <tr class="${isActive ? "" : "is-inactive"}" data-card-code="${escapeHtml(card.code)}">
+			<td>${renderCardBadge(card.code)} ${escapeHtml(card.label || card.code)}</td>
+			<td>
+			  <input type="text" class="cs-details-input card-setting-anniv-input"
 				data-card-anniv="${escapeHtml(card.code)}"
-				placeholder="MM-DD"
-				value="${escapeHtml(anniversaryVal)}"
-				maxlength="5">
-			</div>
-		  </div>`;
+				placeholder="MM-DD" value="${escapeHtml(anniversaryVal)}" maxlength="5"
+				${isActive ? "" : "tabindex='-1'"}>
+			</td>
+			<td>
+			  <select class="cs-details-select card-setting-order-select"
+				data-card-order="${escapeHtml(card.code)}"
+				${isActive ? "" : "disabled"}>
+				${orderOptions}
+			  </select>
+			</td>
+			<td style="text-align:right;color:var(--text-soft);">${defaultPvCents}¢</td>
+			<td>
+			  <input type="text" class="cs-details-input cs-details-input--wide card-setting-pv-input"
+				data-card-pv="${escapeHtml(card.code)}"
+				placeholder="e.g. 2.05"
+				value="${escapeHtml(overridePv)}"
+				${isActive ? "" : "tabindex='-1'"}>
+			</td>
+		  </tr>`;
 	  }).join("");
-	
-	  const saveBtn = document.getElementById("btnSaveCardSettings");
-	  if (saveBtn) {
-		saveBtn.replaceWith(saveBtn.cloneNode(true));
-		document.getElementById("btnSaveCardSettings")
-		  .addEventListener("click", handleSaveCardSettings);
-	  }
-	}
-	
-	function handleSaveCardSettings() {
-	  const errorEl = document.getElementById("cardSettingsError");
-	  errorEl.style.display = "none";
-	  errorEl.textContent = "";
-	
-	  const newSettings = {};
-	  const errors = [];
-	
-	  document.querySelectorAll(".card-setting-checkbox").forEach(cb => {
-		const code = cb.getAttribute("data-card-code");
-		if (!code) return;
-		newSettings[code] = newSettings[code] || {};
-		newSettings[code].is_active = cb.checked;
+
+	  // Wire display order auto-swap
+	  tbody.querySelectorAll(".card-setting-order-select").forEach(sel => {
+		sel.addEventListener("change", () => {
+		  const code = sel.getAttribute("data-card-order");
+		  const newVal = sel.value === "" ? null : Number(sel.value);
+
+		  if (newVal != null) {
+			// Find if another card already has this order and swap
+			const oldHolder = Object.keys(workingCardSettings).find(c =>
+			  c !== code && workingCardSettings[c]?.sort_order === newVal
+			);
+			if (oldHolder) {
+			  const displaced = workingCardSettings[code]?.sort_order ?? null;
+			  workingCardSettings[oldHolder] = workingCardSettings[oldHolder] || {};
+			  workingCardSettings[oldHolder].sort_order = displaced;
+			}
+		  }
+
+		  workingCardSettings[code] = workingCardSettings[code] || {};
+		  workingCardSettings[code].sort_order = newVal;
+		  renderCardSettingsTab2();
+		});
 	  });
-	
+	}
+
+	function wireCardSettingsTabs() {
+	  document.querySelectorAll(".cs-tab-btn").forEach(btn => {
+		btn.replaceWith(btn.cloneNode(true));
+	  });
+	  document.querySelectorAll(".cs-tab-btn").forEach(btn => {
+		btn.addEventListener("click", () => {
+		  const target = btn.getAttribute("data-cs-tab");
+		  document.querySelectorAll(".cs-tab-btn").forEach(b =>
+			b.classList.toggle("is-active", b.getAttribute("data-cs-tab") === target));
+		  document.querySelectorAll(".cs-tab-content").forEach(c =>
+			c.classList.toggle("is-active", c.id === `cs-${target}`));
+		});
+	  });
+	}
+
+	function wireCardSettingsSaveButtons() {
+	  ["btnSaveCardSettings", "btnSaveCardSettings2"].forEach(id => {
+		const btn = document.getElementById(id);
+		if (!btn) return;
+		btn.replaceWith(btn.cloneNode(true));
+		document.getElementById(id).addEventListener("click", handleSaveCardSettings);
+	  });
+	}
+
+	function handleSaveCardSettings() {
+	  const errorEl1 = document.getElementById("cardSettingsError");
+	  const errorEl2 = document.getElementById("cardSettingsError2");
+	  [errorEl1, errorEl2].forEach(el => {
+		if (el) { el.style.display = "none"; el.textContent = ""; }
+	  });
+
+	  const errors = [];
+
+	  // Read anniversary values from Tab 2
 	  document.querySelectorAll(".card-setting-anniv-input").forEach(input => {
 		const code = input.getAttribute("data-card-anniv");
 		if (!code) return;
 		const val = input.value.trim();
-		if (!val) return; // empty = no override, use registry default
-	
-		// Validate MM-DD format
+		if (!val) {
+		  if (workingCardSettings[code]) delete workingCardSettings[code].anniversary_start;
+		  return;
+		}
 		const match = val.match(/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/);
 		if (!match) {
 		  errors.push(`${CARDS[code]?.label || code}: "${val}" is not a valid MM-DD date`);
 		  return;
 		}
-		newSettings[code] = newSettings[code] || {};
-		newSettings[code].anniversary_start = val;
+		workingCardSettings[code] = workingCardSettings[code] || {};
+		workingCardSettings[code].anniversary_start = val;
 	  });
-	
+
+	  // Read override points value from Tab 2
+	  document.querySelectorAll(".card-setting-pv-input").forEach(input => {
+		const code = input.getAttribute("data-card-pv");
+		if (!code) return;
+		const val = input.value.trim();
+		if (!val) {
+		  if (workingCardSettings[code]) delete workingCardSettings[code].pointValue;
+		  return;
+		}
+		const num = parseFloat(val);
+		if (isNaN(num) || num < 0 || num > 10) {
+		  errors.push(`${CARDS[code]?.label || code}: points value "${val}¢" must be between 0 and 10¢`);
+		  return;
+		}
+		workingCardSettings[code] = workingCardSettings[code] || {};
+		workingCardSettings[code].pointValue = num / 100;
+	  });
+
 	  if (errors.length > 0) {
-		errorEl.textContent = errors.join(" · ");
-		errorEl.style.display = "block";
+		const msg = errors.join(" · ");
+		[errorEl1, errorEl2].forEach(el => {
+		  if (el) { el.textContent = msg; el.style.display = "block"; }
+		});
 		return;
 	  }
-	
-	  const ok = saveUserCardSettings(newSettings);
+
+	  const ok = saveUserCardSettings(workingCardSettings);
 	  if (!ok) {
-		errorEl.textContent = "Save failed — localStorage may be full.";
-		errorEl.style.display = "block";
+		const msg = "Save failed — localStorage may be full.";
+		[errorEl1, errorEl2].forEach(el => {
+		  if (el) { el.textContent = msg; el.style.display = "block"; }
+		});
 		return;
 	  }
-	
+
 	  window.location.reload();
 	}
-	
-	function renderActiveCardsSummary() {
+
+		function renderActiveCardsSummary() {
 	  const el = document.getElementById("activeCardsSummary");
 	  if (!el) return;
 	
@@ -11863,19 +12134,34 @@
 
     let lastRecommendation = null;
     
+  // In-memory working copy — initialized from localStorage when panel opens,
+  // written to localStorage only on Save All. Survives tab switches within a session.
+  let workingCardSettings = null;
+
+  function initWorkingCardSettings() {
+    // Always re-read from localStorage so we start from last known good state
+    workingCardSettings = loadUserCardSettings();
+    // Ensure every card has an entry
+    for (const code of Object.keys(CARDS)) {
+      if (!workingCardSettings[code]) workingCardSettings[code] = {};
+    }
+  }
+
     const CARDS_REGISTRY_DEFAULTS = {};
 	
 	function applyUserCardSettingsToRegistry() {
 	  const settings = loadUserCardSettings();
-	
+
 	  // Snapshot raw registry defaults before any mutation
 	  for (const [code, card] of Object.entries(CARDS)) {
 		CARDS_REGISTRY_DEFAULTS[code] = {
 		  is_active: card.is_active,
-		  anniversary_start: card.anniversary_start
+		  anniversary_start: card.anniversary_start,
+		  sort_order: card.sort_order,
+		  pointValue: card.pointValue
 		};
 	  }
-	
+
 	  for (const [code, overrides] of Object.entries(settings)) {
 		if (!CARDS[code]) continue;
 		if (typeof overrides.is_active === "boolean") {
@@ -11883,6 +12169,12 @@
 		}
 		if (overrides.anniversary_start) {
 		  CARDS[code].anniversary_start = `2000-${overrides.anniversary_start}`;
+		}
+		if (overrides.sort_order != null) {
+		  CARDS[code].sort_order = overrides.sort_order;
+		}
+		if (overrides.pointValue != null) {
+		  CARDS[code].pointValue = overrides.pointValue;
 		}
 	  }
 	}
