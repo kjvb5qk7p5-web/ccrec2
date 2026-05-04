@@ -2204,34 +2204,27 @@
 
   .cs-tabs {
     display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 8px;
+    gap: 0;
     margin-bottom: 14px;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
+    border-bottom: 2px solid var(--border);
   }
 
   .cs-tab-btn {
-    appearance: none;
-    border: 1px solid var(--border);
-    background: #fff;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
     color: var(--text-soft);
-    border-radius: 999px;
-    padding: 7px 12px;
-    font-size: 0.84rem;
-    font-weight: 700;
-    line-height: 1;
     cursor: pointer;
-    box-shadow: none;
-    white-space: nowrap;
     width: auto;
   }
 
   .cs-tab-btn.is-active {
-    background: var(--primary-soft);
     color: var(--primary);
-    border-color: #bfd3ff;
+    border-bottom-color: var(--primary);
   }
 
   .cs-tab-content {
