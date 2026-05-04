@@ -2281,24 +2281,24 @@
     font-size: 0.78rem;
     padding: 3px 2px;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 999px;
     width: 52px;
     min-width: 0 !important;
     max-width: 52px;
     box-sizing: border-box;
     text-align: center;
     text-align-last: center;
+    display: inline-block;
+  }
+  
+  #cardSettingsTab2Table td:nth-child(3) {
+    text-align: left;
   }
 
   #cardSettingsTab2Table .cs-details-select {
     display: inline-block;
   }
 
-  #cardSettingsTab2Table th:nth-child(3),
-  #cardSettingsTab2Table td:nth-child(3) {
-    text-align: center;
-  }
-  
   #cardSettingsTab2Table input,
 	  #cardSettingsTab2Table select {
 		min-width: 0;
@@ -3771,7 +3771,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.0</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.1</button>
   </div>
 
   <script>
