@@ -2204,29 +2204,34 @@
 
   .cs-tabs {
     display: flex;
-    gap: 4px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
     margin-bottom: 14px;
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 0;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .cs-tab-btn {
-    background: none;
-    border: none;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    padding: 6px 14px;
-    font-size: 0.85rem;
-    font-weight: 700;
+    appearance: none;
+    border: 1px solid var(--border);
+    background: #fff;
     color: var(--text-soft);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1;
     cursor: pointer;
-    border-radius: 0;
+    box-shadow: none;
+    white-space: nowrap;
     width: auto;
   }
 
   .cs-tab-btn.is-active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+    background: var(--primary-soft);
+    color: var(--primary);
+    border-color: #bfd3ff;
   }
 
   .cs-tab-content {
@@ -3469,7 +3474,7 @@
   <div class="card merch-input admin-card">
     <button class="section-header-btn" onclick="toggleSection('manageMerchantOffers')" type="button">
       <div class="section-title-wrap">
-        <div class="section-kicker">Admin + maintenance</div>
+        <div class="section-kicker">Maintenance</div>
         <h3 style="margin:0;">Manage Merchant Offers</h3>
         <p class="section-subtitle">Add, edit, or remove offers</p>
         <div id="section-summary-manageMerchantOffers" class="section-collapsed-summary"></div>
@@ -3789,7 +3794,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.1</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.1b</button>
   </div>
 
   <script>
@@ -9902,26 +9907,43 @@
 	  // Find next expiry date and count offers on that date
 	  let moMetaLines = [];
 	  if (expiringSoonOffers.length > 0) {
-		moMetaLines.push(`${expiringSoonOffers.length} expiring soon`);
-	  }
-	  if (expiringSoonOffers.length > 0) {
-		const nextDate = expiringSoonOffers[0].endDate;
+		const nextDate = expiringSoonOffers[0].endDate; // sort already puts earliest first
 		const offersOnNextDate = expiringSoonOffers.filter(b => b.endDate === nextDate);
-		const dateLabel = formatDisplayDateShort(nextDate);
+	
+		// Only show "X expiring soon" if there are more offers beyond the next-expiry group
+		if (offersOnNextDate.length < expiringSoonOffers.length) {
+		  moMetaLines.push(`${expiringSoonOffers.length} expiring soon`);
+		}
+	
+		// Friendly date label: today / tomorrow / on <date>
+		const nextDateObj = parseISODateLocal(nextDate);
+		const todayDateObj = getTodayDate();
+		const tomorrowDateObj = new Date(todayDateObj);
+		tomorrowDateObj.setDate(tomorrowDateObj.getDate() + 1);
+	
+		let dateLabel;
+		if (nextDateObj && nextDateObj.toDateString() === todayDateObj.toDateString()) {
+		  dateLabel = "today";
+		} else if (nextDateObj && nextDateObj.toDateString() === tomorrowDateObj.toDateString()) {
+		  dateLabel = "tomorrow";
+		} else {
+		  dateLabel = `on ${formatDisplayDateShort(nextDate)}`;
+		}
+	
 		if (offersOnNextDate.length === 1) {
 		  moMetaLines.push(`${escapeHtml(offersOnNextDate[0].merchant || "Offer")} expires ${escapeHtml(dateLabel)}`);
 		} else {
-		  moMetaLines.push(`${offersOnNextDate.length} offers expire on ${escapeHtml(dateLabel)}`);
+		  moMetaLines.push(`${offersOnNextDate.length} offers expire ${escapeHtml(dateLabel)}`);
 		}
 	  } else {
-		moMetaLines.push("No active expiring-soon offers right now");
+		moMetaLines.push("No merchant offers are expiring soon");
 	  }
 	
 	  // Native meta lines
 	  let nativeMetaLines = [];
-	  nativeMetaLines.push(`$${formatUsageAmount(nativeRemainingTotal)} still available across current time windows`);
+	  nativeMetaLines.push(`$${formatUsageAmount(nativeRemainingTotal)} still available`);
 	  if (nativeNewThisWeek > 0) {
-		nativeMetaLines.push(`${nativeNewThisWeek} recurring benefit${nativeNewThisWeek === 1 ? "" : "s"} became available in the last week`);
+		nativeMetaLines.push(`${nativeNewThisWeek} recurring benefit${nativeNewThisWeek === 1 ? "" : "s"} became available recently`);
 	  }
 	  if (nativeExpiringSoon > 0) {
 		nativeMetaLines.push(`${nativeExpiringSoon} expiring soon`);
