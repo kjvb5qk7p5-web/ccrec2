@@ -3787,7 +3787,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.2a</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.2b</button>
   </div>
 
   <script>
@@ -7144,7 +7144,7 @@
 	  });
 	
 	  // Normalize sort orders before save — strip duplicates and out-of-range values
-	  normalizeWorkingCardSortOrders();
+	  const ordersNormalized = normalizeWorkingCardSortOrders();
 	
 	  // Guard: at least one card must be active
 	  if (getActiveCardCountFromWorking() === 0) {
@@ -7190,7 +7190,10 @@
 	  pvSources.forEach(({ code, val }) => {
 		if (!code) return;
 		if (!val) {
-		  if (workingCardSettings[code]) delete workingCardSettings[code].pointValue;
+		  if (workingCardSettings[code]) {
+			delete workingCardSettings[code].pointValue;
+			delete workingCardSettings[code].pointValuePending;
+		  }
 		  return;
 		}
 		const match = val.match(/^(?:\d+|\d*\.\d{1,4})$/);
@@ -7205,6 +7208,7 @@
 		}
 		workingCardSettings[code] = workingCardSettings[code] || {};
 		workingCardSettings[code].pointValue = num / 100;
+		delete workingCardSettings[code].pointValuePending;
 	  });
 
 	  if (errors.length > 0) {
@@ -7224,7 +7228,66 @@
 		return;
 	  }
 
+	  if (ordersNormalized) {
+		// Brief warning before reload — user will see updated state after page refreshes
+		[errorEl1, errorEl2].forEach(el => {
+		  if (el) { el.textContent = "Some duplicate or invalid display orders were reset."; el.style.display = "block"; }
+		});
+	  }
+	  // NOTE: if reload is ever removed in favor of live settings application,
+	  // lastRecommendation must be cleared here to prevent stale recommendations.
 	  window.location.reload();
+	}
+	
+	function normalizeImportedUserCardSettings(raw) {
+	  if (!raw || typeof raw !== "object") return {};
+	  const normalized = {};
+	
+	  for (const [code, overrides] of Object.entries(raw)) {
+		if (!CARDS[code]) continue; // only known card codes
+		if (typeof overrides !== "object" || overrides === null) continue;
+	
+		const entry = {};
+	
+		if (typeof overrides.is_active === "boolean") {
+		  entry.is_active = overrides.is_active;
+		}
+	
+		if (overrides.anniversary_start != null) {
+		  const val = String(overrides.anniversary_start).trim();
+		  if (isValidMonthDay(val)) entry.anniversary_start = val;
+		}
+	
+		if (overrides.sort_order != null) {
+		  const val = Number(overrides.sort_order);
+		  if (Number.isInteger(val) && val >= 1 && val <= 50) {
+			entry.sort_order = val;
+		  }
+		}
+	
+		if (overrides.pointValue != null) {
+		  const val = Number(overrides.pointValue);
+		  if (Number.isFinite(val) && val >= 0 && val <= 0.10) {
+			entry.pointValue = val;
+		  }
+		}
+	
+		normalized[code] = entry;
+	  }
+	
+	  // Strip duplicate sort_order values across cards
+	  const seen = new Set();
+	  for (const entry of Object.values(normalized)) {
+		if (entry.sort_order != null) {
+		  if (seen.has(entry.sort_order)) {
+			delete entry.sort_order;
+		  } else {
+			seen.add(entry.sort_order);
+		  }
+		}
+	  }
+	
+	  return normalized;
 	}
 	
 	function isValidMonthDay(mmdd) {
@@ -9190,6 +9253,7 @@
 	  for (const code of toStrip) {
 		delete workingCardSettings[code].sort_order;
 	  }
+	  return toStrip.length > 0;
 	}
 
     // ---------- Transactions storage ----------
@@ -9389,7 +9453,8 @@
           // Ask for confirmation
           const txCount = data.transactions.length;
           const benefitCount = data.merchantBenefits.length;
-          const msg = `Import ${txCount} transactions and ${benefitCount} merchant offers?\n\nThis will REPLACE all current data.`;
+          const hasCardSettings = data.userCardSettings && typeof data.userCardSettings === "object";
+          const msg = `Import ${txCount} transactions and ${benefitCount} merchant offers${hasCardSettings ? " and card settings" : ""}?\n\nThis will REPLACE all current data — including your transactions, merchant offers${hasCardSettings ? ", and card settings (active cards, anniversaries, point values, display order)" : ""}.\n\nThis cannot be undone.`;
           
           if (!confirm(msg)) {
             return;
@@ -9458,9 +9523,20 @@
 		}
 		
 		if (data.userCardSettings && typeof data.userCardSettings === "object") {
-		  saveUserCardSettings(data.userCardSettings);
+		  const settingsOk = saveUserCardSettings(normalizeImportedUserCardSettings(data.userCardSettings));
+		  if (!settingsOk) {
+			// Roll back transactions and offers
+			const txRollbackOk = saveTransactions(oldTxs);
+			const benefitRollbackOk = saveMerchantBenefits(oldBenefits);
+			if (!txRollbackOk || !benefitRollbackOk) {
+			  alert("⚠️ Critical: import failed AND rollback failed. Your data may be corrupted. Export immediately and reload the page.");
+			} else {
+			  showToast("⚠️ Import failed — card settings could not be saved. No changes were applied.");
+			}
+			return;
+		  }
 		}
-		
+
 		applyUserCardSettingsToRegistry();
 		renderCardSettingsPanel();		
 
@@ -9480,6 +9556,9 @@
 		renderActiveCardsHeroStrip();
 		renderStateSummary();
 		renderRollingAnnualSummary();
+		computeSectionSummaries();
+		renderSectionStates();
+		renderAdminPanel();
 		
 		const importedTxCount = normalizedTxs.length;
 		const importedBenefitCount = normalizedBenefits.length;
@@ -12303,14 +12382,27 @@
 	function applyUserCardSettingsToRegistry() {
 	  const settings = loadUserCardSettings();
 
-	  // Snapshot raw registry defaults before any mutation
-	  for (const [code, card] of Object.entries(CARDS)) {
-		CARDS_REGISTRY_DEFAULTS[code] = {
-		  is_active: card.is_active,
-		  anniversary_start: card.anniversary_start,
-		  sort_order: card.sort_order,
-		  pointValue: card.pointValue
-		};
+	  // On first call: snapshot raw registry defaults before any mutation
+	  // On subsequent calls: restore from snapshot before re-applying overrides
+	  const isFirstCall = Object.keys(CARDS_REGISTRY_DEFAULTS).length === 0;
+	  if (isFirstCall) {
+		for (const [code, card] of Object.entries(CARDS)) {
+		  CARDS_REGISTRY_DEFAULTS[code] = {
+			is_active: card.is_active,
+			anniversary_start: card.anniversary_start,
+			sort_order: card.sort_order,
+			pointValue: card.pointValue
+		  };
+		}
+	  } else {
+		// Restore CARDS to raw defaults before re-applying overrides
+		for (const [code, defaults] of Object.entries(CARDS_REGISTRY_DEFAULTS)) {
+		  if (!CARDS[code]) continue;
+		  CARDS[code].is_active = defaults.is_active;
+		  CARDS[code].anniversary_start = defaults.anniversary_start;
+		  CARDS[code].sort_order = defaults.sort_order;
+		  CARDS[code].pointValue = defaults.pointValue;
+		}
 	  }
 
 	  for (const [code, overrides] of Object.entries(settings)) {
@@ -12334,16 +12426,34 @@
       const dateInput = document.getElementById("date");
       dateInput.value = formatTodayISO();
     }
+    
+    function getScoreValueDisplayModel(score) {
+	  const merchantOfferValue = Number(score.part0 || 0);
+	  const cardBenefitValue = Number(score.part1 || 0);
+	  const pointsValue = Number(score.part2 || 0);
+	  const nonMonetaryNudge = Number(score.part3 || 0);
+	  const monetaryTotal = merchantOfferValue + cardBenefitValue + pointsValue;
+	  const rankingTotal = monetaryTotal + nonMonetaryNudge;
+	  return {
+		merchantOfferValue,
+		cardBenefitValue,
+		pointsValue,
+		nonMonetaryNudge,
+		monetaryTotal,
+		rankingTotal
+	  };
+	}
 
 	function buildValueTableHtml(score, showMoColumn) {
-	  const mo = showMoColumn ? formatUsageAmount(score.part0) : null;
-	  const cb = formatUsageAmount(score.part1);
-	  const pts = formatUsageAmount(score.part2);
-	  const total = formatUsageAmount(score.total);
+	  const model = getScoreValueDisplayModel(score);
+	  const mo = showMoColumn ? formatUsageAmount(model.merchantOfferValue) : null;
+	  const cb = formatUsageAmount(model.cardBenefitValue);
+	  const pts = formatUsageAmount(model.pointsValue);
+	  const total = formatUsageAmount(model.monetaryTotal);
 
-	  const moIsZero = score.part0 === 0;
-	  const cbIsZero = score.part1 === 0;
-	  const ptsIsZero = score.part2 === 0;
+	  const moIsZero = model.merchantOfferValue === 0;
+	  const cbIsZero = model.cardBenefitValue === 0;
+	  const ptsIsZero = model.pointsValue === 0;
 
 	  const gridClass = showMoColumn ? "has-mo" : "no-mo";
 
@@ -12520,7 +12630,9 @@
 		escapeHtml(channelLabelPlain);
 	
 	  const winnerScoreForChip = rec.allCardScores?.[0];
-	  const totalValueForChip = winnerScoreForChip?.total ?? 0;
+	  const totalValueForChip = winnerScoreForChip
+		? getScoreValueDisplayModel(winnerScoreForChip).monetaryTotal
+		: 0;
 	  const valueChipHtml = `
 		<div class="rec-value-chip">
 		  Total value
@@ -12569,7 +12681,7 @@
 		  const cardMeta = CARDS[score.card] || {};
 
 		  const alsoChipHtml = `
-			<span class="rec-also-value-chip">Total value $${formatUsageAmount(score.total)}</span>`;
+			<span class="rec-also-value-chip">Total value $${formatUsageAmount(getScoreValueDisplayModel(score).monetaryTotal)}</span>`;
 
 		  const alsoTableHtml = buildValueTableHtml(score, showMoColumn);
 		  const alsoWhyHtml = buildWhyThisWinsHtml(score, lastRecommendation?.purchase, score.cardAnalysis);
