@@ -2279,13 +2279,31 @@
 
   .cs-details-select {
     font-size: 0.78rem;
-    padding: 3px 0px;
+    padding: 3px 2px;
     border: 1px solid var(--border);
     border-radius: 6px;
-    width: 42px;
-    max-width: 42px;
+    width: 52px;
+    min-width: 0 !important;
+    max-width: 52px;
+    box-sizing: border-box;
+    text-align: center;
+    text-align-last: center;
+  }
+
+  #cardSettingsTab2Table .cs-details-select {
+    display: inline-block;
+  }
+
+  #cardSettingsTab2Table th:nth-child(3),
+  #cardSettingsTab2Table td:nth-child(3) {
     text-align: center;
   }
+  
+  #cardSettingsTab2Table input,
+	  #cardSettingsTab2Table select {
+		min-width: 0;
+		box-sizing: border-box;
+	  }
 
   .cs-tab1-list {
     display: flex;
@@ -3709,11 +3727,11 @@
           <table class="cs-details-table" id="cardSettingsTab2Table">
             <thead>
               <tr>
-                <th style="width:28%;">Card</th>
+                <th style="width:26%;">Card</th>
                 <th style="width:18%;">Anniversary</th>
-                <th style="width:12%;">Display Order</th>
+                <th style="width:20%;">Display Order</th>
                 <th style="width:18%;">Default Points Values</th>
-                <th style="width:24%;">Override Points Values</th>
+                <th style="width:18%;">Override Points Values</th>
               </tr>
             </thead>
             <tbody id="cardSettingsTab2Body"></tbody>
