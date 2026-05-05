@@ -3787,7 +3787,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.2.2</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.2.2b</button>
   </div>
 
   <script>
@@ -10970,10 +10970,10 @@
 	
 	function getCardBenefitUsageDisplay(row) {
 	  if (row.fullyUsed) {
-			return `$${formatUsageAmount(row.usedAmount || 0)} of $${formatUsageAmount(row.limitAmount || 0)} used`;
-		  }
-		  return `$${formatUsageAmount(row.remainingAmount || 0)} left`;
-		}
+		return `$${formatUsageAmount(row.usedAmount || 0)} used`;
+	  }
+	  return `$${formatUsageAmount(row.remainingAmount || 0)} left`;
+	}
 		
 		function getCardBenefitExpandedDetails(row) {
 	  const details = [];
@@ -11290,7 +11290,8 @@
 	  return "other";
 	}
 	
-	function getMerchantOfferStatusLabel({ expiringSoon }) {
+	function getMerchantOfferStatusLabel({ expiringSoon, fullyUsed }) {
+	  if (fullyUsed) return "Used up";
 	  return expiringSoon ? "Expiring soon" : "Available";
 	}
 	
@@ -11392,14 +11393,18 @@
 	  for (const benefit of benefitsSorted) {
 		if (!isCardActive(benefit.card)) continue;
 		const s = getMerchantOfferState(benefit, merchantState, todayDate);
-		if (s.expired || s.fullyUsed) continue;
+		if (s.expired) continue;
 
 		const { used, txCount, expiringSoon, totalLimit } = s;
 		const hasTotalCap = totalLimit != null;
 		const filterKey = getMerchantOfferSummaryFilterKey(benefit);
 
 		let remainingValueText = "";
-		if (hasTotalCap) {
+		if (s.fullyUsed) {
+		  remainingValueText = hasTotalCap
+			? `$${formatUsageAmount(s.used)} used`
+			: `${s.txCount} of ${benefit.maxTransactions} purchases used`;
+		} else if (hasTotalCap) {
 		  remainingValueText = `$${formatUsageAmount(s.remainingValue ?? 0)} left`;
 		} else if (benefit.limitType === "per_tx" && benefit.limitValue != null) {
 		  remainingValueText = `$${formatUsageAmount(benefit.limitValue)} / tx`;
@@ -11411,8 +11416,8 @@
 		  icon: benefit.icon || getCategoryIcon(getDisplayCategoryForMerchantBenefit(benefit)),
 		  merchant: benefit.merchant || "Merchant offer",
 		  shortDescription: getMerchantOfferShortDescription(benefit),
-		  statusLabel: getMerchantOfferStatusLabel({ expiringSoon }),
-		  statusClass: expiringSoon ? "expiring-soon" : "available",
+		  statusLabel: getMerchantOfferStatusLabel({ expiringSoon, fullyUsed: s.fullyUsed }),
+		  statusClass: s.fullyUsed ? "used-up" : expiringSoon ? "expiring-soon" : "available",
 		  remainingValueText,
 		  expiringSoon,
 		  filterKey,
