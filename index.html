@@ -7990,14 +7990,14 @@
 	
 	function getBenefitStateTimeLabel(benefit, today = new Date()) {
 	  if (benefit.cadence === "monthly") return "Monthly";
+	  if (benefit.cadence === "quarter") return "Quarterly";
 	  if (benefit.cadence === "semiannual") return getSemiannualLabel(today);
 	
 	  if (benefit.cadence === "annual") {
-		if (benefit.cadence_type === "card_anniversary") return "Annual";
-		return "Annual (YTD)";
+		if (benefit.cadence_type === "card_anniversary") return "Annual (card anniversary)";
+		return "Annual (calendar year)";
 	  }
-	  
-	  if (benefit.cadence === "quarter") return "Quarterly";
+	
 	  if (benefit.cadence === "quadrennial") return "Every 4 years";
 	
 	  return "";
@@ -10747,24 +10747,7 @@
 		  channelRequirement = CHANNEL_LABELS[benefit.channel];
 		}
 	
-		let windowExplanation = "";
-		if (benefit.cadence === "monthly") {
-		  windowExplanation = "Monthly";
-		} else if (benefit.cadence === "quarter") {
-		  windowExplanation = benefit.cadence_type === "card_anniversary"
-			? "Quarterly from cardmember anniversary"
-			: "Quarterly";
-		} else if (benefit.cadence === "semiannual") {
-		  windowExplanation = getSemiannualLabel(today);
-		} else if (benefit.cadence === "quadrennial") {
-		  windowExplanation = "Every 4 years";
-		} else if (benefit.cadence === "annual") {
-		  windowExplanation = benefit.cadence_type === "card_anniversary"
-			? "Annual from cardmember anniversary"
-			: "Annual (calendar year)";
-		} else {
-		  windowExplanation = getBenefitStateTimeLabel(benefit, today);
-		}
+		const windowExplanation = getBenefitStateTimeLabel(benefit, today);
 	
 		rows.push({
 		  id: benefit.id,
