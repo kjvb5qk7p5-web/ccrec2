@@ -4244,7 +4244,7 @@
 	
 	  // ev_charging excluded: T&C specifies gasoline stations only (different MCC)
 	  eligible_fn: (tx) => tx.category === "gas",
-	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) * 0.03, remaining),
+	  value_fn: (tx, remaining) => Number(tx.amount) * 0.03,
 	
 	  reason_yes:
 		"Use Blue Cash Preferred at U.S. gas stations for 3% cash back. Excludes gas purchased at superstores, supermarkets, and warehouse clubs.",
@@ -4290,7 +4290,7 @@
 		"lyft",
 		"rideshare_other",
 	  ]).has(tx.category),
-	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) * 0.03, remaining),
+	  value_fn: (tx, remaining) => Number(tx.amount) * 0.03,
 	
 	  reason_yes:
 		"Use Blue Cash Preferred on transit and rideshare for 3% cash back. Covers trains, subways, buses, taxis, rideshare, ferries, tolls, and parking. Note: airfare, car rental, and cruises do not qualify.",
@@ -4330,7 +4330,7 @@
 	  channel: "direct",
 	
 	  eligible_fn: () => true,
-	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) * 0.01, remaining),
+	  value_fn: (tx, remaining) => Number(tx.amount) * 0.01,
 	
 	  reason_yes:
 		"Use Blue Cash Preferred for 1% cash back on all other purchases.",
