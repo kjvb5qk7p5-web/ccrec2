@@ -3787,7 +3787,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.1.3</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.2</button>
   </div>
 
   <script>
@@ -7519,7 +7519,8 @@
 		const d = parseISODateLocal(tx.date);
 		if (!d) continue;
 		if (d < window.start || d >= window.end) continue;
-	
+		if (d > today) continue; // exclude future-dated transactions from current usage
+
 		const applied = Number(tx.cardBenefitApplied) || 0;
 		used += applied;
 		const benefitMeta = CARD_BENEFITS_BY_ID[benefitId];
@@ -9499,6 +9500,7 @@
 			b.category &&
 			getRegistryLeaf(CATEGORY_REGISTRY, b.category) != null &&
 			b.discountValue > 0 &&
+			!(b.discountType === "percent" && b.discountValue > 100) &&
 			(b.maxTransactions == null || b.maxTransactions > 0) &&
 			(b.limitValue == null || b.limitValue > 0) &&
 			(b.minSpend == null || b.minSpend > 0)
@@ -11110,46 +11112,7 @@
 	  return best;
 	}
 	
-	function getBaseFallbackRecommendation_OLD(category) {
-	  const ranking = computeEarningRanking(category);
-	
-	  if (!ranking.length) {
-		return {
-		  card: "CSR", channel: null,
-		  reason: "Default to Chase Sapphire for flexible points.",
-		  earningRanking: [], winnerRateNoChannel: null, runnerUp: null
-		};
-	  }
-	
-	  const winner = ranking[0];
-	
-	  // Rate without channel — only relevant if winner requires a portal
-	  const winnerRateNoChannel = winner.channel
-		? getBestEarningRuleNoChannel(CARDS[winner.card], category).rate
-		: null;
-	
-	  // Runner-up: next card with rate > 1 that's strictly worse than winner
-	  const runnerUp = ranking.find(
-		r => r.card !== winner.card && r.rate > 1 && r.effectivePct < winner.effectivePct
-	  ) || null;
-	
-	  const channelText = !isNullChannel(winner.channel)
-		? ` ${CHANNEL_LABELS[winner.channel] || winner.channel}`
-		: "";
-	
-	  const reason = `use ${CARDS[winner.card]?.label} to earn ${winner.rate}x points${channelText}.`;
-	
-	  return {
-		card: winner.card,
-		channel: winner.channel || null,
-		reason,
-		earningRanking: ranking,
-		winnerRateNoChannel,
-		runnerUp
-	  };
-	}
-	
-	function getBestEarningRuleForCategory(card, categoryKey) {
+		function getBestEarningRuleForCategory(card, categoryKey) {
 	  const leaf = getRegistryLeaf(CATEGORY_REGISTRY, categoryKey);
 	  const groupKey = leaf?.group_key || "";
 	  const parentKey = leaf?.parent_key || "";
@@ -12943,6 +12906,10 @@
 	    alert("Please enter a valid positive amount.");
 	    return;
 	  }
+	  if (parsedAmount > 99999) {
+	    alert("Amount seems unusually large. Please check and re-enter.");
+	    return;
+	  }
     
       const txs = loadTransactions();
       const benefits = loadMerchantBenefits();
@@ -13126,6 +13093,8 @@
 		populateCategorySelect();
 		populateMerchantBenefitCategorySelect();
 		renderMerchantBenefits();
+		computeSectionSummaries();
+		renderSectionStates();
 	
 		hideFloatingSaveBar();
 		document.getElementById("recommendationSection").style.display = "none";
@@ -13200,6 +13169,8 @@
 	  populateCategorySelect();
 	  populateMerchantBenefitCategorySelect();
 	  renderMerchantBenefits();
+	  computeSectionSummaries();
+	  renderSectionStates();
 	});
 
 	// Add merchant offer / merchant benefit
@@ -13228,7 +13199,20 @@
 			alert("Please fill at least Merchant, Card, Discount type/value, End date, and Category.");
 			return;
 		  }
-		
+		  if (!isValidISODate(endDate)) {
+			alert("Please enter a valid end date.");
+			return;
+		  }
+		  if (isValidISODate(endDate)) {
+			const endDateObj = parseISODateLocal(endDate);
+			const todayObj = getTodayDate();
+			if (endDateObj && todayObj && endDateObj < todayObj) {
+			  if (!confirm("The end date is in the past — this offer will appear as expired immediately. Save anyway?")) {
+				return;
+			  }
+			}
+		  }
+
 		  // Validate that category is actually valid
 			const validCategories = Object.keys(CATEGORY_REGISTRY.leaves || {});
 			if (!validCategories.includes(category)) {
@@ -13254,7 +13238,11 @@
 			alert("Discount value must be a positive number.");
 			return;
 		  }
-		
+		  if (discountType === "percent" && discountValue > 100) {
+			alert("Percent discount cannot exceed 100%.");
+			return;
+		  }
+
 		  let limitValue = null;
 		  if (limitValueRaw !== "") {
 			limitValue = Number(limitValueRaw);
@@ -13425,6 +13413,8 @@
 		renderRollingAnnualSummary();
 		populateCategorySelect(); // merchant offers might re-open if usage drops
 		renderMerchantBenefits();
+		computeSectionSummaries();
+		renderSectionStates();
     });
       
     // Event delegation for benefit/offer actions (⋯ button → popover)
