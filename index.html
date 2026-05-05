@@ -4090,7 +4090,39 @@
 			{ rate: 1, isBase: true }
 		  ],
 	  earningRule_categories: ["delta_flight_threshold", "dining", "groceries", "delta_stays"]
-		}
+		},
+
+	AP: {
+	  code: "AP",
+	  short: "AP",
+	  label: "American Express Platinum",
+	  label_long: "The Platinum Card® from American Express",
+
+	  issuer: "American Express",
+	  network: "Amex",
+
+	  badgeClass: "ap",
+	  badgeBg: "#f0f0f0",
+	  badgeBorder: "#666666",
+	  badgeText: "#333333",
+
+	  anniversary_start: "2025-01-01",
+	  annualFee: 895,
+	  sort_order: 80,
+
+	  points_currency: "MR",
+	  transferable_points: true,
+	  is_active: true,
+	  pointValue: 0.02,
+	  earningRules: [
+		{ rate: 5, channel: null,          matchParents: ["flights"] },
+		{ rate: 5, channel: "amex_travel", matchParents: ["lodging"],  excludeLeaves: ["airbnb"] },
+		// vacation_rentals (parent_key:"lodging") earns 5X via amex_travel; airbnb excluded (can't book via AmexTravel)
+		{ rate: 2, channel: "amex_travel", matchLeaves: ["cruise"] },
+		{ rate: 1, isBase: true }
+	  ],
+	  earningRule_categories: ["other_flight", "fhr_hotel", "hotelcollection_hotel", "vacation_rentals", "other_hotel", "cruise"]
+	}
 	};
 	
 	const CARD_BENEFITS = [ // for any benefit that needs a new category, that category must also be added as a leaf in CATEGORY_REGISTRY and maybe also in CARDS if points multipliers exist
@@ -4139,6 +4171,7 @@
 		"marriott_hotel",
 		"theedit_hotel",
 		"hotelcollection_hotel",
+		"fhr_hotel",
 		"renowned_hotel",
 		"delta_stays",
 		"other_hotel",
@@ -4249,6 +4282,7 @@
 		"marriott_hotel",
 		"theedit_hotel",
 		"hotelcollection_hotel",
+		"fhr_hotel",
 		"renowned_hotel",
 		"delta_stays",
 		"other_hotel",
@@ -4376,6 +4410,7 @@
 		  "hyatt_hotel",            // ← new: CSR covers all hotel chains
 		  "airbnb",                 // ← new: CSR explicitly includes Airbnb (MCC 7011)
 		  "hotelcollection_hotel",
+		  "fhr_hotel",
 		  "hertz_rentalcar",        // ← new: CSR covers all rental car companies
 		  "national_rentalcar",     // ← new: CSR covers all rental car companies
 		  "avis_rentalcar",
@@ -5460,8 +5495,368 @@
 
 		allow_fallback: true,
 		counts_toward_annual_roi: false
-	  }	
-		
+	  },
+
+	/* =========================
+	   AMERICAN EXPRESS PLATINUM
+	   ========================= */
+
+	// TYPE 3 — NOT MODELED (subscription/membership, no active per-purchase decision):
+	// - $120 Uber One Credit (Uber One membership fee reimbursement)
+	// - $209 CLEAR+ Credit (CLEAR+ annual membership fee)
+	// - $300 Digital Entertainment Credit ($25/month: Disney+, ESPN, Hulu, NYT, Paramount+, Peacock, WSJ, YouTube)
+	// - $300 Equinox Credit (gym membership or Equinox+ subscription)
+	// - Walmart+ Monthly Membership Credit (up to $12.95/month)
+	// - 100,000 MR welcome bonus after $12,000 spend in first 6 months
+
+	{
+	  id: "ap_uber_cash",
+	  card: "AP",
+	  purchaseCategories: ["rideshare", "dining"],
+	  intentTags: ["uber", "rideshare", "takeout", "delivery"],
+	  merchantKeywords: ["uber", "uber eats", "postmates"],
+	  searchAliases: ["ride share", "food delivery"],
+
+	  label: "Uber Cash",
+	  labelHtml:
+	    '<a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> Cash',
+	  state_label: "Uber Cash",
+	  state_labelHtml:
+	    '<a href="https://www.uber.com" target="_blank" rel="noopener noreferrer">Uber</a> Cash',
+	  icon: "🚗🥡",
+
+	  categories: ["rideshare_other", "uber_eats"],
+	  summary_sort_category: "rideshare",
+
+	  cadence: "monthly",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 15,
+	  tx_cap: null,
+	  per_tx_cap: null,
+
+	  priority: 10,
+	  display_order: 700,
+	  channel: "uber_app",
+
+	  eligible_fn: (tx) =>
+	    tx.category === "rideshare_other" || tx.category === "uber_eats",
+
+	  value_fn: (tx, remaining) => {
+	    const month = new Date(tx.date).getMonth() + 1;
+	    const cap = month === 12 ? 20 : 15;
+	    return Math.min(Number(tx.amount) || 0, cap, remaining);
+	  },
+
+	  reason_yes:
+	    "Use AmEx Platinum on Uber / Uber Eats to use your monthly Uber Cash ($15/month, $20 in December).",
+	  reason_no:
+	    "Uber Cash for this month is used up; ",
+
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+
+	{
+	  id: "ap_airline_fee_credit",
+	  card: "AP",
+	  purchaseCategories: ["flights", "travel"],
+	  intentTags: ["flights", "airfare", "baggage", "seat upgrade", "airline fees"],
+	  merchantKeywords: ["delta", "united", "american airlines", "alaska airlines", "jetblue", "southwest", "spirit", "hawaiian"],
+	  searchAliases: ["airline fees", "checked bag", "baggage fee", "seat selection"],
+
+	  label: "Airline fee credit",
+	  labelHtml: "Airline fee credit",
+	  state_label: "Airline fee credit",
+	  state_labelHtml: "Airline fee credit",
+	  icon: "✈️",
+
+	  categories: ["united_flight", "delta_flight_threshold", "jsx_flight", "other_flight", "american_flight"],
+	  summary_sort_category: "travel",
+
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 200,
+	  tx_cap: null,
+	  per_tx_cap: null,
+
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	  // Modeled as non-monetary: app cannot distinguish incidental fees from ticket purchases;
+	  // surfaced as a reminder on any flight purchase for the user's pre-selected airline.
+
+	  priority: 100,
+	  display_order: 710,
+	  channel: "direct",
+
+	  eligible_fn: (tx) => new Set([
+	    "united_flight",
+	    "delta_flight_threshold",
+	    "jsx_flight",
+	    "other_flight",
+	    "american_flight",
+	  ]).has(tx.category),
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+
+	  reason_yes:
+	    "AmEx Platinum offers a $200 annual credit for incidental fees (checked bags, seat selection, in-flight purchases) on your one pre-selected airline. Enrollment and airline selection required at americanexpress.com. Not valid for ticket purchases, upgrades, or award fees.",
+	  reason_no:
+	    "This reason should not fire (ap_airline_fee_credit); ",
+
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
+
+	{
+	  id: "ap_oura",
+	  card: "AP",
+	  purchaseCategories: ["wellness", "health"],
+	  intentTags: ["oura", "smart ring", "health tracker", "wearable"],
+	  merchantKeywords: ["oura", "ouraring"],
+	  searchAliases: ["health ring", "wearable tracker"],
+
+	  label: "Oura Ring",
+	  labelHtml:
+	    '<a href="https://www.ouraring.com" target="_blank" rel="noopener noreferrer">Oura Ring</a>',
+	  state_label: "Oura Ring",
+	  state_labelHtml:
+	    '<a href="https://www.ouraring.com" target="_blank" rel="noopener noreferrer">Oura Ring</a>',
+	  icon: "💍",
+
+	  categories: ["oura_ring"],
+	  summary_sort_category: "wellness",
+
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 200,
+	  tx_cap: null,
+	  per_tx_cap: null,
+
+	  priority: 10,
+	  display_order: 720,
+	  channel: "oura_platform",
+
+	  eligible_fn: (tx) => tx.category === "oura_ring",
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+	  reason_yes:
+	    "Use AmEx Platinum at ouraring.com to apply the $200 annual Oura Ring credit. Enrollment required. Hardware purchases only — excludes membership, accessories, chargers, and third-party retailers.",
+	  reason_no:
+	    "AmEx Platinum Oura Ring annual credit is used up; ",
+
+	  allow_fallback: false,
+	  counts_toward_annual_roi: true
+	},
+
+	{
+	  id: "ap_lululemon",
+	  card: "AP",
+	  purchaseCategories: ["clothing"],
+	  intentTags: ["lululemon", "activewear", "workout clothes", "yoga"],
+	  merchantKeywords: ["lululemon"],
+	  searchAliases: ["workout gear", "activewear", "athletic wear"],
+
+	  label: "lululemon",
+	  labelHtml:
+	    '<a href="https://www.lululemon.com" target="_blank" rel="noopener noreferrer">lululemon</a>',
+	  state_label: "lululemon",
+	  state_labelHtml:
+	    '<a href="https://www.lululemon.com" target="_blank" rel="noopener noreferrer">lululemon</a>',
+	  icon: "🧘",
+
+	  categories: ["lululemon"],
+	  summary_sort_category: "clothing",
+
+	  cadence: "quarter",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 75,
+	  tx_cap: null,
+	  per_tx_cap: null,
+
+	  priority: 10,
+	  display_order: 730,
+	  channel: "direct",
+
+	  eligible_fn: (tx) => tx.category === "lululemon",
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+	  reason_yes:
+	    "Use AmEx Platinum at lululemon (in-store, lululemon.com, or app) to apply the $75 quarterly credit. Enrollment required. Excludes Studio, Like New, outlet, warehouse, and gift cards.",
+	  reason_no:
+	    "AmEx Platinum lululemon quarterly credit is used up; ",
+
+	  allow_fallback: false,
+	  counts_toward_annual_roi: true
+	},
+
+	{
+	  id: "ap_resy",
+	  card: "AP",
+	  purchaseCategories: ["dining"],
+	  intentTags: ["restaurant", "reservation", "dining", "resy"],
+	  merchantKeywords: ["resy"],
+	  searchAliases: ["restaurant booking", "dining credit"],
+
+	  label: "Resy dining",
+	  labelHtml:
+	    '<a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
+	  state_label: "Resy dining",
+	  state_labelHtml:
+	    '<a href="https://www.resy.com" target="_blank" rel="noopener noreferrer">Resy</a> dining',
+	  icon: "🍔",
+
+	  categories: ["resy"],
+	  summary_sort_category: "dining",
+
+	  cadence: "quarter",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 100,
+	  tx_cap: null,
+	  per_tx_cap: null,
+
+	  priority: 10,
+	  display_order: 740,
+	  channel: "resy",
+
+	  eligible_fn: (tx) => tx.category === "resy",
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+	  reason_yes:
+	    "Use AmEx Platinum at Resy restaurants to apply the $100 quarterly dining credit. Enrollment required. Restaurant must be live on Resy at time of purchase.",
+	  reason_no:
+	    "AmEx Platinum Resy quarterly dining credit is used up; ",
+
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+
+	{
+	  id: "ap_hotel",
+	  card: "AP",
+	  purchaseCategories: ["hotel", "lodging", "travel"],
+	  intentTags: ["hotel", "lodging", "luxury hotel", "fine hotels", "trip"],
+	  merchantKeywords: ["amex travel", "american express travel", "fine hotels resorts"],
+	  searchAliases: ["hotel credit", "hotel booking", "fhr", "fine hotels", "hotel collection"],
+
+	  label: "Fine Hotels + Resorts / The Hotel Collection",
+	  labelHtml:
+	    'Fine Hotels + Resorts / The Hotel Collection via <a href="https://www.amextravel.com" target="_blank" rel="noopener noreferrer">AmexTravel</a>',
+	  state_label: "Fine Hotels + Resorts / Hotel Collection",
+	  state_labelHtml:
+	    'Fine Hotels + Resorts / Hotel Collection via <a href="https://www.amextravel.com" target="_blank" rel="noopener noreferrer">AmexTravel</a>',
+	  icon: "🏨",
+
+	  categories: ["fhr_hotel", "hotelcollection_hotel"],
+	  summary_sort_category: "travel",
+
+	  cadence: "semiannual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 300,
+	  tx_cap: null,
+	  per_tx_cap: null,
+
+	  priority: 10,
+	  display_order: 750,
+	  channel: "amex_travel",
+
+	  eligible_fn: (tx) =>
+	    tx.category === "fhr_hotel" || tx.category === "hotelcollection_hotel",
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+	  reason_yes:
+	    "Book prepaid via AmexTravel to apply the $300 semi-annual hotel credit. Fine Hotels + Resorts (fhr_hotel) includes daily breakfast for 2, $100 on-property credit, and room upgrade. The Hotel Collection includes $100 on-property credit and room upgrade (2-night minimum). Enrollment required.",
+	  reason_no:
+	    "AmEx Platinum semi-annual hotel credit is used up; ",
+
+	  allow_fallback: false,
+	  counts_toward_annual_roi: true
+	},
+
+	{
+	  id: "ap_trusted_traveler",
+	  card: "AP",
+	  purchaseCategories: ["travel"],
+	  intentTags: ["tsa", "precheck", "global entry", "trusted traveler"],
+	  merchantKeywords: ["tsa precheck", "global entry"],
+	  searchAliases: ["application fee", "expedited travel", "customs", "border"],
+
+	  label: "Trusted Traveler fee",
+	  labelHtml: "Trusted Traveler fee",
+	  state_label: "Trusted Traveler fee",
+	  state_labelHtml: "Trusted Traveler fee",
+	  icon: "🛂",
+
+	  categories: ["trusted_traveler"],
+	  summary_sort_category: "travel",
+
+	  cadence: "quadrennial",
+	  start_date: "2025-01-01",
+	  cap_amount: 120,
+	  tx_cap: 1,
+	  per_tx_cap: null,
+
+	  priority: 10,
+	  display_order: 760,
+	  channel: "direct",
+
+	  eligible_fn: (tx) => tx.category === "trusted_traveler",
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+	  reason_yes:
+	    "Use AmEx Platinum to cover your TSA PreCheck ($85) or Global Entry ($120) application fee. Note: NEXUS, SENTRI, FAST, and Privium are not covered on AmEx Platinum.",
+	  reason_no:
+	    "AmEx Platinum Trusted Traveler fee credit is already used this period; ",
+
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+
+	{
+	  id: "ap_soulcycle",
+	  card: "AP",
+	  purchaseCategories: ["health"],
+	  intentTags: ["soulcycle", "exercise bike", "fitness equipment"],
+	  merchantKeywords: ["soulcycle", "equinox"],
+	  searchAliases: ["exercise equipment", "fitness bike"],
+
+	  label: "SoulCycle At-Home Bike",
+	  labelHtml:
+	    '<a href="https://www.equinoxplus.com/bike" target="_blank" rel="noopener noreferrer">SoulCycle At-Home Bike</a>',
+	  state_label: "SoulCycle At-Home Bike",
+	  state_labelHtml:
+	    '<a href="https://www.equinoxplus.com/bike" target="_blank" rel="noopener noreferrer">SoulCycle At-Home Bike</a>',
+	  icon: "🚲",
+
+	  categories: ["soulcycle"],
+	  summary_sort_category: "health",
+
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 300,
+	  tx_cap: 1,
+	  per_tx_cap: null,
+
+	  priority: 10,
+	  display_order: 770,
+	  channel: "soulcycle_platform",
+
+	  eligible_fn: (tx) => tx.category === "soulcycle",
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
+
+	  reason_yes:
+	    "Use AmEx Platinum at equinoxplus.com/bike to apply the $300 SoulCycle At-Home Bike credit. An Equinox+ membership is required to purchase. In-store and app purchases are not eligible.",
+	  reason_no:
+	    "AmEx Platinum SoulCycle bike credit is used up; ",
+
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	}
+
 	];
 	
 	const BASE_CATEGORY_FALLBACKS = { // every category used in a card benefit must also have an entry here, and exist in CATEGORY_REGISTRY
@@ -5699,6 +6094,30 @@
 		  reason: "Use Venture X on Capital One Entertainment for 5X miles on event tickets."
 		},
 	
+	  fhr_hotel: {
+	    card: "AP",
+	    channel: "amex_travel",
+	    reason: "Use AmEx Platinum through AmexTravel for Fine Hotels + Resorts perks and semi-annual hotel credit."
+	  },
+
+	  lululemon: {
+	    card: "AP",
+	    channel: "direct",
+	    reason: "Use AmEx Platinum at lululemon for the $75 quarterly credit."
+	  },
+
+	  oura_ring: {
+	    card: "AP",
+	    channel: "oura_platform",
+	    reason: "Use AmEx Platinum at ouraring.com for the $200 annual Oura Ring credit."
+	  },
+
+	  soulcycle: {
+	    card: "AP",
+	    channel: "soulcycle_platform",
+	    reason: "Use AmEx Platinum at equinoxplus.com/bike for the $300 SoulCycle At-Home Bike credit."
+	  },
+
 	  other: {
 		card: "CSR",
 		channel: "direct",
@@ -5760,7 +6179,11 @@
 		"freshdirect":  ["groceries", "delivery"],
 		"amazon fresh": ["groceries", "delivery"],
 		"good eggs":    ["groceries", "delivery"],
-	  "turo": ["car rental"]
+	  "turo": ["car rental"],
+	  "oura":      ["wellness", "wearable", "health"],
+	  "ouraring":  ["wellness", "wearable", "health"],
+	  "lululemon": ["clothing", "activewear"],
+	  "soulcycle": ["fitness", "exercise"]
 
 	};
 	
@@ -5811,6 +6234,10 @@
 	  pets: ["petco", "petsmart", "chewy"],                               // ← new category entirely
 	  streaming: ["netflix", "hulu", "disney+", "hbo max", "peacock", "spotify", "apple tv+", "youtube premium", "paramount+", "amazon prime video" // ← new category entirely
 	  ],
+	  fhr_hotel: [],
+	  lululemon: ["lululemon"],
+	  oura_ring: ["oura", "ouraring"],
+	  soulcycle: ["soulcycle"],
 	};
 	
 	// CATEGORY_REGISTRY v1:
@@ -6055,6 +6482,13 @@
 		  group_key: "travel",
 		  parent_key: "lodging",
 		},
+		fhr_hotel: {
+		  key: "fhr_hotel",
+		  label: "Hotel – Fine Hotels + Resorts (AmEx program)",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		},
 		renowned_hotel: {
 		  key: "renowned_hotel",
 		  label: "Hotel – Renowned (United program)",
@@ -6080,7 +6514,7 @@
 		},
 		vacation_rentals: {
 		  key: "vacation_rentals",
-		  label: "Vacation rentals on Capital One",
+		  label: "Vacation rentals – VRBO, etc.",
 		  icon: "🏡",
 		  group_key: "travel",
 		  parent_key: "lodging",
@@ -6198,6 +6632,12 @@
 		  icon: "🚲",
 		  group_key: "health",
 		},
+		soulcycle: {
+		  key: "soulcycle",
+		  label: "SoulCycle equipment",
+		  icon: "🚲",
+		  group_key: "health",
+		},
 		streaming: {
 		  key: "streaming",
 		  label: "Streaming",
@@ -6226,6 +6666,13 @@
 		  key: "clothing",
 		  label: "Clothing",
 		  icon: "👕🩳",
+		  group_key: "clothing",
+		  parent_key: "clothing",
+		},
+		lululemon: {
+		  key: "lululemon",
+		  label: "lululemon",
+		  icon: "🧘",
 		  group_key: "clothing",
 		  parent_key: "clothing",
 		},
@@ -6463,6 +6910,13 @@
 		  parent_key: "beauty",
 		  // MCC 5977 — Target RedCard gives 5% at Ulta in-store (unique cross-brand benefit)
 		},
+		oura_ring: {
+		  key: "oura_ring",
+		  label: "Oura Ring",
+		  icon: "💍",
+		  group_key: "wellness",
+		  parent_key: "wellness",
+		},
 		
 		// ---- Coffee (new specific merchants) ----
 		starbucks: {
@@ -6594,6 +7048,10 @@
 		ticketmaster: "entertainment",
 		retail: "shopping",
 		other: "other",
+		fhr_hotel: "travel",
+		oura_ring: "wellness",
+		lululemon: "clothing",
+		soulcycle: "health",
 	  },
 	};
 	
