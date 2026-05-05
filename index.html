@@ -2853,6 +2853,12 @@
 		color: var(--warning);
 		border-color: #f0dca5;
 	  }
+	  
+	  .mo-status-pill.used-up {
+		background: var(--success-soft);
+		color: var(--success);
+		border-color: #cfead6;
+	  }
 	
 	  .mo-expanded {
 		border-top: 1px dashed var(--border);
@@ -11330,7 +11336,7 @@
 		});
 	  }
 	
-	  if (daysLeft != null && daysLeft >= 0) {
+	  if (!fullyUsed && daysLeft != null && daysLeft >= 0) {
 		details.push({
 		  label: "Time remaining",
 		  value: `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`
