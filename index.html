@@ -7997,6 +7997,7 @@
 		return "Annual (YTD)";
 	  }
 	  
+	  if (benefit.cadence === "quarter") return "Quarterly";
 	  if (benefit.cadence === "quadrennial") return "Every 4 years";
 	
 	  return "";
