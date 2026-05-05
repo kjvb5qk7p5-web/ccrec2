@@ -5976,6 +5976,7 @@
 	  priority: 10,
 	  display_order: 750,
 	  channel: "amex_travel",
+		channel_allowed: "direct",
 
 	  eligible_fn: (tx) =>
 	    tx.category === "fhr_hotel" || tx.category === "hotelcollection_hotel",
@@ -11078,7 +11079,7 @@
 		  fullyUsed,
 		  usedAmount: used,
 		  limitAmount: limit,
-		  remainingAmount: remainingAmount ?? 0,
+		  remainingAmount: remainingAmount,
 		  txCap,
 		  perTxCap: benefit.per_tx_cap != null ? Number(benefit.per_tx_cap) : null,
 		  txCount,
