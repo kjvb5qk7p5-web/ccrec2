@@ -4234,7 +4234,7 @@
 	  cadence: "annual",
 	  cadence_type: "calendar",
 	  start_date: null,
-	  cap_amount: 99999, // no cap stated in T&C; 99999 is a practical workaround for engine limitation
+	  cap_amount: null, // no cap stated in T&C
 	  tx_cap: null,
 	  per_tx_cap: null,
 	
@@ -4275,7 +4275,7 @@
 	  cadence: "annual",
 	  cadence_type: "calendar",
 	  start_date: null,
-	  cap_amount: 99999, // no cap stated in T&C; 99999 is a practical workaround for engine limitation
+	  cap_amount: null, // no cap stated in T&C
 	  tx_cap: null,
 	  per_tx_cap: null,
 	
@@ -4321,7 +4321,7 @@
 	  cadence: "annual",
 	  cadence_type: "calendar",
 	  start_date: null,
-	  cap_amount: 99999, // no cap; 99999 is a practical workaround for engine limitation
+	  cap_amount: null, // no cap
 	  tx_cap: null,
 	  per_tx_cap: null,
 	
@@ -8151,6 +8151,7 @@
 	
 	// helper for display logic regarding purchases not requiring a specific portal or channel
 	function computeBenefitRemainingAmount(benefit, priorUsed, priorTxCount) {
+	  if (benefit.cap_amount == null) return null; // uncapped
 	  const capAmount = Number(benefit.cap_amount) || 0;
 	  if (capAmount <= 0) return 0;
 	  const raw = Math.max(0, capAmount - priorUsed);
@@ -8217,20 +8218,20 @@
 	function getCardBenefitUsageState(benefit, today, txs) {
 	  const usage = getSavedBenefitUsageForCurrentWindow(benefit.id, today, txs);
 
-	  const limitAmount = Number(benefit.cap_amount || 0);
-	  const usedAmount = limitAmount > 0
+	  const limitAmount = benefit.cap_amount != null ? Number(benefit.cap_amount) : null;
+	  const usedAmount = limitAmount != null && limitAmount > 0
 		? Math.min(Number(usage.used || 0), limitAmount)
 		: Number(usage.used || 0);
-
+	
 	  const txCap = benefit.tx_cap != null && !isNaN(benefit.tx_cap)
 		? Number(benefit.tx_cap)
 		: null;
 	  const txCount = Number(usage.txCount || 0);
-
-	  const fullyUsed = (limitAmount > 0 && usedAmount >= limitAmount) ||
+	
+	  const fullyUsed = (limitAmount != null && limitAmount > 0 && usedAmount >= limitAmount) ||
 		(txCap != null && txCount >= txCap);
-
-	  const remainingAmount = limitAmount > 0
+	
+	  const remainingAmount = limitAmount != null
 		? computeBenefitRemainingAmount(benefit, usedAmount, txCount)
 		: null;
 
@@ -8327,14 +8328,12 @@
 		if (!window) continue;
 	
 		const amount = Number(tx.amount) || 0;
-		const capAmount = (benefit.non_monetary && benefit.cap_amount == null)
-		  ? null
-		  : (Number(benefit.cap_amount) || 0);
-		const remainingAmount = capAmount == null
-		  ? null
-		  : computeBenefitRemainingAmount(benefit, priorUsed, priorTxCount);
-	
-		if (!benefit.non_monetary && remainingAmount <= 0) {
+		const capAmount = benefit.cap_amount != null ? Number(benefit.cap_amount) : null;
+		const remainingAmount = capAmount != null
+		  ? computeBenefitRemainingAmount(benefit, priorUsed, priorTxCount)
+		  : null;
+
+		if (!benefit.non_monetary && remainingAmount != null && remainingAmount <= 0) {
 		  unavailable.push({
 			benefit,
 			reasonType: "used_up",
@@ -8360,7 +8359,9 @@
 		if (typeof benefit.value_fn === "function") {
 		  immediateValue = Number(benefit.value_fn(tx, remainingAmount, priorTxCount)) || 0;
 		} else {
-		  immediateValue = Math.min(amount, remainingAmount);
+		  immediateValue = remainingAmount != null
+			? Math.min(amount, remainingAmount)
+			: amount; // uncapped — full amount applies
 		}
 	
 		if (benefit.per_tx_cap != null && !isNaN(benefit.per_tx_cap)) {
@@ -8368,7 +8369,9 @@
 		}
 	
 		if (!benefit.non_monetary) {
-		  immediateValue = Math.max(0, Math.min(immediateValue, remainingAmount));
+		  immediateValue = remainingAmount != null
+			? Math.max(0, Math.min(immediateValue, remainingAmount))
+			: Math.max(0, immediateValue);
 
 		  if (immediateValue <= 0) {
 			unavailable.push({
@@ -10836,13 +10839,14 @@
 	  for (const benefit of CARD_BENEFITS) {
 		if (!isCardActive(benefit.card)) continue;
 		if (benefit.non_monetary) continue;
-		if (!(Number(benefit.cap_amount || 0) > 0)) continue;
 	
 		const state = getCardBenefitUsageState(benefit, today, txs);
 	
 		if (!state.fullyUsed) {
 		  availableNative += 1;
-		  nativeRemainingTotal += state.remainingAmount ?? 0;
+		  if (state.remainingAmount != null) {
+			nativeRemainingTotal += state.remainingAmount;
+		  }
 	
 		  if (isExpiringSoon(state.daysLeft)) nativeExpiringSoon++;
 	
@@ -10978,21 +10982,26 @@
 	  if (row.fullyUsed) {
 		return `$${formatUsageAmount(row.usedAmount || 0)} used`;
 	  }
-	  return `$${formatUsageAmount(row.remainingAmount || 0)} left`;
+	  if (row.remainingAmount == null) return ""; // uncapped — no remaining amount to show
+	  return `$${formatUsageAmount(row.remainingAmount)} left`;
 	}
 		
 		function getCardBenefitExpandedDetails(row) {
 	  const details = [];
 	
-	  const capLabel = (row.txCap != null && row.perTxCap != null)
-		? `$${formatUsageAmount(row.limitAmount || 0)} (${row.txCap} x $${formatUsageAmount(row.perTxCap)})`
-		: `$${formatUsageAmount(row.limitAmount || 0)}`;
-	  details.push({
-		label: "Cap",
-		value: row.limitAmount > 0
-		  ? `$${formatUsageAmount(row.usedAmount || 0)} of ${capLabel} used`
-		  : `$${formatUsageAmount(row.usedAmount || 0)} used`
-	  });
+	  if (row.limitAmount != null) {
+		const capLabel = (row.txCap != null && row.perTxCap != null)
+		  ? `$${formatUsageAmount(row.limitAmount || 0)} (${row.txCap} x $${formatUsageAmount(row.perTxCap)})`
+		  : `$${formatUsageAmount(row.limitAmount || 0)}`;
+		details.push({
+		  label: "Cap",
+		  value: row.limitAmount > 0
+			? `$${formatUsageAmount(row.usedAmount || 0)} of ${capLabel} used`
+			: `$${formatUsageAmount(row.usedAmount || 0)} used`
+		});
+	  } else {
+		details.push({ label: "Cap", value: "None" });
+	  }
 	
 	  if (!row.fullyUsed && row.daysLeft != null && row.daysLeft >= 0) {
 		details.push({
@@ -11409,7 +11418,7 @@
 		if (s.fullyUsed) {
 		  remainingValueText = hasTotalCap
 			? `$${formatUsageAmount(s.used)} used`
-			: `${s.txCount} of ${benefit.maxTransactions} purchases used`;
+			: `${s.txCount} of ${benefit.maxTransactions} tx used`;
 		} else if (hasTotalCap) {
 		  remainingValueText = `$${formatUsageAmount(s.remainingValue ?? 0)} left`;
 		} else if (benefit.limitType === "per_tx" && benefit.limitValue != null) {
