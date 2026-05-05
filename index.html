@@ -3787,7 +3787,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.2</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.2.2</button>
   </div>
 
   <script>
@@ -3860,6 +3860,32 @@
 	
 	const CARDS = { // categories that exist here for fallback calculations based on points multipliers must also exist as leaves in CATEGORY_REGISTRY
 
+	BCP: {
+	  code: "BCP",
+	  short: "BC",
+	  label: "Blue Cash Preferred",
+	  label_long: "Blue Cash Preferred® Card from American Express",
+	
+	  issuer: "American Express",
+	  network: "Amex",
+	
+	  badgeClass: "bcp",
+	  badgeBg: "#e6f0ff",
+	  badgeBorder: "#0050d8",
+	  badgeText: "#0050d8",
+	
+	  anniversary_start: "2025-01-01",
+	  annualFee: 95,
+	  sort_order: 90,
+	
+	  points_currency: "BCP",
+	  transferable_points: false,
+	  is_active: true,
+	  pointValue: 0.0000001,
+	  earningRules: [],
+	  earningRule_categories: []
+	},
+	
 	CSP: {
 	  code: "CSP",
 	  short: "CP",
@@ -4118,14 +4144,196 @@
 		{ rate: 5, channel: null,          matchParents: ["flights"] },
 		{ rate: 5, channel: "amex_travel", matchParents: ["lodging"],  excludeLeaves: ["airbnb"] },
 		// vacation_rentals (parent_key:"lodging") earns 5X via amex_travel; airbnb excluded (can't book via AmexTravel)
-		{ rate: 2, channel: "amex_travel", matchLeaves: ["cruise"] },
+		{ rate: 2, channel: "amex_travel", matchGroups: ["travel"],
+		                                    excludeLeaves: ["airbnb", "trusted_traveler"] },
 		{ rate: 1, isBase: true }
 	  ],
-	  earningRule_categories: ["other_flight", "fhr_hotel", "hotelcollection_hotel", "vacation_rentals", "other_hotel", "cruise"]
+	  earningRule_categories: ["other_flight", "fhr_hotel", "hotelcollection_hotel", "vacation_rentals", "other_hotel", "cruise", "budget_rentalcar", "tour"]
 	}
 	};
 	
 	const CARD_BENEFITS = [ // for any benefit that needs a new category, that category must also be added as a leaf in CATEGORY_REGISTRY and maybe also in CARDS if points multipliers exist
+
+	/* =========================
+	   AMEX BLUE CASH PREFERRED
+	   ========================= */
+	
+	// TYPE 3 — NOT MODELED:
+	// - Welcome offer (statement credit after spend threshold)
+	
+	{
+	  id: "bcp_grocery",
+	  card: "BCP",
+	  purchaseCategories: ["groceries"],
+	  intentTags: ["groceries", "supermarket", "food", "grocery store"],
+	  merchantKeywords: ["whole foods", "trader joe's", "kroger", "safeway", "wegmans", "publix", "stop & shop"],
+	  searchAliases: ["grocery store", "supermarket", "food shopping"],
+	
+	  label: "U.S. supermarkets – 6% cash back",
+	  labelHtml: "U.S. supermarkets – 6% cash back",
+	  state_label: "U.S. supermarkets – 6% cash back",
+	  state_labelHtml: "U.S. supermarkets – 6% cash back",
+	  icon: "🛒",
+	
+	  categories: ["groceries", "instacart", "doordash_groceries", "online_grocery", "whole_foods"],
+	  summary_sort_category: "groceries",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 360, // 6% × $6,000 annual supermarket spend cap
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  priority: 10,
+	  display_order: 800,
+	  channel: "direct",
+	
+	  // walmart_grocery excluded: Walmart is a superstore; superstores are not eligible for this benefit
+	  eligible_fn: (tx) => new Set([
+		"groceries",
+		"instacart",
+		"doordash_groceries",
+		"online_grocery",
+		"whole_foods",
+	  ]).has(tx.category),
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) * 0.06, remaining),
+	
+	  reason_yes:
+		"Use Blue Cash Preferred at U.S. supermarkets for 6% cash back (up to $6,000/year in supermarket purchases, then 1%). Excludes superstores (Walmart, Target), warehouse clubs, convenience stores, and meal-kit delivery services.",
+	  reason_no:
+		"Blue Cash Preferred $360 annual supermarket cash back cap is reached (equivalent to $6,000 in supermarket spend); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+	
+	{
+	  id: "bcp_gas",
+	  card: "BCP",
+	  purchaseCategories: ["gas"],
+	  intentTags: ["gas", "gasoline", "fuel", "gas station"],
+	  merchantKeywords: ["exxon", "mobil", "shell", "chevron", "bp", "sunoco", "gulf", "speedway"],
+	  searchAliases: ["gas station", "fuel"],
+	
+	  label: "U.S. gas stations – 3% cash back",
+	  labelHtml: "U.S. gas stations – 3% cash back",
+	  state_label: "U.S. gas stations – 3% cash back",
+	  state_labelHtml: "U.S. gas stations – 3% cash back",
+	  icon: "⛽",
+	
+	  categories: ["gas"],
+	  summary_sort_category: "gas",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 99999, // no cap stated in T&C; 99999 is a practical workaround for engine limitation
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  priority: 10,
+	  display_order: 810,
+	  channel: "direct",
+	
+	  // ev_charging excluded: T&C specifies gasoline stations only (different MCC)
+	  eligible_fn: (tx) => tx.category === "gas",
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) * 0.03, remaining),
+	
+	  reason_yes:
+		"Use Blue Cash Preferred at U.S. gas stations for 3% cash back. Excludes gas purchased at superstores, supermarkets, and warehouse clubs.",
+	  reason_no:
+		"This reason should not fire (bcp_gas); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+	
+	{
+	  id: "bcp_transit",
+	  card: "BCP",
+	  purchaseCategories: ["transit", "rideshare"],
+	  intentTags: ["transit", "train", "subway", "bus", "rideshare", "taxi", "parking", "tolls", "ferry"],
+	  merchantKeywords: ["mta", "nj transit", "amtrak", "lyft", "uber", "ezpass", "spothero"],
+	  searchAliases: ["public transit", "ride share", "parking", "tolls"],
+	
+	  label: "Transit & rideshare – 3% cash back",
+	  labelHtml: "Transit & rideshare – 3% cash back",
+	  state_label: "Transit & rideshare – 3% cash back",
+	  state_labelHtml: "Transit & rideshare – 3% cash back",
+	  icon: "🚌",
+	
+	  categories: ["transit", "parking_tolls", "lyft", "rideshare_other"],
+	  summary_sort_category: "transit",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 99999, // no cap stated in T&C; 99999 is a practical workaround for engine limitation
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  priority: 10,
+	  display_order: 820,
+	  channel: "direct",
+	
+	  // Airfare, car rental, and cruises explicitly excluded per T&C
+	  eligible_fn: (tx) => new Set([
+		"transit",
+		"parking_tolls",
+		"lyft",
+		"rideshare_other",
+	  ]).has(tx.category),
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) * 0.03, remaining),
+	
+	  reason_yes:
+		"Use Blue Cash Preferred on transit and rideshare for 3% cash back. Covers trains, subways, buses, taxis, rideshare, ferries, tolls, and parking. Note: airfare, car rental, and cruises do not qualify.",
+	  reason_no:
+		"This reason should not fire (bcp_transit); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+	
+	{
+	  id: "bcp_all_other",
+	  card: "BCP",
+	  purchaseCategories: [],
+	  intentTags: [],
+	  merchantKeywords: [],
+	  searchAliases: [],
+	
+	  label: "All other purchases – 1% cash back",
+	  labelHtml: "All other purchases – 1% cash back",
+	  state_label: "All other purchases – 1% cash back",
+	  state_labelHtml: "All other purchases – 1% cash back",
+	  icon: "💳",
+	
+	  categories: [],
+	  summary_sort_category: "other",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 99999, // no cap; 99999 is a practical workaround for engine limitation
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  priority: 90, // deliberately low so all higher-rate BCP benefits and other cards' benefits win first
+	  display_order: 830,
+	  channel: "direct",
+	
+	  eligible_fn: () => true,
+	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) * 0.01, remaining),
+	
+	  reason_yes:
+		"Use Blue Cash Preferred for 1% cash back on all other purchases.",
+	  reason_no:
+		"This reason should not fire (bcp_all_other); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
 
 	/* =========================
 	   CHASE SAPPHIRE PREFERRED
@@ -5544,7 +5752,7 @@
 
 	  value_fn: (tx, remaining) => {
 	    const month = new Date(tx.date).getMonth() + 1;
-	    const cap = month === 12 ? 20 : 15;
+	    const cap = month === 12 ? 35 : 15;
 	    return Math.min(Number(tx.amount) || 0, cap, remaining);
 	  },
 
@@ -5814,6 +6022,95 @@
 	  allow_fallback: true,
 	  counts_toward_annual_roi: true
 	},
+	
+	{
+	  id: "ap_venuecollection",
+	  card: "AP",
+	  purchaseCategories: ["entertainment", "concessions"],
+	  intentTags: ["concert", "sports", "concessions", "show", "venue"],
+	  merchantKeywords: ["Barclays Center", "Climate Pledge Arena", "Crypto.com Arena", "Dignity Health Sports Park", "Hard Rock Stadium", "Hollywood Bowl", "Mercedes Benz Stadium", "O2 Arena", "UBS Arena", "United Center"],
+	  searchAliases: ["event tickets", "venue collection"],
+	
+	  label: "American Express Venue Collection",
+	  labelHtml:
+		'<a href="https://www.americanexpress.com/en-us/benefits/membership/experiences/venues/all-venues/" target="_blank" rel="noopener noreferrer">American Express Venue Collection</a>',
+	  state_label: "American Express Venue Collection",
+	  state_labelHtml:
+		'<a href="https://www.americanexpress.com/en-us/benefits/membership/experiences/venues/all-venues/" target="_blank" rel="noopener noreferrer">American Express Venue Collection</a>',
+	  icon: "🍿",
+	
+	  categories: ["venuecollection"],
+	  summary_sort_category: "entertainment",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 250,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  priority: 10,
+	  display_order: 780,
+	  channel: "direct",
+	
+	  eligible_fn: (tx) => tx.category === "venuecollection",
+	  value_fn: (tx, remaining) => Math.min((Number(tx.amount) || 0) * 0.10, remaining),
+	
+	  reason_yes:
+		"Use AmEx Platinum on food and beverage concessions at Venue Collection stadiums and arenas to earn 10% back (up to $250/year). Enrollment required. Excludes Amazon Just Walk Out stores, suite orders, tickets, parking, and merchandise.",
+	  reason_no:
+		"AmEx Platinum Venue Collection concessions credit is used up; ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+	
+	{
+	  id: "ap_cruise",
+	  card: "AP",
+	  purchaseCategories: ["travel", "cruise"],
+	  intentTags: ["cruise", "cruise line", "ship", "sailing", "stateroom"],
+	  merchantKeywords: ["carnival", "royal caribbean", "norwegian", "celebrity", "princess", "holland america", "silversea", "viking", "oceania", "regent"],
+	  searchAliases: ["cruise booking", "cruise privileges"],
+	
+	  label: "Cruise Privileges Program",
+	  labelHtml:
+		'<a href="https://www.amextravel.com" target="_blank" rel="noopener noreferrer">Cruise Privileges Program</a> via AmexTravel',
+	  state_label: "Cruise Privileges Program",
+	  state_labelHtml:
+		'<a href="https://www.amextravel.com" target="_blank" rel="noopener noreferrer">Cruise Privileges Program</a> via AmexTravel',
+	  icon: "🛳️",
+	
+	  categories: ["cruise"],
+	  summary_sort_category: "travel",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	  // On-board credit ($100–$300 per stateroom) + additional amenity; value depends on cruise line and stateroom.
+	  // Must be booked through AmexTravel.com or phone (1-800 on back of card). 5-night min, double occupancy, new bookings only.
+	  // 3-stateroom limit per Card Member per cruise. Credits cannot be used for casino, gratuities; unused credit non-refundable.
+	
+	  priority: 10,
+	  display_order: 790,
+	  channel: "amex_travel",
+	
+	  eligible_fn: (tx) => tx.category === "cruise",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Book your cruise through AmexTravel (amextravel.com or 1-800 on back of card) to receive the Cruise Privileges Program on-board credit ($100–$300 per stateroom) plus an additional on-board amenity from the cruise line. Requires 5-night minimum, double occupancy, new booking. Limit 3 staterooms per cruise.",
+	  reason_no:
+		"This reason should not fire (ap_cruise); ",
+	
+	  allow_fallback: false,
+	  counts_toward_annual_roi: false
+	},
 
 	{
 	  id: "ap_soulcycle",
@@ -5837,9 +6134,9 @@
 	  cadence: "annual",
 	  cadence_type: "calendar",
 	  start_date: null,
-	  cap_amount: 300,
-	  tx_cap: 1,
-	  per_tx_cap: null,
+	  cap_amount: 4500,
+	  tx_cap: 15,
+	  per_tx_cap: 300,
 
 	  priority: 10,
 	  display_order: 770,
@@ -6117,12 +6414,12 @@
 	    channel: "soulcycle_platform",
 	    reason: "Use AmEx Platinum at equinoxplus.com/bike for the $300 SoulCycle At-Home Bike credit."
 	  },
-
-	  other: {
-		card: "CSR",
-		channel: "direct",
-		reason: "Default to Chase Sapphire for flexible points."
-	  }
+	  
+	  whole_foods: {
+		  card: "BCP",
+		  channel: "direct",
+		  reason: "Use Blue Cash Preferred at Whole Foods for 6% cash back (U.S. supermarket)."
+		}
 	};
 	
 	const CARD_BENEFITS_BY_ID = Object.fromEntries(
