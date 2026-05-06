@@ -3793,7 +3793,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.3</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.3b</button>
   </div>
 
   <script>
@@ -3865,6 +3865,45 @@
 	});
 	
 	const CARDS = { // categories that exist here for fallback calculations based on points multipliers must also exist as leaves in CATEGORY_REGISTRY
+
+	STP: {
+	  code: "STP",
+	  short: "SP",
+	  label: "Citi Strata Premier",
+	  label_long: "Citi Strata Premier® Card",
+	
+	  issuer: "Citi",
+	  network: "Mastercard",
+	
+	  badgeClass: "stp",
+	  badgeBg: "#f3eeff",
+	  badgeBorder: "#6b21a8",
+	  badgeText: "#6b21a8",
+	
+	  anniversary_start: "2025-01-01",
+	  annualFee: 95,
+	  sort_order: 100,
+	
+	  points_currency: "ThankYou Points",
+	  transferable_points: true,
+	  is_active: true,
+	  pointValue: 0.02,
+	  earningRules: [
+		{ rate: 10, channel: "citi_travel", matchParents: ["lodging"],   excludeLeaves: ["airbnb", "vacation_rentals"] },
+		{ rate: 10, channel: "citi_travel", matchParents: ["rental_car"] },
+		{ rate: 10, channel: "citi_travel", matchLeaves:  ["tour"] },
+		{ rate: 3,  channel: null,          matchParents: ["flights"] },
+		{ rate: 3,  channel: null,          matchParents: ["lodging"],   excludeLeaves: ["airbnb", "vacation_rentals"] },
+		{ rate: 3,  channel: null,          matchGroups:  ["dining"] },
+		{ rate: 3,  channel: null,          matchLeaves:  ["groceries", "instacart", "online_grocery", "whole_foods"] },
+		{ rate: 3,  channel: null,          matchLeaves:  ["gas", "ev_charging"] },
+		{ rate: 1,  isBase: true }
+	  ],
+	  earningRule_categories: [
+		"other_flight", "citi_reserve_hotel", "citi_hotelcollection_hotel", "groceries", "instacart", "online_grocery", "whole_foods", 
+		"other_hotel", "other_rentalcar", "tour", "gas", "ev_charging"
+	  ]
+	},
 
 	BCP: {
 	  code: "BCP",
@@ -4161,6 +4200,168 @@
 	const CARD_BENEFITS = [ // for any benefit that needs a new category, that category must also be added as a leaf in CATEGORY_REGISTRY and maybe also in CARDS if points multipliers exist
 
 	/* =========================
+	   CITI STRATA PREMIER
+	   ========================= */
+	
+	// TYPE 3 — NOT MODELED:
+	// - Welcome bonus ThankYou Points after spend threshold
+	
+	{
+	  id: "stp_hotel",
+	  card: "STP",
+	  purchaseCategories: ["hotel", "lodging", "travel"],
+	  intentTags: ["hotel", "lodging", "trip", "citi travel"],
+	  merchantKeywords: ["citi travel", "cititravel"],
+	  searchAliases: ["hotel credit", "hotel booking", "annual hotel benefit"],
+	
+	  label: "Annual Hotel Benefit",
+	  labelHtml:
+		'Annual Hotel Benefit via <a href="https://www.cititravel.com" target="_blank" rel="noopener noreferrer">Citi Travel</a>',
+	  state_label: "Annual Hotel Benefit",
+	  state_labelHtml:
+		'Annual Hotel Benefit via <a href="https://www.cititravel.com" target="_blank" rel="noopener noreferrer">Citi Travel</a>',
+	  icon: "🏨",
+	
+	  categories: [
+		"citi_reserve_hotel",
+		"citi_hotelcollection_hotel",
+		"other_hotel",
+	  ],
+	  summary_sort_category: "travel",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 100,
+	  tx_cap: 1,
+	  per_tx_cap: null,
+	
+	  priority: 10,
+	  display_order: 900,
+	  channel: "citi_travel",
+	
+	  // stp_hotel: remember to add new lodging leaves as new hotel cards are added
+	  eligible_fn: (tx) => new Set([
+		"marriott_hotel",
+		"theedit_hotel",
+		"hotelcollection_hotel",
+		"fhr_hotel",
+		"citi_reserve_hotel",
+		"citi_hotelcollection_hotel",
+		"renowned_hotel",
+		"delta_stays",
+		"other_hotel",
+		"hilton_hotel",
+		"hyatt_hotel",
+		"citi_reserve_hotel",
+		"citi_hotelcollection_hotel",
+	  ]).has(tx.category) && (Number(tx.amount) || 0) >= 500,
+	
+	  value_fn: (tx, remaining) => Math.min(100, remaining),
+	
+	  reason_yes:
+		"Book a single hotel stay of $500 or more through Citi Travel (cititravel.com) to apply the $100 annual hotel benefit. Benefit is applied at time of booking — not as a statement credit. Note: no ThankYou Points are earned on the $100 credited portion. Package rates (air+hotel, hotel+car) are not eligible.",
+	  reason_no:
+		"Citi Strata Premier $100 annual hotel benefit is used up; ",
+	
+	  allow_fallback: false,
+	  counts_toward_annual_roi: true
+	},
+	
+	{
+	  id: "stp_reserve",
+	  card: "STP",
+	  purchaseCategories: ["hotel", "lodging", "travel"],
+	  intentTags: ["hotel", "luxury hotel", "the reserve", "citi travel"],
+	  merchantKeywords: ["citi travel", "the reserve"],
+	  searchAliases: ["hotel perks", "luxury hotel", "the reserve citi"],
+	
+	  label: "The Reserve by Citi Travel",
+	  labelHtml:
+		'The Reserve via <a href="https://www.cititravel.com" target="_blank" rel="noopener noreferrer">Citi Travel</a>',
+	  state_label: "The Reserve by Citi Travel",
+	  state_labelHtml:
+		'The Reserve via <a href="https://www.cititravel.com" target="_blank" rel="noopener noreferrer">Citi Travel</a>',
+	  icon: "🏨✨",
+	
+	  categories: ["citi_reserve_hotel"],
+	  summary_sort_category: "travel",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	  // On-property $100 experience credit + room upgrade + daily breakfast for two
+	  // + complimentary Wi-Fi + early check-in/late check-out (availability not guaranteed).
+	  // Must select a The Reserve rate at check-out on Citi Travel.
+	
+	  priority: 10,
+	  display_order: 910,
+	  channel: "citi_travel",
+	
+	  eligible_fn: (tx) => tx.category === "citi_reserve_hotel",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Book The Reserve rate through Citi Travel to receive: $100 on-property experience credit, room upgrade (upon availability), daily breakfast for two, complimentary Wi-Fi, and early check-in/late check-out (upon availability). Benefits vary by property.",
+	  reason_no:
+		"This reason should not fire (stp_reserve); ",
+	
+	  allow_fallback: false,
+	  counts_toward_annual_roi: false
+	},
+	
+	{
+	  id: "stp_hotelcollection",
+	  card: "STP",
+	  purchaseCategories: ["hotel", "lodging", "travel"],
+	  intentTags: ["hotel", "hotel collection", "citi travel"],
+	  merchantKeywords: ["citi travel", "hotel collection"],
+	  searchAliases: ["hotel perks", "hotel collection citi"],
+	
+	  label: "Citi Hotel Collection",
+	  labelHtml:
+		'Citi Hotel Collection via <a href="https://www.cititravel.com" target="_blank" rel="noopener noreferrer">Citi Travel</a>',
+	  state_label: "Citi Hotel Collection",
+	  state_labelHtml:
+		'Citi Hotel Collection via <a href="https://www.cititravel.com" target="_blank" rel="noopener noreferrer">Citi Travel</a>',
+	  icon: "🏨",
+	
+	  categories: ["citi_hotelcollection_hotel"],
+	  summary_sort_category: "travel",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	  // Daily breakfast for two + complimentary Wi-Fi + early check-in/late check-out
+	  // (availability not guaranteed). Must select a Hotel Collection rate on Citi Travel.
+	
+	  priority: 10,
+	  display_order: 920,
+	  channel: "citi_travel",
+	
+	  eligible_fn: (tx) => tx.category === "citi_hotelcollection_hotel",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Book a Citi Hotel Collection rate through Citi Travel to receive: daily breakfast for two, complimentary Wi-Fi, and early check-in/late check-out (upon availability).",
+	  reason_no:
+		"This reason should not fire (stp_hotelcollection); ",
+	
+	  allow_fallback: false,
+	  counts_toward_annual_roi: false
+	},
+
+	/* =========================
 	   AMEX BLUE CASH PREFERRED
 	   ========================= */
 	
@@ -4386,6 +4587,8 @@
 		"theedit_hotel",
 		"hotelcollection_hotel",
 		"fhr_hotel",
+		"citi_reserve_hotel",
+		"citi_hotelcollection_hotel",
 		"renowned_hotel",
 		"delta_stays",
 		"other_hotel",
@@ -4497,6 +4700,8 @@
 		"theedit_hotel",
 		"hotelcollection_hotel",
 		"fhr_hotel",
+		"citi_reserve_hotel",
+		"citi_hotelcollection_hotel",
 		"renowned_hotel",
 		"delta_stays",
 		"other_hotel",
@@ -4625,6 +4830,8 @@
 		  "airbnb",                 // ← new: CSR explicitly includes Airbnb (MCC 7011)
 		  "hotelcollection_hotel",
 		  "fhr_hotel",
+		  "citi_reserve_hotel",
+			"citi_hotelcollection_hotel",
 		  "hertz_rentalcar",        // ← new: CSR covers all rental car companies
 		  "national_rentalcar",     // ← new: CSR covers all rental car companies
 		  "avis_rentalcar",
@@ -6403,6 +6610,17 @@
 	    channel: "amex_travel",
 	    reason: "Use AmEx Platinum through AmexTravel for Fine Hotels + Resorts perks and semi-annual hotel credit."
 	  },
+	  
+	  citi_reserve_hotel: {
+		  card: "STP",
+		  channel: "citi_travel",
+		  reason: "Use Citi Strata Premier through Citi Travel for The Reserve perks ($100 experience credit, breakfast, upgrade) and 10X points."
+		},
+		citi_hotelcollection_hotel: {
+		  card: "STP",
+		  channel: "citi_travel",
+		  reason: "Use Citi Strata Premier through Citi Travel for Citi Hotel Collection perks (breakfast, Wi-Fi) and 10X points."
+		},
 
 	  lululemon: {
 	    card: "AP",
@@ -6539,6 +6757,8 @@
 	  streaming: ["netflix", "hulu", "disney+", "hbo max", "peacock", "spotify", "apple tv+", "youtube premium", "paramount+", "amazon prime video" // ← new category entirely
 	  ],
 	  fhr_hotel: [],
+	  citi_reserve_hotel: [],
+		citi_hotelcollection_hotel: [],
 	  lululemon: ["lululemon"],
 	  oura_ring: ["oura", "ouraring"],
 	  soulcycle: ["soulcycle"],
@@ -6789,6 +7009,20 @@
 		fhr_hotel: {
 		  key: "fhr_hotel",
 		  label: "Hotel – Fine Hotels + Resorts (AmEx program)",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		},
+		citi_reserve_hotel: {
+		  key: "citi_reserve_hotel",
+		  label: "Hotel – The Reserve (Citi program)",
+		  icon: "🏨",
+		  group_key: "travel",
+		  parent_key: "lodging",
+		},
+		citi_hotelcollection_hotel: {
+		  key: "citi_hotelcollection_hotel",
+		  label: "Hotel – Hotel Collection (Citi program)",
 		  icon: "🏨",
 		  group_key: "travel",
 		  parent_key: "lodging",
@@ -7353,6 +7587,8 @@
 		retail: "shopping",
 		other: "other",
 		fhr_hotel: "travel",
+		citi_reserve_hotel: "travel",
+		citi_hotelcollection_hotel: "travel",
 		oura_ring: "wellness",
 		lululemon: "clothing",
 		soulcycle: "health",
