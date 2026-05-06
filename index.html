@@ -3793,7 +3793,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.2.2b</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.2.2c</button>
   </div>
 
   <script>
@@ -3884,10 +3884,10 @@
 	  annualFee: 95,
 	  sort_order: 90,
 	
-	  points_currency: "BCP",
+	  points_currency: null,
 	  transferable_points: false,
 	  is_active: true,
-	  pointValue: 0.0000001,
+	  pointValue: 0,
 	  earningRules: [],
 	  earningRule_categories: []
 	},
@@ -7677,11 +7677,13 @@
 	  const categoryLabel = leaf?.label || rankingCategory;
 	  const ranking = computeEarningRanking(rankingCategory);
 	
-	  const rows = ranking.map((r, i) => {
+	  const rows = ranking
+		.filter(r => CARDS[r.card]?.points_currency != null)
+		.map((r, i) => {
 		const channelText = r.channel
 		  ? `<span style="color:var(--text-soft);font-size:0.8rem;"> ${CHANNEL_LABELS[r.channel] || r.channel}</span>`
 		  : "";
-		const pointsValueCents = ((r.pointValue || DEFAULT_POINT_VALUE) * 100).toFixed(2);
+		const pointsValueCents = ((r.pointValue ?? DEFAULT_POINT_VALUE) * 100).toFixed(2);
 		const pointValueText = `<span style="color:var(--text-soft);font-size:0.8rem;"> @ ${pointsValueCents}¢</span>`;
 		const badge = renderCardBadge(r.card);
 		return `
@@ -7813,15 +7815,17 @@
 			.join("");
 
 		// Default points value from registry defaults
+		const hasPoints = CARDS_REGISTRY_DEFAULTS[card.code]?.points_currency != null;
 		const defaultPv = CARDS_REGISTRY_DEFAULTS[card.code]?.pointValue ?? DEFAULT_POINT_VALUE;
-		const defaultPvCents = (defaultPv * 100).toFixed(2);
+		const defaultPvCents = hasPoints ? (defaultPv * 100).toFixed(2) : null;
 
 		// Override points value — stored as decimal, displayed as cents
-		const overridePv = override.pointValuePending != null
-		  ? override.pointValuePending
-		  : override.pointValue != null
-			? (override.pointValue * 100).toFixed(2)
-			: "";
+		const overridePv = !hasPoints ? null
+		  : override.pointValuePending != null
+			? override.pointValuePending
+			: override.pointValue != null
+			  ? (override.pointValue * 100).toFixed(2)
+			  : "";
 
 		return `
 		  <tr class="${isActive ? "" : "is-inactive"}" data-card-code="${escapeHtml(card.code)}">
@@ -7844,13 +7848,17 @@
 				${orderOptions}
 			  </select>
 			</td>
-			<td style="text-align:right;color:var(--text-soft);">${defaultPvCents}¢</td>
+			<td style="text-align:right;color:var(--text-soft);">
+			  ${defaultPvCents != null ? `${defaultPvCents}¢` : "—"}
+			</td>
 			<td>
-			  <input type="text" class="cs-details-input cs-details-input--wide card-setting-pv-input"
-				data-card-pv="${escapeHtml(card.code)}"
-				placeholder="e.g. 2.05"
-				value="${escapeHtml(overridePv)}"
-				${isActive ? "" : "tabindex='-1'"}>
+			  ${hasPoints
+				? `<input type="text" class="cs-details-input cs-details-input--wide card-setting-pv-input"
+					data-card-pv="${escapeHtml(card.code)}"
+					placeholder="e.g. 2.05"
+					value="${escapeHtml(overridePv ?? "")}"
+					${isActive ? "" : "tabindex='-1'"}>`
+				: `<span style="color:var(--text-soft);">—</span>`}
 			</td>
 		  </tr>`;
 	  }).join("");
@@ -11926,7 +11934,7 @@
 		if (card.is_active === false) continue;
 		const rule = getBestEarningRuleForCategory(card, categoryKey);
 		const rate = rule.rate || 1;
-		const pointValue = card.pointValue || DEFAULT_POINT_VALUE;
+		const pointValue = card.pointValue ?? DEFAULT_POINT_VALUE;
 		const effectivePct = rate * pointValue * 100;
 		results.push({
 		  card: card.code,
@@ -11951,7 +11959,7 @@
 	  const earningRule = getBestEarningRuleForCategory(card, purchase.category);
 	  const rate = earningRule.rate || 1;
 	  const channel = earningRule.channel || null;
-	  const pointValue = card.pointValue || DEFAULT_POINT_VALUE;
+	  const pointValue = card.pointValue ?? DEFAULT_POINT_VALUE;
 	  const part2 = amount * rate * pointValue;
 	
 	  // Part 0: merchant offer value for this card
@@ -13359,11 +13367,13 @@
 		? ` (${noChannelRule.rate}x if made outside ${CHANNEL_LABELS[effectiveChannel] || effectiveChannel})`
 		: "";
 
-	  sections.push(
-		`<div class="rec-points-statement">` +
-		escapeHtml(`${cardMeta.label || score.card} earns ${score.rate}x points${pointsChannelText} on this purchase${outsideSuffix}.`) +
-		`</div>`
-	  );
+	  if (cardMeta.points_currency != null && (cardMeta.pointValue ?? DEFAULT_POINT_VALUE) > 0) {
+		sections.push(
+		  `<div class="rec-points-statement">` +
+		  escapeHtml(`${cardMeta.label || score.card} earns ${score.rate}x points${pointsChannelText} on this purchase${outsideSuffix}.`) +
+		  `</div>`
+		);
+	  }
 
 	  return sections.join("");
 	}
