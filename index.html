@@ -3793,7 +3793,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.2.2c</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.3</button>
   </div>
 
   <script>
@@ -13435,9 +13435,31 @@
 			const thisRate = s.part2 / amount;
 			return s.card !== rec.card && Math.abs(thisRate - winnerRate) < 0.0001;
 		  })
-		: allScores.slice(1).filter(s =>
-			s.card !== rec.card && (s.part0 > 0 || s.part1 > 0)
-		  );
+		: (() => {
+			// Step 1: surface cards with a relevant benefit or non-monetary perk
+			const benefitSurfaced = allScores.slice(1).filter(s =>
+			  s.card !== rec.card && (s.part0 > 0 || s.part1 > 0 || s.part3 > 0)
+			);
+	
+			// Step 2: compute the lowest total in the surfaced set (winner + benefit-surfaced)
+			const surfacedSet = [allScores[0], ...benefitSurfaced];
+			const lowestTotalInSet = Math.min(...surfacedSet.map(s => s.total));
+	
+			// Step 3: find the highest-part2 card not already surfaced
+			const surfacedCards = new Set(surfacedSet.map(s => s.card));
+			const bestPointsCard = allScores
+			  .slice(1)
+			  .filter(s => !surfacedCards.has(s.card))
+			  .sort((a, b) => b.part2 - a.part2)[0] || null;
+	
+			// Step 4: add it if its pure points value beats the lowest total in the set
+			const combined = bestPointsCard && bestPointsCard.part2 > lowestTotalInSet
+			  ? [...benefitSurfaced, bestPointsCard]
+			  : benefitSurfaced;
+	
+			// Step 5: re-sort by total descending
+			return combined.sort((a, b) => b.total - a.total);
+		  })();
 
 	  let alsoSectionHtml = "";
 	  if (secondaryScores.length > 0) {
