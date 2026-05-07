@@ -4193,7 +4193,7 @@
 		                                    excludeLeaves: ["airbnb", "trusted_traveler"] },
 		{ rate: 1, isBase: true }
 	  ],
-	  earningRule_categories: ["other_flight", "fhr_hotel", "hotelcollection_hotel", "vacation_rentals", "other_hotel", "cruise", "budget_rentalcar", "tour"]
+	  earningRule_categories: ["other_flight", "fhr_hotel", "hotelcollection_hotel", "vacation_rentals", "other_hotel", "cruise", "other_rentalcar", "tour"]
 	}
 	};
 	
@@ -13662,7 +13662,7 @@
 	  const allScores = rec.allCardScores || [];
 	  const topTotal = allScores[0]?.total ?? 0;
 
-	  const isPureFallback = allScores.every(s => s.part0 === 0 && s.part1 === 0);
+	  const isPureFallback = allScores.every(s => s.part0 === 0 && s.part1 === 0 && s.part3 === 0);
 
 	  const secondaryScores = isPureFallback
 		? allScores.slice(1).filter(s => {
