@@ -3439,7 +3439,7 @@
       <div class="section-title-wrap">
         <div class="section-kicker">Additional time-bound opportunities</div>
         <h3 style="margin:0;">Merchant Offers</h3>
-        <p class="section-subtitle">Statement credits and discounts you've added</p>
+        <p class="section-subtitle">Potential credits and discounts you've added</p>
         <div id="section-summary-merchantOffers" class="section-collapsed-summary"></div>
       </div>
       <span id="section-chevron-merchantOffers" class="section-chevron">›</span>
@@ -3793,7 +3793,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.3b2</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.3b3</button>
   </div>
 
   <script>
@@ -5829,7 +5829,14 @@
 		display_order: 300,
 		channel: "direct",
 	
-		eligible_fn: (tx) => tx.category === "dining",
+		eligible_fn: (tx) => new Set([
+		  "dining",
+		  "dunkin",
+		  "starbucks",
+		  "csr_opentable",
+		  "resy"
+		]).has(tx.category),
+
 		value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
 
         reason_yes:
@@ -5986,10 +5993,10 @@
 	  merchantKeywords: ["delta", "united", "american airlines", "alaska airlines", "jetblue", "southwest", "spirit", "hawaiian"],
 	  searchAliases: ["airline fees", "checked bag", "baggage fee", "seat selection"],
 
-	  label: "Airline fee credit",
-	  labelHtml: "Airline fee credit",
-	  state_label: "Airline fee credit",
-	  state_labelHtml: "Airline fee credit",
+	  label: "Preferred Airline fee credit",
+	  labelHtml: "Preferred Airline fee credit",
+	  state_label: "Preferred Airline fee credit",
+	  state_labelHtml: "Preferred Airline fee credit",
 	  icon: "✈️",
 
 	  categories: ["other_flight"],
@@ -7822,12 +7829,18 @@
 		const ninetyDaysAgo = new Date(today);
 		ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 		let total = 0;
+		let activeTotal = 0;
 		for (const tx of txs) {
 		  const d = parseISODateLocal(tx.date);
 		  if (!d || d < ninetyDaysAgo) continue;
-		  total += getTransactionCapturedValue(tx);
+		  const captured = getTransactionCapturedValue(tx);
+		  total += captured;
+		  if (!tx.cardUsed || isCardActive(tx.cardUsed)) activeTotal += captured;
 		}
-		asEl.textContent = `$${formatUsageAmount(total)} captured (last 90 days)`;
+		const label = total !== activeTotal
+		  ? `$${formatUsageAmount(total)} captured (last 90 days) · $${formatUsageAmount(activeTotal)} from active cards`
+		  : `$${formatUsageAmount(total)} captured (last 90 days)`;
+		asEl.textContent = label;
 	  }
 
 	  // Manage Merchant Offers
@@ -9828,6 +9841,7 @@
       opentable_platform: "book on OpenTable",
       amex_travel: "via American Express Travel",
       capital_one_travel: "via Capital One Travel",
+      citi_travel: "via the Citi Travel portal",
     };
 
     const CHANNEL_LABELS_HTML = {
@@ -9835,8 +9849,8 @@
       // we only override where we want links
     
       chase_travel:
-        'via the <a href="https://www.chase.com/travel" ' +
-        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+        'via <a href="https://www.chase.com/travel" ' +
+        'target="_blank" rel="noopener noreferrer">Chase Travel</a>',
       
       amex_travel:
         'via <a href="https://travel.americanexpress.com" ' +
@@ -9845,6 +9859,10 @@
       capital_one_travel:
         'via <a href="https://travel.capitalone.com" ' +
         'target="_blank" rel="noopener noreferrer">Capital One Travel</a>',
+        
+      citi_travel:
+        'via <a href="https://www.cititravel.com" ' +
+        'target="_blank" rel="noopener noreferrer">Citi Travel</a>',
       
       united_rentalcar:
         'via <a href="https://cars.united.com" ' +
@@ -9867,13 +9885,13 @@
         'target="_blank" rel="noopener noreferrer">Delta&#46;com</a> / app',
       
       renowned_chase:
-        'via Renowned Hotels at the ' +
+        'via Renowned Hotels at ' +
         '<a href="https://www.chase.com/travel/renowned-hotels" ' +
-        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+        'target="_blank" rel="noopener noreferrer">Chase Travel</a>',
       
       theedit_chase:
-        'via the <a href="https://www.chase.com/travel/the-edit" ' +
-        'target="_blank" rel="noopener noreferrer">Chase Travel portal</a>',
+        'via <a href="https://www.chase.com/travel/the-edit" ' +
+        'target="_blank" rel="noopener noreferrer">Chase Travel</a>',
       
       delta_stays_platform:
         'via the <a href="https://carsandstays.delta.com/Hotels#" ' +
