@@ -1613,8 +1613,14 @@
     gap: 10px;
     color: var(--text);
     font-size: 0.95rem;
-    white-space: normal;
-    flex-wrap: wrap;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  
+  .active-card-pill span {
+  	white-space: normal;
+  	overflow-wrap: break-word;
+  	min-width: 0;
   }
   
   #recommendationSection {
