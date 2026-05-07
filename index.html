@@ -8051,8 +8051,8 @@
 			.join("");
 
 		// Default points value from registry defaults
-		const hasPoints = CARDS_REGISTRY_DEFAULTS[card.code]?.points_currency != null;
-		const defaultPv = CARDS_REGISTRY_DEFAULTS[card.code]?.pointValue ?? DEFAULT_POINT_VALUE;
+		const hasPoints = CARDS[card.code]?.points_currency != null;
+		const defaultPv = (CARDS_REGISTRY_DEFAULTS[card.code] ?? CARDS[card.code])?.pointValue ?? DEFAULT_POINT_VALUE;
 		const defaultPvCents = hasPoints ? (defaultPv * 100).toFixed(2) : null;
 
 		// Override points value — stored as decimal, displayed as cents
