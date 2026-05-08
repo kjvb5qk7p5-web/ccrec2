@@ -3804,7 +3804,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.3b3</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.4</button>
   </div>
 
   <script>
@@ -4008,6 +4008,37 @@
 		{ rate: 2,  isBase: true }
 	  ],
 	  earningRule_categories: ["capital_one_entertainment", "airbnb", "other_flight", "other_hotel", "other_rentalcar", "vacation_rentals"]
+	},
+	
+	BP: {
+	  code: "BP",
+	  short: "BP",
+	  label: "Bilt Palladium",
+	  label_long: "Bilt Palladium Mastercard",
+	
+	  issuer: "Bilt",
+	  network: "Mastercard",
+	
+	  badgeClass: "bp",
+	  badgeBg: "#f0f0f0",
+	  badgeBorder: "#1a1a1a",
+	  badgeText: "#1a1a1a",
+	
+	  anniversary_start: "2025-01-01",
+	  annualFee: 495,
+	  sort_order: 110,
+	
+	  points_currency: "Bilt Points",
+	  transferable_points: true,
+	  is_active: true,
+	  pointValue: 0.02,
+	  earningRules: [
+		{ rate: 4, channel: "bilt_travel", matchParents: ["lodging"],  excludeLeaves: ["airbnb", "vacation_rentals"] },
+		{ rate: 4, channel: "lyft_app",    matchLeaves: ["lyft"] },
+		{ rate: 3, channel: "bilt_travel", matchParents: ["flights"] },
+		{ rate: 2, isBase: true }
+	  ],
+	  earningRule_categories: ["lyft", "other_flight", "other_hotel"]
 	},
 	
 	  CSR: {
@@ -5935,6 +5966,221 @@
 		allow_fallback: true,
 		counts_toward_annual_roi: false
 	  },
+	  
+	  /* =========================
+	   BILT PALLADIUM
+	   ========================= */
+	
+	// TYPE 3 — NOT MODELED (no active per-purchase decision):
+	// - $200 annual Bilt Cash benefit (auto-credited Jan 1 each year)
+	// - $300 Bilt Cash welcome bonus (credited on account open date)
+	// - 50,000 Bilt Points + Bilt Gold Elite Status welcome bonus (after $4,000 spend in 90 days)
+	// - Bilt Housing Payments earning (0–1.25X variable based on Everyday Spend Ratio; automatic)
+	
+	{
+	  id: "bp_hotel",
+	  card: "BP",
+	  purchaseCategories: ["hotel", "lodging", "travel"],
+	  intentTags: ["hotel", "lodging", "trip", "bilt travel"],
+	  merchantKeywords: ["bilt travel"],
+	  searchAliases: ["hotel credit", "hotel booking", "bilt travel portal"],
+	
+	  label: "Bilt Travel hotel credit",
+	  labelHtml:
+		'Bilt Travel hotel credit via <a href="https://www.biltrewards.com/travel" target="_blank" rel="noopener noreferrer">Bilt Travel</a>',
+	  state_label: "Bilt Travel hotel credit",
+	  state_labelHtml:
+		'Bilt Travel hotel credit via <a href="https://www.biltrewards.com/travel" target="_blank" rel="noopener noreferrer">Bilt Travel</a>',
+	  icon: "🏨",
+	
+	  categories: ["other_hotel"],
+	  summary_sort_category: "travel",
+	
+	  cadence: "semiannual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 200,
+	  tx_cap: 1,
+	  per_tx_cap: null,
+	
+	  priority: 10,
+	  display_order: 1000,
+	  channel: "bilt_travel",
+	
+	  // bp_hotel: remember to add new lodging leaves as new hotel cards are added
+	  eligible_fn: (tx) => new Set([
+		"marriott_hotel",
+		"theedit_hotel",
+		"hotelcollection_hotel",
+		"fhr_hotel",
+		"renowned_hotel",
+		"delta_stays",
+		"other_hotel",
+		"hilton_hotel",
+		"hyatt_hotel",
+		"citi_reserve_hotel",
+		"citi_hotelcollection_hotel",
+	  ]).has(tx.category),
+	
+	  value_fn: (tx, remaining) => Math.min(200, remaining),
+	
+	  reason_yes:
+		"Book a hotel stay of 2 nights or more through the Bilt Travel portal (biltrewards.com/travel) to apply the $200 semi-annual hotel credit. Opt in to use the credit during checkout. Credit is applied at time of booking for prepaid stays, or as a statement credit for pay-at-hotel stays.",
+	  reason_no:
+		"Bilt Palladium semi-annual hotel credit is used up; ",
+	
+	  allow_fallback: false,
+	  counts_toward_annual_roi: true
+	},
+	
+	{
+	  id: "bp_bilt_dining",
+	  card: "BP",
+	  purchaseCategories: ["dining"],
+	  intentTags: ["restaurant", "dining", "bilt dining"],
+	  merchantKeywords: [],
+	  searchAliases: ["bilt neighborhood dining", "restaurant bonus"],
+	
+	  label: "Bilt Neighborhood Dining",
+	  labelHtml:
+		'<a href="https://www.biltrewards.com" target="_blank" rel="noopener noreferrer">Bilt Neighborhood Dining</a>',
+	  state_label: "Bilt Neighborhood Dining",
+	  state_labelHtml:
+		'<a href="https://www.biltrewards.com" target="_blank" rel="noopener noreferrer">Bilt Neighborhood Dining</a>',
+	  icon: "🍔",
+	
+	  categories: ["dining"],
+	  summary_sort_category: "dining",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	  // Bonus rate varies by restaurant (shown in Bilt app at time of purchase).
+	  // Stacks on top of the 2X base card rate. Card must be linked to Bilt account.
+	  // Excludes large parties/events and third-party ordering platforms.
+	
+	  priority: 10,
+	  display_order: 1010,
+	  channel: "direct",
+	
+		eligible_fn: (tx) => new Set([
+		  "dining",
+		  "dunkin",
+		  "starbucks",
+		  "csr_opentable",
+		  "resy"
+		]).has(tx.category),
+
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Use your Bilt Palladium (linked to your Bilt account) at participating Bilt Neighborhood Dining restaurants to earn bonus Bilt Points on top of 2X base. Check the Bilt app for the per-restaurant multiplier before dining. Does not apply to third-party ordering platforms or large party/event charges.",
+	  reason_no:
+		"This reason should not fire (bp_bilt_dining); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
+	
+	{
+	  id: "bp_walgreens",
+	  card: "BP",
+	  purchaseCategories: ["wellness", "pharmacy"],
+	  intentTags: ["walgreens", "pharmacy", "drugstore", "prescriptions"],
+	  merchantKeywords: ["walgreens"],
+	  searchAliases: ["drug store", "pharmacy", "walgreens"],
+	
+	  label: "Walgreens bonus points",
+	  labelHtml:
+		'<a href="https://www.walgreens.com" target="_blank" rel="noopener noreferrer">Walgreens</a> bonus points',
+	  state_label: "Walgreens bonus points",
+	  state_labelHtml:
+		'<a href="https://www.walgreens.com" target="_blank" rel="noopener noreferrer">Walgreens</a> bonus points',
+	  icon: "💊",
+	
+	  categories: ["walgreens"],
+	  summary_sort_category: "health",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	  // Bonus stacks on top of 2X base card rate. In-store only (walgreens.com excluded).
+	  // 1X bonus on general in-store spend; 2X bonus on Walgreens-branded items;
+	  // 100 flat Bilt Points per prescription transaction (max 26/year).
+	  // Card must be linked to Bilt account. Check Bilt app for current multipliers.
+	
+	  priority: 10,
+	  display_order: 1020,
+	  channel: "direct",
+	
+	  eligible_fn: (tx) => tx.category === "walgreens",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Use your Bilt Palladium (linked to your Bilt account) in-store at Walgreens to earn bonus Bilt Points on top of 2X base: 1X bonus on general items, 2X bonus on Walgreens-branded items, or 100 flat points per prescription transaction (up to 26/year). In-store only — walgreens.com excluded. Check Bilt app for current multipliers.",
+	  reason_no:
+		"This reason should not fire (bp_walgreens); ",
+	
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
+	
+	{
+	  id: "bp_housing_points",
+	  card: "BP",
+	  purchaseCategories: ["housing"],
+	  intentTags: ["rent", "mortgage", "housing payment"],
+	  merchantKeywords: [],
+	  searchAliases: ["rent payment", "mortgage payment"],
+	
+	  label: "Housing payment points",
+	  labelHtml:
+		'Housing payment points via <a href="https://www.biltrewards.com" target="_blank" rel="noopener noreferrer">Bilt app</a>',
+	  state_label: "Housing payment points",
+	  state_labelHtml:
+		'Housing payment points via <a href="https://www.biltrewards.com" target="_blank" rel="noopener noreferrer">Bilt app</a>',
+	  icon: "🏠",
+	
+	  categories: ["rent", "mortgage"],
+	  summary_sort_category: "housing",
+	
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+	
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	  // Earn up to 1.25X on housing payments made through the Bilt app (no transaction fee).
+	  // Rate depends on selected Rewards Option and Everyday Spend Ratio — see Bilt app.
+	  // Housing payments made outside the Bilt app do not earn points.
+	
+	  priority: 10,
+	  display_order: 1030,
+	  channel: "bilt_app",
+	
+	  eligible_fn: (tx) => tx.category === "rent" || tx.category === "mortgage",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+	
+	  reason_yes:
+		"Pay rent or mortgage through the Bilt app (no transaction fee) to earn up to 1.25X Bilt Points — rate depends on your Rewards Option and Everyday Spend Ratio for the billing cycle. Check the Bilt app for your current earning tier.",
+	  reason_no:
+		"This reason should not fire (bp_housing_points); ",
+	
+	  allow_fallback: false,
+	  counts_toward_annual_roi: false
+	},
 
 	/* =========================
 	   AMERICAN EXPRESS PLATINUM
@@ -6658,6 +6904,12 @@
 	    reason: "Use AmEx Platinum at equinoxplus.com/bike for the $300 SoulCycle At-Home Bike credit."
 	  },
 	  
+	  walgreens: {
+		  card: "BP",
+		  channel: "direct",
+		  reason: "Use Bilt Palladium in-store at Walgreens for bonus points on top of 2X base."
+		},
+	  
 	  whole_foods: {
 		  card: "BCP",
 		  channel: "direct",
@@ -7330,6 +7582,14 @@
 		  parent_key: "health",
 		  // CVS, Walgreens, Rite Aid — major bonus category on Amex Blue Cash, etc.
 		},
+		walgreens: {
+		  key: "walgreens",
+		  label: "Pharmacy / drugstore",
+		  icon: "💊",
+		  group_key: "health",
+		  parent_key: "health",
+		  // CVS, Walgreens, Rite Aid — major bonus category on Amex Blue Cash, etc.
+		},
 		medical: {
 		  key: "medical",
 		  label: "Medical / dental",
@@ -7610,6 +7870,7 @@
 		oura_ring: "wellness",
 		lululemon: "clothing",
 		soulcycle: "health",
+		walgreens: "health",
 	  },
 	};
 	
@@ -9853,6 +10114,8 @@
       amex_travel: "via American Express Travel",
       capital_one_travel: "via Capital One Travel",
       citi_travel: "via the Citi Travel portal",
+      bilt_travel: "via the Bilt Travel portal",
+      bilt_app: "via the Bilt app",
     };
 
     const CHANNEL_LABELS_HTML = {
@@ -9875,6 +10138,14 @@
         'via <a href="https://www.cititravel.com" ' +
         'target="_blank" rel="noopener noreferrer">Citi Travel</a>',
       
+      bilt_travel:
+		  'via <a href="https://www.biltrewards.com/travel" ' +
+		  'target="_blank" rel="noopener noreferrer">Bilt Travel</a>',
+      
+      bilt_app:
+	  'via the <a href="https://www.biltrewards.com" ' +
+	  'target="_blank" rel="noopener noreferrer">Bilt app</a>',
+	  
       united_rentalcar:
         'via <a href="https://cars.united.com" ' +
         'target="_blank" rel="noopener noreferrer">cars&#46;united&#46;com</a>',
