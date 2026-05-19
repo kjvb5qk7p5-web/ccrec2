@@ -5,6 +5,97 @@
   <title>Card Advisor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+      #license-gate {
+		display: none;
+		position: fixed;
+		inset: 0;
+		background: rgba(15, 23, 42, 0.85);
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
+		z-index: 99999;
+		align-items: center;
+		justify-content: center;
+		font-family: var(--font-family, system-ui, sans-serif);
+		padding: 16px;
+	  }
+	  #license-gate.visible {
+		display: flex;
+	  }
+	  #gate-box {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		padding: 36px 32px;
+		width: 100%;
+		max-width: 420px;
+		text-align: center;
+		color: var(--text);
+		box-shadow: var(--shadow-md, 0 8px 32px rgba(0,0,0,0.12));
+	  }
+	  #gate-box h1 {
+		font-size: 1.5rem;
+		font-weight: 800;
+		margin: 0 0 8px;
+		color: var(--text);
+		letter-spacing: -0.02em;
+	  }
+	  #gate-box p {
+		font-size: 0.88rem;
+		color: var(--text-soft);
+		margin: 0 0 24px;
+		line-height: 1.5;
+	  }
+	  #gate-key-input {
+		width: 100%;
+		padding: 10px 14px;
+		border-radius: var(--radius-sm);
+		border: 1.5px solid var(--border);
+		background: var(--bg);
+		color: var(--text);
+		font-size: 0.95rem;
+		box-sizing: border-box;
+		margin-bottom: 12px;
+		text-align: center;
+		letter-spacing: 0.05em;
+		transition: border-color 0.15s;
+	  }
+	  #gate-key-input:focus {
+		outline: none;
+		border-color: var(--primary);
+	  }
+	  #gate-submit {
+		width: 100%;
+		padding: 11px;
+		border-radius: var(--radius-sm);
+		border: none;
+		background: var(--primary);
+		color: #fff;
+		font-size: 0.95rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: background 0.15s;
+	  }
+	  #gate-submit:hover { background: var(--primary-dark, var(--primary)); filter: brightness(0.92); }
+	  #gate-submit:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+	  #gate-error {
+		margin-top: 12px;
+		font-size: 0.85rem;
+		color: var(--danger);
+		min-height: 20px;
+	  }
+	  #gate-footer {
+		margin-top: 20px;
+		font-size: 0.8rem;
+		color: var(--text-soft);
+	  }
+	  #gate-footer a {
+		color: var(--primary);
+		text-decoration: none;
+	  }
+	  #gate-footer a:hover {
+		text-decoration: underline;
+	  }
+    
     body {
 	  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 	  font-size: 0.93rem;
@@ -3350,6 +3441,26 @@
   </style>
 </head>
 <body>
+
+	<div id="license-gate">
+	  <div id="gate-box">
+		<h1>ace.cards</h1>
+		<p>Enter your license key to access the app</p>
+		<input
+		  id="gate-key-input"
+		  type="text"
+		  placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
+		  autocomplete="off"
+		  spellcheck="false"
+		/>
+		<button id="gate-submit">Unlock</button>
+		<div id="gate-error"></div>
+		<div id="gate-footer">
+		  Don't have a key? <a href="https://adminacecards.gumroad.com/l/acecards" target="_blank">Purchase here</a>
+		</div>
+	  </div>
+	</div>
+
   <div id="globalStatus" style="margin-bottom:10px;"></div>
 
   <div class="card hero-info-card">
@@ -3804,7 +3915,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.4</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.4d</button>
   </div>
 
   <script>
@@ -4040,7 +4151,108 @@
 	  ],
 	  earningRule_categories: ["lyft", "other_flight", "other_hotel"]
 	},
-	
+
+	AGR: {
+	  code: "AGR",
+	  short: "AGR",
+	  label: "American Express Green",
+	  label_long: "American Express Green Card®",
+
+	  issuer: "American Express",
+	  network: "Amex",
+
+	  badgeClass: "agr",
+	  badgeBg: "#e8f5e9",
+	  badgeBorder: "#2e7d32",
+	  badgeText: "#2e7d32",
+
+	  anniversary_start: "2025-01-01",
+	  annualFee: 150,
+	  sort_order: 120,
+
+	  points_currency: "MR",
+	  transferable_points: true,
+	  is_active: true,
+	  pointValue: 0.02,
+	  earningRules: [
+		{ rate: 3, channel: null, matchGroups: ["travel"],   excludeLeaves: ["trusted_traveler"] },
+		{ rate: 3, channel: null, matchGroups: ["transit"]  },
+		{ rate: 3, channel: null, matchGroups: ["rideshare"] },
+		{ rate: 3, channel: null, matchGroups: ["dining"]   },
+		{ rate: 1, isBase: true }
+	  ],
+	  earningRule_categories: [
+		"other_flight", "other_hotel", "airbnb", "vacation_rentals",
+		"cruise", "campground", "other_rentalcar",
+		"transit", "parking_tolls", "lyft", "rideshare_other",
+		"dining"
+	  ]
+	},
+
+	JBP: {
+	  code: "JBP",
+	  short: "JP",
+	  label: "JetBlue Plus",
+	  label_long: "JetBlue Plus World Elite Mastercard®",
+
+	  issuer: "Barclays / JetBlue",
+	  network: "Mastercard",
+
+	  badgeClass: "jbp",
+	  badgeBg: "#e0f4ff",
+	  badgeBorder: "#003876",
+	  badgeText: "#003876",
+
+	  anniversary_start: "2025-01-01",
+	  annualFee: 99,
+	  sort_order: 130,
+
+	  points_currency: "TrueBlue Points",
+	  transferable_points: false,
+	  is_active: true,
+	  pointValue: 0.013,
+	  earningRules: [
+		{ rate: 6, channel: "jetblue_direct", matchLeaves: ["jetblue_flight", "jetblue_vacations"] },
+		{ rate: 6, channel: "paisly",         matchParents: ["lodging"],   excludeLeaves: ["airbnb", "vacation_rentals"] },
+		{ rate: 6, channel: "paisly",         matchParents: ["rental_car"] },
+		{ rate: 2, channel: null,             matchGroups: ["dining"],     excludeLeaves: ["doordash", "uber_eats"] },
+		{ rate: 2, channel: null,             matchGroups: ["groceries"],  excludeLeaves: ["walmart_grocery", "doordash_groceries"] },
+		{ rate: 1, isBase: true }
+	  ],
+	  earningRule_categories: ["jetblue_flight", "jetblue_vacations", "other_hotel", "other_rentalcar", "dining", "groceries"]
+	},
+
+	AAP: {
+	  code: "AAP",
+	  short: "AAP",
+	  label: "Citi AAdvantage Platinum Select",
+	  label_long: "Citi® / AAdvantage® Platinum Select® World Elite Mastercard®",
+
+	  issuer: "Citi / American Airlines",
+	  network: "Mastercard",
+
+	  badgeClass: "aap",
+	  badgeBg: "#fff0f0",
+	  badgeBorder: "#b01c2e",
+	  badgeText: "#b01c2e",
+
+	  anniversary_start: "2025-01-01",
+	  annualFee: 99,
+	  sort_order: 140,
+
+	  points_currency: "AAdvantage Miles",
+	  transferable_points: false,
+	  is_active: true,
+	  pointValue: 0.014,
+	  earningRules: [
+		{ rate: 2, channel: null, matchLeaves: ["american_flight"] },
+		{ rate: 2, channel: null, matchGroups: ["dining"] },
+		{ rate: 2, channel: null, matchLeaves: ["gas"] },
+		{ rate: 1, isBase: true }
+	  ],
+	  earningRule_categories: ["american_flight", "dining", "gas"]
+	},
+
 	  CSR: {
 		code: "CSR",
 		short: "CS",
@@ -4098,15 +4310,15 @@
 	  is_active: true,
 	  pointValue: 0.0200,
 	  earningRules: [
-		{ rate: 4, channel: null,           matchGroups: ["dining"],
-		                                    excludeLeaves: ["doordash", "uber_eats"] },
-		{ rate: 4, channel: null,           matchGroups: ["groceries"],
-											excludeLeaves: ["wholesale_clubs", "doordash_groceries", "instacart"] },
+		{ rate: 5, channel: "amex_travel",  matchParents: ["lodging"],   excludeLeaves: ["airbnb", "vacation_rentals"] },
+		{ rate: 4, channel: null,           matchGroups: ["dining"],     excludeLeaves: ["doordash", "uber_eats"] },
+		{ rate: 4, channel: null,           matchGroups: ["groceries"],  excludeLeaves: ["wholesale_clubs", "doordash_groceries"] },
 		{ rate: 3, channel: null,           matchParents: ["flights"] },
-		{ rate: 2, channel: "amex_travel",  matchParents: ["lodging", "rental_car"] },
+		{ rate: 2, channel: "amex_travel",  matchParents: ["rental_car"] },
+		{ rate: 2, channel: "amex_travel",  matchLeaves: ["cruise"] },
 		{ rate: 1, isBase: true }
 	  ],
-	  earningRule_categories: ["dining", "groceries", "hotelcollection_hotel", "other_flight", "other_hotel", "other_rentalcar"]
+	  earningRule_categories: ["dining", "groceries", "hotelcollection_hotel", "other_flight", "other_hotel", "other_rentalcar", "cruise"]
 	},
 
 	UQ: {
@@ -4754,6 +4966,7 @@
 		"hertz_rentalcar",
 		"national_rentalcar",
 		"other_rentalcar",
+		"turo",
 	  ]).has(tx.category),
 	
 	  value_fn: (tx, remaining) => Math.min(Number(tx.amount) || 0, remaining),
@@ -4879,6 +5092,7 @@
 		  "avis_rentalcar",
 		  "budget_rentalcar",
 		  "other_rentalcar",
+		  "turo",
 		  "cruise",
 		  "tour"		  
 		]).has(tx.category),
@@ -6630,6 +6844,263 @@
 
 	  allow_fallback: true,
 	  counts_toward_annual_roi: true
+	},
+
+	/* =========================
+	   AMERICAN EXPRESS GREEN
+	   ========================= */
+
+	// TYPE 3 — NOT MODELED (subscription benefit, no active per-purchase decision):
+	// - $209 CLEAR Plus Credit (annual CLEAR+ membership fee reimbursement)
+
+	{
+	  id: "agr_venuecollection",
+	  card: "AGR",
+	  purchaseCategories: ["entertainment", "concessions"],
+	  intentTags: ["concert", "sports", "concessions", "show", "venue"],
+	  merchantKeywords: ["Barclays Center", "Climate Pledge Arena", "Crypto.com Arena",
+	    "Dignity Health Sports Park", "Hard Rock Stadium", "Hollywood Bowl",
+	    "Mercedes Benz Stadium", "O2 Arena", "UBS Arena", "United Center"],
+	  searchAliases: ["event tickets", "venue collection"],
+
+	  label: "American Express Venue Collection",
+	  labelHtml:
+	    '<a href="https://www.americanexpress.com/en-us/benefits/membership/experiences/venues/all-venues/" target="_blank" rel="noopener noreferrer">American Express Venue Collection</a>',
+	  state_label: "American Express Venue Collection",
+	  state_labelHtml:
+	    '<a href="https://www.americanexpress.com/en-us/benefits/membership/experiences/venues/all-venues/" target="_blank" rel="noopener noreferrer">American Express Venue Collection</a>',
+	  icon: "🍿",
+
+	  categories: ["venuecollection"],
+	  summary_sort_category: "entertainment",
+
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 250,
+	  tx_cap: null,
+	  per_tx_cap: null,
+
+	  priority: 10,
+	  display_order: 1100,
+	  channel: "direct",
+
+	  eligible_fn: (tx) => tx.category === "venuecollection",
+	  value_fn: (tx, remaining) => Math.min((Number(tx.amount) || 0) * 0.10, remaining),
+
+	  reason_yes:
+	    "Use AmEx Green on food and beverage concessions at Venue Collection stadiums and arenas to earn 10% back (up to $250/year, through 12/31/2026). Enrollment required. Excludes Amazon Just Walk Out stores, suite orders, tickets, parking, and merchandise.",
+	  reason_no:
+	    "AmEx Green Venue Collection concessions credit is used up; ",
+
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+
+	/* =========================
+	   JETBLUE PLUS
+	   ========================= */
+
+	// TYPE 3 — NOT MODELED (automatic perks, no active per-purchase decision):
+	// - 5,000 anniversary TrueBlue Points bonus (auto-credited after card anniversary)
+	// - Free first checked bag for cardmember + up to 3 companions (automatic on JetBlue bookings)
+	// - 10% TrueBlue Points back after award flights (auto-deposited post-travel)
+	// - TrueBlue Mosaic status / Tiles (loyalty program mechanic)
+	// - Welcome bonus TrueBlue Points
+
+	{
+	  id: "jbp_vacations",
+	  card: "JBP",
+	  purchaseCategories: ["travel", "flights", "hotel"],
+	  intentTags: ["jetblue", "vacation package", "jetblue vacations", "flight hotel bundle"],
+	  merchantKeywords: ["jetblue vacations"],
+	  searchAliases: ["vacation package", "jetblue bundle", "flight hotel"],
+
+	  label: "JetBlue Vacations $100 credit",
+	  labelHtml:
+	    '<a href="https://www.jetbluevacations.com" target="_blank" rel="noopener noreferrer">JetBlue Vacations</a> $100 credit',
+	  state_label: "JetBlue Vacations $100 credit",
+	  state_labelHtml:
+	    '<a href="https://www.jetbluevacations.com" target="_blank" rel="noopener noreferrer">JetBlue Vacations</a> $100 credit',
+	  icon: "✈️🏨",
+
+	  categories: ["jetblue_vacations"],
+	  summary_sort_category: "travel",
+
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: 100,
+	  tx_cap: 1,
+	  per_tx_cap: null,
+
+	  priority: 10,
+	  display_order: 1200,
+	  channel: "jetblue_direct",
+
+	  eligible_fn: (tx) =>
+	    tx.category === "jetblue_vacations" && (Number(tx.amount) || 0) >= 100,
+
+	  value_fn: (tx, remaining) => Math.min(100, remaining),
+
+	  reason_yes:
+	    "Book a JetBlue Vacations package of $100 or more at jetbluevacations.com (or 844-JB-VACAY) with your JetBlue Plus card to receive a $100 statement credit. Limit one credit per calendar year. Statement credit posts 6–8 weeks after qualifying purchase.",
+	  reason_no:
+	    "JetBlue Plus annual JetBlue Vacations $100 credit is used up; ",
+
+	  allow_fallback: false,
+	  counts_toward_annual_roi: true
+	},
+
+	{
+	  id: "jbp_inflight",
+	  card: "JBP",
+	  purchaseCategories: ["flights", "travel"],
+	  intentTags: ["jetblue", "inflight", "food", "drink", "flight snacks"],
+	  merchantKeywords: ["jetblue"],
+	  searchAliases: ["inflight food", "inflight drinks", "jetblue food"],
+
+	  label: "50% off inflight food & drinks",
+	  labelHtml: "50% off inflight food &amp; drinks",
+	  state_label: "50% off inflight food & drinks",
+	  state_labelHtml: "50% off inflight food &amp; drinks",
+	  icon: "🍺🍽️",
+
+	  categories: ["jetblue_flight"],
+	  summary_sort_category: "travel",
+
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	  // 50% statement credit on cocktails, beer, wine, and meals on JetBlue-operated flights.
+	  // Excludes pillows, earphones, seat upgrades. Statement credit posts 4–6 weeks after flight.
+
+	  priority: 10,
+	  display_order: 1210,
+	  channel: "direct",
+
+	  eligible_fn: (tx) => tx.category === "jetblue_flight",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+
+	  reason_yes:
+	    "Use your JetBlue Plus card on JetBlue-operated flights and save 50% on inflight food and drinks (cocktails, beer, wine, and meals). Discount posts as a statement credit 4–6 weeks after the flight. Excludes seat upgrades, pillows, and earphones.",
+	  reason_no:
+	    "This reason should not fire (jbp_inflight); ",
+
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
+	},
+
+	/* =========================
+	   CITI AADVANTAGE PLATINUM SELECT
+	   ========================= */
+
+	// TYPE 3 — NOT MODELED (automatic perks, no active per-purchase decision):
+	// - Free first checked bag (primary cardholder + up to 4 companions, domestic AA-operated flights)
+	// - Preferred boarding Group 5 (after Priority, before general economy boarding)
+	// - Welcome bonus AAdvantage miles after spend threshold
+	// - $125 AA Flight Discount certificate after $20,000 annual card spend
+
+	{
+	  id: "aap_turo",
+	  card: "AAP",
+	  purchaseCategories: ["travel", "rental_car"],
+	  intentTags: ["turo", "car rental", "peer-to-peer rental"],
+	  merchantKeywords: ["turo"],
+	  searchAliases: ["car rental", "turo rental"],
+
+	  label: "Turo credit",
+	  labelHtml:
+	    '<a href="https://www.turo.com" target="_blank" rel="noopener noreferrer">Turo</a> credit',
+	  state_label: "Turo credit",
+	  state_labelHtml:
+	    '<a href="https://www.turo.com" target="_blank" rel="noopener noreferrer">Turo</a> credit',
+	  icon: "🚗",
+
+	  categories: ["turo"],
+	  summary_sort_category: "travel",
+
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: "2025-10-19",
+	  cap_amount: 180,
+	  tx_cap: 6,
+	  per_tx_cap: 30,
+
+	  priority: 10,
+	  display_order: 1300,
+	  channel: "direct",
+
+	  eligible_fn: (tx) => tx.category === "turo",
+
+	  value_fn: (tx, remaining) => {
+	    const txDate = new Date(tx.date);
+	    const offerEnd = new Date("2026-10-18");
+	    if (txDate > offerEnd) return 0;
+	    return Math.min(Number(tx.amount) || 0, 30, remaining);
+	  },
+
+	  reason_yes:
+	    "Use Citi AAdvantage Platinum Select on Turo to receive up to $30 back per completed trip (up to $180 total, max 6 trips). Requires card linked to your Turo account at turo.com/AAdvantagePlatinum. Offer valid through October 18, 2026.",
+	  reason_no:
+	    "Turo credit is used up for this period (or offer has expired after Oct 18, 2026); ",
+
+	  allow_fallback: true,
+	  counts_toward_annual_roi: true
+	},
+
+	{
+	  id: "aap_aa_perks",
+	  card: "AAP",
+	  purchaseCategories: ["flights", "travel"],
+	  intentTags: ["american airlines", "flight", "checked bag", "boarding", "inflight"],
+	  merchantKeywords: ["american airlines"],
+	  searchAliases: ["american airlines flight", "aa flight", "checked bag", "preferred boarding"],
+
+	  label: "American Airlines flight perks",
+	  labelHtml:
+	    '<a href="https://www.aa.com" target="_blank" rel="noopener noreferrer">American Airlines</a> flight perks',
+	  state_label: "American Airlines flight perks",
+	  state_labelHtml:
+	    '<a href="https://www.aa.com" target="_blank" rel="noopener noreferrer">American Airlines</a> flight perks',
+	  icon: "✈️",
+
+	  categories: ["american_flight"],
+	  summary_sort_category: "travel",
+
+	  cadence: "annual",
+	  cadence_type: "calendar",
+	  start_date: null,
+	  cap_amount: null,
+	  tx_cap: null,
+	  per_tx_cap: null,
+
+	  non_monetary: true, // also remember to set value_fn: () => 0
+	  // Three perks bundled on domestic AA-operated flights:
+	  // 1) 25% back on inflight food & beverages (statement credit, 8–10 weeks post-flight)
+	  // 2) First checked bag free for primary cardholder + up to 4 companions on same reservation
+	  // 3) Preferred boarding Group 5 (after Priority, before general economy)
+	  // All require AAdvantage number on reservation; domestic AA-operated flights only.
+
+	  priority: 10,
+	  display_order: 1310,
+	  channel: "direct",
+
+	  eligible_fn: (tx) => tx.category === "american_flight",
+	  value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
+
+	  reason_yes:
+	    "Use Citi AAdvantage Platinum Select when flying American Airlines to unlock three perks on domestic AA-operated flights: (1) 25% back on inflight food and beverages (statement credit, 8–10 weeks post-flight); (2) first checked bag free for you and up to 4 companions on the same reservation; (3) preferred boarding Group 5 (after Priority, before general economy). AAdvantage number must be on the reservation.",
+	  reason_no:
+	    "This reason should not fire (aap_aa_perks); ",
+
+	  allow_fallback: true,
+	  counts_toward_annual_roi: false
 	}
 
 	];
@@ -6910,6 +7381,30 @@
 		  reason: "Use Bilt Palladium in-store at Walgreens for bonus points on top of 2X base."
 		},
 	  
+	  campground: {
+	    card: "AGR",
+	    channel: "direct",
+	    reason: "Use AmEx Green for 3X points on campground stays."
+	  },
+
+	  jetblue_flight: {
+	    card: "JBP",
+	    channel: "jetblue_direct",
+	    reason: "Use JetBlue Plus on JetBlue.com for 6X TrueBlue Points on JetBlue flights."
+	  },
+
+	  jetblue_vacations: {
+	    card: "JBP",
+	    channel: "jetblue_direct",
+	    reason: "Use JetBlue Plus at jetbluevacations.com for 6X TrueBlue Points and the $100 annual credit."
+	  },
+
+	  turo: {
+	    card: "AAP",
+	    channel: "direct",
+	    reason: "Use Citi AAdvantage Platinum Select on Turo for $30 back per completed trip (up to $180 total through Oct 18, 2026)."
+	  },
+
 	  whole_foods: {
 		  card: "BCP",
 		  channel: "direct",
@@ -6971,11 +7466,18 @@
 		"freshdirect":  ["groceries", "delivery"],
 		"amazon fresh": ["groceries", "delivery"],
 		"good eggs":    ["groceries", "delivery"],
-	  "turo": ["car rental"],
+	  "turo": ["travel", "car rental"],
 	  "oura":      ["wellness", "wearable", "health"],
 	  "ouraring":  ["wellness", "wearable", "health"],
 	  "lululemon": ["clothing", "activewear"],
-	  "soulcycle": ["fitness", "exercise"]
+	  "soulcycle": ["fitness", "exercise"],
+	  "hipcamp":          ["travel", "camping"],
+	  "koa":              ["travel", "camping"],
+	  "reserveamerica":   ["travel", "camping"],
+	  "recreation.gov":   ["travel", "camping"],
+	  "jetblue":           ["travel", "flights"],
+	  "jetblue vacations": ["travel", "vacation package"],
+	  "paisly":            ["travel", "hotel", "car rental"]
 
 	};
 	
@@ -6994,7 +7496,7 @@
 	  flights: ["delta", "united", "american airlines", "jetblue", "southwest", "alaska airlines", "spirit", "frontier", "british airways", "air france", "lufthansa", "emirates", "klm"  // ← new
 	  ],
 	  rideshare: ["uber", "lyft"],
-	  other_rentalcar: ["avis", "budget", "hertz", "enterprise", "national", "alamo", "sixt", "turo", "dollar", "thrifty"                                                 // ← new
+	  other_rentalcar: ["avis", "budget", "hertz", "enterprise", "national", "alamo", "sixt", "dollar", "thrifty"                                                 // ← new
 	  ],
 	  entertainment: ["telecharge", "ticketmaster", "stubhub", "viagogo", "broadway", "barclays", "seatgeek",
 		"axs", "live nation", "msg", "eventbrite"                          // ← new
@@ -7032,6 +7534,10 @@
 	  lululemon: ["lululemon"],
 	  oura_ring: ["oura", "ouraring"],
 	  soulcycle: ["soulcycle"],
+	  campground: ["koa", "hipcamp", "reserveamerica", "recreation.gov"],
+	  jetblue_flight:    ["jetblue"],
+	  jetblue_vacations: ["jetblue vacations"],
+	  turo: ["turo"],
 	};
 	
 	// CATEGORY_REGISTRY v1:
@@ -7246,6 +7752,13 @@
 		  group_key: "travel",
 		  parent_key: "flights",
 		},
+		jetblue_flight: {
+		  key: "jetblue_flight",
+		  label: "Flight – JetBlue",
+		  icon: "✈️",
+		  group_key: "travel",
+		  parent_key: "flights",
+		},
 		other_flight: {
 		  key: "other_flight",
 		  label: "Flight – other airline",
@@ -7361,6 +7874,13 @@
 		  group_key: "travel",
 		  parent_key: "rental_car",
 		},
+		turo: {
+		  key: "turo",
+		  label: "Rental Car – Turo",
+		  icon: "🚗",
+		  group_key: "travel",
+		  parent_key: "rental_car",
+		},
 		cruise: {
 		  key: "cruise",
 		  label: "Cruise",
@@ -7376,6 +7896,20 @@
 		  group_key: "travel",
 		  parent_key: "z_other",
 		  sort_order: 998,
+		},
+		campground: {
+		  key: "campground",
+		  label: "Campgrounds",
+		  icon: "⛺",
+		  group_key: "travel",
+		  parent_key: "z_other",
+		},
+		jetblue_vacations: {
+		  key: "jetblue_vacations",
+		  label: "JetBlue Vacations package",
+		  icon: "✈️🏨",
+		  group_key: "travel",
+		  parent_key: "z_other",
 		},
 		trusted_traveler: {
 		  key: "trusted_traveler",
@@ -7870,6 +8404,10 @@
 		lululemon: "clothing",
 		soulcycle: "health",
 		walgreens: "health",
+		campground: "travel",
+		jetblue_flight: "travel",
+		jetblue_vacations: "travel",
+		turo: "travel",
 	  },
 	};
 	
@@ -10115,6 +10653,8 @@
       citi_travel: "via the Citi Travel portal",
       bilt_travel: "via the Bilt Travel portal",
       bilt_app: "via the Bilt app",
+      jetblue_direct: "via JetBlue (jetblue.com or JetBlue reservations)",
+      paisly:         "via Paisly by JetBlue (paisly.com)",
     };
 
     const CHANNEL_LABELS_HTML = {
@@ -10207,6 +10747,14 @@
       opentable_platform:
         'via <a href="https://www.opentable.com/sapphire-reserve-exclusive-tables" ' +
         'target="_blank" rel="noopener noreferrer">OpenTable exclusive CSR partners</a>',
+
+      jetblue_direct:
+        'via <a href="https://www.jetblue.com" ' +
+        'target="_blank" rel="noopener noreferrer">JetBlue</a> (jetblue.com or JetBlue reservations)',
+
+      paisly:
+        'via <a href="https://www.paisly.com" ' +
+        'target="_blank" rel="noopener noreferrer">Paisly by JetBlue</a>',
     };
 
     function classifyBenefitEnd(endDateStr, todayDate) {
@@ -10903,7 +11451,7 @@
 		const removedTxDuplicates = rawNormalizedTxCount - importedTxCount;
 		const removedBenefitDuplicates = rawNormalizedBenefitCount - importedBenefitCount;
 		
-		let successMsg = `Successfully imported ${importedTxCount} transactions and ${importedBenefitCount} merchant offers.`;
+		let successMsg = `Successfully imported ${importedTxCount} transactions, ${importedBenefitCount} merchant offers${hasCardSettings ? ", and card settings" : ""}.`;
 		
 		if (removedTxDuplicates > 0 || removedBenefitDuplicates > 0) {
 		  successMsg += ` Removed ${removedTxDuplicates} duplicate transaction${removedTxDuplicates === 1 ? "" : "s"} and ${removedBenefitDuplicates} duplicate merchant offer${removedBenefitDuplicates === 1 ? "" : "s"}.`;
@@ -13624,6 +14172,8 @@
 	  const btn = document.getElementById("btnFloatingSave");
 	  if (!bar || !btn) return;
 	  if (!rec) { btn.style.display = "none"; bar.style.display = "none"; return; }
+	  btn.style.display = "";
+	  bar.style.display = "";
 	  const channelPlain = isNullChannel(rec.channel) ? "" : (CHANNEL_LABELS[rec.channel] || rec.channel || "");
 	  btn.innerHTML = `Save &nbsp; ${renderCardBadge(rec.card)} &nbsp; ${escapeHtml(channelPlain)}`;
 	  clearTimeout(floatingSaveTimer);
@@ -15023,5 +15573,74 @@
 	}
 
   </script>
+  <script>
+	  (function () {
+		const STORAGE_KEY = 'ace_cards_license';
+		const PRODUCT_ID = 'Bsgw7GyfrkP3A50c45cQOg==';
+		const gate = document.getElementById('license-gate');
+		const input = document.getElementById('gate-key-input');
+		const btn = document.getElementById('gate-submit');
+		const errorEl = document.getElementById('gate-error');
+
+		// Only enforce the license gate on the production domain
+		const LICENSE_GATE_ENABLED =
+		  window.location.hostname === 'ace.cards' ||
+		  window.location.hostname.endsWith('.ace.cards');
+
+		if (!LICENSE_GATE_ENABLED) return;
+
+		const storedKey = localStorage.getItem(STORAGE_KEY);
+		if (storedKey) {
+		  // Already validated on a previous visit — let them straight in
+		  return;
+		}
+
+		// Show the gate
+		gate.classList.add('visible');
+	
+		btn.addEventListener('click', async () => {
+		  const key = input.value.trim();
+		  if (!key) {
+			errorEl.textContent = 'Please enter your license key.';
+			return;
+		  }
+	
+		  btn.disabled = true;
+		  btn.textContent = 'Checking...';
+		  errorEl.textContent = '';
+	
+		  try {
+			const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+			  method: 'POST',
+			  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			  body: new URLSearchParams({
+				product_id: PRODUCT_ID,
+				license_key: key
+			  })
+			});
+	
+			const data = await res.json();
+	
+			if (data.success) {
+			  localStorage.setItem(STORAGE_KEY, key);
+			  gate.classList.remove('visible');
+			} else {
+			  errorEl.textContent = 'Invalid license key. Please check and try again.';
+			  btn.disabled = false;
+			  btn.textContent = 'Unlock';
+			}
+		  } catch (err) {
+			errorEl.textContent = 'Connection error. Please try again.';
+			btn.disabled = false;
+			btn.textContent = 'Unlock';
+		  }
+		});
+	
+		// Allow Enter key to submit
+		input.addEventListener('keydown', (e) => {
+		  if (e.key === 'Enter') btn.click();
+		});
+	  })();
+	</script>
   </body>
 </html>
