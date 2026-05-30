@@ -3438,9 +3438,229 @@
     padding: 8px 0;
   }
 	  	  
+
+  /* ── Welcome Banner ─────────────────────────────────────── */
+  #welcomeBanner {
+    background: var(--primary-soft);
+    border: 1.5px solid var(--primary-line);
+    border-radius: var(--radius-md);
+    padding: 20px 20px 16px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  #welcomeBanner h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  #welcomeBanner p {
+    margin: 0 0 14px;
+    font-size: 0.88rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+  }
+  .welcome-steps {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .welcome-steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .welcome-step-num {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .welcome-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  #btnWelcomeGetStarted {
+    font-size: 0.88rem;
+    padding: 7px 16px;
+  }
+  #btnWelcomeDismiss {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  #btnWelcomeDismiss:hover { color: var(--text); }
+  #btnShowWelcome {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: var(--text-faint);
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-left: 2px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  #btnShowWelcome:hover { color: var(--text-soft); background: rgba(0,0,0,0.04); }
+
+  /* ── Contextual Tips ──────────────────────────────────────── */
+  .tip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    border: 1.5px solid var(--primary-line);
+    color: var(--primary);
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-left: 5px;
+    flex-shrink: 0;
+    line-height: 1;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.12s;
+  }
+  .tip-icon:hover {
+    background: var(--primary-line);
+  }
+  .tip-icon.tips-hidden {
+    display: none !important;
+  }
+
+  #tipPopover {
+    position: fixed;
+    z-index: 9999;
+    max-width: 280px;
+    background: var(--surface);
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    padding: 10px 13px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text);
+    display: none;
+  }
+  #tipPopover.is-visible {
+    display: block;
+  }
+  #tipPopover .tip-close {
+    float: right;
+    margin-left: 8px;
+    margin-top: -1px;
+    cursor: pointer;
+    color: var(--text-faint);
+    font-size: 1rem;
+    line-height: 1;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  #tipPopover .tip-close:hover { color: var(--text-soft); }
+
+  /* ── Help tab specifics ───────────────────────────────────── */
+  .help-tab-body {
+    padding: 4px 0 8px;
+  }
+  .help-tab-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .help-tab-row:last-child {
+    border-bottom: none;
+  }
+  .help-tab-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .help-tab-desc {
+    font-size: 0.80rem;
+    color: var(--text-soft);
+    margin-top: 2px;
+  }
+  .help-toggle {
+    position: relative;
+    flex-shrink: 0;
+    width: 42px;
+    height: 24px;
+  }
+  .help-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+  .help-toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border-strong);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .help-toggle input:checked + .help-toggle-track {
+    background: var(--primary);
+  }
+  .help-toggle-track::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .help-toggle input:checked + .help-toggle-track::after {
+    transform: translateX(18px);
+  }
+  #btnHelpGetStarted {
+    font-size: 0.85rem;
+    padding: 7px 14px;
+  }
   </style>
 </head>
 <body>
+
+  <!-- Shared tip popover (singleton, repositioned by JS) -->
+  <div id="tipPopover" role="tooltip">
+    <button class="tip-close" id="tipPopoverClose" aria-label="Close">&#x2715;</button>
+    <span id="tipPopoverText"></span>
+  </div>
 
 	<div id="license-gate">
 	  <div id="gate-box">
@@ -3463,6 +3683,21 @@
 
   <div id="globalStatus" style="margin-bottom:10px;"></div>
 
+  <div id="welcomeBanner" style="display:none;">
+    <h3>👋 Welcome to ace.cards</h3>
+    <p>This app recommends the best card and purchase channel for every transaction — factoring in your native card benefits, merchant-specific offers you specify, and category earn rates. It takes just a few seconds to set up.</p>
+    <ol class="welcome-steps">
+      <li><span class="welcome-step-num">1</span><span><strong>Activate your cards</strong> — Open <em>Card &amp; Data Management</em> below, go to the <em>Your Cards</em> tab, and check the cards you carry. You can also customize your anniversary dates and points values (not required).</span></li>
+      <li><span class="welcome-step-num">2</span><span><strong>Review native card benefit credits</strong> — In the <em>Card Benefits</em> section, you'll see your recurring cash rewards for everyday purchases. Things like subscriptions that you set up once and forget about are excluded so you can focus on real-time purchase decisions.</span></li>
+      <li><span class="welcome-step-num">3</span><span><strong>Add merchant offers (optional)</strong> — In <em>Manage Merchant Offers</em>, enter any time-bound discounts from your card portals (e.g. Amex Offers, Chase Offers). Each takes just a few seconds to enter.</span></li>
+      <li><span class="welcome-step-num">4</span><span><strong>Get your first recommendation</strong> — Enter a purchase category and amount at the top and hit <em>Get Recommendation</em>. Selections are customized to your cards and offers.</span></li>
+    </ol>
+    <div class="welcome-actions">
+      <button class="primary" id="btnWelcomeGetStarted">Set Up My Cards</button>
+      <button id="btnWelcomeDismiss">Dismiss</button>
+    </div>
+  </div>
+
   <div class="card hero-info-card">
     <div class="section-kicker"></div>
     <h2 class="card-reward-title">Card Value Maximizer</h2>
@@ -3481,7 +3716,7 @@
     
     <div style="margin-top: 12px;">
 	  <label for="categoryPickerTrigger" style="display:block; margin-bottom: 1px;">
-		Purchase Category or Merchant
+		Purchase Category or Merchant <span class="tip-icon" data-tip="category-picker" aria-label="About the category picker">?</span>
 	  </label>
 	
 	  <button
@@ -3529,7 +3764,7 @@
       <div class="section-title-wrap">
         <div class="section-kicker">At a glance</div>
         <h3 style="margin:0;">Right now</h3>
-        <p class="section-subtitle">Available credits, active offers, recent value captured</p>
+        <p class="section-subtitle">Available credits, active offers, recent value captured <span class="tip-icon" data-tip="right-now" aria-label="About Right Now">?</span></p>
       </div>
     </div>
     <div id="rightNowGrid"></div>
@@ -3540,7 +3775,7 @@
     <button class="section-header-btn" onclick="toggleSection('cardBenefits')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Native rewards</div>
-        <h3 style="margin:0;">Credit Card Benefits</h3>
+        <h3 style="margin:0;">Credit Card Benefits <span class="tip-icon" data-tip="card-benefits" aria-label="About card benefits">?</span></h3>
         <p class="section-subtitle">Recurring credits tied to your cards</p>
         <div id="section-summary-cardBenefits" class="section-collapsed-summary"></div>
       </div>
@@ -3560,7 +3795,7 @@
     <button class="section-header-btn" onclick="toggleSection('merchantOffers')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Additional time-bound opportunities</div>
-        <h3 style="margin:0;">Merchant Offers</h3>
+        <h3 style="margin:0;">Merchant Offers <span class="tip-icon" data-tip="merchant-offers" aria-label="About merchant offers">?</span></h3>
         <p class="section-subtitle">Potential credits and discounts you've added</p>
         <div id="section-summary-merchantOffers" class="section-collapsed-summary"></div>
       </div>
@@ -3580,7 +3815,7 @@
     <button class="section-header-btn" onclick="toggleSection('annualSummaries')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Longer view</div>
-        <h3 style="margin:0;">Annual Summaries</h3>
+        <h3 style="margin:0;">Annual Summaries <span class="tip-icon" data-tip="annual-summaries" aria-label="About annual summaries">?</span></h3>
         <p class="section-subtitle">Annual fees, and whether the math worked out</p>
         <div id="section-summary-annualSummaries" class="section-collapsed-summary"></div>
       </div>
@@ -3596,7 +3831,7 @@
     <button class="section-header-btn" onclick="toggleSection('manageMerchantOffers')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">Maintenance</div>
-        <h3 style="margin:0;">Manage Merchant Offers</h3>
+        <h3 style="margin:0;">Manage Merchant Offers <span class="tip-icon" data-tip="manage-offers" aria-label="About managing merchant offers">?</span></h3>
         <p class="section-subtitle">Add, edit, or remove offers</p>
         <div id="section-summary-manageMerchantOffers" class="section-collapsed-summary"></div>
       </div>
@@ -3670,7 +3905,7 @@
           Max total benefit type<br>
           <select id="benefitLimitType">
             <option value="per_tx">Per transaction</option>
-            <option value="total">Total benefit cap</option>
+            <option value="total" selected>Total benefit cap</option>
           </select>
         </label>
 
@@ -3695,7 +3930,7 @@
         </label>
 
         <label>
-          Search tags (optional)<br>
+          Search tags (optional) <span class="tip-icon" data-tip="search-tags" aria-label="About search tags">?</span><br>
           <input type="text" id="benefitSearchTags" placeholder="e.g. gas, fuel, takeout, coffee" />
         </label>
 
@@ -3723,7 +3958,7 @@
     <button class="section-header-btn" onclick="toggleSection('loggedPurchases')" type="button">
       <div class="section-title-wrap">
         <div class="section-kicker">History + audit</div>
-        <h3 style="margin:0;">Logged Purchases</h3>
+        <h3 style="margin:0;">Logged Purchases <span class="tip-icon" data-tip="logged-purchases" aria-label="About logged purchases">?</span></h3>
         <p class="section-subtitle">Review transactions; manage backups</p>
         <div id="section-summary-loggedPurchases" class="section-collapsed-summary"></div>
       </div>
@@ -3770,7 +4005,7 @@
 	
 		<div class="category-picker-header">
 		  <div>
-			<div id="categoryPickerTitle" class="category-picker-title">Purchase type</div>
+			<div id="categoryPickerTitle" class="category-picker-title">Purchase category or merchant</div>
 			<div class="category-picker-subtitle">Select by card benefit category or merchant offer</div>
 		  </div>
 		  <button type="button" id="categoryPickerCloseBtn" class="category-picker-close" aria-label="Close picker">✕</button>
@@ -3857,6 +4092,7 @@
           <button class="cs-tab-btn is-active" data-cs-tab="tab1">Your Cards</button>
           <button class="cs-tab-btn" data-cs-tab="tab2">Card Details</button>
           <button class="cs-tab-btn" data-cs-tab="tab3">Data Management</button>
+          <button class="cs-tab-btn" data-cs-tab="tab4">Help</button>
         </div>
 
         <!-- Tab 1: Your Cards -->
@@ -3872,7 +4108,7 @@
             <thead>
               <tr>
                 <th style="width:26%;">Card</th>
-                <th style="width:18%;">Anniversary</th>
+                <th style="width:18%;">Anniversary <span class="tip-icon" data-tip="anniversary" aria-label="About anniversary date">?</span></th>
                 <th style="width:20%;">Display Order</th>
                 <th style="width:18%;">Default Points Values</th>
                 <th style="width:18%;">Override Points Values</th>
@@ -3895,9 +4131,32 @@
             All data is stored locally in your browser. Export regularly to back up your transactions and merchant offers.
           </p>
         </div>
-      </div>
+
+        <!-- Tab 4: Help -->
+        <div class="cs-tab-content" id="cs-tab4">
+          <div class="help-tab-body">
+            <div class="help-tab-row">
+              <div>
+                <div class="help-tab-label">Contextual tips</div>
+                <div class="help-tab-desc">Show ❓ icons throughout the app with explanations of non-obvious features.</div>
+              </div>
+              <label class="help-toggle" aria-label="Toggle contextual tips">
+                <input type="checkbox" id="tipsToggleCheckbox">
+                <span class="help-toggle-track"></span>
+              </label>
+            </div>
+            <div class="help-tab-row">
+              <div>
+                <div class="help-tab-label">Getting started guide</div>
+                <div class="help-tab-desc">Re-open the welcome banner with setup instructions.</div>
+              </div>
+              <button id="btnHelpGetStarted" type="button">Show guide</button>
+            </div>
+          </div>
+        </div>
 
       <input type="file" id="fileImportInput" accept=".json" style="display:none;" />
+      </div>
     </div>
   </div>
 
@@ -3915,7 +4174,7 @@
   </div>
 
   <div style="text-align:left; padding: 8px 16px;">
-    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.4d</button>
+    <button id="btnVersionToggle" class="blackmuted version-toggle-btn" type="button">v8.7</button>
   </div>
 
   <script>
@@ -4267,7 +4526,7 @@
 		badgeBorder: "#0047AB",
 		badgeText: "#0047AB",
 	
-		anniversary_start: "2025-12-01",
+		anniversary_start: "2025-01-01",
 		annualFee: 795,
 		sort_order: 10,
 	
@@ -4301,7 +4560,7 @@
 		badgeBorder: "#b8860b",
 		badgeText: "#b8860b",
 	
-		anniversary_start: "2025-12-21",
+		anniversary_start: "2025-01-01",
 		annualFee: 325,
 		sort_order: 20,
 	
@@ -4335,7 +4594,7 @@
 		badgeBorder: "#480080",
 		badgeText: "#480080",
 	
-		anniversary_start: "2025-02-01",
+		anniversary_start: "2025-01-01",
 		annualFee: 250,
 		sort_order: 30,
 	
@@ -4369,7 +4628,7 @@
 		badgeBorder: "#999999",
 		badgeText: "#555555",
 	
-		anniversary_start: "2025-04-11",
+		anniversary_start: "2025-01-01",
 		annualFee: 650,
 		sort_order: 40,
 	
@@ -4400,7 +4659,7 @@
 		badgeBorder: "#CE1126",
 		badgeText: "#CE1126",
 	
-		anniversary_start: "2026-01-13",
+		anniversary_start: "2025-01-01",
 		annualFee: 150,
 		sort_order: 50,
 	
@@ -5657,7 +5916,7 @@
 		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
 	    reason_yes:
-	            "AmEx The Hotel Collection program – Use AmEx Gold for stays at select properties made through American Express Travel to earn hotel perks such as the $100 property credit.",
+	            "Use AmEx Gold for stays at select properties made through American Express Travel to earn hotel perks such as the $100 property credit.",
         reason_no:
             "This reason should not fire (ag_hotelcollection); ",
 
@@ -5882,7 +6141,7 @@
 		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
 	    reason_yes:
-	            "United Airlines flight booking – Use United Quest for United flights to earn airline-specific perks.",
+	            "Use United Quest for United flights to earn airline-specific perks.",
         reason_no:
             "This reason should not fire (uq_united); ",
 
@@ -6045,7 +6304,7 @@
 		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
 	    reason_yes:
-	            "Delta Airlines flight booking – Use Delta SkyMiles AmEx Gold for Delta flights to earn airline-specific perks.",
+	            "Use Delta SkyMiles AmEx Gold for Delta flights to earn airline-specific perks.",
         reason_no:
             "This reason should not fire (dg_delta); ",
 
@@ -6173,7 +6432,7 @@
 		value_fn: () => 0, // IMPORTANT: this value function required for non_monetary=true card benefits
 	
 	    reason_yes:
-	            "Marriott family hotels booking – Use Bonvoy Brilliant for Marriott stays to earn hotel perks such as the $100 property credit for certain bookings.",
+	            "Use Bonvoy Brilliant for Marriott stays to earn hotel perks such as the $100 property credit for certain bookings.",
         reason_no:
             "This reason should not fire (mb_marriott); ",
 
@@ -12575,8 +12834,9 @@
 	    return categoryMatch && expiringMatch;
 	  });
 
-	  const activeCount = allMoRows.length;
-	  const expiringCount = allMoRows.filter(r => r.expiringSoon).length;
+	  const moStates = getMerchantOfferStates(benefits, txs, todayDate);
+	  const activeCount = moStates.filter(s => s.active).length;
+	  const expiringCount = moStates.filter(s => s.active && s.expiringSoon).length;
 
 	  const expiringRows = displayRows.filter(r => r.expiringSoon);
 	  const availableRows = displayRows.filter(r => !r.expiringSoon);
@@ -12861,7 +13121,7 @@
 				  </div>
 				  <div class="annual-progress-text">${escapeHtml(pctLabel)} recouped</div>
 				</div>
-				<div class="annual-drill-breakdown-title">Benefit breakdown</div>
+				<div class="annual-drill-breakdown-title">Everyday spend benefit breakdown</div>
 				${renderBreakdownTable(benefitList)}
 			  </div>`;
 		  }
@@ -14387,7 +14647,7 @@
 			cbBullets.push(`$${formatUsageAmount(cbApplied.remainingAmount)} remaining of ${capLabel}`);
 		  }
 		  if (cbApplied.priorTxCount != null && b.tx_cap != null) {
-			cbBullets.push(`${cbApplied.priorTxCount} of ${b.tx_cap} qualifying uses already used`);
+			cbBullets.push(`${cbApplied.priorTxCount} of ${b.tx_cap} qualifying purchases already used`);
 		  }
 		  if (b.cap_amount != null && b.non_monetary) {
 			cbBullets.push(`Applies for the first $${formatUsageAmount(b.cap_amount)} of eligible spend`);
@@ -14397,7 +14657,7 @@
 		  }
 
 		  cbSectionParts.push(
-			`<div class="rec-section-header">${escapeHtml(b.label || b.id)}:</div>` +
+			`<div class="rec-section-header">${escapeHtml(b.label || b.id)} card benefit:</div>` +
 			(cbBullets.length > 0
 			  ? `<ul class="rec-section-bullets">${cbBullets.map(bb => `<li>${escapeHtml(bb)}</li>`).join("")}</ul>`
 			  : "")
@@ -14408,7 +14668,7 @@
 		if (score.nonMonetaryBenefits?.length > 0) {
 		  score.nonMonetaryBenefits.forEach(b => {
 			cbSectionParts.push(
-			  `<div class="rec-section-header">Also note:</div>` +
+			  `<div class="rec-section-header">${escapeHtml(b.label || b.id)}:</div>` +
 			  `<ul class="rec-section-bullets"><li>${escapeHtml(b.reason_yes || b.label || "")}</li></ul>`
 			);
 		  });
@@ -14427,7 +14687,7 @@
 		  });
 		  if (unavailBullets.length > 0) {
 			cbSectionParts.push(
-			  `<div class="rec-section-header">Other card benefits considered:</div>` +
+			  `<div class="rec-section-header">Other card benefits considered: <span class=\"tip-icon\" data-tip=\"skipped\" aria-label=\"About skipped benefits\">?</span></div>` +
 			  `<ul class="rec-section-bullets">${unavailBullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
 			);
 		  }
@@ -14498,9 +14758,9 @@
 
 	  recommendationBox.innerHTML = `
 		<div class="rec-card-shell">
-		  <div class="rec-topline">Recommended card</div>
+		  <div class="rec-topline">♦️ Your ace card</div>
 		  <div class="rec-title">${cardBadgeHtml} ${cardLabel}</div>
-		  ${channelLabelHtml ? `<div class="rec-subtitle">Use ${channelLabelHtml}</div>` : ""}
+		  ${channelLabelHtml ? `<div class="rec-subtitle">Use ${channelLabelHtml} <span class=\"tip-icon\" data-tip=\"channel\" aria-label=\"About purchase channel\">?</span></div>` : ""}
 		  ${valueChipHtml}
 		</div>
 	  `;
@@ -14546,12 +14806,36 @@
 			return combined.sort((a, b) => b.total - a.total);
 		  })();
 
+	  // Guarantee a "next best" card is always present.
+	  // If secondaryScores has no card outside the $1.00 equally-good threshold,
+	  // inject the highest-scoring unsurfaced card from allScores.
+	  const surfacedCardSet = new Set([rec.card, ...secondaryScores.map(s => s.card)]);
+	  const hasNextBest = secondaryScores.some(s => Math.abs(s.total - topTotal) >= 1.00);
+	  if (!hasNextBest) {
+	    const fallbackNext = allScores.slice(1).find(s => !surfacedCardSet.has(s.card));
+	    if (fallbackNext) {
+	      secondaryScores.push(fallbackNext);
+	      secondaryScores.sort((a, b) => b.total - a.total);
+	    }
+	  }
+
 	  let alsoSectionHtml = "";
 	  if (secondaryScores.length > 0) {
-		const alsoCards = secondaryScores.map(score => {
+		let foundNextBest = false;
+	const alsoCards = secondaryScores.map(score => {
 		  const isEqual = Math.abs(score.total - topTotal) < 1.00;
-		  const toplineLabel = isEqual ? "Equally good option" : "Also available";
-		  const toplineCls = isEqual ? "is-equal" : "";
+		  let toplineLabel, toplineCls;
+		  if (isEqual) {
+		    toplineLabel = "Equally good option";
+		    toplineCls = "is-equal";
+		  } else if (!foundNextBest) {
+		    foundNextBest = true;
+		    toplineLabel = "Next best option";
+		    toplineCls = "";
+		  } else {
+		    toplineLabel = "Also available";
+		    toplineCls = "";
+		  }
 		  const cardMeta = CARDS[score.card] || {};
 
 		  const alsoChipHtml = `
@@ -14609,6 +14893,7 @@
 	  `;
 	
 	  wireRecommendationControlsAfterRender();
+	  applyTipsVisibility();
 	}
 	
 	function wireRecommendationControlsAfterRender() {
@@ -14985,6 +15270,8 @@
 		closeCategoryPicker();
 	
 		lastRecommendation = null;
+		const capturedValue = getTransactionCapturedValue(tx);
+		if (capturedValue > 0) triggerFireworks(cardUsed, capturedValue);
 		showToast("✓ Purchase saved");
 	  } catch (err) {
 		console.error("Error after saving purchase during rerender/reset:", err);
@@ -15523,6 +15810,187 @@
 	  }
 	});
 	
+
+	// ── Welcome Banner ──────────────────────────────────────────
+	const WELCOME_DISMISSED_KEY = "cardAdvisorWelcomeDismissed";
+
+	function hasAnyActiveCardConfigured() {
+	  // Returns true if user has saved at least one card as active via card settings.
+	  // We check the saved settings, not the in-memory registry defaults, so this
+	  // reflects deliberate user action rather than the built-in defaults.
+	  try {
+	    const raw = localStorage.getItem(USER_CARD_SETTINGS_KEY);
+	    if (!raw) return false;
+	    const settings = JSON.parse(raw);
+	    return Object.values(settings).some(s => s.is_active === true);
+	  } catch { return false; }
+	}
+
+	function showWelcomeBanner() {
+	  const banner = document.getElementById("welcomeBanner");
+	  if (banner) banner.style.display = "";
+	}
+
+	function hideWelcomeBanner(persist) {
+	  const banner = document.getElementById("welcomeBanner");
+	  if (banner) banner.style.display = "none";
+	  if (persist) localStorage.setItem(WELCOME_DISMISSED_KEY, "1");
+	}
+
+	function initWelcomeBanner() {
+	  const dismissed = !!localStorage.getItem(WELCOME_DISMISSED_KEY);
+	  const hasCards = hasAnyActiveCardConfigured();
+	  if (!dismissed && !hasCards) showWelcomeBanner();
+
+	  document.getElementById("btnWelcomeDismiss")?.addEventListener("click", () => {
+	    hideWelcomeBanner(true);
+	  });
+
+	  document.getElementById("btnWelcomeGetStarted")?.addEventListener("click", () => {
+	    hideWelcomeBanner(true);
+	    // Open and scroll to Card & Data Management section
+	    const sectionContent = document.getElementById("section-content-cardDataManagement");
+	    const chevron = document.getElementById("section-chevron-cardDataManagement");
+	    if (sectionContent && sectionContent.style.display === "none") {
+	      sectionContent.style.display = "";
+	      if (chevron) chevron.style.transform = "rotate(90deg)";
+	    }
+	    setTimeout(() => {
+	      document.getElementById("section-content-cardDataManagement")
+	        ?.closest(".card")
+	        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+	    }, 50);
+	  });
+
+	  // btnShowWelcome kept for legacy; btnHelpGetStarted is the canonical trigger now
+	  ["btnShowWelcome", "btnHelpGetStarted"].forEach(id => {
+	    document.getElementById(id)?.addEventListener("click", () => {
+	      localStorage.removeItem(WELCOME_DISMISSED_KEY);
+	      showWelcomeBanner();
+	      window.scrollTo({ top: 0, behavior: "smooth" });
+	    });
+	  });
+	}
+
+
+	// ── Contextual Tips System ──────────────────────────────────
+	const TIPS_ENABLED_KEY = "cardAdvisorTipsEnabled";
+
+	const TIP_CONTENT = {
+	  "card-benefits": "These are recurring cash credits built into your cards — e.g. $15/month at Grubhub. The app tracks how much of each credit you've used this period so it knows what's still available when making a recommendation. Click on a benefit to see more details.",
+	  "merchant-offers": "Merchant offers are time-bound discounts you've added from your card portals (e.g. Amex Offers, Chase Offers). Unlike native card benefits, these are one-time or capped deals that you opt into manually. Click on an offer to see more details.",
+	  "right-now": "A quick-glance strip showing three things: card benefit credits still available this period, active merchant offers, and value recently captured. Credits shown here will factor into your next recommendation.",
+	  "anniversary": "Your card's annual fee renewal date (MM-DD format). The app uses this to determine when annual benefit windows reset — e.g. a $300 annual travel credit that refreshes each card year. Getting this wrong silently affects annual credit tracking.",
+	  "channel": "Some benefits only trigger when you purchase through a specific channel — e.g. through the card's travel portal rather than directly. This line shows the channel required to capture the recommended value.",
+	  "skipped": "These are other card benefits the app evaluated for this purchase but couldn't apply — usually because the credit is already used up for this period, the merchant doesn't qualify, or the spend doesn't meet a minimum threshold.",
+	  "search-tags": "Extra keywords that help the app match this offer when you search by merchant or category. For example, a coffee offer might have tags like 'cafe, espresso, latte' so it surfaces for related searches.",
+	  "annual-summaries": "A year-over-year view showing annual fees paid versus value captured from everyday purchases tracked in this app. Use this to sanity-check whether a card is still pulling its weight. Subscriptions and other card benefits (e.g. lounge access) are not captured here.",
+	  "manage-offers": "This is where you add and maintain merchant-specific offers from your card portals (e.g. Amex Offers, Chase Offers). Once entered, they show up in the Merchant Offers section above and factor into recommendations automatically.",
+	  "logged-purchases": "A history of purchases you've confirmed and saved. Each entry records the card used, channel, and value captured — useful for auditing recommendations and tracking how well you're monetizing your cards over time.",
+	  "category-picker": "Tap to open the picker and choose what you're buying. The 'Benefit categories' tab covers everyday spend types like dining or travel — filtered to categories where your active cards actually earn something. The 'Merchant offers' tab shows any time-bound offers you've entered, like an Amex Offer at a specific store. Both are tailored to your active cards and saved offers."
+	};
+
+	function areTipsEnabled() {
+	  const stored = localStorage.getItem(TIPS_ENABLED_KEY);
+	  return stored === null ? true : stored === "1";
+	}
+
+	function setTipsEnabled(enabled) {
+	  localStorage.setItem(TIPS_ENABLED_KEY, enabled ? "1" : "0");
+	  applyTipsVisibility();
+	}
+
+	function applyTipsVisibility() {
+	  const enabled = areTipsEnabled();
+	  document.querySelectorAll(".tip-icon").forEach(el => {
+	    el.classList.toggle("tips-hidden", !enabled);
+	  });
+	  const cb = document.getElementById("tipsToggleCheckbox");
+	  if (cb) cb.checked = enabled;
+	}
+
+	// Popover singleton
+	let _tipPopoverTarget = null;
+
+	function showTipPopover(triggerEl, tipKey) {
+	  const text = TIP_CONTENT[tipKey];
+	  if (!text) return;
+	  const popover = document.getElementById("tipPopover");
+	  const textEl = document.getElementById("tipPopoverText");
+	  if (!popover || !textEl) return;
+
+	  textEl.textContent = text;
+	  _tipPopoverTarget = triggerEl;
+
+	  // Position: prefer below, flip above if near bottom of viewport
+	  popover.style.display = "block";
+	  const rect = triggerEl.getBoundingClientRect();
+	  const pw = popover.offsetWidth || 280;
+	  const ph = popover.offsetHeight || 100;
+	  const vw = window.innerWidth;
+	  const vh = window.innerHeight;
+
+	  let left = Math.min(rect.left, vw - pw - 10);
+	  left = Math.max(left, 10);
+	  let top;
+	  if (rect.bottom + ph + 8 < vh) {
+	    top = rect.bottom + 8;
+	  } else {
+	    top = rect.top - ph - 8;
+	  }
+	  top = Math.max(top, 8);
+
+	  popover.style.left = left + "px";
+	  popover.style.top = top + "px";
+	  popover.classList.add("is-visible");
+	}
+
+	function hideTipPopover() {
+	  const popover = document.getElementById("tipPopover");
+	  if (popover) {
+	    popover.classList.remove("is-visible");
+	    popover.style.display = "";  // clear inline style set during measurement
+	  }
+	  _tipPopoverTarget = null;
+	}
+
+	function wireTipIcons() {
+	  // Use event delegation on document for dynamic icons (in recommendation output, etc.)
+	  document.addEventListener("click", e => {
+	    const icon = e.target.closest(".tip-icon");
+	    if (icon) {
+	      e.stopPropagation();
+	      e.preventDefault();
+	      if (_tipPopoverTarget === icon) {
+	        hideTipPopover();
+	        return;
+	      }
+	      showTipPopover(icon, icon.getAttribute("data-tip"));
+	      return;
+	    }
+	    // Click outside popover dismisses it
+	    const popover = document.getElementById("tipPopover");
+	    if (popover && !popover.contains(e.target)) {
+	      hideTipPopover();
+	    }
+	  }, { capture: true });
+
+	  document.getElementById("tipPopoverClose")?.addEventListener("click", e => {
+	    e.stopPropagation();
+	    hideTipPopover();
+	  });
+	}
+
+	function initTipsSystem() {
+	  applyTipsVisibility();
+	  wireTipIcons();
+
+	  const cb = document.getElementById("tipsToggleCheckbox");
+	  if (cb) {
+	    cb.addEventListener("change", () => setTipsEnabled(cb.checked));
+	  }
+	}
+
 	document.getElementById("btnVersionToggle")?.addEventListener("click", () => {
 	  showAdminPanel = !showAdminPanel;
 	  renderAdminPanel();
@@ -15548,6 +16016,8 @@
 	  updateSummarySortButtonStates();
 	  renderAdminPanel();
 	  renderCardSettingsPanel();
+	  initWelcomeBanner();
+	  initTipsSystem();
 	
 	  document.getElementById("benefitMerchant")
 		?.addEventListener("input", renderBenefitSuggestedTags);
@@ -15571,6 +16041,190 @@
 	  console.error("INIT FAILED:", err);
 	  showGlobalDebug(err?.stack || err?.message || err);
 	}
+
+
+  // ── Fireworks celebration ─────────────────────────────────────────────
+  // Triggered when a purchase saves and realises card/merchant benefit value.
+  function triggerFireworks(cardCode, capturedValue) {
+    const card = CARDS[cardCode];
+    if (!card) return;
+
+    // Parse a hex color string to [r, g, b]
+    function hexToRgb(hex) {
+      hex = (hex || '#ffffff').replace(/^#/, '');
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+    }
+
+    // Build a 5-color palette from the card's badge colors
+    const c1 = hexToRgb(card.badgeBorder || '#4488ff');
+    const c2 = hexToRgb(card.badgeText   || card.badgeBorder || '#4488ff');
+    const palette = [c1, c1, c2, [255,255,255], [255,240,200]];
+
+    // Full-viewport transparent overlay canvas
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    const TOTAL       = 1800; // total animation duration ms
+    const FADE_IN     = 150;  // ms to reach peak overlay darkness
+    const FADE_OUT    = 420;  // ms to fade out at the end
+    const MAX_OVERLAY = 0.18; // subtle backdrop — just enough to make lighter-blend pop
+
+    // Burst count scales with the dollar value realised
+    const burstCount = capturedValue >= 100 ? 3 : capturedValue >= 10 ? 2 : 1;
+
+    // Each burst gets its own "personality" rolled at setup time
+    function rollBurstProfile() {
+      const style = Math.floor(Math.random() * 4); // 0=round, 1=tight, 2=wide-sparse, 3=ring
+      return {
+        style,
+        count:      style === 2 ? 60 + Math.floor(Math.random()*25)   // sparse but more numerous
+                  : style === 1 ? 90 + Math.floor(Math.random()*30)   // dense
+                  :               75 + Math.floor(Math.random()*30),  // round / ring
+        speedMin:   style === 1 ? 1.2 : style === 2 ? 2.5 : 1.6,
+        speedMax:   style === 1 ? 3.8 : style === 2 ? 6.5 : 5.2,
+        jitter:     style === 1 ? 0.12 : style === 3 ? 0.06 : 0.30,
+        decayBase:  0.010 + Math.random() * 0.006,
+        flickerP:   0.15 + Math.random() * 0.25,
+        sizeMin:    0.6 + Math.random() * 0.3,   // smaller sparks
+        sizeRange:  0.5 + Math.random() * 0.5,   // tighter size spread
+      };
+    }
+
+    // Burst timing: first at ~80ms, subsequent ones staggered ~380-540ms apart
+    const burstProfiles = Array.from({length: burstCount}, rollBurstProfile);
+    const BURST_TIMES = [80];
+    for (let i = 1; i < burstCount; i++) {
+      BURST_TIMES.push(BURST_TIMES[i-1] + 380 + Math.floor(Math.random()*160));
+    }
+
+    // Positions: divide viewport width into burstCount zones so they spread naturally
+    const BURST_X = Array.from({length: burstCount}, (_, i) => {
+      const zoneW = 0.7 / burstCount;
+      return W * (0.15 + zoneW * i + zoneW * (0.2 + Math.random()*0.6));
+    });
+    const BURST_Y = BURST_TIMES.map(() => H * (0.18 + Math.random()*0.14));
+
+    const particles = [];
+    const flashes   = [];
+    let burstsFired  = 0;
+    const start = performance.now();
+
+    function createBurst(x, y, profile) {
+      const { style, count, speedMin, speedMax, jitter, decayBase, flickerP, sizeMin, sizeRange } = profile;
+      for (let i = 0; i < count; i++) {
+        // Ring style: evenly spaced angles with tiny jitter; others: full random scatter
+        const base  = style === 3
+          ? (Math.PI * 2 * i / count)
+          : (Math.PI * 2 * Math.random());
+        const angle = base + (Math.random()-0.5) * jitter * Math.PI * 2;
+        const speed = speedMin + Math.random() * (speedMax - speedMin);
+        const rgb   = palette[Math.floor(Math.random() * palette.length)];
+        particles.push({
+          x, y,
+          px: x, py: y,
+          ppx: x, ppy: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          r: rgb[0], g: rgb[1], b: rgb[2],
+          alpha:   1,
+          size:    sizeMin + Math.random() * sizeRange,
+          decay:   decayBase + Math.random() * 0.007,
+          flicker: Math.random() < flickerP,
+        });
+      }
+    }
+
+    function animate(now) {
+      const elapsed = now - start;
+
+      // Once TOTAL has passed and all particles have faded, tear down
+      if (elapsed > TOTAL && !particles.some(p => p.alpha > 0)) {
+        canvas.remove();
+        return;
+      }
+
+      // Dark backdrop: fade in → hold → fade out
+      let overlayAlpha;
+      if (elapsed < FADE_IN) {
+        overlayAlpha = MAX_OVERLAY * (elapsed / FADE_IN);
+      } else if (elapsed > TOTAL - FADE_OUT) {
+        overlayAlpha = MAX_OVERLAY * Math.max(0, (TOTAL - elapsed) / FADE_OUT);
+      } else {
+        overlayAlpha = MAX_OVERLAY;
+      }
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
+      ctx.fillRect(0, 0, W, H);
+
+      // Launch bursts on schedule
+      while (burstsFired < BURST_TIMES.length && elapsed >= BURST_TIMES[burstsFired]) {
+        createBurst(BURST_X[burstsFired], BURST_Y[burstsFired], burstProfiles[burstsFired]);
+        flashes.push({ x: BURST_X[burstsFired], y: BURST_Y[burstsFired], alpha: 1 });
+        burstsFired++;
+      }
+
+      // Additive blending for particles and flashes — gives the glow effect
+      ctx.globalCompositeOperation = 'lighter';
+
+      // Burst flash: brief white-gold radial bloom at each launch point
+      for (const f of flashes) {
+        if (f.alpha <= 0) continue;
+        const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, 56);
+        grad.addColorStop(0.00, `rgba(255,255,255,${f.alpha * 0.95})`);
+        grad.addColorStop(0.12, `rgba(255,215,100,${f.alpha * 0.45})`);
+        grad.addColorStop(1.00, 'rgba(200,150,0,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(f.x-56, f.y-56, 112, 112);
+        f.alpha -= 0.076;
+      }
+
+      // Draw and update particles
+      for (const p of particles) {
+        if (p.alpha <= 0) continue;
+
+        // Optional flicker
+        const a = p.flicker ? p.alpha * (0.65 + Math.random()*0.35) : p.alpha;
+
+        // Two-segment trail fading behind the particle head
+        ctx.lineWidth   = p.size * 0.85;
+        ctx.lineCap     = 'round';
+        ctx.strokeStyle = `rgba(${p.r},${p.g},${p.b},${a * 0.22})`;
+        ctx.beginPath();
+        ctx.moveTo(p.ppx, p.ppy);
+        ctx.lineTo(p.px,  p.py);
+        ctx.lineTo(p.x,   p.y);
+        ctx.stroke();
+
+        // Particle head
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${a})`;
+        ctx.fill();
+
+        // Physics update
+        p.ppx = p.px;  p.ppy = p.py;
+        p.px  = p.x;   p.py  = p.y;
+        p.vx *= 0.97;
+        p.vy  = p.vy * 0.97 + 0.055; // gravity
+        p.x  += p.vx;
+        p.y  += p.vy;
+        p.alpha = Math.max(0, p.alpha - p.decay);
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+  }
+  // ── End fireworks ─────────────────────────────────────────────────────
 
   </script>
   <script>
