@@ -14807,16 +14807,17 @@
 		  })();
 
 	  // Guarantee a "next best" card is always present.
-	  // Loop through unsurfaced cards until we find one outside the $1.00 equally-good
+	  // Loop through unsurfaced cards until we find one outside the equally-good
 	  // threshold, collecting any equally-good cards along the way.
+	  const equallyGoodThreshold = topTotal >= 50 ? 1.00 : topTotal * 0.025;
 	  const surfacedCardSet = new Set([rec.card, ...secondaryScores.map(s => s.card)]);
-	  const hasNextBest = secondaryScores.some(s => Math.abs(s.total - topTotal) >= 1.00);
+	  const hasNextBest = secondaryScores.some(s => Math.abs(s.total - topTotal) >= equallyGoodThreshold);
 	  if (!hasNextBest) {
 	    for (const candidate of allScores.slice(1)) {
 	      if (surfacedCardSet.has(candidate.card)) continue;
 	      surfacedCardSet.add(candidate.card);
 	      secondaryScores.push(candidate);
-	      if (Math.abs(candidate.total - topTotal) >= 1.00) break;
+	      if (Math.abs(candidate.total - topTotal) >= equallyGoodThreshold) break;
 	    }
 	    secondaryScores.sort((a, b) => b.total - a.total);
 	  }
@@ -14825,7 +14826,7 @@
 	  if (secondaryScores.length > 0) {
 		let foundNextBest = false;
 	const alsoCards = secondaryScores.map(score => {
-		  const isEqual = Math.abs(score.total - topTotal) < 1.00;
+		  const isEqual = Math.abs(score.total - topTotal) < equallyGoodThreshold;
 		  let toplineLabel, toplineCls;
 		  if (isEqual) {
 		    toplineLabel = "Equally good option";
