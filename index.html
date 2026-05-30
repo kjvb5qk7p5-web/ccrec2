@@ -14807,16 +14807,18 @@
 		  })();
 
 	  // Guarantee a "next best" card is always present.
-	  // If secondaryScores has no card outside the $1.00 equally-good threshold,
-	  // inject the highest-scoring unsurfaced card from allScores.
+	  // Loop through unsurfaced cards until we find one outside the $1.00 equally-good
+	  // threshold, collecting any equally-good cards along the way.
 	  const surfacedCardSet = new Set([rec.card, ...secondaryScores.map(s => s.card)]);
 	  const hasNextBest = secondaryScores.some(s => Math.abs(s.total - topTotal) >= 1.00);
 	  if (!hasNextBest) {
-	    const fallbackNext = allScores.slice(1).find(s => !surfacedCardSet.has(s.card));
-	    if (fallbackNext) {
-	      secondaryScores.push(fallbackNext);
-	      secondaryScores.sort((a, b) => b.total - a.total);
+	    for (const candidate of allScores.slice(1)) {
+	      if (surfacedCardSet.has(candidate.card)) continue;
+	      surfacedCardSet.add(candidate.card);
+	      secondaryScores.push(candidate);
+	      if (Math.abs(candidate.total - topTotal) >= 1.00) break;
 	    }
+	    secondaryScores.sort((a, b) => b.total - a.total);
 	  }
 
 	  let alsoSectionHtml = "";
